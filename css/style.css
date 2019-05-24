@@ -4,7 +4,7 @@ body {
 }
 
 .header {
-	max-width: 60%;
+	max-width: 90%;
 	margin-bottom: 3px;
 	color: #3F3F3F;
 }
@@ -36,7 +36,7 @@ body {
 
 #timeline {
 	width: 100%;
-	max-width: 60%;
+	max-width: 90%;
 	background-color: #FFF;
 }
 

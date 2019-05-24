@@ -1,11 +1,9 @@
 console.log('main.js');
 
 
-var sources = ['data/data1.json', 'data/iomdata.csv'];
+var sources = ['data/data2.json', 'data/iomdata.csv'];
 
 var Deepviz = new Deepviz(sources, function(data){
-
-	console.log(data);
 
 	// create svg
 	var timelineSvg = Deepviz.createSvg({
@@ -15,8 +13,10 @@ var Deepviz = new Deepviz(sources, function(data){
 	});
 
 
+
 	// organise data
 	var timedata = data[1];
+	var deepdata = data[0].deep.data;
 
 	var date_data = d3.nest()
 	.key(function(d) { return d.date;})
@@ -27,9 +27,6 @@ var Deepviz = new Deepviz(sources, function(data){
 	date_data.forEach(function(d){
 		d.key = new Date(d.key);
 	});
-
-	console.log(date_data);
-
 
 	var timeChart = Deepviz.timeChart({
 		appendTo: timelineSvg,
@@ -111,9 +108,9 @@ var Deepviz = new Deepviz(sources, function(data){
 			position: 'top'
 		},
 		dateBrush: true,
-		data: date_data,
-		dataValues: 'values',
-		dataKey: 'key',
+		data: deepdata,
+		dataValues: 'total_entries',
+		dataKey: 'date',
 		// sliderUpdate: function(a,b){
 		// 	sliderUpdate(a,b);
 		// },

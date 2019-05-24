@@ -1,10 +1,10 @@
 var Deepviz = function(sources, callback){
 
-	this.dateRange = [new Date(2018, 10, 1), new Date(2018, 11, 1)];
+	this.dateRange = [new Date(2019, 0, 1), new Date(2019, 1, 25)];
 
 
 	var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
-	var colorGrey = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
+	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
 
 	//**************************
 	// load data
@@ -126,30 +126,38 @@ var Deepviz = function(sources, callback){
 
 		// reorganize data
 		chartdata.forEach(function(d, i) {
-			d.barValues = [d.value];
+			d.date = new Date(d.date);
+			d.date.setHours(0);
+			d.barValues = d.severity;
 		});
 
 		// define maximum date 
-		var maxDate = d3.max(chartdata, function(d){
-			return d.key;
-		});
+		var maxDate = new Date(d3.max(chartdata, function(d){
+			return d.date;
+		}));
+
+		// define minimum date 
+		var minDate = new Date(d3.min(chartdata, function(d){
+			return d.date;
+		}));
+
 		var dateMax = new Date(maxDate);
 		dateMax.setDate(maxDate.getDate() + 1);
 		dateMax.setHours(0);
 		dateMax.setMinutes(0);
-		chartdata.push({ key: dateMax, barValues: [0] });
+		chartdata.push({ date: dateMax, barValues: [0,0,0,0,0], total_entries: 0 });
 
 		var dateIndex = chartdata.map(function(d) { return d[options.dataKey]; });
 
 		var maxValue = d3.max(chartdata, function(d) {
-			return d.value;
+			return d.total_entries;
 		});
 
 		var barWidth = options.width/dateIndex.length;
 
 	    // define scales
 	    var x = d3.scaleTime()
-	    .domain([new Date(2018, 8, 1), dateMax])
+	    .domain([minDate, dateMax])
 	    .range([0, options.width+barWidth])
 	    .rangeRound([0, options.width], 0)
 
@@ -173,7 +181,7 @@ var Deepviz = function(sources, callback){
 
 		var yAxis = d3.axisLeft()
 		.scale(y)
-		.ticks(5)
+		.ticks(4)
 		.tickSize(0)
 		.tickPadding(4);
 
@@ -201,37 +209,30 @@ var Deepviz = function(sources, callback){
 			}
 		}
 
-		// gridlines in y axis function
-		function make_y_gridlines() {		
-			return d3.axisLeft(y)
-			.ticks(5)
-		}
 
-		// update date range in header
+
+		// update date range text in the chart header
 		function updateDate(d1){
-
 			var dateformatter = d3.timeFormat("%d %b %Y");
-
 			var dx = new Date(d1[1]);
-
 			var dateTo = dx.setDate(dx.getDate()-1);
-
 			var string = dateformatter(d1[0]) + ' - ' + dateformatter(dateTo);
 			d3.select('#dateRange').text(string);
-
-			// console.log(string);
-
-
 		}
 
-	  // add the Y gridlines
-	  svg.append("g")			
-	  .attr("class", "grid")
-	  .attr("transform","translate("+margin.left+","+margin.top+")")
-	  .call(make_y_gridlines()
-	  	.tickSize(-options.width)
-	  	.tickFormat("")
-	  	);
+		// add the Y gridlines
+		svg.append("g")			
+		.attr("class", "grid")
+		.attr("transform","translate("+margin.left+","+margin.top+")")
+		.call(make_y_gridlines()
+			.tickSize(-options.width)
+			.tickFormat("")
+			);
+
+		// gridlines in y axis function
+		function make_y_gridlines() {		
+			return d3.axisLeft(y).ticks(5);
+		}
 
 
 		// x-axis 
@@ -278,37 +279,37 @@ var Deepviz = function(sources, callback){
 		.attr("class", "barGroup")
 		.attr("transform", function(d) { return "translate(" + x(d[options.dataKey]) + ",0)"; });
 
+		var dy;
+
 		// individual bars
 		var individualBars = bars.selectAll('.bar')
 		.data(function(d,i){ return d.barValues;})
 		.enter()
 		.append("rect")
 		.attr('class', 'bar')
+		.attr('fill', function(d,i){
+			return colorGreen[i];
+		})
 		.attr("x", function(d,i) { 
-			return (barWidth*i)+options.gutter;
+			return options.gutter;
 		})
 		.attr("width", function(d,i) { 
 			return barWidth-(options.gutter*2);
 		})
 		.attr("y", function(d,i) { 
-			if(i>=0){
-				var v = d; 
+
+			if(i>0){
+				var prevY = bars.data()[i-1].y;
 			} else {
-				var v = d[i];
+				var prevY = 0;
 			}
 
-			return y(v); 
+			bars.data()[i].y = d + prevY;
+
+			return y(d + prevY); 
 		})
 		.attr("height", function(d,i) { 
-			var vs = 0;
-			if(i>0){
-				if(!options.grouped){
-					vs = d3.select(this.parentNode).datum().barValues[i-1];
-				} 				
-			}
-			return options.height-y(d-vs); 
-
-			// return y(d);
+			return options.height-y(d); 
 		})
 		.style('fill', function(d,i){ if(color.length > 1){return color[i]} else {return color[0];}})
 		.on('mouseover', function(){
@@ -391,13 +392,12 @@ var Deepviz = function(sources, callback){
 				  }
 
 				  colorBars(d1);
-					updateDate(d1);
+				  updateDate(d1);
 
 				  d3.select(this).call(d3.event.target.move, d1.map(x));
 				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", -"+ margin.top +")"; });
 				  handleBottom.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
 
-				  console.log(d1);
 
 				}
 
@@ -425,11 +425,17 @@ var Deepviz = function(sources, callback){
 
 
 				function colorBars(dateRange){
+
 					bars.each(function(d,i){
-						if((d.key<dateRange[0])||(d.key>= dateRange[1])){
-							d3.select(this).selectAll('.bar').style('fill', 'grey');
+
+						if((d.date<dateRange[0])||(d.date>= dateRange[1])){
+							d3.select(this).selectAll('.bar').style('fill', function(d,i){
+								return colorGrey[i];
+							}).style('fill-opacity', 0.5);
 						} else {
-							d3.select(this).selectAll('.bar').style('fill', colorGreen[4]);
+							d3.select(this).selectAll('.bar').style('fill', function(d,i){
+								return colorGreen[i];
+							}).style('fill-opacity', 1);
 
 						}
 					});
