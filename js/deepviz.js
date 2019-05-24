@@ -220,6 +220,15 @@ var Deepviz = function(sources, callback){
 			d3.select('#dateRange').text(string);
 		}
 
+		// update date range text in the chart header
+		function updateTotal(d1){
+			var total = d3.sum(chartdata, function(d){
+				if((d.date>=d1[0])&&(d.date<d1[1]))
+				return d.total_entries;
+			});
+			d3.select('#total_entries').text(total);
+		}
+
 		// add the Y gridlines
 		svg.append("g")			
 		.attr("class", "grid")
@@ -393,6 +402,7 @@ var Deepviz = function(sources, callback){
 
 				  colorBars(d1);
 				  updateDate(d1);
+				  updateTotal(d1);
 
 				  d3.select(this).call(d3.event.target.move, d1.map(x));
 				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", -"+ margin.top +")"; });
@@ -443,7 +453,7 @@ var Deepviz = function(sources, callback){
 
 				colorBars(this.dateRange);
 				updateDate(this.dateRange);
-
+				updateTotal(d1);
 
 				bars.update = function(updateOptions){
 

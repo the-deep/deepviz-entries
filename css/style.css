@@ -3,6 +3,14 @@ body {
     font-family: Source Sans Pro, sans-serif;
 }
 
+#total_entries {
+	margin-bottom: 17px;
+    font-size: 40px;
+    font-weight: bold;
+    color: #008974;
+    line-height: 0.8;
+}
+
 .header {
 	max-width: 60%;
 	margin-bottom: 3px;

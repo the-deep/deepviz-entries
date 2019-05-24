@@ -12,8 +12,6 @@ var Deepviz = new Deepviz(sources, function(data){
 		viewBoxHeight: 1000
 	});
 
-
-
 	// organise data
 	var timedata = data[1];
 	var deepdata = data[0].deep.data;
