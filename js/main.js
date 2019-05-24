@@ -42,7 +42,7 @@ var Deepviz = new Deepviz(sources, function(data){
 		return (1000/5);
 	})
 	.attr('height', function(d,i){
-		return (50);
+		return (42);
 	})
 	.attr('fill', function(d,i){
 		return colorGreen[i];
@@ -73,7 +73,7 @@ var Deepviz = new Deepviz(sources, function(data){
 		return (1000/5);
 	})
 	.attr('height', function(d,i){
-		return (50);
+		return (42);
 	})
 	.attr('fill', function(d,i){
 		return colorGreen[i];
