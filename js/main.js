@@ -50,7 +50,6 @@ var Deepviz = new Deepviz(sources, function(data){
 			font: {
 				size: '12px',
 				weight: 'normal',
-				family: 'Calibri',
 				padding: 6
 			}
 		},
@@ -66,15 +65,13 @@ var Deepviz = new Deepviz(sources, function(data){
 			},
 			font: {
 				values: {
-					size: '16px',
+					size: '15px',
 					weight: 'bold',
-					family: 'Calibri',
 					padding: 0
 				},
 				label: {
 					size: '14px',
 					weight: 'bold',
-					family: 'Calibri',
 					padding: 10
 				}
 			}
@@ -92,12 +89,10 @@ var Deepviz = new Deepviz(sources, function(data){
 				values: {
 					size: '14px',
 					weight: 'bold',
-					family: 'Calibri'
 				},
 				label: {
 					size: '14px',
 					weight: 'bold',
-					family: 'Calibri'
 				}
 			}
 		},

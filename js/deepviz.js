@@ -174,7 +174,8 @@ var Deepviz = function(sources, callback){
 		var yAxis = d3.axisLeft()
 		.scale(y)
 		.ticks(5)
-		.tickPadding(0);
+		.tickSize(0)
+		.tickPadding(4);
 
 		// y-axis
 		if(options.yAxis.enabled==true){
@@ -206,6 +207,23 @@ var Deepviz = function(sources, callback){
 			.ticks(5)
 		}
 
+		// update date range in header
+		function updateDate(d1){
+
+			var dateformatter = d3.timeFormat("%d %b %Y");
+
+			var dx = new Date(d1[1]);
+
+			var dateTo = dx.setDate(dx.getDate()-1);
+
+			var string = dateformatter(d1[0]) + ' - ' + dateformatter(dateTo);
+			d3.select('#dateRange').text(string);
+
+			// console.log(string);
+
+
+		}
+
 	  // add the Y gridlines
 	  svg.append("g")			
 	  .attr("class", "grid")
@@ -224,7 +242,6 @@ var Deepviz = function(sources, callback){
 			.attr("transform", "translate(" + margin.left + "," + (options.height + margin.top +1) + ")")
 			.call(xAxis)
 			.style('font-size', options.xAxis.font.values.size)
-			.style('font-family', options.xAxis.font.values.family)
 			.style('font-weight', options.xAxis.font.values.weight)
 			.style('fill', options.xAxis.font.values.color)
 
@@ -235,7 +252,7 @@ var Deepviz = function(sources, callback){
 			.style('stroke-width', options.xAxis.gridlines.strokeWidth );
 
 			xAxisObj.selectAll(".tick line, text")
-			.attr("transform", "translate(" +33 + ", 0)")
+			.attr("transform", "translate(" +36 + ", 0)")
 			.append('line')
 			.attr('class', 'xAxisHorizontalLine')
 			.attr('x1', 0)
@@ -312,8 +329,6 @@ var Deepviz = function(sources, callback){
 		// 	.style('fill', function(d,i){if(color.length > 1){return color[i]} else {return color[0];}})
 		// })
 
-
-
 		    // initialise the date selectors
 		    var brush = d3.brushX()
 		    // .extent([50,100],100)
@@ -376,6 +391,7 @@ var Deepviz = function(sources, callback){
 				  }
 
 				  colorBars(d1);
+					updateDate(d1);
 
 				  d3.select(this).call(d3.event.target.move, d1.map(x));
 				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", -"+ margin.top +")"; });
@@ -420,6 +436,7 @@ var Deepviz = function(sources, callback){
 				}
 
 				colorBars(this.dateRange);
+				updateDate(this.dateRange);
 
 
 				bars.update = function(updateOptions){

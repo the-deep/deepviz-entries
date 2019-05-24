@@ -1,12 +1,43 @@
 body {
-	background-color: lightgrey;
+	background-color: #FFF;
+    font-family: Source Sans Pro, sans-serif;
+}
+
+.header {
+	max-width: 60%;
+	margin-bottom: 3px;
+	color: #3F3F3F;
+}
+
+.title {
+	font-size: 13px;
+	font-weight: bold;
+	display: inline;
+}
+
+.subtitle {
+	font-size: 12px;
+	font-weight: lighter;
+	display: inline;
+	padding-left: 3px;
+}
+
+.selectedDate {
+	font-size: 12px;
+	font-weight: normal;
+	display: inline;
+	padding-left: 1px;
+	float: right;
+}
+
+#dateRange {
+	margin-left: 1px;
 }
 
 #timeline {
 	width: 100%;
 	max-width: 60%;
 	background-color: #FFF;
-	border: 1px solid grey;
 }
 
 .handle {
@@ -28,15 +59,20 @@ body {
 }
 
 .grid line {
-  stroke: lightgrey;
-  stroke-opacity: 0.3;
+  stroke: grey;
+  stroke-opacity: 0.5;
   shape-rendering: crispEdges;
   stroke-dasharray: 2 2; 
-  stroke-width: 2;
+  stroke-width: 1;
 }
 
 .grid path {
   stroke-width: 0;
+}
+
+.yAxis line,
+.yAxis path {
+	stroke-opacity: 0;
 }
 
 .xAxisHorizontalLine {
