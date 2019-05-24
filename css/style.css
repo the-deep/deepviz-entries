@@ -26,6 +26,15 @@ body {
 	margin-bottom: 16px;
 }
 
+#severity_value {
+    color: #008974;
+    float: right;
+    display: inline;
+    font-size: 13px;
+    font-weight: bold;
+
+}
+
 #reliability {
 	width: 49%;
 	display: inline-block;
@@ -37,6 +46,14 @@ body {
 	width: 100%;
 	margin-top: 2px;
 	margin-bottom: 16px;
+}
+
+#reliability_value {
+    color: #008974;
+    float: right;
+    display: inline;
+    font-size: 13px;
+    font-weight: bold;
 }
 
 .header {

@@ -2,7 +2,8 @@ var Deepviz = function(sources, callback){
 
 	this.dateRange = [new Date(2019, 0, 1), new Date(2019, 1, 25)];
 
-
+	var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
+	var severityArray = ["No/minor problem", "Of Concern", "Major", "Severe", "Critical"];
 	var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
 	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
 
@@ -232,6 +233,15 @@ var Deepviz = function(sources, callback){
 		// update severity and reliability bars
 		function updateSeverityReliability(d1){
 
+			d3.selectAll('.severityBar')
+			.attr('fill', function(d,i){
+				return colorGreen[i];
+			});
+			d3.selectAll('.reliabilityBar')
+			.attr('fill', function(d,i){
+				return colorGreen[i];
+			});
+
 			var total = 0;
 			var severity = [0,0,0,0,0];
 			var severityRolling = [0,0,0,0,0];
@@ -252,41 +262,64 @@ var Deepviz = function(sources, callback){
 			});
 
 
-			for (i = 0; i < severity.length; i++) { 
-				severityCount += severity[i];
-				severityRolling[i] = severityCount;
-				reliabilityCount += reliability[i];
-				reliabilityRolling[i] = reliabilityCount;
+			if(total>0){
+
+
+				for (i = 0; i < severity.length; i++) { 
+					severityCount += severity[i];
+					severityRolling[i] = severityCount;
+					reliabilityCount += reliability[i];
+					reliabilityRolling[i] = reliabilityCount;
+				}
+
+				d3.selectAll('.severityBar')
+				.attr('opacity', 1)
+				.attr('x', function(d,i){
+					if(i==0){
+						var s = 0;
+					} else {
+						var s = severityRolling[i-1];
+					}
+					return (s/total)*1000;
+				})
+				.attr('width', function(d,i){
+					return (severity[i]/total)*1000;
+				});
+
+				d3.selectAll('.reliabilityBar')
+				.attr('opacity', 1)
+				.attr('x', function(d,i){
+					if(i==0){
+						var s = 0;
+					} else {
+						var s = reliabilityRolling[i-1];
+					}
+					return (s/total)*1000;
+				})
+				.attr('width', function(d,i){
+					return (reliability[i]/total)*1000;
+				});
+
+				var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / total;
+				d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
+			
+
+				var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / total;
+				d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
+			
+
+			} else {
+
+				d3.select('#severity_value').text('');
+				d3.select('#reliability_value').text('');
+
+				d3.selectAll('.severityBar')
+				.attr('fill', '#CDCDCD');
+				d3.selectAll('.reliabilityBar')
+				.attr('fill', '#CDCDCD');
+
+
 			}
-
-			d3.selectAll('.severityBar')
-			.attr('opacity', 1)
-			.attr('x', function(d,i){
-				if(i==0){
-					var s = 0;
-				} else {
-					var s = severityRolling[i-1];
-				}
-				return (s/total)*1000;
-			})
-			.attr('width', function(d,i){
-				return (severity[i]/total)*1000;
-			});
-
-			d3.selectAll('.reliabilityBar')
-			.attr('opacity', 1)
-			.attr('x', function(d,i){
-				if(i==0){
-					var s = 0;
-				} else {
-					var s = reliabilityRolling[i-1];
-				}
-				return (s/total)*1000;
-			})
-			.attr('width', function(d,i){
-				return (reliability[i]/total)*1000;
-			});
-
 		}
 
 
