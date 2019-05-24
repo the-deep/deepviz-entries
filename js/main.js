@@ -61,15 +61,15 @@ var Deepviz = new Deepviz(sources, function(data){
 		.style('stroke-opacity', 0.6);
 
 		d3.selectAll('.bar:not(.severity'+(i+1)+')')
-		.transition().duration(500).style('opacity', 0.33).style('stroke-opacity', 0);
+		.transition().duration(700).style('opacity', 0.33).style('stroke-opacity', 0);
 
 		d3.selectAll('#timeline .severity'+(i+1))
 		.transition().duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
 
 	}).on('mouseout', function(d,i){
 		console.log(i);
-		d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(1000).style('stroke-opacity',0)
-		d3.selectAll('.bar').transition().duration(1000).style('opacity', 1).style('stroke-opacity', 0);
+		d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+		d3.selectAll('.bar').transition().duration(500).style('opacity', 1).style('stroke-opacity', 0);
 
 	})
 
