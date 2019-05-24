@@ -1,0 +1,45 @@
+body {
+	background-color: lightgrey;
+}
+
+#timeline {
+	width: 100%;
+	max-width: 70%;
+	background-color: #FFF;
+	border: 1px solid grey;
+}
+
+.handle {
+	fill: #000;
+	width: 2;
+}
+
+.selection {
+	fill: cyan;
+	fill-opacity: 0.01;
+	 filter: grayscale(50%);
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+.grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.3;
+  shape-rendering: crispEdges;
+  stroke-dasharray: 2 2; 
+  stroke-width: 2;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.xAxisHorizontalLine {
+	stroke: #000;
+	  stroke-dasharray: 1 1; 
+	  stroke-opacity: 0.7;
+}
