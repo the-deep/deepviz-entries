@@ -49,7 +49,7 @@ var Deepviz = function(sources, callback){
 		viewBoxHeight = options.viewBoxHeight,
 		id = options.id,
 		svgClass = options.id,
-		div = '#timeline',
+		div = options.div,
 		aspectRatio = viewBoxWidth/viewBoxHeight;
 
 		// height = $(div).width()*aspectRatio;
@@ -220,14 +220,77 @@ var Deepviz = function(sources, callback){
 			d3.select('#dateRange').text(string);
 		}
 
-		// update date range text in the chart header
+		// update total entries widget
 		function updateTotal(d1){
 			var total = d3.sum(chartdata, function(d){
 				if((d.date>=d1[0])&&(d.date<d1[1]))
-				return d.total_entries;
+					return d.total_entries;
 			});
 			d3.select('#total_entries').text(total);
 		}
+
+		// update severity and reliability bars
+		function updateSeverityReliability(d1){
+
+			var total = 0;
+			var severity = [0,0,0,0,0];
+			var severityRolling = [0,0,0,0,0];
+			var severityCount = 0;
+
+			var reliability = [0,0,0,0,0];
+			var reliabilityRolling = [0,0,0,0,0];
+			var reliabilityCount = 0;
+
+			chartdata.forEach(function(d){
+				if((d.date>=d1[0])&&(d.date<d1[1])){
+					for (i = 0; i < severity.length; i++) { 
+						severity[i] += d.severity[i];
+						reliability[i] += d.reliability[i];
+					}
+					total += d.total_entries;
+				}
+			});
+
+
+			for (i = 0; i < severity.length; i++) { 
+				severityCount += severity[i];
+				severityRolling[i] = severityCount;
+				reliabilityCount += reliability[i];
+				reliabilityRolling[i] = reliabilityCount;
+			}
+
+			d3.selectAll('.severityBar')
+			.attr('opacity', 1)
+			.attr('x', function(d,i){
+				if(i==0){
+					var s = 0;
+				} else {
+					var s = severityRolling[i-1];
+				}
+				return (s/total)*1000;
+			})
+			.attr('width', function(d,i){
+				return (severity[i]/total)*1000;
+			});
+
+			d3.selectAll('.reliabilityBar')
+			.attr('opacity', 1)
+			.attr('x', function(d,i){
+				if(i==0){
+					var s = 0;
+				} else {
+					var s = reliabilityRolling[i-1];
+				}
+				return (s/total)*1000;
+			})
+			.attr('width', function(d,i){
+				return (reliability[i]/total)*1000;
+			});
+
+		}
+
+
+
 
 		// add the Y gridlines
 		svg.append("g")			
@@ -403,6 +466,7 @@ var Deepviz = function(sources, callback){
 				  colorBars(d1);
 				  updateDate(d1);
 				  updateTotal(d1);
+				  updateSeverityReliability(d1);
 
 				  d3.select(this).call(d3.event.target.move, d1.map(x));
 				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", -"+ margin.top +")"; });
@@ -453,7 +517,8 @@ var Deepviz = function(sources, callback){
 
 				colorBars(this.dateRange);
 				updateDate(this.dateRange);
-				updateTotal(d1);
+				updateTotal(this.dateRange);
+				updateSeverityReliability(this.dateRange);
 
 				bars.update = function(updateOptions){
 

@@ -1,2 +1,2 @@
-# deepviz
+deepviz
 Dataviz for The Deep

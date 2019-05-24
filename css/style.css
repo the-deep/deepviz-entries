@@ -1,6 +1,7 @@
 body {
 	background-color: #FFF;
     font-family: Source Sans Pro, sans-serif;
+	max-width: 60%;
 }
 
 #total_entries {
@@ -11,8 +12,34 @@ body {
     line-height: 0.8;
 }
 
+
+#severity {
+	width: 49%;
+	display: inline-block;
+	fill: green;
+	padding-right: 2%;
+}
+
+#severity_bars {
+	width: 100%;
+	margin-top: 2px;
+	margin-bottom: 16px;
+}
+
+#reliability {
+	width: 49%;
+	display: inline-block;
+	fill: red;
+	float: right;
+}
+
+#reliability_bars {
+	width: 100%;
+	margin-top: 2px;
+	margin-bottom: 16px;
+}
+
 .header {
-	max-width: 60%;
 	margin-bottom: 3px;
 	color: #3F3F3F;
 }
@@ -44,7 +71,6 @@ body {
 
 #timeline {
 	width: 100%;
-	max-width: 60%;
 	background-color: #FFF;
 }
 

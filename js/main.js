@@ -1,5 +1,8 @@
 console.log('main.js');
-
+var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
+var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
+var severityArray = ["No problem/Minor Problem", "Of Concern", "Major", "Severe", "Critical"];
+var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
 
 var sources = ['data/data2.json', 'data/iomdata.csv'];
 
@@ -9,8 +12,74 @@ var Deepviz = new Deepviz(sources, function(data){
 	var timelineSvg = Deepviz.createSvg({
 		id: 'timeline_viz',
 		viewBoxWidth: 1300,
-		viewBoxHeight: 1000
+		viewBoxHeight: 1000,
+		div: '#timeline'
 	});
+
+	//**************************
+	// severity chart
+	//**************************
+
+	// create severity svg
+	var severitySvg = Deepviz.createSvg({
+		id: 'severitySvg',
+		viewBoxWidth: 1000,
+		viewBoxHeight: 50,
+		div: '#severity_bars',
+		width: '100%'
+	});
+
+
+	var severityBars = severitySvg.selectAll('.severityBar')
+	.data(severityArray)
+	.enter()
+	.append('rect')
+	.attr('class', 'severityBar')
+	.attr('x', function(d,i){
+		return (1000/5)*i;
+	})
+	.attr('width', function(d,i){
+		return (1000/5);
+	})
+	.attr('height', function(d,i){
+		return (50);
+	})
+	.attr('fill', function(d,i){
+		return colorGreen[i];
+	});
+
+		//**************************
+		// reliability chart
+		//**************************
+
+			// create severity svg
+	var reliabilitySvg = Deepviz.createSvg({
+		id: 'reliabilitySvg',
+		viewBoxWidth: 1000,
+		viewBoxHeight: 50,
+		div: '#reliability_bars',
+		width: '100%'
+	});
+
+	var reliabilityBars = reliabilitySvg.selectAll('.reliabilityBar')
+	.data(reliabilityArray)
+	.enter()
+	.append('rect')
+	.attr('class', 'reliabilityBar')
+	.attr('x', function(d,i){
+		return (1000/5)*i;
+	})
+	.attr('width', function(d,i){
+		return (1000/5);
+	})
+	.attr('height', function(d,i){
+		return (50);
+	})
+	.attr('fill', function(d,i){
+		return colorGreen[i];
+	});
+
+
 
 	// organise data
 	var timedata = data[1];
@@ -31,8 +100,8 @@ var Deepviz = new Deepviz(sources, function(data){
 		id: 'timeChart',
 		opacity: 1,
 		gutter: 0.5,
-		height: 500,
-		svgheight: 1000,
+		height: 400,
+		svgheight: 820,
 		width: 1300,
 		color: ['#0033A0'],
 		maxValue: 'round', // integerValue (force define the maximum), 'auto' (find the maximum value in the data), 'round' (pretty rounding based on maximum value in the data)
@@ -114,6 +183,8 @@ var Deepviz = new Deepviz(sources, function(data){
 		// },
 		frame: [1]
 	});
+
+
 
 
 
