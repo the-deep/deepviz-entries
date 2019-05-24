@@ -278,6 +278,8 @@ var Deepviz = function(sources, callback){
 		.attr('class', function(d,i){
 			return 'bar severity'+(i+1);
 		})
+		.style('stroke', 'black')
+		.style('stroke-opacity',0)
 		.attr('fill', function(d,i){
 			return colorGreen[i];
 		})
