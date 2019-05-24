@@ -35,6 +35,10 @@ body {
 
 }
 
+.severityBar {
+	cursor: pointer;
+}
+
 #reliability {
 	width: 49%;
 	display: inline-block;

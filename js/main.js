@@ -34,7 +34,9 @@ var Deepviz = new Deepviz(sources, function(data){
 	.data(severityArray)
 	.enter()
 	.append('rect')
-	.attr('class', 'severityBar')
+	.attr('class', function(d,i){
+		return 'severityBar severity' + (i+1);
+	})
 	.attr('x', function(d,i){
 		return (1000/5)*i;
 	})
@@ -42,17 +44,30 @@ var Deepviz = new Deepviz(sources, function(data){
 		return (1000/5);
 	})
 	.attr('height', function(d,i){
-		return (42);
+		return (50);
 	})
 	.attr('fill', function(d,i){
 		return colorGreen[i];
-	});
+	}).on('mouseover', function(d,i){
+		console.log(i);
+		d3.selectAll('.bar').style('opacity', 1).style('stroke', 'none');
+		d3.select('.severityBar.severity'+(i+1)).style('stroke', '#0A5D5E').style('stroke-opacity',0.6).style('stroke-width', 5);
+		d3.selectAll('.bar:not(.severity'+(i+1)+')').style('opacity', 0.32);
+		d3.selectAll('#timeline .severity'+(i+1)).style('stroke', 'black').style('stroke-opacity', 0.4)
+	}).on('mouseout', function(d,i){
+		console.log(i);
+		d3.selectAll('.severityBar').style('stroke-opacity',0).style('stroke-width', 0);
+		d3.selectAll('.bar').style('opacity', 1);
+		d3.selectAll('.bar').style('opacity', 1).style('stroke', 'none');
+
+	})
+
 
 	severitySvg.append('rect')
 	.attr('id', 'severityAvg')
 	.attr('x', 0)
 	.attr('y', -2)
-	.attr('height', 45)
+	.attr('height', 55)
 	.attr('width', 5)
 	.style('fill', '#000');
 
@@ -73,7 +88,9 @@ var Deepviz = new Deepviz(sources, function(data){
 	.data(reliabilityArray)
 	.enter()
 	.append('rect')
-	.attr('class', 'reliabilityBar')
+	.attr('class', function(d,i){
+		return 'reliabilityBar reliability' + (i+1);
+	})
 	.attr('x', function(d,i){
 		return (1000/5)*i;
 	})
@@ -81,7 +98,7 @@ var Deepviz = new Deepviz(sources, function(data){
 		return (1000/5);
 	})
 	.attr('height', function(d,i){
-		return (42);
+		return (50);
 	})
 	.attr('fill', function(d,i){
 		return colorGreen[i];
@@ -91,11 +108,9 @@ var Deepviz = new Deepviz(sources, function(data){
 	.attr('id', 'reliabiltiyAvg')
 	.attr('x', 0)
 	.attr('y', -2)
-	.attr('height', 45)
+	.attr('height', 55)
 	.attr('width', 5)
 	.style('fill', '#000');
-	
-
 
 	// organise data
 	var timedata = data[1];

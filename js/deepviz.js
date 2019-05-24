@@ -210,128 +210,6 @@ var Deepviz = function(sources, callback){
 			}
 		}
 
-
-
-		// update date range text in the chart header
-		function updateDate(d1){
-			var dateformatter = d3.timeFormat("%d %b %Y");
-			var dx = new Date(d1[1]);
-			var dateTo = dx.setDate(dx.getDate()-1);
-			var string = dateformatter(d1[0]) + ' - ' + dateformatter(dateTo);
-			d3.select('#dateRange').text(string);
-		}
-
-		// update total entries widget
-		function updateTotal(d1){
-			var total = d3.sum(chartdata, function(d){
-				if((d.date>=d1[0])&&(d.date<d1[1]))
-					return d.total_entries;
-			});
-			d3.select('#total_entries').text(total);
-		}
-
-		// update severity and reliability bars
-		function updateSeverityReliability(d1){
-
-			d3.selectAll('.severityBar')
-			.attr('fill', function(d,i){
-				return colorGreen[i];
-			});
-			d3.selectAll('.reliabilityBar')
-			.attr('fill', function(d,i){
-				return colorGreen[i];
-			});
-
-			var total = 0;
-			var severity = [0,0,0,0,0];
-			var severityRolling = [0,0,0,0,0];
-			var severityCount = 0;
-
-			var reliability = [0,0,0,0,0];
-			var reliabilityRolling = [0,0,0,0,0];
-			var reliabilityCount = 0;
-
-			chartdata.forEach(function(d){
-				if((d.date>=d1[0])&&(d.date<d1[1])){
-					for (i = 0; i < severity.length; i++) { 
-						severity[i] += d.severity[i];
-						reliability[i] += d.reliability[i];
-					}
-					total += d.total_entries;
-				}
-			});
-
-
-			if(total>0){
-
-
-				for (i = 0; i < severity.length; i++) { 
-					severityCount += severity[i];
-					severityRolling[i] = severityCount;
-					reliabilityCount += reliability[i];
-					reliabilityRolling[i] = reliabilityCount;
-				}
-
-				d3.selectAll('.severityBar')
-				.attr('opacity', 1)
-				.attr('x', function(d,i){
-					if(i==0){
-						var s = 0;
-					} else {
-						var s = severityRolling[i-1];
-					}
-					return (s/total)*1000;
-				})
-				.attr('width', function(d,i){
-					return (severity[i]/total)*1000;
-				});
-
-				d3.selectAll('.reliabilityBar')
-				.attr('opacity', 1)
-				.attr('x', function(d,i){
-					if(i==0){
-						var s = 0;
-					} else {
-						var s = reliabilityRolling[i-1];
-					}
-					return (s/total)*1000;
-				})
-				.attr('width', function(d,i){
-					return (reliability[i]/total)*1000;
-				});
-
-				var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / total;
-				d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
-			
-				d3.select('#severityAvg').attr('x',function(d){
-					return (severityAverage/5 * 1000)-5;
-				});
-
-				var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / total;
-				d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
-				
-				d3.select('#reliabiltiyAvg').attr('x',function(d){
-					return (reliabilityAverage/5 * 1000)-5;
-				});
-
-			} else {
-
-				d3.select('#severity_value').text('');
-				d3.select('#reliability_value').text('');
-
-				d3.selectAll('.severityBar')
-				.attr('fill', '#CDCDCD');
-				d3.selectAll('.reliabilityBar')
-				.attr('fill', '#CDCDCD');
-
-				d3.select('#reliabiltiyAvg').attr('x',-100);
-				d3.select('#severityAvg').attr('x',-100);
-			}
-		}
-
-
-
-
 		// add the Y gridlines
 		svg.append("g")			
 		.attr("class", "grid")
@@ -345,7 +223,6 @@ var Deepviz = function(sources, callback){
 		function make_y_gridlines() {		
 			return d3.axisLeft(y).ticks(5);
 		}
-
 
 		// x-axis 
 		if(options.xAxis.enabled == true){
@@ -398,7 +275,9 @@ var Deepviz = function(sources, callback){
 		.data(function(d,i){ return d.barValues;})
 		.enter()
 		.append("rect")
-		.attr('class', 'bar')
+		.attr('class', function(d,i){
+			return 'bar severity'+(i+1);
+		})
 		.attr('fill', function(d,i){
 			return colorGreen[i];
 		})
@@ -560,7 +439,128 @@ var Deepviz = function(sources, callback){
 				updateTotal(this.dateRange);
 				updateSeverityReliability(this.dateRange);
 
-				bars.update = function(updateOptions){
+
+		// update date range text in the chart header
+		function updateDate(d1){
+			var dateformatter = d3.timeFormat("%d %b %Y");
+			var dx = new Date(d1[1]);
+			var dateTo = dx.setDate(dx.getDate()-1);
+			var string = dateformatter(d1[0]) + ' - ' + dateformatter(dateTo);
+			d3.select('#dateRange').text(string);
+		}
+
+		// update total entries widget
+		function updateTotal(d1){
+			var total = d3.sum(chartdata, function(d){
+				if((d.date>=d1[0])&&(d.date<d1[1]))
+					return d.total_entries;
+			});
+			d3.select('#total_entries').text(total);
+		}
+
+		// update severity and reliability bars
+		function updateSeverityReliability(d1){
+
+			d3.selectAll('.severityBar')
+			.attr('fill', function(d,i){
+				return colorGreen[i];
+			});
+			d3.selectAll('.reliabilityBar')
+			.attr('fill', function(d,i){
+				return colorGreen[i];
+			});
+
+			var total = 0;
+			var severity = [0,0,0,0,0];
+			var severityRolling = [0,0,0,0,0];
+			var severityCount = 0;
+
+			var reliability = [0,0,0,0,0];
+			var reliabilityRolling = [0,0,0,0,0];
+			var reliabilityCount = 0;
+
+			chartdata.forEach(function(d){
+				if((d.date>=d1[0])&&(d.date<d1[1])){
+					for (i = 0; i < severity.length; i++) { 
+						severity[i] += d.severity[i];
+						reliability[i] += d.reliability[i];
+					}
+					total += d.total_entries;
+				}
+			});
+
+
+			if(total>0){
+
+
+				for (i = 0; i < severity.length; i++) { 
+					severityCount += severity[i];
+					severityRolling[i] = severityCount;
+					reliabilityCount += reliability[i];
+					reliabilityRolling[i] = reliabilityCount;
+				}
+
+				d3.selectAll('.severityBar')
+				.attr('opacity', 1)
+				.attr('x', function(d,i){
+					if(i==0){
+						var s = 0;
+					} else {
+						var s = severityRolling[i-1];
+					}
+					return (s/total)*1000;
+				})
+				.attr('width', function(d,i){
+					return (severity[i]/total)*1000;
+				});
+
+				d3.selectAll('.reliabilityBar')
+				.attr('opacity', 1)
+				.attr('x', function(d,i){
+					if(i==0){
+						var s = 0;
+					} else {
+						var s = reliabilityRolling[i-1];
+					}
+					return (s/total)*1000;
+				})
+				.attr('width', function(d,i){
+					return (reliability[i]/total)*1000;
+				});
+
+				var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / total;
+				d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
+			
+				d3.select('#severityAvg').attr('x',function(d){
+					return (severityAverage/5 * 1000)-5;
+				});
+
+				var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / total;
+				d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
+				
+				d3.select('#reliabiltiyAvg').attr('x',function(d){
+					return (reliabilityAverage/5 * 1000)-5;
+				});
+
+			} else {
+
+				d3.select('#severity_value').text('');
+				d3.select('#reliability_value').text('');
+
+				d3.selectAll('.severityBar')
+				.attr('fill', '#CDCDCD');
+				d3.selectAll('.reliabilityBar')
+				.attr('fill', '#CDCDCD');
+
+				d3.select('#reliabiltiyAvg').attr('x',-100);
+				d3.select('#severityAvg').attr('x',-100);
+			}
+		}
+
+
+
+
+		bars.update = function(updateOptions){
 
 					var delay = 100;
 					var duration = updateOptions.duration;
