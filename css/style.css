@@ -18,6 +18,7 @@ body {
 	fill: cyan;
 	fill-opacity: 0.01;
 	 filter: grayscale(50%);
+	 stroke-opacity: 0;
 }
 
 .line {

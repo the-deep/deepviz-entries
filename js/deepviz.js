@@ -181,7 +181,7 @@ var Deepviz = function(sources, callback){
 			
 			var yAxisText = svgBg.append("g")
 			.attr("class", "yAxis axis")
-			.attr('transform', 'translate('+(margin.left-2)+','+margin.top+')')
+			.attr('transform', 'translate('+(margin.left-1)+','+margin.top+')')
 			.call(yAxis)
 			.style('font-size', options.yAxis.font.values.size);
 
@@ -325,11 +325,10 @@ var Deepviz = function(sources, callback){
 		    // add the selectors
 		    var gBrush = svgChart.append("g")
 		    .attr("class", "brush")
-		    .attr('transform', 'translate(1,0)')
+		    .attr('transform', 'translate('+(2)+',0)')
 		    .call(brush);
 
-		    d3.selectAll('.handle rect').attr('fill-opacity', '1').style('visibility', 'visible').attr('width', 1).attr('fill', '#000');
-
+		    d3.selectAll('.handle rect').attr('fill-opacity', '1').style('visibility', 'visible').attr('width', 2).attr('fill', '#000').style('stroke-opacity', 0);
 
 		    var handleTop = gBrush.selectAll(".handle--custom-top")
 		    .data([{type: "w"}, {type: "e"}])
