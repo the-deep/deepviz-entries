@@ -303,10 +303,16 @@ var Deepviz = function(sources, callback){
 				var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / total;
 				d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
 			
+				d3.select('#severityAvg').attr('x',function(d){
+					return (severityAverage/5 * 1000)-5;
+				});
 
 				var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / total;
 				d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
-			
+				
+				d3.select('#reliabiltiyAvg').attr('x',function(d){
+					return (reliabilityAverage/5 * 1000)-5;
+				});
 
 			} else {
 
@@ -318,7 +324,8 @@ var Deepviz = function(sources, callback){
 				d3.selectAll('.reliabilityBar')
 				.attr('fill', '#CDCDCD');
 
-
+				d3.select('#reliabiltiyAvg').attr('x',-100);
+				d3.select('#severityAvg').attr('x',-100);
 			}
 		}
 

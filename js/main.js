@@ -48,6 +48,14 @@ var Deepviz = new Deepviz(sources, function(data){
 		return colorGreen[i];
 	});
 
+	severitySvg.append('rect')
+	.attr('id', 'severityAvg')
+	.attr('x', 0)
+	.attr('y', -2)
+	.attr('height', 45)
+	.attr('width', 5)
+	.style('fill', '#000');
+
 		//**************************
 		// reliability chart
 		//**************************
@@ -79,6 +87,14 @@ var Deepviz = new Deepviz(sources, function(data){
 		return colorGreen[i];
 	});
 
+	reliabilitySvg.append('rect')
+	.attr('id', 'reliabiltiyAvg')
+	.attr('x', 0)
+	.attr('y', -2)
+	.attr('height', 45)
+	.attr('width', 5)
+	.style('fill', '#000');
+	
 
 
 	// organise data
