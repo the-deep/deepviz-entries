@@ -1,12 +1,34 @@
 console.log('main.js');
 var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
 var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
+var colorLightgrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
+
 var severityArray = ["No problem/Minor Problem", "Of Concern", "Major", "Severe", "Critical"];
 var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
 
-var sources = ['data/data2.json', 'data/iomdata.csv'];
+var sources = [ 'data/data3.json'];
 
 var Deepviz = new Deepviz(sources, function(data){
+
+	console.log(Deepviz.filters);
+
+
+
+	//**************************
+	// severity chart
+	//**************************
+	var severityChart = Deepviz.createSeverityChart();
+
+
+	//**************************
+	// reliability chart
+	//**************************
+	var reliabilityChart = Deepviz.createReliabilityChart();
+
+
+	//**************************
+	// time chart
+	//**************************
 
 	// create svg
 	var timelineSvg = Deepviz.createSvg({
@@ -16,134 +38,11 @@ var Deepviz = new Deepviz(sources, function(data){
 		div: '#timeline'
 	});
 
-	//**************************
-	// severity chart
-	//**************************
-
-	// create severity svg
-	var severitySvg = Deepviz.createSvg({
-		id: 'severitySvg',
-		viewBoxWidth: 1000,
-		viewBoxHeight: 50,
-		div: '#severity_bars',
-		width: '100%'
-	});
-
-
-	var severityBars = severitySvg.selectAll('.severityBar')
-	.data(severityArray)
-	.enter()
-	.append('rect')
-	.attr('class', function(d,i){
-		return 'severityBar severity' + (i+1);
-	})
-	.attr('x', function(d,i){
-		return (1000/5)*i;
-	})
-	.attr('width', function(d,i){
-		return (1000/5);
-	})
-	.attr('height', function(d,i){
-		return (46);
-	})
-	.attr('y',2)
-	.attr('fill', function(d,i){
-		return colorGreen[i];
-	}).on('mouseover', function(d,i){
-
-		d3.selectAll('.severityBar').style('stroke-opacity',0)
-		// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
-
-		d3.select('.severityBar.severity'+(i+1))
-		.style('stroke', '#0E523B')
-		.style('stroke-width', 3)
-		.transition().duration(500)
-		.style('stroke-opacity', 0.6);
-
-		d3.selectAll('.bar:not(.severity'+(i+1)+')')
-		.transition().duration(700).style('opacity', 0.33).style('stroke-opacity', 0);
-
-		d3.selectAll('#timeline .severity'+(i+1))
-		.transition().duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
-
-	}).on('mouseout', function(d,i){
-		console.log(i);
-		d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
-		d3.selectAll('.bar').transition().duration(500).style('opacity', 1).style('stroke-opacity', 0);
-
-	})
-
-
-	severitySvg.append('rect')
-	.attr('id', 'severityAvg')
-	.attr('x', 0)
-	.attr('y', -2)
-	.attr('height', 55)
-	.attr('width', 5)
-	.style('fill', '#000');
-
-		//**************************
-		// reliability chart
-		//**************************
-
-			// create severity svg
-	var reliabilitySvg = Deepviz.createSvg({
-		id: 'reliabilitySvg',
-		viewBoxWidth: 1000,
-		viewBoxHeight: 50,
-		div: '#reliability_bars',
-		width: '100%'
-	});
-
-	var reliabilityBars = reliabilitySvg.selectAll('.reliabilityBar')
-	.data(reliabilityArray)
-	.enter()
-	.append('rect')
-	.attr('class', function(d,i){
-		return 'reliabilityBar reliability' + (i+1);
-	})
-	.attr('x', function(d,i){
-		return (1000/5)*i;
-	})
-	.attr('width', function(d,i){
-		return (1000/5);
-	})
-	.attr('height', function(d,i){
-		return (46);
-	})
-	.attr('y',2)
-	.attr('fill', function(d,i){
-		return colorGreen[i];
-	});
-
-	reliabilitySvg.append('rect')
-	.attr('id', 'reliabiltiyAvg')
-	.attr('x', 0)
-	.attr('y', -2)
-	.attr('height', 55)
-	.attr('width', 5)
-	.style('fill', '#000');
-
-	// organise data
-	var timedata = data[1];
-	var deepdata = data[0].deep.data;
-
-	var date_data = d3.nest()
-	.key(function(d) { return d.date;})
-	.rollup(function(d) { 
-		return d3.sum(d, function(g) {return g.individuals; });
-	}).entries(timedata);
-
-	date_data.forEach(function(d){
-		d.key = new Date(d.key);
-	});
-
 	var timeChart = Deepviz.timeChart({
 		appendTo: timelineSvg,
 		id: 'timeChart',
 		opacity: 1,
 		gutter: 0.5,
-		height: 400,
 		svgheight: 820,
 		width: 1300,
 		color: ['#0033A0'],
@@ -218,9 +117,8 @@ var Deepviz = new Deepviz(sources, function(data){
 			position: 'top'
 		},
 		dateBrush: true,
-		data: deepdata,
 		dataValues: 'total_entries',
-		dataKey: 'date',
+		dataKey: 'key',
 		// sliderUpdate: function(a,b){
 		// 	sliderUpdate(a,b);
 		// },

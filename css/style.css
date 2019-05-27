@@ -1,7 +1,7 @@
 body {
 	background-color: #FFF;
     font-family: Source Sans Pro, sans-serif;
-	max-width: 60%;
+	max-width: 50%;
 }
 
 #total_entries {
@@ -11,6 +11,8 @@ body {
     color: #008974;
     line-height: 0.8;
 }
+
+.toggle, .severitytoggle, .reliabilitytoggle { cursor: pointer; }
 
 
 #severity {
@@ -53,7 +55,7 @@ body {
 }
 
 #reliability_value {
-    color: #008974;
+    color: #e6550d;
     float: right;
     display: inline;
     font-size: 13px;
@@ -123,6 +125,13 @@ body {
 
 .grid path {
   stroke-width: 0;
+}
+
+#reliabilityTrendline,
+#severityTrendline {
+  stroke-dasharray: 3 3; 
+  stroke-width: 2;
+  stroke-opacity: 0.5;
 }
 
 .yAxis line,

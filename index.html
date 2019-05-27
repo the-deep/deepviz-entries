@@ -6,13 +6,13 @@
 	<script type="text/javascript" src="js/vendor/d3.v5.min.js"></script>
 
 	<!-- load custom JavaScript -->
-	<script type="text/javascript" src="js/deepviz.js?cache=126"></script>
-	<script type="text/javascript" src="js/main.js?cache=126"></script>
+	<script type="text/javascript" src="js/deepviz.js?cache=129"></script>
+	<script type="text/javascript" src="js/main.js?cache=129"></script>
 
 	<!-- load vendor CSS -->
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=126" rel="stylesheet" type="text/css" media="all">
+	<link href="css/style.css?cache=129" rel="stylesheet" type="text/css" media="all">
 
 </head>
 
@@ -29,8 +29,12 @@
 	</div>
 
 	<div id="severity" class="widget">
-		<div class="title">
-			ENTRIES BY SEVERITY
+		<div class="title severityToggle">
+			ENTRIES BY SEVERITY&nbsp; 
+			<svg width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
+			    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
+			    <circle id="severityToggle" fill="#008974" cx="24" cy="26" r="13.5"></circle>
+			</svg>
 		</div>
 		<div id="severity_value"></div>
 
@@ -40,8 +44,12 @@
 	</div>
 
 	<div id="reliability" class="widget">
-		<div class="title">
-			ENTRIES BY RELIABILITY
+		<div class="title reliabilityToggle">
+			ENTRIES BY RELIABILITY&nbsp; 
+			<svg  width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
+			    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
+			    <circle id="reliabilityToggle" fill="#a63603" cx="24" cy="26" r="13.5" style="opacity: 0"></circle>
+			</svg>
 		</div>	
 		<div id="reliability_value"></div>
 

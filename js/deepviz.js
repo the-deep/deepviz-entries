@@ -1,11 +1,40 @@
+
+
 var Deepviz = function(sources, callback){
 
-	this.dateRange = [new Date(2019, 0, 1), new Date(2019, 1, 25)];
+	
+
+	var dateRange = [new Date(2019, 3, 13), new Date(2019, 3, 20)];
+	var data; // active dataset after filters applied
+	var originalData; // full original dataset without filters (used to refresh/clear filters)
+	var trendlinePoints; 
+	var barWidth;
 
 	var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
 	var severityArray = ["No/minor problem", "Of Concern", "Major", "Severe", "Critical"];
 	var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
 	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
+	var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
+	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
+	var colorOrange = ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603'];
+	var yScale;
+	var xScale = function(){
+
+	}
+	var pathData = {};
+	var clickTimer = 0;
+
+	var timechartHeight = 400;
+
+	// filters
+	var filters = {
+		sector: [],
+		severity: [],
+		reliability: [],
+		affectedGroups: [],
+		specificNeeds: [],
+		toggle: 'severity'
+	};
 
 	//**************************
 	// load data
@@ -34,6 +63,20 @@ var Deepviz = function(sources, callback){
 		// do something after data has been loaded
 		console.log('all data loaded');
 		// return the data
+		data = values[0].deep.data;
+
+		var minDate = new Date(2019,2,1);
+		data = data.filter(function(d){return new Date(d.date) >= minDate;});
+		originalData = data;
+
+		d3.selectAll('.severityToggle').on('click', function(){
+			toggle('severity');
+		});
+
+		d3.selectAll('.reliabilityToggle').on('click', function(){
+			toggle('reliability');
+		});
+
 		return callback(values);
 	});
 
@@ -93,8 +136,7 @@ var Deepviz = function(sources, callback){
 
 		// margins
 		var margin = {top: 18, right: 10, bottom: 0, left: 50};
-
-		var chartdata = options.data;
+		var chartdata = timelineData();
 
 		// container g, and
 		var svg = options.appendTo
@@ -110,7 +152,7 @@ var Deepviz = function(sources, callback){
 		.attr("transform", "translate(0,0)");
 
 		options.width = options.width - (margin.right + margin.left);
-		options.height = options.height - (margin.top + margin.bottom);
+		timechartHeight = timechartHeight - (margin.top + margin.bottom);
 
 		var svgBg = svg.append('g');
 
@@ -118,9 +160,10 @@ var Deepviz = function(sources, callback){
 		.attr('x',margin.left)
 		.attr('y',margin.top)
 		.attr('width',options.width)
-		.attr('height',options.height)
+		.attr('height',timechartHeight)
 		.attr('opacity',0);
 
+		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
 		var svgChart = svg.append('g').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
 
 		var color = options.color;
@@ -146,7 +189,7 @@ var Deepviz = function(sources, callback){
 		dateMax.setDate(maxDate.getDate() + 1);
 		dateMax.setHours(0);
 		dateMax.setMinutes(0);
-		chartdata.push({ date: dateMax, barValues: [0,0,0,0,0], total_entries: 0 });
+		// chartdata.push({ date: dateMax, barValues: [0,0,0,0,0], total_entries: 0 });
 
 		var dateIndex = chartdata.map(function(d) { return d[options.dataKey]; });
 
@@ -154,34 +197,35 @@ var Deepviz = function(sources, callback){
 			return d.total_entries;
 		});
 
-		var barWidth = options.width/dateIndex.length;
+		barWidth = options.width/dateIndex.length;
 
 	    // define scales
-	    var x = d3.scaleTime()
+	    xScale = d3.scaleTime()
 	    .domain([minDate, dateMax])
 	    .range([0, options.width+barWidth])
 	    .rangeRound([0, options.width], 0)
 
+
 	    var xAxis = d3.axisBottom()
-	    .scale(x)
+	    .scale(xScale)
 	    .tickSize(0)
-	    .tickPadding(8)
+	    .tickPadding(10)
 	    .ticks(d3.timeMonth.every(1))
 	    .tickFormat(d3.timeFormat("%b %Y"));
 
 		// define y-axis
-		var y = d3.scaleLinear()
-		.range([options.height, 0])
+		yScale = d3.scaleLinear()
+		.range([timechartHeight, 0])
 		.domain([0, (maxValue)]);
 
 		if(options.maxValue=='round'){
-			var y = d3.scaleLinear()
-			.range([options.height, 0])
+			yScale = d3.scaleLinear()
+			.range([timechartHeight, 0])
 			.domain([0, rounder(maxValue)]);
 		}
 
 		var yAxis = d3.axisLeft()
-		.scale(y)
+		.scale(yScale)
 		.ticks(4)
 		.tickSize(0)
 		.tickPadding(4);
@@ -221,7 +265,7 @@ var Deepviz = function(sources, callback){
 
 		// gridlines in y axis function
 		function make_y_gridlines() {		
-			return d3.axisLeft(y).ticks(5);
+			return d3.axisLeft(yScale).ticks(5);
 		}
 
 		// x-axis 
@@ -229,7 +273,7 @@ var Deepviz = function(sources, callback){
 			console.log('xaxis');
 			var xAxisObj = svgBg.append("g")
 			.attr("class", "xAxis axis")
-			.attr("transform", "translate(" + margin.left + "," + (options.height + margin.top +1) + ")")
+			.attr("transform", "translate(" + margin.left + "," + (timechartHeight + margin.top +1) + ")")
 			.call(xAxis)
 			.style('font-size', options.xAxis.font.values.size)
 			.style('font-weight', options.xAxis.font.values.weight)
@@ -242,21 +286,21 @@ var Deepviz = function(sources, callback){
 			.style('stroke-width', options.xAxis.gridlines.strokeWidth );
 
 			xAxisObj.selectAll(".tick line, text")
-			.attr("transform", "translate(" +36 + ", 0)")
+			.attr("transform", "translate(" +40 + ", 0)")
 			.append('line')
 			.attr('class', 'xAxisHorizontalLine')
 			.attr('x1', 0)
 			.attr('x2', 0)
 			.attr('y1', 0)
-			.attr('y2', options.height+margin.top+1)
+			.attr('y2', timechartHeight+margin.top+1)
 
 			xAxisObj.selectAll(".tick")
 			.append('line')
 			.attr('class', 'xAxisHorizontalLine')
 			.attr('x1', 0)
 			.attr('x2', 0)
-			.attr('y1', -options.height)
-			.attr('y2', options.height+margin.top+1)
+			.attr('y1', -timechartHeight)
+			.attr('y2', timechartHeight+margin.top+1)
 
 		}
 
@@ -265,8 +309,13 @@ var Deepviz = function(sources, callback){
 		.data(chartdata)
 		.enter()
 		.append('g')
+		.attr('id', function(d,i){
+			var dt = new Date(d.date);
+			dt.setHours(0,0,0,0);
+			return 'date'+dt.getTime();
+		})
 		.attr("class", "barGroup")
-		.attr("transform", function(d) { return "translate(" + x(d[options.dataKey]) + ",0)"; });
+		.attr("transform", function(d) { return "translate(" + xScale(d[options.dataKey]) + ",0)"; });
 
 		var dy;
 
@@ -278,16 +327,16 @@ var Deepviz = function(sources, callback){
 		.attr('class', function(d,i){
 			return 'bar severity'+(i+1);
 		})
-		.style('stroke', 'black')
+		.style('stroke', '#fff')
 		.style('stroke-opacity',0)
 		.attr('fill', function(d,i){
 			return colorGreen[i];
 		})
 		.attr("x", function(d,i) { 
-			return options.gutter;
+			return (barWidth*(1-1))/2
 		})
 		.attr("width", function(d,i) { 
-			return barWidth-(options.gutter*2);
+			return barWidth*1
 		})
 		.attr("y", function(d,i) { 
 
@@ -299,10 +348,10 @@ var Deepviz = function(sources, callback){
 
 			bars.data()[i].y = d + prevY;
 
-			return y(d + prevY); 
+			return yScale(d + prevY); 
 		})
 		.attr("height", function(d,i) { 
-			return options.height-y(d); 
+			return timechartHeight-yScale(d); 
 		})
 		.style('fill', function(d,i){ if(color.length > 1){return color[i]} else {return color[0];}})
 		.on('mouseover', function(){
@@ -361,12 +410,12 @@ var Deepviz = function(sources, callback){
 
 		    // programattically set date range
 
-		    var d1 = this.dateRange;
+		    var d1 = dateRange;
 
-		    gBrush.call(brush.move, d1.map(x));
+		    gBrush.call(brush.move, d1.map(xScale));
 
-		    handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", -" + margin.top + ")"; });
-		    handleBottom.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
+		    handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(xScale)[i]-1) + ", -" + margin.top + ")"; });
+		    handleBottom.attr("transform", function(d, i) { return "translate(" + (d1.map(xScale)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
 
 		    // function to handle the changes during slider dragging
 		    function brushed() {
@@ -375,7 +424,7 @@ var Deepviz = function(sources, callback){
 
 		    	if(d3.event.sourceEvent.type === "brush") return;
 
-		    	var d0 = d3.event.selection.map(x.invert),
+		    	var d0 = d3.event.selection.map(xScale.invert),
 		    	d1 = d0.map(d3.timeDay.round);
 
 				  // If empty when rounded, use floor instead.
@@ -384,14 +433,16 @@ var Deepviz = function(sources, callback){
 				  	d1[1] = d3.timeDay.offset(d1[0]);
 				  }
 
+				  dateRange = d1;
+
 				  colorBars(d1);
 				  updateDate(d1);
 				  updateTotal(d1);
 				  updateSeverityReliability(d1);
 
-				  d3.select(this).call(d3.event.target.move, d1.map(x));
-				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", -"+ margin.top +")"; });
-				  handleBottom.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
+				  d3.select(this).call(d3.event.target.move, d1.map(xScale));
+				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(xScale)[i]-1) + ", -"+ margin.top +")"; });
+				  handleBottom.attr("transform", function(d, i) { return "translate(" + (d1.map(xScale)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
 
 
 				}
@@ -403,8 +454,10 @@ var Deepviz = function(sources, callback){
 
 					if(d3.event.sourceEvent.type === "brush") return;
 
-					var d0 = d3.event.selection.map(x.invert),
+					var d0 = d3.event.selection.map(xScale.invert),
 					d1 = d0.map(d3.timeDay.round);
+
+					dateRange = d1;
 
 				  // If empty when rounded, use floor instead.
 				  if (d1[0] >= d1[1]) {
@@ -413,42 +466,83 @@ var Deepviz = function(sources, callback){
 				  }
 
 
-				  d3.select(this).call(d3.event.target.move, d1.map(x));
-				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", -"+ margin.top +")"; });
-				  handleBottom.attr("transform", function(d, i) { return "translate(" + (d1.map(x)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
+				  d3.select(this).call(d3.event.target.move, d1.map(xScale));
+				  handleTop.attr("transform", function(d, i) { return "translate(" + (d1.map(xScale)[i]-1) + ", -"+ margin.top +")"; });
+				  handleBottom.attr("transform", function(d, i) { return "translate(" + (d1.map(xScale)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
 				}
 
 
-				function colorBars(dateRange){
 
-					bars.each(function(d,i){
+				colorBars(dateRange);
+				updateDate(dateRange);
+				updateTotal(dateRange);
+				updateSeverityReliability(dateRange);
 
-						if((d.date<dateRange[0])||(d.date>= dateRange[1])){
-							d3.select(this).selectAll('.bar').style('fill', function(d,i){
-								return colorGrey[i];
-							}).style('fill-opacity', 0.5);
-						} else {
-							d3.select(this).selectAll('.bar').style('fill', function(d,i){
-								return colorGreen[i];
-							}).style('fill-opacity', 1);
 
-						}
-					});
-				}
+			//**************************
+			// trendline
+			//**************************
 
-				colorBars(this.dateRange);
-				updateDate(this.dateRange);
-				updateTotal(this.dateRange);
-				updateSeverityReliability(this.dateRange);
+				var lineGenerator = d3.line()
+				.curve(d3.curveCardinal);
+
+		// define y-axis
+		var trendlineY = d3.scaleLinear()
+		.range([timechartHeight, 0])
+		.domain([1, (5)]);
+
+
+		var lineGenerator = d3.line()
+			.curve(d3.curveBundle.beta(.46));
+
+		var tp_severity = [];
+		var tp_reliability = [];
+
+		trendlinePoints.forEach(function(d,i){
+			d.x = xScale(d.date)+barWidth/2;
+			d.y_severity = trendlineY(d.severity_avg);
+			d.y_reliability = trendlineY(d.reliability_avg);
+			tp_severity.push([d.x,d.y_severity]);
+			tp_reliability.push([d.x,d.y_reliability]);
+		});
+
+		tp_severity.sort(function(x, y){
+		   return d3.ascending(x[0], y[0]);
+		});
+
+		tp_reliability.sort(function(x, y){
+		   return d3.ascending(x[0], y[0]);
+		});
+
+		pathData.severity = lineGenerator(tp_severity);
+		pathData.reliability = lineGenerator(tp_reliability);
+
+		// trendline
+		var severityTrendline = d3.select('#svgchartbg').append('path')
+			.attr('d', pathData.severity)
+			.style('fill', 'none')
+			.style('stroke', colorGreen[4])
+			.attr('id', 'severityTrendline');
+
+		var reliabilityTrendline = d3.select('#svgchartbg').append('path')
+			.attr('d', pathData.reliability)
+			.style('fill', 'none')
+			.style('opacity',0)
+			.style('stroke', colorOrange[4])
+			.attr('id', 'reliabilityTrendline');
 
 
 		// update date range text in the chart header
 		function updateDate(d1){
+			dateRange = d1;
+
 			var dateformatter = d3.timeFormat("%d %b %Y");
 			var dx = new Date(d1[1]);
 			var dateTo = dx.setDate(dx.getDate()-1);
 			var string = dateformatter(d1[0]) + ' - ' + dateformatter(dateTo);
 			d3.select('#dateRange').text(string);
+			// console.log(dateRange);
+			// console.log(d1);
 		}
 
 		// update total entries widget
@@ -469,7 +563,7 @@ var Deepviz = function(sources, callback){
 			});
 			d3.selectAll('.reliabilityBar')
 			.attr('fill', function(d,i){
-				return colorGreen[i];
+				return colorOrange[i];
 			});
 
 			var total = 0;
@@ -532,7 +626,7 @@ var Deepviz = function(sources, callback){
 
 				var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / total;
 				d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
-			
+
 				d3.select('#severityAvg').attr('x',function(d){
 					return (severityAverage/5 * 1000)-5;
 				});
@@ -562,108 +656,519 @@ var Deepviz = function(sources, callback){
 
 
 
-		bars.update = function(updateOptions){
+		// bars.update = function(updateOptions){
 
-					var delay = 100;
-					var duration = updateOptions.duration;
+		// 			var delay = 100;
+		// 			var duration = updateOptions.duration;
 
-			// reorganize data
-			updateOptions.data.forEach(function(d, i) {
-				d.barValues = [];
-			});
+		// 	// reorganize data
+		// 	updateOptions.data.forEach(function(d, i) {
+		// 		d.barValues = [];
+		// 	});
 
-			updateOptions.data.forEach(function(d, i) {
-				var barValue = d.barValues;
-				// barValue[0]=0;
-				// if totals is an array, loop through each value to make a stack
-				if(d[options.dataValues].length>1){
-					d[options.dataValues].forEach(function(d2, i2){
-						var v = 0;
-						if(i2>=1){
-							v = barValue[i2-1];
-						}
-						if(!options.grouped){
-							barValue[i2] = d2 + v;
-						} else {
-							barValue[i2] = d2;
-						}
-					})
-				// if totals is jsut one value, set it to index 1
-			} else {
-				barValue[0] = d[options.dataValues];
-			}
-		});
+		// 	updateOptions.data.forEach(function(d, i) {
+		// 		var barValue = d.barValues;
+		// 		// barValue[0]=0;
+		// 		// if totals is an array, loop through each value to make a stack
+		// 		if(d[options.dataValues].length>1){
+		// 			d[options.dataValues].forEach(function(d2, i2){
+		// 				var v = 0;
+		// 				if(i2>=1){
+		// 					v = barValue[i2-1];
+		// 				}
+		// 				if(!options.grouped){
+		// 					barValue[i2] = d2 + v;
+		// 				} else {
+		// 					barValue[i2] = d2;
+		// 				}
+		// 			})
+		// 		// if totals is jsut one value, set it to index 1
+		// 	} else {
+		// 		barValue[0] = d[options.dataValues];
+		// 	}
+		// });
 
-			// find maximum value
-			var maxValue = d3.max(updateOptions.data, function(d) {
-				return d[options.dataValues];
-			});
+		// 	// find maximum value
+		// 	var maxValue = d3.max(updateOptions.data, function(d) {
+		// 		return d[options.dataValues];
+		// 	});
 
-			if(updateOptions.maxValue){
-				maxValue = updateOptions.maxValue;
-			}
+		// 	if(updateOptions.maxValue){
+		// 		maxValue = updateOptions.maxValue;
+		// 	}
 
-			if(updateOptions.minValue){
-				var minValue = updateOptions.minValue;
-			} else {
-				var minValue = 0;
-			}
+		// 	if(updateOptions.minValue){
+		// 		var minValue = updateOptions.minValue;
+		// 	} else {
+		// 		var minValue = 0;
+		// 	}
 
 
-			// redefine scale
-			var y = d3.scaleLinear()
-			.range([options.height, 0])
-			.domain([minValue, rounder(maxValue)]);
+		// 	// redefine scale
+		// 	var y = d3.scaleLinear()
+		// 	.range([timechartHeight, 0])
+		// 	.domain([minValue, rounder(maxValue)]);
 
-			var yAxis = d3.svg.axis()
-			.scale(y)
-			.orient("left")
-			.ticks(5)
-			.tickPadding(0);
+		// 	var yAxis = d3.svg.axis()
+		// 	.scale(y)
+		// 	.orient("left")
+		// 	.ticks(5)
+		// 	.tickPadding(0);
 
-			d3.selectAll(".yAxis.axis.colchart")
-			.transition()
-			.delay(delay)
-			.duration(500)
-			.call(yAxis);
+		// 	d3.selectAll(".yAxis.axis.colchart")
+		// 	.transition()
+		// 	.delay(delay)
+		// 	.duration(500)
+		// 	.call(yAxis);
 
-			var yAxisGrid = yAxis
-			.tickSize(options.width, 0)
-			.tickFormat("")
-			.orient("right");
+		// 	var yAxisGrid = yAxis
+		// 	.tickSize(options.width, 0)
+		// 	.tickFormat("")
+		// 	.orient("right");
 
-			d3.selectAll('.colChartGrid')
-			.transition()
-			.delay(delay)
-			.duration(500)
-			.call(yAxisGrid);
+		// 	d3.selectAll('.colChartGrid')
+		// 	.transition()
+		// 	.delay(delay)
+		// 	.duration(500)
+		// 	.call(yAxisGrid);
 
-			d3.selectAll('.colChartGrid line')
-			.style('stroke', options.yAxis.gridlines.stroke)
-			.style('stroke-opacity', options.yAxis.gridlines.opacity)
-			.style('stroke-width', options.yAxis.gridlines.strokeWidth)
-			.style('stroke-dasharray', '2,2');
+		// 	d3.selectAll('.colChartGrid line')
+		// 	.style('stroke', options.yAxis.gridlines.stroke)
+		// 	.style('stroke-opacity', options.yAxis.gridlines.opacity)
+		// 	.style('stroke-width', options.yAxis.gridlines.strokeWidth)
+		// 	.style('stroke-dasharray', '2,2');
 
-			bars.data(updateOptions.data).selectAll('.bar')
-			.data(function(d,i){ return d.barValues;})
-			.transition()
-			.delay(delay)
-			.duration(500)
-			.attr("y", function(d,i) { 
-				if(i>=0){
-					var v = d;
-				} else {
-					var v = 0;
-				}
-				return y(v); 
-			})
-			.attr("height", function(d) { return options.height-y(d); });
-			// .style('fill', function(d,i){ if(color.length > 1){return color[i]} else {return color[0];}});
-		}
+		// 	bars.data(updateOptions.data).selectAll('.bar')
+		// 	.data(function(d,i){ return d.barValues;})
+		// 	.transition()
+		// 	.delay(delay)
+		// 	.duration(500)
+		// 	.attr("y", function(d,i) { 
+		// 		if(i>=0){
+		// 			var v = d;
+		// 		} else {
+		// 			var v = 0;
+		// 		}
+		// 		return yScale(v); 
+		// 	})
+		// 	.attr("height", function(d) { return options.height-yScale(d); });
+		// 	// .style('fill', function(d,i){ if(color.length > 1){return color[i]} else {return color[0];}});
+		// }
 
 		// // return object
 		return bars;
 
+	}
+
+
+	//**************************
+	// severity chart
+	//**************************
+	this.createSeverityChart = function(options){
+
+		// create severity svg
+		var severitySvg = this.createSvg({
+			id: 'severitySvg',
+			viewBoxWidth: 1000,
+			viewBoxHeight: 50,
+			div: '#severity_bars',
+			width: '100%'
+		});
+
+		var severityBars = severitySvg.selectAll('.severityBar')
+		.data(severityArray)
+		.enter()
+		.append('rect')
+		.attr('class', function(d,i){
+			return 'severityBar severity' + (i+1);
+		})
+		.attr('x', function(d,i){
+			return (1000/5)*i;
+		})
+		.attr('width', function(d,i){
+			return (1000/5);
+		})
+		.attr('height', function(d,i){
+			return (46);
+		})
+		.attr('y',2)
+		.attr('fill', function(d,i){
+			return colorGreen[i];
+		}).on('mouseover', function(d,i){
+
+			if(clickTimer == 0 ){
+
+				if((filters.severity.length>0)&&(!filters.severity.includes(i+1))){
+					return false;
+				}
+				d3.selectAll('.severityBar').style('stroke-opacity',0)
+				// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
+
+				d3.select('.severityBar.severity'+(i+1))
+				.style('stroke', '#0E523B')
+				.style('stroke-width', 3)
+				.transition().duration(500)
+				.style('stroke-opacity', 0.6);
+
+				if(filters.toggle=='severity'){
+					d3.selectAll('.bar:not(.severity'+(i+1)+')')
+					.transition("mouseoutSeverity").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
+					d3.selectAll('#timeline .severity'+(i+1))
+					.transition("mouseoutSeverity").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
+				}
+			}
+		}).on('mouseout', function(d,i){
+			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+			d3.selectAll('.bar').transition("mouseoutSeverity").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+		}).on('click', function(d,i){
+
+			clickTimer = 1;
+
+			filter('severity',i+1);
+
+			if(filters.severity.length==0){
+				d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
+					return colorGreen[i];
+				});		
+			} else {
+				d3.selectAll('.severityBar').transition().duration(500).style('fill', function(d,i){
+					return colorLightgrey[i];
+				});	
+				filters.severity.forEach(function(d,i){
+
+					d3.select('.severityBar.severity'+(d)).transition().duration(200)
+					.style('fill', colorGreen[d-1])
+
+				});
+			}
+
+			setTimeout(function(){ clickTimer = 0 }, 2000);
+
+		});
+
+		severitySvg.append('rect')
+		.attr('id', 'severityAvg')
+		.attr('x', 0)
+		.attr('y', -2)
+		.attr('height', 55)
+		.attr('width', 5)
+		.style('fill', '#000');		
+	}
+
+	//**************************
+	// reliability chart
+	//**************************
+	this.createReliabilityChart = function(options){
+
+		// create reliability svg
+		var reliabilitySvg = Deepviz.createSvg({
+			id: 'reliabilitySvg',
+			viewBoxWidth: 1000,
+			viewBoxHeight: 50,
+			div: '#reliability_bars',
+			width: '100%'
+		});
+
+		var reliabilityBars = reliabilitySvg.selectAll('.reliabilityBar')
+		.data(reliabilityArray)
+		.enter()
+		.append('rect')
+		.attr('class', function(d,i){
+			return 'reliabilityBar reliability' + (i+1);
+		})
+		.attr('x', function(d,i){
+			return (1000/5)*i;
+		})
+		.attr('width', function(d,i){
+			return (1000/5);
+		})
+		.attr('height', function(d,i){
+			return (46);
+		})
+		.style('cursor', 'pointer')
+		.attr('y',2)
+		.attr('fill', function(d,i){
+			return colorGreen[i];
+		}).on('mouseover', function(d,i){
+
+			if(clickTimer == 0 ){
+
+				if((filters.reliability.length>0)&&(!filters.reliability.includes(i+1))){
+					return false;
+				}
+
+				d3.selectAll('.reliabilityBar').style('stroke-opacity',0)
+				// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
+
+				d3.select('.reliabilityBar .severity'+(i+1))
+				.style('stroke', '#0E523B')
+				.style('stroke-width', 3)
+				.transition().duration(500)
+				.style('stroke-opacity', 0.6);
+
+				if(filters.toggle=='reliability'){
+					d3.selectAll('.bar:not(.severity'+(i+1)+')')
+					.transition("mouseoutReliability").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
+					d3.selectAll('#timeline .severity'+(i+1))
+					.transition("mouseoutReliability").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
+				}
+			}
+
+		}).on('mouseout', function(d,i){
+			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+		}).on('click', function(d,i){
+
+			clickTimer = 1;
+
+			filter('reliability',i+1);
+
+			if(filters.reliability.length==0){
+				d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
+					return colorOrange[i];
+				});		
+			} else {
+				d3.selectAll('.reliabilityBar').transition().duration(500).style('fill', function(d,i){
+					return colorLightgrey[i];
+				});	
+				filters.reliability.forEach(function(d,i){
+
+					d3.select('.reliabilityBar.reliability'+(d)).transition().duration(200)
+					.style('fill', colorOrange[d-1])
+
+				});
+			}
+
+			setTimeout(function(){ clickTimer = 0 }, 2000);
+
+		});
+
+		reliabilitySvg.append('rect')
+		.attr('id', 'reliabiltiyAvg')
+		.attr('x', 0)
+		.attr('y', -2)
+		.attr('height', 55)
+		.attr('width', 5)
+		.style('fill', '#000');	
+	}
+
+
+
+
+	//**************************
+	// filtering (push values to filter array)
+	//**************************
+	var filter = function(filterClass, value){
+
+		// console.log(value);
+		// console.log(filterClass);
+		// console.log(filters);
+		// console.log(filters[filterClass]);
+		addOrRemove(filters[filterClass], value);
+		// console.log(filters);
+		// console.log(filterClass);
+		// console.log(value);
+		// console.log('applying filter by: '+ filterClass +' with values');
+		// console.log(filters[filterClass]);
+
+		// reset data using original loaded data
+		data = originalData;
+
+
+		// apply filters to data array
+		if(filters['severity'].length==5)filters['severity'] = [];
+		if(filters['severity'].length>0)
+			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
+
+		if(filters['reliability'].length==5)filters['reliability'] = [];
+		if(filters['reliability'].length>0)
+			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
+
+		if(filters['sector'].length>0)
+			data = data.filter(function(d){return  filters['sector'].includes(d['sector']);});
+
+		if(filters['affectedGroups'].length>0)
+			data = data.filter(function(d){return  filters['affectedGroups'].includes(d['affectedGroups']);});
+
+		if(filters['specificNeeds'].length>0)
+			data = data.filter(function(d){return  filters['specificNeeds'].includes(d['specificNeeds']);});
+
+		timelineData();
+	}
+
+	//**************************
+	// get the data
+	//**************************
+	var timelineData = function(){
+		// use filters
+		console.log('timelineData()');
+
+		var timedata = data;
+
+		var dateData = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.severity; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(timedata);
+
+		var dateByReliability = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.reliability; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(timedata);
+
+		trendlinePoints = [];
+
+		dateData.forEach(function(d,i){
+			var dt = new Date(d.key);
+			dt.setHours(0,0,0,0);
+			d.key = dt;
+			d.date = d.key;
+			d.severity = [0,0,0,0,0];
+			var count = 0;
+			d.values.forEach(function(dx){
+				d.severity[dx.key-1] = dx.value;
+				count += dx.value;
+			});
+
+			d.reliability = [0,0,0,0,0];
+
+			dateByReliability[i].values.forEach(function(dx){
+				d.reliability[dx.key-1] = dx.value;
+			});
+
+			d.total_entries = count;
+
+		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
+		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
+
+		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
+			delete d.values;
+		});
+
+		// update bars
+
+		// bar groups
+		var bars = d3.selectAll(".barGroup");
+
+		d3.selectAll('.bar').transition("h").duration(0).attr('height',0);
+		d3.selectAll('.bar').transition().duration(500).attr('y',timechartHeight).attr('height',0);
+
+		bars.each(function(d,i){
+
+			var timeid = this.id;
+
+			var dD = dateData.filter(obj => {
+				return 'date'+obj.date.getTime() == timeid;
+			})[0]
+
+			if(dD){
+
+				var iBars = d3.selectAll('#'+timeid + ' .bar' )
+				.style('fill', function(d,i){
+					if(filters.toggle=='severity'){
+						return colorGreen[i];
+					} else {
+						return colorOrange[i];
+					}
+				})
+				.transition().duration(500)
+				.attr("height", function(d,i) {
+					return timechartHeight-yScale(dD[filters.toggle][i]); 
+				})
+				.attr("y", function(d,i) { 
+					var d = dD[filters.toggle][i];
+					if(i>0){
+						var prevY = bars.data()[i-1].y;
+					} else {
+						var prevY = 0;
+					}
+
+					bars.data()[i].y = d + prevY;
+
+					return yScale(d + prevY);
+
+				});
+
+			}
+
+			colorBars(dateRange);
+
+		})
+
+		// reorganize data
+		dateData.forEach(function(d, i) {
+			d.date = new Date(d.date);
+			d.date.setHours(0);
+			d.barValues = d[filters.toggle];
+		});
+
+		// define maximum date 
+		var maxDate = new Date(d3.max(dateData, function(d){
+			return d.date;
+		}));
+
+		// define minimum date 
+		var minDate = new Date(d3.min(dateData, function(d){
+			return d.date;
+		}));
+
+		var maxValue = d3.max(dateData, function(d) {
+			return d.total_entries;
+		});
+
+
+		return dateData;
+	}
+
+
+	//**************************
+	// toggle between severity and reliability
+	//**************************
+	var toggle = function(d){
+		if(d != 'severity'){
+			// switch to Reliability
+			d3.select('#reliabilityToggle').style('opacity', 1);
+			d3.select('#severityToggle').style('opacity', 0);
+			filters.toggle = 'reliability';
+
+			d3.select('#reliabilityTrendline').style('opacity',1);
+			d3.select('#severityTrendline').style('opacity',0);
+
+		} else {
+			// switch to Severity
+			d3.select('#reliabilityToggle').style('opacity', 0);
+			d3.select('#severityToggle').style('opacity', 1);	
+			filters.toggle = 'severity';
+
+			d3.select('#severityTrendline').style('opacity',1);
+			d3.select('#reliabilityTrendline').style('opacity',0);
+
+		}
+
+		timelineData();
+	}
+
+
+	function colorBars(){
+
+		d3.selectAll('.barGroup').each(function(d,i){
+
+			if((d.date<dateRange[0])||(d.date>= dateRange[1])){
+				d3.select(this).selectAll('.bar').style('fill', function(d,i){
+					return colorLightgrey[i];
+				}).style('fill-opacity', 1);
+			} else {
+				d3.select(this).selectAll('.bar').style('fill', function(d,i){
+					if(filters.toggle == 'severity'){
+						return colorGreen[i];
+					} else {
+						return colorOrange[i];
+					}
+				}).style('fill-opacity', 1);
+
+			}
+		});
 	}
 
 	//**************************
@@ -747,6 +1252,25 @@ var Deepviz = function(sources, callback){
 			}
 			if(v<100000000){
 				return Math.ceil(value/10000000)*10000000;
+			}
+		}
+
+		// add or remove values from an array if exists
+		function addOrRemove(array, value) {
+			var index = array.indexOf(value);
+
+			if (index === -1) {
+				array.push(value);
+			} else {
+				array.splice(index, 1);
+			}
+		}
+
+		var removeFromArray = function(array, elem) {  
+			var index = array.indexOf(elem);
+			while (index > -1) {
+				array.splice(index, 1);
+				index = array.indexOf(elem);
 			}
 		}
 
