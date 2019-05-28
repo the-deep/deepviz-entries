@@ -722,7 +722,7 @@ var Deepviz = function(sources, callback){
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 50,
+			viewBoxHeight: 43,
 			div: '#severity_bars',
 			width: '100%'
 		});
@@ -816,7 +816,7 @@ var Deepviz = function(sources, callback){
 		var reliabilitySvg = Deepviz.createSvg({
 			id: 'reliabilitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 50,
+			viewBoxHeight: 43,
 			div: '#reliability_bars',
 			width: '100%'
 		});
