@@ -1,7 +1,8 @@
 var Deepviz = function(sources, callback){
 
 	// define variables
-	var dateRange = [new Date(2019, 3, 13), new Date(2019, 3, 20)];
+	var dateRange = [new Date(2019, 2, 1), new Date(2019, 3, 31)];
+	var minDate = new Date(2019,0,1);
 	var data; // active dataset after filters applied
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
 	var trendlinePoints; 
@@ -62,7 +63,7 @@ var Deepviz = function(sources, callback){
 		data = values[0].deep.data;
 		metadata = values[0].deep.meta_data;
 
-		var minDate = new Date(2019,2,1);
+
 		data = data.filter(function(d){return new Date(d.date) >= minDate;});
 		originalData = data;
 
@@ -132,7 +133,7 @@ var Deepviz = function(sources, callback){
 	this.timeChart = function(options){
 
 		// margins
-		var margin = {top: 18, right: 10, bottom: 0, left: 50};
+		var margin = {top: 18, right: 25, bottom: 0, left: 25};
 		var chartdata = updateTimeline();
 
 		// container g, and
@@ -311,6 +312,7 @@ var Deepviz = function(sources, callback){
 		.attr("class", "barGroup")
 		.attr("transform", function(d) { return "translate(" + xScale(d[options.dataKey]) + ",0)"; });
 
+
 		var dy;
 
 		// individual bars
@@ -365,7 +367,8 @@ var Deepviz = function(sources, callback){
 		// 	.style('fill', function(d,i){if(color.length > 1){return color[i]} else {return color[0];}})
 		// })
 
-		//**************************
+
+		// *************************
 		// draw contextual rows
 		//**************************
 
@@ -390,20 +393,31 @@ var Deepviz = function(sources, callback){
 			.style('fill', '#FFF')
 			.style('fill-opacity',0);
 
+
 		contextualRows.append('rect')
 			.attr('height', contextualRowsHeight+45)
 			.attr('width', 10)
 			.attr('x', -5)
-			.attr('y',-45)
+			.attr('y',-40)
 			.style('fill', '#FFF')
 			.style('fill-opacity',1);
 
+		contextualRows.append('rect')
+			.attr('height', contextualRowsHeight+45)
+			.attr('width', 35)
+			.attr('x', 1245)
+			.attr('y',-40)
+			.style('fill', '#FFF')
+			.style('fill-opacity',1);
+
+
 		var contextualRowHeight = contextualRowsHeight/numContextualRows;
 
-		var rows = contextualRows.selectAll('#contextualRow')
+		var rows = contextualRows.selectAll('.contextualRow')
 			.data(metadata.context_array)
 			.enter()
 			.append('g')
+			.attr('class', 'contextualRow')
 			.attr('transform', function(d,i){
 				return 'translate(0,'+(i*(contextualRowHeight)) + ' )' ;
 			});
@@ -412,7 +426,7 @@ var Deepviz = function(sources, callback){
 			.append('line')
 			.attr('class', 'contextualRowLine')
 			.attr('x1',0)
-			.attr('x2',1240)
+			.attr('x2',1250)
 			.attr('y1', 0)
 			.attr('y2', 0)
 			.style('stroke', colorLightgrey[1]);
@@ -421,7 +435,7 @@ var Deepviz = function(sources, callback){
 			.append('line')
 			.attr('class', 'contextualRowLine')
 			.attr('x1',0)
-			.attr('x2',1240)
+			.attr('x2',1250)
 			.attr('y1', contextualRowsHeight)
 			.attr('y2', contextualRowsHeight)
 			.style('stroke', colorLightgrey[0])
@@ -434,7 +448,29 @@ var Deepviz = function(sources, callback){
 			.attr('x',1)
 			.style('font-weight', 'bold')
 
+		//**************************
+		// event drops
+		//**************************
 
+		bars.selectAll('.eventDrop')
+			.data(function(d,i){ console.log(d); return d.context;})
+			.enter()
+			.append('circle')
+			.attr('r', function(d){
+				console.log('r:'+d);
+				return d*4;
+			})
+			.attr('cx', function(d,i){
+				console.log('hello');
+				console.log(d);
+				return barWidth/2;
+			})
+			.attr('cy', function(d,i){
+				return contextualRowsHeight + 110 + (contextualRowHeight*i);
+			})
+			.style('fill', colorGreen[3]);
+
+			console.log(chartdata);
 
 
 		//**************************
@@ -458,13 +494,24 @@ var Deepviz = function(sources, callback){
 	    // add the triangle handles (top)
 	    var handleTop = gBrush.selectAll(".handle--custom-top")
 		    .data([{type: "w"}, {type: "e"}])
-		    .enter().append("path")
+		    .enter().append("g")
+
+		handleTop.append('path')
 		    .attr("class", "handle--custom-top")
 		    .attr("stroke", "#000")
 		    .attr('stroke-width', 3)
 		    .attr('fill', '#000')
 		    .attr("cursor", "ew-resize")
 		    .attr("d", 'M -9,0 -1,11 8,0 z');
+
+		handleTop.append('rect')
+	    	.attr('x',-10)
+	    	.attr('width', 20)
+	    	.attr('height', options.svgheight)
+	    	.attr('y', 0)
+	    	// .style('fill', 'blue')
+	    	.style('cursor', 'ew-resize');
+
 
 	    // add the triangle handles (bottom)
 	    var handleBottom = gBrush.selectAll(".handle--custom-bottom")
@@ -940,9 +987,17 @@ var Deepviz = function(sources, callback){
 
 		var timedata = data;
 
+		console.log(data);
+
 		var dateData = d3.nest()
 		.key(function(d) { return d.date;})
 		.key(function(d) { return d.severity; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(timedata);
+
+		var contextData = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.context; })
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(timedata);
 
@@ -972,12 +1027,29 @@ var Deepviz = function(sources, callback){
 				d.reliability[dx.key-1] = dx.value;
 			});
 
+			// set up empty context array for data loop
+			var contextArr = [];
+			var numContextRows = metadata.context_array.length;
+			for(b=0; b<=numContextRows-1; b++){
+				contextArr[b] = 0;
+			}
+
+			d.context = contextArr;
+
+			contextData[i].values.forEach(function(dx, ii){
+				var k = dx.key-1;
+				contextArr[k] = dx.value
+			});
+
+		    d.context = contextArr;
+
 			d.total_entries = count;
 
 		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
 		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
 
 		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
+
 			delete d.values;
 		});
 
