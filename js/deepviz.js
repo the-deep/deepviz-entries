@@ -329,10 +329,10 @@ var Deepviz = function(sources, callback){
 			return colorGreen[i];
 		})
 		.attr("x", function(d,i) { 
-			return (barWidth*(1-1))/2
+			return (barWidth*(1-1))/2+1;
 		})
 		.attr("width", function(d,i) { 
-			return barWidth*1
+			return (barWidth*1)-2;
 		})
 		.attr("y", function(d,i) { 
 
@@ -372,12 +372,8 @@ var Deepviz = function(sources, callback){
 		// draw contextual rows
 		//**************************
 
-		console.log('timechartHeight:'+timechartHeight);
-
 		var timechart = d3.select('#timeChart');
 		var yPadding =25;
-
-		console.log(timechart.attr('height'));
 
 		var contextualRows = svgChartBg.append('g')
 			.attr('id', 'contextualRows')
@@ -441,7 +437,6 @@ var Deepviz = function(sources, callback){
 			.style('stroke', colorLightgrey[0])
 
 			rows.append('text').text(function(d,i){
-				console.log(d);
 				return d.name.toUpperCase();
 			})
 			.attr('y',17)
@@ -453,24 +448,19 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		bars.selectAll('.eventDrop')
-			.data(function(d,i){ console.log(d); return d.context;})
+			.data(function(d,i){ return d.context;})
 			.enter()
 			.append('circle')
 			.attr('r', function(d){
-				console.log('r:'+d);
 				return d*4;
 			})
 			.attr('cx', function(d,i){
-				console.log('hello');
-				console.log(d);
 				return barWidth/2;
 			})
 			.attr('cy', function(d,i){
 				return contextualRowsHeight + 110 + (contextualRowHeight*i);
 			})
 			.style('fill', colorGreen[3]);
-
-			console.log(chartdata);
 
 
 		//**************************
@@ -852,6 +842,19 @@ var Deepviz = function(sources, callback){
 		.attr('height', 55)
 		.attr('width', 5)
 		.style('fill', '#000');		
+
+		//**************************
+		// severity filter remove button
+		//**************************
+		d3.selectAll('#severityRemoveFilter').on('click', function(){
+			console.log('click');
+			d3.select('#severityRemoveFilter').style('display', 'none');
+			d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
+				return colorGreen[i];
+			});	
+			return filter('severity', 'clear'); 
+		});
+
 	}
 
 	//**************************
@@ -945,27 +948,54 @@ var Deepviz = function(sources, callback){
 		.attr('height', 55)
 		.attr('width', 5)
 		.style('fill', '#000');	
+
+		//**************************
+		// reliability filter remove button
+		//**************************
+		d3.selectAll('#reliabilityRemoveFilter').on('click', function(){
+			console.log('click');
+			d3.select('#reliabilityRemoveFilter').style('display', 'none');
+			d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
+				return colorOrange[i];
+			});	
+			return filter('reliability', 'clear'); 
+		});
+
 	}
+
+
 
 	//**************************
 	// filtering (push values to filter array)
 	//**************************
 	var filter = function(filterClass, value){
 
-		addOrRemove(filters[filterClass], value);
+		if(value=='clear'){
+			filters[filterClass] = [];
+		} else {
+			addOrRemove(filters[filterClass], value);		
+		}
 
 		// reset data using original loaded data
 		data = originalData;
 
+		d3.select('#severityRemoveFilter').style('display', 'none');
+
+		console.log(filters['severity'].length);
+
 		// apply filters to data array
-		if(filters['severity'].length==5)filters['severity'] = [];
-		if(filters['severity'].length>0)
+		if(filters['severity'].length==5){
+			filters['severity'] = [];
+		}
+		if(filters['severity'].length>0){
 			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
-
+			d3.select('#severityRemoveFilter').style('display', 'inline');
+		}
 		if(filters['reliability'].length==5)filters['reliability'] = [];
-		if(filters['reliability'].length>0)
+		if(filters['reliability'].length>0){
 			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
-
+			d3.select('#reliabilityRemoveFilter').style('display', 'inline');
+		}
 		if(filters['sector'].length>0)
 			data = data.filter(function(d){return  filters['sector'].includes(d['sector']);});
 
@@ -986,8 +1016,6 @@ var Deepviz = function(sources, callback){
 		console.log('updateTimeline()');
 
 		var timedata = data;
-
-		console.log(data);
 
 		var dateData = d3.nest()
 		.key(function(d) { return d.date;})
@@ -1142,6 +1170,8 @@ var Deepviz = function(sources, callback){
 			d3.select('#reliabilityTrendline').style('opacity',1);
 			d3.select('#severityTrendline').style('opacity',0);
 
+			d3.select('#total_entries').style('color',colorOrange[3]);
+
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
@@ -1150,6 +1180,8 @@ var Deepviz = function(sources, callback){
 
 			d3.select('#severityTrendline').style('opacity',1);
 			d3.select('#reliabilityTrendline').style('opacity',0);
+
+			d3.select('#total_entries').style('color',colorGreen[3]);
 
 		}
 

@@ -18,6 +18,23 @@ body {
 
 }
 
+.removeFilterBtn {
+	display: none;
+}
+
+#reliabilityRemoveFilter,
+#severityRemoveFilter {
+	height: 15px;
+	cursor: pointer;
+	padding-left: 3px;
+}
+
+#reliabilityRemoveFilter:hover,
+#severityRemoveFilter:hover {
+	opacity: 0.75;
+}
+
+
 #severity {
 	width: 49%;
 	display: inline-block;

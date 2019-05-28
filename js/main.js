@@ -1,4 +1,4 @@
-var sources = [ 'data/data3.json'];
+var sources = [ 'data/data3.json?cache=123'];
 
 var Deepviz = new Deepviz(sources, function(data){
 
