@@ -1,30 +1,16 @@
-console.log('main.js');
-var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
-var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
-var colorLightgrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
-
-var severityArray = ["No problem/Minor Problem", "Of Concern", "Major", "Severe", "Critical"];
-var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
-
 var sources = [ 'data/data3.json'];
 
 var Deepviz = new Deepviz(sources, function(data){
-
-	console.log(Deepviz.filters);
-
-
 
 	//**************************
 	// severity chart
 	//**************************
 	var severityChart = Deepviz.createSeverityChart();
 
-
 	//**************************
 	// reliability chart
 	//**************************
 	var reliabilityChart = Deepviz.createReliabilityChart();
-
 
 	//**************************
 	// time chart

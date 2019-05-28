@@ -1,7 +1,7 @@
 body {
 	background-color: #FFF;
     font-family: Source Sans Pro, sans-serif;
-	max-width: 50%;
+	max-width: 95%;
 }
 
 #total_entries {
@@ -14,6 +14,9 @@ body {
 
 .toggle, .severitytoggle, .reliabilitytoggle { cursor: pointer; }
 
+.contextualRowLine {
+	
+}
 
 #severity {
 	width: 49%;
