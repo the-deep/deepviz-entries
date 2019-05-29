@@ -164,8 +164,8 @@ var Deepviz = function(sources, callback){
 		.attr('height',timechartHeight)
 		.attr('opacity',0);
 
-		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
 		var gridlines = svg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+margin.left+','+margin.top+')');
+		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
 		var svgChart = svg.append('g').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
 
 		var color = options.color;
@@ -318,9 +318,8 @@ var Deepviz = function(sources, callback){
 		.style('stroke-dasharray', '2 3');
 
 		// add the Y gridlines
-		svg.append("g")			
+		gridlines.append("g")			
 		.attr("class", "grid")
-		.attr("transform","translate("+margin.left+","+margin.top+")")
 		.call(make_y_gridlines()
 			.tickSize(-options.width)
 			.tickFormat("")
