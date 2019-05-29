@@ -124,7 +124,8 @@ body {
 }
 
 .removeFilterBtn {
-	display: none;
+	display: inline;
+	opacity: 0;
 }
 
 #reliabilityRemoveFilter,
