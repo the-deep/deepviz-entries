@@ -571,8 +571,8 @@ var Deepviz = function(sources, callback){
 		    .attr("d", 'M -9,0 -1,11 8,0 z');
 
 		handleTop.append('rect')
-	    	.attr('x',-10)
-	    	.attr('width', 20)
+	    	.attr('x',-5)
+	    	.attr('width', 10)
 	    	.attr('height', options.svgheight)
 	    	.attr('y', 0)
 	    	// .style('fill', 'blue')
