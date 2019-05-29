@@ -133,7 +133,7 @@ var Deepviz = function(sources, callback){
 	this.timeChart = function(options){
 
 		// margins
-		var margin = {top: 18, right: 25, bottom: 0, left: 25};
+		var margin = {top: 18, right: 25, bottom: 0, left: 37};
 		var chartdata = updateTimeline();
 
 		// container g, and
@@ -197,12 +197,12 @@ var Deepviz = function(sources, callback){
 
 		barWidth = options.width/dateIndex.length;
 
+
 	    // define scales
 	    xScale = d3.scaleTime()
 	    .domain([minDate, dateMax])
 	    .range([0, options.width+barWidth])
 	    .rangeRound([0, options.width], 0)
-
 
 	    var xAxis = d3.axisBottom()
 	    .scale(xScale)
@@ -211,10 +211,13 @@ var Deepviz = function(sources, callback){
 	    .ticks(d3.timeMonth.every(1))
 	    .tickFormat(d3.timeFormat("%b %Y"));
 
-		// define y-axis
+	    //**************************
+	    // Y AXIS left
+	    //**************************
 		yScale = d3.scaleLinear()
 		.range([timechartHeight, 0])
 		.domain([0, (maxValue)]);
+
 
 		if(options.maxValue=='round'){
 			yScale = d3.scaleLinear()
@@ -229,28 +232,87 @@ var Deepviz = function(sources, callback){
 		.tickPadding(4);
 
 		// y-axis
-		if(options.yAxis.enabled==true){
-			
-			var yAxisText = svgBg.append("g")
-			.attr("class", "yAxis axis")
-			.attr('transform', 'translate('+(margin.left-1)+','+margin.top+')')
-			.call(yAxis)
-			.style('font-size', options.yAxis.font.values.size);
+		var yAxisText = svgBg.append("g")
+		.attr("class", "yAxis axis")
+		.attr('transform', 'translate('+(margin.left-1)+','+margin.top+')')
+		.call(yAxis)
+		.style('font-size', options.yAxis.font.values.size);
 
-			if((options.yAxis.label)&&(options.yAxis.label != '')){
-				yAxisText
-				.append("text")
-				.attr('class','axisLabel')
-				.attr("transform", "rotate(-90)")
-				.attr("y", -30-options.yAxis.font.label.padding)
-				.attr("dy", ".71em")
-				.attr("x", ((-height/2)+25))
-				.style("text-anchor", "end")
-				.style('font-weight', options.yAxis.font.label.weight)
-				.style('font-size', options.yAxis.font.label.size)
-				.text(options.yAxis.label)
-			}
-		}
+		yAxisText
+		.append("text")
+		.attr('class','axisLabel')
+		.attr("transform", "rotate(-90)")
+		.attr("y", -25)
+		.attr("x", -140)
+		.style('font-weight','normal')
+		.style('font-size', '15px')
+		.style('fill', '#000')
+		.text('Total Entries')
+
+		yAxisText
+		.append("rect")
+		.attr('id', 'leftAxisBox')
+		.attr("y", 230)
+		.attr("x", -37)
+		.attr('width', 10)
+		.attr('height', 13)
+		.style('fill', colorGreen[3]);
+
+		
+		//**************************
+		// Y AXIS right
+		//**************************
+
+		// define y-axis secondary
+		yScale2 = d3.scaleLinear()
+		.range([timechartHeight, 0])
+		.domain([1, 5]);
+
+		var yAxis2 = d3.axisRight()
+		.scale(yScale2)
+		.ticks(1)
+		.tickSize(5)
+		.tickPadding(4);
+
+		var yAxisText2 = svgBg.append("g")
+		.attr("class", "yAxis axis")
+		.attr('transform', 'translate('+(options.width + margin.left-1)+','+margin.top+')')
+		.call(yAxis2)
+		.style('font-size', options.yAxis.font.values.size);
+
+		yAxisText2
+		.append("text")
+		.attr('class','axisLabel')
+		.attr('id', 'rightAxisLabel')
+		.attr("transform", "rotate(-90)")
+		.attr("y", 23)
+		.attr("x", -225)
+		.style('font-weight','normal')
+		.style('font-size', '15px')
+		.style('fill', '#000')
+		.text('Avg. Severity')
+
+		yAxisText2
+		.append("text")
+		.attr('class','axisLabel0')
+		.attr("y", timechartHeight)
+		.attr("x", 10)
+		.style('font-weight','normal')
+		.style('font-size', '15px')
+		.style('fill', '#000')
+		.text('1')
+
+		yAxisText2
+		.append("line")
+		.attr('id', 'rightAxisLabelLine')
+		.attr("y1", 238)
+		.attr("y2", 255)
+		.attr("x1", 18)
+		.attr("x2", 18)
+		.style('stroke', colorGreen[3])
+		.style('stroke-width',4)
+		.style('stroke-opacity',1)
+		.style('stroke-dasharray', '2 3');
 
 		// add the Y gridlines
 		svg.append("g")			
@@ -389,7 +451,6 @@ var Deepviz = function(sources, callback){
 			.style('fill', '#FFF')
 			.style('fill-opacity',0);
 
-
 		contextualRows.append('rect')
 			.attr('height', contextualRowsHeight+45)
 			.attr('width', 10)
@@ -405,7 +466,6 @@ var Deepviz = function(sources, callback){
 			.attr('y',-40)
 			.style('fill', '#FFF')
 			.style('fill-opacity',1);
-
 
 		var contextualRowHeight = contextualRowsHeight/numContextualRows;
 
@@ -446,11 +506,11 @@ var Deepviz = function(sources, callback){
 		//**************************
 		// event drops
 		//**************************
-
 		bars.selectAll('.eventDrop')
 			.data(function(d,i){ return d.context;})
 			.enter()
 			.append('circle')
+			.attr('class', 'eventDrop')
 			.attr('r', function(d){
 				return d*4;
 			})
@@ -462,11 +522,9 @@ var Deepviz = function(sources, callback){
 			})
 			.style('fill', colorGreen[3]);
 
-
 		//**************************
 		// date slider brushes
 		//**************************
-
 	    // initialise the brush
 	    var brush = d3.brushX()
 		    .extent([[0, -margin.top], [options.width, options.svgheight-(margin.top+margin.bottom)]])
@@ -1171,6 +1229,14 @@ var Deepviz = function(sources, callback){
 			d3.select('#severityTrendline').style('opacity',0);
 
 			d3.select('#total_entries').style('color',colorOrange[3]);
+			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
+
+			d3.selectAll('.eventDrop').style('fill', colorOrange[3]);
+
+			d3.select('#rightAxisLabel').text('Avg. Reliability');
+			d3.select('#rightAxisLabelLine').style('stroke', colorOrange[3]);
+			d3.select('#leftAxisBox').style('fill', colorOrange[3]);
+
 
 		} else {
 			// switch to Severity
@@ -1182,6 +1248,12 @@ var Deepviz = function(sources, callback){
 			d3.select('#reliabilityTrendline').style('opacity',0);
 
 			d3.select('#total_entries').style('color',colorGreen[3]);
+
+			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY SEVERITY');
+			d3.selectAll('.eventDrop').style('fill', colorGreen[3]);
+			d3.select('#rightAxisLabel').text('Avg. Severity');
+			d3.select('#rightAxisLabelLine').style('stroke', colorGreen[3]);
+			d3.select('#leftAxisBox').style('fill', colorGreen[3]);
 
 		}
 

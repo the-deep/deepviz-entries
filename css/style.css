@@ -106,6 +106,7 @@ body {
 	display: inline;
 	padding-left: 1px;
 	float: right;
+	padding-top: 4px;
 }
 
 #dateRange {
