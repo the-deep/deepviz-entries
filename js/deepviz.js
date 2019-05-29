@@ -1166,7 +1166,6 @@ var Deepviz = function(sources, callback){
 		d3.selectAll('.bar').transition("h").duration(0).attr('height',0);
 		d3.selectAll('.bar').transition().duration(500).attr('y',timechartHeight).attr('height',0);
 
-		d3.selectAll('.eventDrop').attr('r', 0);
 
 		bars.each(function(d,i){
 
@@ -1176,9 +1175,13 @@ var Deepviz = function(sources, callback){
 				return 'date'+obj.date.getTime() == timeid;
 			})[0]
 
+			var group = d3.select(this);
+
+			var eventDrops = group.selectAll('.eventDrop' )
+
 			if(dD){
 
-				var iBars = d3.select(this).selectAll('.bar' )
+				var iBars = group.selectAll('.bar' )
 				.style('fill', function(d,i){
 					if(filters.toggle=='severity'){
 						return colorGreen[i];
@@ -1204,12 +1207,9 @@ var Deepviz = function(sources, callback){
 
 				});
 
-				var eventDrops = d3.select(this).selectAll('.eventDrop' )
-				.style('opacity', 1)
+				eventDrops.transition().duration(500)
 				.attr('r', function(d,i){
-
 					var dx = dD['context'][i]
-
 					return dx*4;
 				})
 
@@ -1233,6 +1233,10 @@ var Deepviz = function(sources, callback){
 
 
 
+			} else {
+
+				eventDrops.transition().duration(750)
+				.attr('r', 0)
 			}
 
 			colorBars(dateRange);
