@@ -889,6 +889,10 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.bar').transition("mouseoutSeverity").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
 
+
+			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+	
 			clickTimer = 1;
 
 			filter('severity',i+1);
@@ -970,6 +974,7 @@ var Deepviz = function(sources, callback){
 		.attr('fill', function(d,i){
 			return colorGreen[i];
 		}).on('mouseover', function(d,i){
+
 			if(clickTimer == 0 ){
 
 				if((filters.reliability.length>0)&&(!filters.reliability.includes(i+1))) return false;
@@ -994,6 +999,9 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
 			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
+
+			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 
 			clickTimer = 1;
 
