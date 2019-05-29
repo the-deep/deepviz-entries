@@ -246,8 +246,8 @@ body {
 }
 
 .grid line {
-  stroke: grey;
-  stroke-opacity: 0.5;
+  stroke: #D2D2D2;
+  stroke-opacity: 1;
   shape-rendering: crispEdges;
   stroke-dasharray: 2 2; 
   stroke-width: 1;
@@ -270,7 +270,7 @@ body {
 }
 
 .xAxisHorizontalLine {
-	stroke: #000;
+	stroke: #3D3E3D;
 	  stroke-dasharray: 1 1; 
-	  stroke-opacity: 0.7;
+	  stroke-opacity: 1;
 }

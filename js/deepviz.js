@@ -298,8 +298,8 @@ var Deepviz = function(sources, callback){
 		yAxisText2
 		.append("text")
 		.attr('class','axisLabel0')
-		.attr("y", timechartHeight)
-		.attr("x", 10)
+		.attr("y", timechartHeight+4)
+		.attr("x", 8)
 		.style('font-weight','normal')
 		.style('font-size', '15px')
 		.style('fill', '#000')
@@ -342,9 +342,9 @@ var Deepviz = function(sources, callback){
 
 		xAxisObj
 		.selectAll('path, line')
-		.style('opacity', options.xAxis.gridlines.opacity )
-		.style('stroke', options.xAxis.gridlines.stroke )
-		.style('stroke-width', options.xAxis.gridlines.strokeWidth );
+		.style('opacity', 1 )
+		.style('stroke', '#535353' )
+		.style('stroke-width', 1);
 
 		xAxisObj.selectAll(".tick line, text")
 		.attr("transform", "translate(" +40 + ", 0)")
@@ -491,7 +491,7 @@ var Deepviz = function(sources, callback){
 			.attr('x2',1250)
 			.attr('y1', 0)
 			.attr('y2', 0)
-			.style('stroke', colorLightgrey[1]);
+			.style('stroke', '#DCDCDC');
 
 			contextualRows
 			.append('line')
