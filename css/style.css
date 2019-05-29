@@ -6,6 +6,10 @@ body {
 
 }
 
+.widget {
+	margin-bottom: 0px;
+}
+
 @media only screen and (max-width: 900px) {
 
 	body { font-size: 12px; }
@@ -246,9 +250,10 @@ body {
   stroke-width: 2px;
 }
 
-.grid line {
-  stroke: #D2D2D2;
-  stroke-opacity: 1;
+.grid line,
+.contextualRowLine {
+  stroke: #6A6A6A;
+  stroke-opacity: .2;
   shape-rendering: crispEdges;
   stroke-dasharray: 2 2; 
   stroke-width: 1;
@@ -271,7 +276,7 @@ body {
 }
 
 .xAxisHorizontalLine {
-	stroke: #3D3E3D;
+	stroke: #2D2E2E;
 	  stroke-dasharray: 1 1; 
-	  stroke-opacity: 1;
+	  stroke-opacity: .5;
 }
