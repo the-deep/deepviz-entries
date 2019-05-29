@@ -6,7 +6,7 @@ body {
 
 @media only screen and (max-width: 900px) {
 
-	body { font-size: 10px; }
+	body { font-size: 14px; }
 
   #total_entries {
 	font-size: 35px !important;
@@ -27,7 +27,7 @@ body {
 
 	.subtitle,
 	.selectedDate {
-		font-size: 9px !important;
+		font-size: 11px !important;
 	}
 
 	#reliabilityRemoveFilter,
@@ -39,7 +39,7 @@ body {
 
 @media only screen and (max-width: 600px) {
 
-	body { font-size: 10px; }
+	body { font-size: 11px; }
 
   #total_entries {
 	font-size: 30px !important;
