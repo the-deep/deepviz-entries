@@ -30,6 +30,11 @@ body {
 		font-size: 9px !important;
 	}
 
+	#reliabilityRemoveFilter,
+	#severityRemoveFilter {
+		height: 12px !important;
+	}
+
 }
 
 @media only screen and (max-width: 600px) {
@@ -58,6 +63,12 @@ body {
 		font-size: 8px !important;
 	}
 
+	#reliabilityRemoveFilter,
+	#severityRemoveFilter {
+		height: 12px !important;
+		width: 12px !important;
+	}
+
 }
 
 @media only screen and (max-width: 420px) {
@@ -77,7 +88,7 @@ body {
 		font-size: 6px !important;
 	}
 
-	.toggle {
+	.toggle, {
 		height: 8px !important;
 	}
 	.subtitle
@@ -86,6 +97,13 @@ body {
 	}
 	.selectedDate {
 		font-size: 6px !important;
+	}
+
+	#reliabilityRemoveFilter,
+	#severityRemoveFilter {
+		height: 10px !important;
+		width: 10px !important;
+		padding-left: 0px;
 	}
 
 }
