@@ -465,11 +465,11 @@ var Deepviz = function(sources, callback){
 			.style('fill', '#FFF')
 			.style('fill-opacity',1);
 
-		contextualRows.append('rect')
-			.attr('height', contextualRowsHeight+45)
+		svg.append('rect')
+			.attr('height', contextualRowsHeight+38)
 			.attr('width', 35)
-			.attr('x', 1245)
-			.attr('y',-40)
+			.attr('x', 1276)
+			.attr('y',timechartHeightOriginal+10)
 			.style('fill', '#FFF')
 			.style('fill-opacity',1);
 
