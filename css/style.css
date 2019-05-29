@@ -12,6 +12,7 @@ body {
     line-height: 0.8;
 }
 
+
 .toggle, .severitytoggle, .reliabilitytoggle { cursor: pointer; }
 
 .contextualRowLine {
@@ -124,11 +125,13 @@ body {
 }
 
 .selection {
-	fill: cyan;
+	fill: #36BBA6;
 	fill-opacity: 0.01;
 	 filter: grayscale(50%);
 	 stroke-opacity: 0;
 }
+
+
 
 .line {
   fill: none;

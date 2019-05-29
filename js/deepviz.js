@@ -537,6 +537,15 @@ var Deepviz = function(sources, callback){
 		    .attr('transform', 'translate('+(2)+',0)')
 		    .call(brush);
 
+		// hover effect on overlay
+		d3.select('.selection')
+		.on('mouseover', function(){
+			d3.select('.selection').style('fill-opacity',0.03);
+		})
+		.on('mouseout', function(){
+			d3.select(this).style('fill-opacity',0.01);
+		})
+
 	    d3.selectAll('.handle rect').attr('fill-opacity', '1').style('visibility', 'visible').attr('width', 2).attr('fill', '#000').style('stroke-opacity', 0);
 
 	    // add the triangle handles (top)
@@ -585,6 +594,8 @@ var Deepviz = function(sources, callback){
 			if(!d3.event.sourceEvent) return;
 			if(d3.event.sourceEvent.type === "brush") return;
 
+			d3.select('.selection').style('fill-opacity',0.03);
+
 			var d0 = d3.event.selection.map(xScale.invert);
 			var d1 = d0.map(d3.timeDay.round);
 
@@ -612,6 +623,7 @@ var Deepviz = function(sources, callback){
 			if(!d3.event.sourceEvent) return;
 			if(d3.event.sourceEvent.type === "brush") return;
 
+
 			var d0 = d3.event.selection.map(xScale.invert);
 			var d1 = d0.map(d3.timeDay.round);
 
@@ -636,7 +648,6 @@ var Deepviz = function(sources, callback){
 		//**************************
 		// trendline
 		//**************************
-
 		var lineGenerator = d3.line()
 			.curve(d3.curveCardinal);
 
@@ -1038,8 +1049,7 @@ var Deepviz = function(sources, callback){
 		data = originalData;
 
 		d3.select('#severityRemoveFilter').style('display', 'none');
-
-		console.log(filters['severity'].length);
+		d3.select('#reliabilityRemoveFilter').style('display', 'none');
 
 		// apply filters to data array
 		if(filters['severity'].length==5){
@@ -1236,7 +1246,7 @@ var Deepviz = function(sources, callback){
 			d3.select('#rightAxisLabel').text('Avg. Reliability');
 			d3.select('#rightAxisLabelLine').style('stroke', colorOrange[3]);
 			d3.select('#leftAxisBox').style('fill', colorOrange[3]);
-
+			d3.select('.selection').style('fill', colorOrange[1]);
 
 		} else {
 			// switch to Severity
@@ -1254,6 +1264,7 @@ var Deepviz = function(sources, callback){
 			d3.select('#rightAxisLabel').text('Avg. Severity');
 			d3.select('#rightAxisLabelLine').style('stroke', colorGreen[3]);
 			d3.select('#leftAxisBox').style('fill', colorGreen[3]);
+			d3.select('.selection').style('fill', colorGreen[2]);
 
 		}
 
