@@ -1163,9 +1163,6 @@ var Deepviz = function(sources, callback){
 		// bar groups
 		var bars = d3.selectAll(".barGroup");
 
-		d3.selectAll('.bar').transition("h").duration(0).attr('height',0);
-		d3.selectAll('.bar').transition().duration(500).attr('y',timechartHeight).attr('height',0);
-
 
 		bars.each(function(d,i){
 
@@ -1234,6 +1231,10 @@ var Deepviz = function(sources, callback){
 
 
 			} else {
+
+
+				group.selectAll('.bar').transition("h").duration(0).attr('height',0);
+				group.selectAll('.bar').transition().duration(500).attr('y',timechartHeight).attr('height',0);
 
 				eventDrops.transition().duration(750)
 				.attr('r', 0)
