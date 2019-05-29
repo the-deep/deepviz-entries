@@ -1178,7 +1178,7 @@ var Deepviz = function(sources, callback){
 
 			if(dD){
 
-				var iBars = d3.selectAll('#'+timeid + ' .bar' )
+				var iBars = d3.select(this).selectAll('.bar' )
 				.style('fill', function(d,i){
 					if(filters.toggle=='severity'){
 						return colorGreen[i];
