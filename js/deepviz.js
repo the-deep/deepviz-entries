@@ -1265,6 +1265,8 @@ var Deepviz = function(sources, callback){
 			var count = 0;
 
 			d.reliability = [0,0,0,0,0];
+			d.severity = [0,0,0,0,0];
+
 
 			dateByReliability[i].values.forEach(function(dx){
 				d.reliability[dx.key-1] = dx.value;
