@@ -6,8 +6,8 @@ body {
 
 #total_entries {
 	margin-bottom: 12px;
-    font-size: 40px;
-    font-weight: bold;
+    font-size: 52px;
+    font-weight: bold
     color: #008974;
     line-height: 0.8;
 }
@@ -52,7 +52,7 @@ body {
     color: #008974;
     float: right;
     display: inline;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
 
 }
@@ -78,7 +78,7 @@ body {
     color: #e6550d;
     float: right;
     display: inline;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
 }
 
