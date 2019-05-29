@@ -133,13 +133,12 @@ body {
 #reliabilityRemoveFilter,
 #severityRemoveFilter {
 	height: 15px;
-	cursor: pointer;
 	padding-left: 3px;
 }
 
 #reliabilityRemoveFilter:hover,
 #severityRemoveFilter:hover {
-	opacity: 0.75;
+
 }
 
 

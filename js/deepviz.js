@@ -932,7 +932,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 		d3.selectAll('#severityRemoveFilter').on('click', function(){
 			console.log('click');
-			d3.select('#severityRemoveFilter').style('opacity', 0);
+			d3.select('#severityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
 				return colorGreen[i];
 			});	
@@ -1042,7 +1042,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 		d3.selectAll('#reliabilityRemoveFilter').on('click', function(){
 			console.log('click');
-			d3.select('#reliabilityRemoveFilter').style('opacity', 0);
+			d3.select('#reliabilityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
 				return colorOrange[i];
 			});	
@@ -1050,8 +1050,6 @@ var Deepviz = function(sources, callback){
 		});
 
 	}
-
-
 
 	//**************************
 	// filtering (push values to filter array)
@@ -1067,8 +1065,8 @@ var Deepviz = function(sources, callback){
 		// reset data using original loaded data
 		data = originalData;
 
-		d3.select('#severityRemoveFilter').style('opacity', 0);
-		d3.select('#reliabilityRemoveFilter').style('opacity', 0);
+		d3.select('#severityRemoveFilter').style('opacity', 0).style('cursor', 'default');
+		d3.select('#reliabilityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 
 		// apply filters to data array
 		if(filters['severity'].length==5){
@@ -1076,12 +1074,12 @@ var Deepviz = function(sources, callback){
 		}
 		if(filters['severity'].length>0){
 			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
-			d3.select('#severityRemoveFilter').style('opacity', 1);
+			d3.select('#severityRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
 		}
 		if(filters['reliability'].length==5)filters['reliability'] = [];
 		if(filters['reliability'].length>0){
 			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
-			d3.select('#reliabilityRemoveFilter').style('opacity', 1);
+			d3.select('#reliabilityRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
 		}
 		if(filters['sector'].length>0)
 			data = data.filter(function(d){return  filters['sector'].includes(d['sector']);});
