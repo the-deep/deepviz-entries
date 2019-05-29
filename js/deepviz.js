@@ -22,6 +22,9 @@ var Deepviz = function(sources, callback){
 	var timechartHeightOriginal = timechartHeight;
 	var numContextualRows = 5;
 	var metadata;
+	var sxScale = d3.scaleLinear()
+		.range([0, 995])
+		.domain([1, 5]);// severity/reliability x xcale
 
 	// filters
 	var filters = {
@@ -800,14 +803,14 @@ var Deepviz = function(sources, callback){
 				d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
 
 				d3.select('#severityAvg').attr('x',function(d){
-					return (severityAverage/5 * 1000)-5;
+					return sxScale(severityAverage);
 				});
 
 				var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / total;
 				d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
 				
 				d3.select('#reliabiltiyAvg').attr('x',function(d){
-					return (reliabilityAverage/5 * 1000)-5;
+					return sxScale(reliabilityAverage);
 				});
 
 			} else {
