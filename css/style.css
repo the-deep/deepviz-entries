@@ -1,7 +1,93 @@
 body {
 	background-color: #FFF;
     font-family: Source Sans Pro, sans-serif;
-	max-width: 60%;
+	max-width: 1000px;
+}
+
+@media only screen and (max-width: 900px) {
+
+	body { font-size: 10px; }
+
+  #total_entries {
+	font-size: 35px !important;
+  }
+
+  .title {
+	font-size: 12px !important;
+	}
+
+	#severity_value,
+	#reliability_value {
+		font-size: 11px !important;
+	}
+
+	.toggle {
+		height: 11px !important;
+	}
+
+	.subtitle,
+	.selectedDate {
+		font-size: 9px !important;
+	}
+
+}
+
+@media only screen and (max-width: 600px) {
+
+	body { font-size: 10px; }
+
+  #total_entries {
+	font-size: 30px !important;
+  }
+
+  .title {
+	font-size: 10px !important;
+	}
+
+	#severity_value,
+	#reliability_value {
+		font-size: 8px !important;
+	}
+
+	.toggle {
+		height: 10px !important;
+	}
+
+	.subtitle,
+	.selectedDate {
+		font-size: 8px !important;
+	}
+
+}
+
+@media only screen and (max-width: 420px) {
+
+	body { font-size: 8px; }
+
+  #total_entries {
+	font-size: 20px !important;
+  }
+
+  .title {
+	font-size: 8px !important;
+	}
+
+	#severity_value,
+	#reliability_value {
+		font-size: 6px !important;
+	}
+
+	.toggle {
+		height: 8px !important;
+	}
+	.subtitle
+	 {
+		visibility: hidden;
+	}
+	.selectedDate {
+		font-size: 6px !important;
+	}
+
 }
 
 #total_entries {
