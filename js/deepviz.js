@@ -361,6 +361,11 @@ var Deepviz = function(sources, callback){
 		.attr('y1', -timechartHeight)
 		.attr('y2', timechartHeight+margin.top+1)
 
+
+		//**************************
+		// Bar/event drop groups (by date)
+		//**************************
+
 		// bar groups
 		var bars = svgChart.selectAll(".barGroup")
 		.data(chartdata)
@@ -373,7 +378,6 @@ var Deepviz = function(sources, callback){
 		})
 		.attr("class", "barGroup")
 		.attr("transform", function(d) { return "translate(" + xScale(d[options.dataKey]) + ",0)"; });
-
 
 		var dy;
 
@@ -506,7 +510,12 @@ var Deepviz = function(sources, callback){
 		//**************************
 		// event drops
 		//**************************
-		bars.selectAll('.eventDrop')
+
+		// event mask groups (to be used for event drop grey brush mask)
+		var eventDropGroup = bars.append('g')
+		.attr("class", "eventDropGroup");
+
+		var eventDrops = eventDropGroup.selectAll('.eventDrop')
 			.data(function(d,i){ return d.context;})
 			.enter()
 			.append('circle')
@@ -1157,6 +1166,8 @@ var Deepviz = function(sources, callback){
 		d3.selectAll('.bar').transition("h").duration(0).attr('height',0);
 		d3.selectAll('.bar').transition().duration(500).attr('y',timechartHeight).attr('height',0);
 
+		d3.selectAll('.eventDrop').attr('r', 0);
+
 		bars.each(function(d,i){
 
 			var timeid = this.id;
@@ -1193,32 +1204,62 @@ var Deepviz = function(sources, callback){
 
 				});
 
+				var eventDrops = d3.select(this).selectAll('.eventDrop' )
+				.style('opacity', 1)
+				.attr('r', function(d,i){
+
+					var dx = dD['context'][i]
+
+					return dx*4;
+				})
+
+				// .transition().duration(500)
+				// .attr("height", function(d,i) {
+				// 	return timechartHeight-yScale(dD[filters.toggle][i]); 
+				// })
+				// .attr("y", function(d,i) { 
+				// 	var d = dD[filters.toggle][i];
+				// 	if(i>0){
+				// 		var prevY = bars.data()[i-1].y;
+				// 	} else {
+				// 		var prevY = 0;
+				// 	}
+
+				// 	bars.data()[i].y = d + prevY;
+
+				// 	return yScale(d + prevY);
+
+				// });
+
+
+
 			}
 
 			colorBars(dateRange);
 
 		})
 
-		// reorganize data
-		dateData.forEach(function(d, i) {
-			d.date = new Date(d.date);
-			d.date.setHours(0);
-			d.barValues = d[filters.toggle];
-		});
+		// // reorganize data
+		// dateData.forEach(function(d, i) {
+		// 	d.date = new Date(d.date);
+		// 	d.date.setHours(0);
+		// 	d.barValues = d[filters.toggle];
+		// });
 
-		// define maximum date 
-		var maxDate = new Date(d3.max(dateData, function(d){
-			return d.date;
-		}));
+		// // define maximum date 
+		// var maxDate = new Date(d3.max(dateData, function(d){
+		// 	return d.date;
+		// }));
 
-		// define minimum date 
-		var minDate = new Date(d3.min(dateData, function(d){
-			return d.date;
-		}));
+		// // define minimum date 
+		// var minDate = new Date(d3.min(dateData, function(d){
+		// 	return d.date;
+		// }));
 
-		var maxValue = d3.max(dateData, function(d) {
-			return d.total_entries;
-		});
+		// var maxValue = d3.max(dateData, function(d) {
+		// 	return d.total_entries;
+		// });
+
 
 
 		return dateData;
@@ -1280,6 +1321,10 @@ var Deepviz = function(sources, callback){
 				d3.select(this).selectAll('.bar').style('fill', function(d,i){
 					return colorLightgrey[i];
 				}).style('fill-opacity', 1);
+				d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
+					return colorLightgrey[1];
+				});
+
 			} else {
 				d3.select(this).selectAll('.bar').style('fill', function(d,i){
 					if(filters.toggle == 'severity'){
@@ -1289,6 +1334,13 @@ var Deepviz = function(sources, callback){
 					}
 				}).style('fill-opacity', 1);
 
+				d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
+					if(filters.toggle == 'severity'){
+						return colorGreen[3];
+					} else {
+						return colorOrange[3];
+					}
+				});
 			}
 		});
 	}

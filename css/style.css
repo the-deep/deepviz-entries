@@ -131,7 +131,9 @@ body {
 	 stroke-opacity: 0;
 }
 
-
+#eventDrop {
+  clip: rect(10px, 190px, 190px, 10px);
+}
 
 .line {
   fill: none;
