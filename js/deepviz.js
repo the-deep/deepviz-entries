@@ -930,74 +930,137 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		// create slider
-var avgSliderSvg = d3.select("#avg_slider").append('svg').attr('height', 50).attr('width', 200)
-.on('mouseover', function(){
-	d3.selectAll('#severityTrendline, #reliabilityTrendline')
-	.style('stroke-width',2)
-	.transition().duration(750)
-	.style('stroke-opacity',1);
 
-	d3.select('#chartarea').transition().duration(750).style('opacity', 0.2);
 
-}).on('mouseout', function(){
-	if(avgSliderBrushing==false){
-		d3.selectAll('#severityTrendline, #reliabilityTrendline')
-		.style('stroke-width',1)
-		.transition().duration(750)
-		.style('stroke-opacity',0.4);	
+		// create average svg
+		var avgSliderSvg = this.createSvg({
+			id: 'avg_slide_svg',
+			viewBoxWidth: 300,
+			viewBoxHeight: 40,
+			div: '#avg_slider',
+			width: '100%'
+		});
 
-		d3.select('#chartarea').transition().duration(750).style('opacity', 1);		
-	}
-})
+		var avgSliderIcons = avgSliderSvg.append('g')
+		.attr('id', 'sliderIcons');
 
-var width = 180,
-    height = 50;
+		avgSliderIcons.append('image')
+		.attr('class', 'sliderIcon')
+		.attr('xlink:href', 'images/oscillator_saw.png')
+		.attr('y', 8)
+		.attr('x', 113)
+		.attr('height', '22px')
+		.attr('width', '22px');
 
-var xt = d3.scaleLinear()
-    .domain([1, 0.1])
-    .range([0, 180])
-    .clamp(true);
+		avgSliderIcons.append('image')
+		.attr('class', 'sliderIcon')
+		.attr('xlink:href', 'images/oscillator_sine.png')
+		.attr('y', 8)
+		.attr('x', 276)
+		.attr('height', '19px')
+		.attr('width', '19px');
 
-var slider = avgSliderSvg.append("g")
-    .attr("class", "slider")
-    .attr("transform", "translate(10,20)");
+		// xlink:href="firefox.jpg" x="0" y="0" height="50px" width="50px"
 
-slider.append("line")
-    .attr("class", "track")
-    .attr("x1", xt.range()[0])
-    .attr("x2", xt.range()[1])
-  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-    .attr("class", "track-inset")
-  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-    .attr("class", "track-overlay")
-    .call(d3.drag()
-        .on("start.interrupt", function() { slider.interrupt(); })
-        .on('end', function(){
-        	avgSliderBrushing = false;
-
-        		d3.selectAll('#severityTrendline, #reliabilityTrendline')
-			.style('stroke-width',1)
+		avgSliderSvg.on('mouseover', function(){
+			d3.selectAll('#severityTrendline, #reliabilityTrendline')
+			.style('stroke-width',2)
 			.transition().duration(750)
-			.style('stroke-opacity',0.4);	
+			.style('stroke-opacity',1);
 
-			d3.select('#chartarea').transition().duration(500).style('opacity', 1);
-        })
-        .on("start drag", function() { 
-        	avgSliderBrushing = true;
-        	var h = xt.invert(d3.event.x)
-			handle.attr("cx", xt(h));
-        	smoothAverage(h); }));
+			d3.select('#chartarea').transition().duration(750).style('opacity', 0.2);
 
-slider.insert("g", ".track-overlay")
-    .attr("class", "ticks")
-    .attr("transform", "translate(0," + 18 + ")");
+		}).on('mouseout', function(){
+			if(avgSliderBrushing==false){
+				d3.selectAll('#severityTrendline, #reliabilityTrendline')
+				.style('stroke-width',1)
+				.transition().duration(750)
+				.style('stroke-opacity',0.4);	
 
-var handle = slider.insert("circle", ".track-overlay")
-    .attr("class", "handle")
-    .attr("r", 7)
-    .attr("cx", xt(0.5));
+				d3.select('#chartarea').transition().duration(750).style('opacity', 1);		
+			}
+		});
 
-	}
+
+		var sliderPadding = 60;
+
+		var xt = d3.scaleLinear()
+		    .domain([1, 0.1])
+		    .range([0, 190-sliderPadding])
+		    .clamp(true);
+
+		var slider = avgSliderSvg.append("g")
+		    .attr("class", "slider")
+		    .attr("transform", "translate("+139+",20)");
+
+		avgSliderSvg.append("text")
+		.attr('class', 'avgSliderLabel')
+		.text('Avg. trendline smoothing')
+		.attr('y', 21)
+
+		slider.append("line")
+		    .attr("class", "track")
+		    .attr("x1", xt.range()[0])
+		    .attr("x2", xt.range()[1])
+		  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+		    .attr("class", "track-inset")
+		  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+		    .attr("class", "track-overlay")
+		    .call(d3.drag()
+		        .on("start.interrupt", function() { slider.interrupt(); })
+		        .on('end', function(){
+		        	avgSliderBrushing = false;
+
+		        		d3.selectAll('#severityTrendline, #reliabilityTrendline')
+					.style('stroke-width',1)
+					.transition().duration(750)
+					.style('stroke-opacity',0.4);	
+
+					d3.select('#chartarea').transition().duration(500).style('opacity', 1);
+		        })
+		        .on("start drag", function() { 
+		        	avgSliderBrushing = true;
+		        	var h = xt.invert(d3.event.x)
+					// handle.attr("cx", xt(h));
+					handle.attr('transform', 'translate('+xt(h)+',-10)')
+		        	smoothAverage(h); }));
+
+		slider.insert("g", ".track-overlay")
+		    .attr("class", "ticks")
+		    .attr("transform", "translate(0," + sliderPadding/2 + ")");
+
+		// var handle = slider.insert("circle", ".track-overlay")
+		//     .attr("class", "handle")
+		//     .attr("r", 7)
+		//     .attr("cx", xt(0.5));
+
+
+
+		slider.insert("g", ".track-overlay")
+		    .attr("class", "ticks")
+		    .attr("transform", "translate(0," + sliderPadding/2 + ")");
+
+		// var handle = slider.insert("circle", ".track-overlay")
+		//     .attr("class", "handle")
+		//     .attr("r", 7)
+		//     .attr("cx", xt(0.5));
+
+		// 	}
+
+		var handle = slider.insert('g', '.track-overlay')
+			.attr('transform', 'translate('+xt(0.5)+',-10)')
+			.attr("class", "handle");
+
+			handle
+			.append('path')
+		    .attr("stroke", "#000")
+		    .attr('stroke-width', 0)
+		    .attr('fill', '#000')
+		    .attr("cursor", "ew-resize")
+		    .attr("d", 'M -7,0 -1,9 6,0 z');
+
+
+		}
 
 	//**************************
 	// filtering (push values to filter array)

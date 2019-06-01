@@ -120,38 +120,41 @@ body {
 }
 
 #avg_slider { 
-background-color: cyan; 
 float: right;
-width: 200px;
-margin-top: 5px;
+width: 30%;
+margin-top: 0px;
+    padding-top: 8px;
 }
 
 #avg_slider .ticks {
   font: 10px sans-serif;
 }
 
-#avg_slider .track,
-#avg_slider .track-inset,
-#avg_slider .track-overlay {
-  stroke-linecap: round;
+.avgSliderLabel {
+	font-size: 11px;
+	font-weight: 100;
+}
+
+.sliderIcon {
+	opacity: 0.4;
 }
 
 #avg_slider .track {
   stroke: #000;
   stroke-opacity: 0.3;
-  stroke-width: 10px;
+  stroke-width: 2px;
 }
 
 #avg_slider .track-inset {
-  stroke: #ddd;
-  stroke-width: 8px;
+  stroke: #000;
+  stroke-width: 1px;
 }
 
 #avg_slider .track-overlay {
   pointer-events: stroke;
   stroke-width: 50px;
   stroke: transparent;
-  cursor: crosshair;
+  cursor: ew-resize;
 }
 
 #avg_slider .handle {
