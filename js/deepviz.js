@@ -3,17 +3,25 @@ var Deepviz = function(sources, callback){
 	// define variables
 	var dateRange = [new Date(2019, 2, 1), new Date(2019, 3, 31)];
 	var minDate = new Date(2019,0,1);
+	var maxDate;
+	var dateIndex;
+	var dateData;
 	var data; // active dataset after filters applied
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
 	var trendlinePoints; 
 	var barWidth;
+	var avgSliderBrushing = false;
+	var lineGenerator = d3.line().curve(d3.curveBundle.beta(.5));
+	var tp_severity = [];
+	var tp_reliability = [];
 	var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
 	var severityArray = ["No/minor problem", "Of Concern", "Major", "Severe", "Critical"];
 	var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
 	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
 	var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
 	var colorLightgrey = ['#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
-
+	var width = 1300;
+	var margin = {top: 18, right: 30, bottom: 0, left: 37};
 	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
 	var colorOrange = ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603'];
 	var yScale;
@@ -27,6 +35,30 @@ var Deepviz = function(sources, callback){
 	var sxScale = d3.scaleLinear()
 		.range([0, 995])
 		.domain([1, 5]);// severity/reliability x xcale
+
+	var lineSmoothingArray = [
+		'd3.curveLinear',
+		'd3.curveCardinal.tension(0.3)',
+		'd3.curveCardinal.tension(.1)',
+		'd3.curveCardinal.tension(0.01)',
+		'd3.curveBundle.beta(1)',
+		'd3.curveBundle.beta(.9)',
+		'd3.curveBundle.beta(.8)',
+		'd3.curveBundle.beta(.75)',
+		'd3.curveBundle.beta(.7)',
+		'd3.curveBundle.beta(.65)',
+		'd3.curveBundle.beta(.6)',
+		'd3.curveBundle.beta(0.55)', // 10
+		'd3.curveBundle.beta(.5)',
+		'd3.curveBundle.beta(0.4)',
+		'd3.curveBundle.beta(0.3)',
+		'd3.curveBundle.beta(.25)',
+		'd3.curveBundle.beta(.2)',
+		'd3.curveBundle.beta(.15)',
+		'd3.curveBundle.beta(0.1)',
+		'd3.curveBundle.beta(0.05)',
+		'd3.curveBundle.beta(0.01)' // 19
+	];
 
 	// filters
 	var filters = {
@@ -68,9 +100,32 @@ var Deepviz = function(sources, callback){
 		data = values[0].deep.data;
 		metadata = values[0].deep.meta_data;
 
-
 		data = data.filter(function(d){return new Date(d.date) >= minDate;});
+
+		// define maximum date 
+		maxDate = new Date(d3.max(data, function(d){
+			return d.date;
+		}));
+
+		// define minimum date 
+		minDate = new Date(d3.min(data, function(d){
+			return d.date;
+		}));
+
+		dateMax = new Date(maxDate);
+		dateMax.setDate(maxDate.getDate() + 1);
+		dateMax.setHours(0);
+		dateMax.setMinutes(0);
+
 		originalData = data;
+
+		dateIndex = data.map(function(d) { return d['date']; });
+
+	    // define scales
+	    xScale = d3.scaleTime()
+	    .domain([minDate, dateMax])
+	    .range([0, (width - (margin.right + margin.left)) +barWidth])
+	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
 
 		d3.selectAll('.severityToggle').on('click', function(){
 			toggle('severity');
@@ -90,7 +145,7 @@ var Deepviz = function(sources, callback){
 
 		console.log('create svg');
 		// defaults
-		var width = '100%',
+		var w = '100%',
 		height = '100%',
 		viewBoxWidth = options.viewBoxWidth,
 		viewBoxHeight = options.viewBoxHeight,
@@ -119,7 +174,7 @@ var Deepviz = function(sources, callback){
 		.append('svg')
 		.attr('id', id)
 		.attr('class', svgClass)
-		.attr('width', width)
+		.attr('width', w)
 		.attr('viewBox', "0 0 "+(viewBoxWidth)+" "+(viewBoxHeight-00))
 		.attr('preserveAspectRatio', "xMinYMin slice")
 		.style('-moz-user-select','none')
@@ -138,8 +193,10 @@ var Deepviz = function(sources, callback){
 	this.timeChart = function(options){
 
 		// margins
-		var margin = {top: 18, right: 25, bottom: 0, left: 37};
+
 		var chartdata = updateTimeline();
+
+		barWidth = (1300/chartdata.length)-1;
 
 		// container g, and
 		var svg = options.appendTo
@@ -149,12 +206,12 @@ var Deepviz = function(sources, callback){
 		.style('opacity', options.opacity)
 		.attr('x',0+options.offsetX)
 		.attr('y',0+options.offsetY)
-		.attr('width',options.width)
+		.attr('width',width)
 		.attr('height', options.svgheight)
 		.append('g')
 		.attr("transform", "translate(0,0)");
 
-		options.width = options.width - (margin.right + margin.left);
+		width = width - (margin.right + margin.left);
 		timechartHeight = timechartHeight - (margin.top + margin.bottom);
 
 		var svgBg = svg.append('g');
@@ -162,7 +219,7 @@ var Deepviz = function(sources, callback){
 		svgBg.append('rect')
 		.attr('x',margin.left)
 		.attr('y',margin.top)
-		.attr('width',options.width)
+		.attr('width',width)
 		.attr('height',timechartHeight)
 		.attr('opacity',0);
 
@@ -172,42 +229,9 @@ var Deepviz = function(sources, callback){
 
 		var color = options.color;
 
-		// reorganize data
-		chartdata.forEach(function(d, i) {
-			d.date = new Date(d.date);
-			d.date.setHours(0);
-			d.barValues = d.severity;
-		});
-
-		// define maximum date 
-		var maxDate = new Date(d3.max(chartdata, function(d){
-			return d.date;
-		}));
-
-		// define minimum date 
-		var minDate = new Date(d3.min(chartdata, function(d){
-			return d.date;
-		}));
-
-		var dateMax = new Date(maxDate);
-		dateMax.setDate(maxDate.getDate() + 1);
-		dateMax.setHours(0);
-		dateMax.setMinutes(0);
-
-		var dateIndex = chartdata.map(function(d) { return d[options.dataKey]; });
-
 		var maxValue = d3.max(chartdata, function(d) {
 			return d.total_entries;
 		});
-
-		barWidth = options.width/dateIndex.length;
-
-
-	    // define scales
-	    xScale = d3.scaleTime()
-	    .domain([minDate, dateMax])
-	    .range([0, options.width+barWidth])
-	    .rangeRound([0, options.width], 0)
 
 	    var xAxis = d3.axisBottom()
 	    .scale(xScale)
@@ -222,7 +246,6 @@ var Deepviz = function(sources, callback){
 		yScale = d3.scaleLinear()
 		.range([timechartHeight, 0])
 		.domain([0, (maxValue)]);
-
 
 		if(options.maxValue=='round'){
 			yScale = d3.scaleLinear()
@@ -281,7 +304,7 @@ var Deepviz = function(sources, callback){
 
 		var yAxisText2 = svgBg.append("g")
 		.attr("class", "yAxis axis")
-		.attr('transform', 'translate('+(options.width + margin.left-1)+','+margin.top+')')
+		.attr('transform', 'translate('+(width + margin.left-1)+','+margin.top+')')
 		.call(yAxis2)
 		.style('font-size', options.yAxis.font.values.size);
 
@@ -323,7 +346,7 @@ var Deepviz = function(sources, callback){
 		gridlines.append("g")			
 		.attr("class", "grid")
 		.call(make_y_gridlines()
-			.tickSize(-options.width)
+			.tickSize(-width)
 			.tickFormat("")
 			);
 
@@ -437,6 +460,19 @@ var Deepviz = function(sources, callback){
 		// 	.style('fill', function(d,i){if(color.length > 1){return color[i]} else {return color[0];}})
 		// })
 
+		//**************************
+		// draw trendlies
+		//**************************
+		var severityTrendline = d3.select('#svgchartbg').append('path')
+			.style('fill', 'none')
+			.style('stroke', colorGreen[4])
+			.attr('id', 'severityTrendline');
+
+		var reliabilityTrendline = d3.select('#svgchartbg').append('path')
+			.style('fill', 'none')
+			.style('opacity',0)
+			.style('stroke', colorOrange[4])
+			.attr('id', 'reliabilityTrendline');
 
 		// *************************
 		// draw contextual rows
@@ -538,7 +574,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 	    // initialise the brush
 	    var brush = d3.brushX()
-		    .extent([[0, -margin.top], [options.width, options.svgheight-(margin.top+margin.bottom)]])
+		    .extent([[0, -margin.top], [width, options.svgheight-(margin.top+margin.bottom)]])
 	        .on("brush", brushed)
 	        .on("start", brush);
 
@@ -618,14 +654,21 @@ var Deepviz = function(sources, callback){
 
 			dateRange = d1;
 
-			colorBars(dateRange);
-			updateDate(dateRange);
-			updateTotal(dateRange);
-			updateSeverityReliability(dateRange,'brush');
+			colorBars();
+			updateDate();
+			updateSeverityReliability('brush');
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(xScale));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(xScale)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(xScale)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
+
+			var total = d3.sum(dateData, function(d){
+			if((d.date>=dateRange[0])&&(d.date<dateRange[1]))
+				return d.total_entries;
+			;
+			});
+
+			d3.select('#total_entries').text(total);
 
 		}
 
@@ -652,84 +695,12 @@ var Deepviz = function(sources, callback){
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(xScale)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
 		}
 
-		colorBars(dateRange);
-		updateDate(dateRange);
-		updateTotal(dateRange);
-		updateSeverityReliability(dateRange,'init');
-
-		//**************************
-		// trendline
-		//**************************
-		var lineGenerator = d3.line()
-			.curve(d3.curveCardinal);
-
-		// define y-axis
-		var trendlineY = d3.scaleLinear()
-			.range([timechartHeight, 0])
-			.domain([1, (5)]);
+		colorBars();
+		updateDate();
+		updateSeverityReliability('init');
+		updateTrendline();
 
 
-		var lineGenerator = d3.line()
-			.curve(d3.curveBundle.beta(.46));
-
-		var tp_severity = [];
-		var tp_reliability = [];
-
-		trendlinePoints.forEach(function(d,i){
-			d.x = xScale(d.date)+barWidth/2;
-			d.y_severity = trendlineY(d.severity_avg);
-			d.y_reliability = trendlineY(d.reliability_avg);
-			tp_severity.push([d.x,d.y_severity]);
-			tp_reliability.push([d.x,d.y_reliability]);
-		});
-
-		tp_severity.sort(function(x, y){
-		   return d3.ascending(x[0], y[0]);
-		});
-
-		tp_reliability.sort(function(x, y){
-		   return d3.ascending(x[0], y[0]);
-		});
-
-		pathData.severity = lineGenerator(tp_severity);
-		pathData.reliability = lineGenerator(tp_reliability);
-
-		// trendline
-		var severityTrendline = d3.select('#svgchartbg').append('path')
-			.attr('d', pathData.severity)
-			.style('fill', 'none')
-			.style('stroke', colorGreen[4])
-			.attr('id', 'severityTrendline');
-
-		var reliabilityTrendline = d3.select('#svgchartbg').append('path')
-			.attr('d', pathData.reliability)
-			.style('fill', 'none')
-			.style('opacity',0)
-			.style('stroke', colorOrange[4])
-			.attr('id', 'reliabilityTrendline');
-
-		//**************************
-		// update functions 
-		//**************************
-
-		// update date range text in the chart header
-		function updateDate(d1){
-			dateRange = d1;
-			var dateformatter = d3.timeFormat("%d %b %Y");
-			var dx = new Date(d1[1]);
-			var dateTo = dx.setDate(dx.getDate()-1);
-			var string = dateformatter(d1[0]) + ' - ' + dateformatter(dateTo);
-			d3.select('#dateRange').text(string);
-		}
-
-		// update total entries widget
-		function updateTotal(d1){
-			var total = d3.sum(chartdata, function(d){
-				if((d.date>=d1[0])&&(d.date<d1[1]))
-					return d.total_entries;
-			});
-			d3.select('#total_entries').text(total);
-		}
 
 		
 		return bars;
@@ -836,7 +807,7 @@ var Deepviz = function(sources, callback){
 		// severity filter remove button
 		//**************************
 		d3.selectAll('#severityRemoveFilter').on('click', function(){
-			console.log('click');
+			console.log('click filter');
 			d3.select('#severityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
 				return colorGreen[i];
@@ -946,13 +917,85 @@ var Deepviz = function(sources, callback){
 		// reliability filter remove button
 		//**************************
 		d3.selectAll('#reliabilityRemoveFilter').on('click', function(){
-			console.log('click');
+			console.log('click filter');
 			d3.select('#reliabilityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
 				return colorOrange[i];
 			});	
 			return filter('reliability', 'clear'); 
 		});
+
+		//**************************
+		// severity/reliabilty average trendline smoothing slider
+		//**************************
+
+		// create slider
+var avgSliderSvg = d3.select("#avg_slider").append('svg').attr('height', 50).attr('width', 200)
+.on('mouseover', function(){
+	d3.selectAll('#severityTrendline, #reliabilityTrendline')
+	.style('stroke-width',2)
+	.transition().duration(750)
+	.style('stroke-opacity',1);
+
+	d3.selectAll('.bar').transition().duration(750).style('opacity', 0.3);
+
+}).on('mouseout', function(){
+	if(avgSliderBrushing==false){
+		d3.selectAll('#severityTrendline, #reliabilityTrendline')
+		.style('stroke-width',1)
+		.transition().duration(750)
+		.style('stroke-opacity',0.4);	
+
+		d3.selectAll('.bar').transition().duration(750).style('opacity', 1);		
+	}
+})
+
+var width = 180,
+    height = 50;
+
+var xt = d3.scaleLinear()
+    .domain([1, 0.1])
+    .range([0, 180])
+    .clamp(true);
+
+var slider = avgSliderSvg.append("g")
+    .attr("class", "slider")
+    .attr("transform", "translate(10,20)");
+
+slider.append("line")
+    .attr("class", "track")
+    .attr("x1", xt.range()[0])
+    .attr("x2", xt.range()[1])
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-inset")
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-overlay")
+    .call(d3.drag()
+        .on("start.interrupt", function() { slider.interrupt(); })
+        .on('end', function(){
+        	avgSliderBrushing = false;
+
+        		d3.selectAll('#severityTrendline, #reliabilityTrendline')
+			.style('stroke-width',1)
+			.transition().duration(750)
+			.style('stroke-opacity',0.4);	
+
+			d3.selectAll('.bar').transition().duration(750).style('opacity', 1);
+        })
+        .on("start drag", function() { 
+        	avgSliderBrushing = true;
+        	var h = xt.invert(d3.event.x)
+			handle.attr("cx", xt(h));
+        	smoothAverage(h); }));
+
+slider.insert("g", ".track-overlay")
+    .attr("class", "ticks")
+    .attr("transform", "translate(0," + 18 + ")");
+
+var handle = slider.insert("circle", ".track-overlay")
+    .attr("class", "handle")
+    .attr("r", 7)
+    .attr("cx", xt(0.5));
 
 	}
 
@@ -1010,7 +1053,7 @@ var Deepviz = function(sources, callback){
 
 		var timedata = data;
 
-		var dateData = d3.nest()
+		dateData = d3.nest()
 		.key(function(d) { return d.date;})
 		.key(function(d) { return d.severity; })
 		.rollup(function(leaves) { return leaves.length; })
@@ -1155,41 +1198,121 @@ var Deepviz = function(sources, callback){
 				.attr('r', 0)
 			}
 
-			colorBars(dateRange);
+			colorBars();
 
 		})
 
-		// // reorganize data
-		// dateData.forEach(function(d, i) {
-		// 	d.date = new Date(d.date);
-		// 	d.date.setHours(0);
-		// 	d.barValues = d[filters.toggle];
-		// });
+		updateSeverityReliability(target);
+		updateTrendline();
 
-		// // define maximum date 
-		// var maxDate = new Date(d3.max(dateData, function(d){
-		// 	return d.date;
-		// }));
+		// reorganize data
+		dateData.forEach(function(d, i) {
+			d.date = new Date(d.date);
+			d.date.setHours(0);
+			dateData[i].barValues = d.severity;
+		});
 
-		// // define minimum date 
-		// var minDate = new Date(d3.min(dateData, function(d){
-		// 	return d.date;
-		// }));
+		var total = d3.sum(dateData, function(d){
+			if((d.date>=dateRange[0])&&(d.date<dateRange[1]))
+				return d.total_entries;
+		});
 
-		// var maxValue = d3.max(dateData, function(d) {
-		// 	return d.total_entries;
-		// });
-
-		// data = dateData;
-		updateSeverityReliability(dateRange, target);
+		d3.select('#total_entries').text(total);
 
 		return dateData;
+	}
+
+
+//**************************
+// update date text 
+//**************************
+
+// update date range text in the chart header
+function updateDate(){
+	console.log('updateDate()');
+	var dateformatter = d3.timeFormat("%d %b %Y");
+	var dx = new Date(dateRange[1]);
+	var dateTo = dx.setDate(dx.getDate()-1);
+	var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+	d3.select('#dateRange').text(string);
+}
+
+
+//**************************
+// update trendline
+//**************************
+var updateTrendline = function(){
+
+	console.log('updateTrendline()');
+		//**************************
+		// trendline
+		//**************************
+
+		// define y-axis
+		var trendlineY = d3.scaleLinear()
+			.range([timechartHeight, 0])
+			.domain([1, (5)]);
+
+		tp_severity = [];
+		tp_reliability = [];
+
+		trendlinePoints.forEach(function(d,i){
+			d.x = xScale(d.date)+barWidth/2;
+			d.y_severity = trendlineY(d.severity_avg);
+			d.y_reliability = trendlineY(d.reliability_avg);
+			tp_severity.push([d.x,d.y_severity]);
+			tp_reliability.push([d.x,d.y_reliability]);
+		});
+
+		tp_severity.sort(function(x, y){
+		   return d3.ascending(x[0], y[0]);
+		});
+
+		tp_reliability.sort(function(x, y){
+		   return d3.ascending(x[0], y[0]);
+		});
+
+		pathData.severity = lineGenerator(tp_severity);
+		pathData.reliability = lineGenerator(tp_reliability);
+
+		// trendline
+		var severityTrendline = d3.select('#severityTrendline')
+			.attr('d', pathData.severity);
+
+		var reliabilityTrendline = d3.select('#reliabilityTrendline')
+			.attr('d', pathData.reliability);
+
+	}
+
+	function smoothAverage(v = 0.5){
+
+		d3.selectAll('#severityTrendline, #reliabilityTrendline')
+		.style('stroke-width',2)
+		.style('stroke-opacity',1);
+
+		d3.selectAll('.bar').style('opacity', 0.3);
+
+		// v = Math.round(v);
+		// lineGenerator = d3.line()
+			// .curve(eval(lineSmoothingArray[v]));
+
+		lineGenerator = d3.line().curve(d3.curveBundle.beta(v))
+
+		pathData.severity = lineGenerator(tp_severity);
+		pathData.reliability = lineGenerator(tp_reliability);
+
+		var severityTrendline = d3.select('#severityTrendline')
+			.attr('d', pathData.severity);
+
+		var reliabilityTrendline = d3.select('#reliabilityTrendline')
+			.attr('d', pathData.reliability);
+
 	}
 
 //**************************
 // update severity / reliability bars
 //**************************
-	function updateSeverityReliability(d1,target=null){
+	function updateSeverityReliability(target=null){
 
 		var s_total = 0;
 		var r_total = 0;
@@ -1248,7 +1371,7 @@ var Deepviz = function(sources, callback){
 
 		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
 
-			if((d.date>=d1[0])&&(d.date<d1[1])){
+			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < severity.length; i++) { 
 					severity[i] += d.severity[i];
 				}
@@ -1277,7 +1400,7 @@ var Deepviz = function(sources, callback){
 
 		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
 
-			if((d.date>=d1[0])&&(d.date<d1[1])){
+			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < reliability.length; i++) { 
 					reliability[i] += d.reliability[i];
 				}

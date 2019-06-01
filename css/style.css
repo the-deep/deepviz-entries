@@ -114,6 +114,53 @@ body {
 
 }
 
+#total { 
+	width: 50%;
+	float: left; 
+}
+
+#avg_slider { 
+background-color: cyan; 
+float: right;
+width: 200px;
+margin-top: 5px;
+}
+
+#avg_slider .ticks {
+  font: 10px sans-serif;
+}
+
+#avg_slider .track,
+#avg_slider .track-inset,
+#avg_slider .track-overlay {
+  stroke-linecap: round;
+}
+
+#avg_slider .track {
+  stroke: #000;
+  stroke-opacity: 0.3;
+  stroke-width: 10px;
+}
+
+#avg_slider .track-inset {
+  stroke: #ddd;
+  stroke-width: 8px;
+}
+
+#avg_slider .track-overlay {
+  pointer-events: stroke;
+  stroke-width: 50px;
+  stroke: transparent;
+  cursor: crosshair;
+}
+
+#avg_slider .handle {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: 0.5;
+  stroke-width: 1.25px;
+}
+
 #total_entries {
 	margin-bottom: 12px;
     font-size: 52px;
@@ -266,8 +313,8 @@ body {
 #reliabilityTrendline,
 #severityTrendline {
   stroke-dasharray: 3 3; 
-  stroke-width: 2;
-  stroke-opacity: 0.5;
+  stroke-width: 1;
+  stroke-opacity: 0.4;
 }
 
 .yAxis line,
