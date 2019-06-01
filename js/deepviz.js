@@ -8,7 +8,9 @@ var Deepviz = function(sources, callback){
 	var dateData;
 	var data; // active dataset after filters applied
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
-	var trendlinePoints; 
+	var trendlinePoints;
+	var brush;
+	var gBrush; 
 	var barWidth;
 	var avgSliderBrushing = false;
 	var lineGenerator = d3.line().curve(d3.curveBundle.beta(.5));
@@ -226,6 +228,7 @@ var Deepviz = function(sources, callback){
 		var gridlines = svg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+margin.left+','+margin.top+')');
 		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
 		var svgChart = svg.append('g').attr('id', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
+		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+margin.left+','+(timechartHeight+margin.top+5)+')');
 
 		var color = options.color;
 
@@ -387,6 +390,42 @@ var Deepviz = function(sources, callback){
 		.attr('x2', 0)
 		.attr('y1', -timechartHeight)
 		.attr('y2', timechartHeight+margin.top+1)
+
+		// add the axis buttons
+
+		xAxisObj.selectAll(".tick").each(function(d,i){
+			console.log(d);
+			var tick = d3.select(this);
+			svgAxisBtns.append('rect')
+			.attr('width', 80)
+			.attr('height',20)
+			.attr('x', 5)
+			.attr('y', 2)
+			.attr('transform', tick.attr('transform'))
+			.style('cursor', 'pointer')
+			.style('opacity', 0)
+			.on('mouseover', function(){
+				if(filters.toggle == 'severity'){
+					tick.style('color', colorGreen[4]);
+				} else { 
+					tick.style('color', colorOrange[4]);
+
+				}
+			})
+			.on('mouseout', function(){
+				tick.style('color', '#000')
+			})
+			.on('click', function(){
+				dateRange[0] = d;
+				dateRange[1] = new Date(d.getFullYear(), d.getMonth()+1, 1);
+
+			    // programattically set date range
+			    gBrush.call(brush.move, dateRange.map(xScale));
+			})
+
+			console.log(tick);
+		})
+
 
 
 		//**************************
@@ -573,13 +612,14 @@ var Deepviz = function(sources, callback){
 		// date slider brushes
 		//**************************
 	    // initialise the brush
-	    var brush = d3.brushX()
+	    brush = d3.brushX()
 		    .extent([[0, -margin.top], [width, options.svgheight-(margin.top+margin.bottom)]])
 	        .on("brush", brushed)
 	        .on("start", brush);
 
 	    // add the selectors
-	    var gBrush = svgChart.append("g")
+	    gBrush = svgChart.append("g")
+	    	.attr('id', 'gBrush')
 		    .attr("class", "brush")
 		    .attr('transform', 'translate('+(2)+',0)')
 		    .call(brush);
