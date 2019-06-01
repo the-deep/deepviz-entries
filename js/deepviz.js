@@ -768,7 +768,7 @@ var Deepviz = function(sources, callback){
 		}).on('click', function(d,i){
 
 
-			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+			d3.selectAll('.severityBar').style('stroke-width', 0).style('stroke-opacity',0)
 			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 	
 			clickTimer = 1;
@@ -776,16 +776,16 @@ var Deepviz = function(sources, callback){
 			filter('severity',i+1);
 
 			if(filters.severity.length==0){
-				d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
+				d3.selectAll('.severityBar').style('fill', function(d,i){
 					return colorGreen[i];
 				});		
 			} else {
-				d3.selectAll('.severityBar').transition().duration(500).style('fill', function(d,i){
+				d3.selectAll('.severityBar').style('fill', function(d,i){
 					return colorLightgrey[i];
 				});	
 				filters.severity.forEach(function(d,i){
 
-					d3.select('.severityBar.severity'+(d)).transition().duration(200)
+					d3.select('.severityBar.severity'+(d))
 					.style('fill', colorGreen[d-1])
 
 				});
