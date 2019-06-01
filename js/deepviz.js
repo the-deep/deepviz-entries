@@ -225,7 +225,7 @@ var Deepviz = function(sources, callback){
 
 		var gridlines = svg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+margin.left+','+margin.top+')');
 		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
-		var svgChart = svg.append('g').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
+		var svgChart = svg.append('g').attr('id', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
 
 		var color = options.color;
 
@@ -937,7 +937,7 @@ var avgSliderSvg = d3.select("#avg_slider").append('svg').attr('height', 50).att
 	.transition().duration(750)
 	.style('stroke-opacity',1);
 
-	d3.selectAll('.bar').transition().duration(750).style('opacity', 0.3);
+	d3.select('#chartarea').transition().duration(750).style('opacity', 0.2);
 
 }).on('mouseout', function(){
 	if(avgSliderBrushing==false){
@@ -946,7 +946,7 @@ var avgSliderSvg = d3.select("#avg_slider").append('svg').attr('height', 50).att
 		.transition().duration(750)
 		.style('stroke-opacity',0.4);	
 
-		d3.selectAll('.bar').transition().duration(750).style('opacity', 1);		
+		d3.select('#chartarea').transition().duration(750).style('opacity', 1);		
 	}
 })
 
@@ -980,7 +980,7 @@ slider.append("line")
 			.transition().duration(750)
 			.style('stroke-opacity',0.4);	
 
-			d3.selectAll('.bar').transition().duration(750).style('opacity', 1);
+			d3.select('#chartarea').transition().duration(500).style('opacity', 1);
         })
         .on("start drag", function() { 
         	avgSliderBrushing = true;
@@ -1290,7 +1290,7 @@ var updateTrendline = function(){
 		.style('stroke-width',2)
 		.style('stroke-opacity',1);
 
-		d3.selectAll('.bar').style('opacity', 0.3);
+		d3.select('#chartarea').style('opacity', 0.2);
 
 		// v = Math.round(v);
 		// lineGenerator = d3.line()
