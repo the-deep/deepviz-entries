@@ -4,82 +4,98 @@
 	<!-- load vendor JavaScript -->
 	<script type="text/javascript" src="js/vendor/jquery-3.4.1.min.js"></script>
 	<script type="text/javascript" src="js/vendor/d3.v5.min.js"></script>
+	<script src='js/vendor/mapbox-gl.js'></script>
 
 	<!-- load custom JavaScript -->
-	<script type="text/javascript" src="js/deepviz.js?cache=24"></script>
-	<script type="text/javascript" src="js/main.js?cache=24"></script>
+	<script type="text/javascript" src="js/deepviz.js?cache=25"></script>
+	<script type="text/javascript" src="js/main.js?cache=25"></script>
 
 	<!-- load vendor CSS -->
+	<link href='js/vendor/mapbox-gl.css' rel='stylesheet' />
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=24" rel="stylesheet" type="text/css" media="all">
+	<link href="css/style.css?cache=25" rel="stylesheet" type="text/css" media="all">
 
 </head>
 
 <body>
 
+	<div class="leftcol">
 
-	<div id="total" class="widget">
-		<div class="title">
-			TOTAL ENTRIES
+					<div class="title">
+				ENTRIES BY LOCATION
+			</div>
+
+		<div id="mapcontainer">
+
+			<div id="map"></div>
 		</div>
-		<div id="total_entries">
-
-		</div>
-	</div>
-
-	<div id="avg_slider">
-	</div>
-
-	<div id="severity" class="widget">
-		<div class="title severityToggle">
-			ENTRIES BY SEVERITY&nbsp; 
-			<svg width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
-			    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
-			    <circle id="severityToggle" fill="#008974" cx="24" cy="26" r="13.5"></circle>
-			</svg>
-		</div>
-		<img id="severityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
-		<div id="severity_value"></div>
-
-		<div id="severity_bars">
-
-		</div>
-	</div>
-
-	<div id="reliability" class="widget">
-		<div class="title reliabilityToggle">
-			ENTRIES BY RELIABILITY&nbsp; 
-			<svg  width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
-			    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
-			    <circle id="reliabilityToggle" fill="#a63603" cx="24" cy="26" r="13.5" style="opacity: 0"></circle>
-			</svg>
-		</div>	
-		<img id="reliabilityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
-		<div id="reliability_value"></div>
-
-		<div id="reliability_bars">
-
-		</div>	
-	</div>
+	</div><!-- /.leftcol -->
 
 
-	<div class="header">
-		<div id="timechartTitle" class="title">ENTRIES BY DATE AND BY SEVERITY</div>
+	<div class="rightcol">
+		<div id="total" class="widget">
+			<div class="title">
+				TOTAL ENTRIES
+			</div>
+			<div id="total_entries">
 
-		<div class="subtitle">
-			Drag the sliders to select a date range
+			</div>
 		</div>
 
-		<div class="selectedDate">
-			<img src="images/calendar.jpg" height="9px"/>
-			<span id="dateRange">dateRange</span>
+		<div id="avg_slider">
 		</div>
-	</div>
 
-	<div id="timeline" class="widget">
+		<div id="severity" class="widget">
+			<div class="title severityToggle">
+				ENTRIES BY SEVERITY&nbsp; 
+				<svg width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
+				    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
+				    <circle id="severityToggle" fill="#008974" cx="24" cy="26" r="13.5"></circle>
+				</svg>
+			</div>
+			<img id="severityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+			<div id="severity_value"></div>
 
-	</div>
+			<div id="severity_bars">
+
+			</div>
+		</div>
+
+		<div id="reliability" class="widget">
+			<div class="title reliabilityToggle">
+				ENTRIES BY RELIABILITY&nbsp; 
+				<svg  width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
+				    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
+				    <circle id="reliabilityToggle" fill="#a63603" cx="24" cy="26" r="13.5" style="opacity: 0"></circle>
+				</svg>
+			</div>	
+			<img id="reliabilityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+			<div id="reliability_value"></div>
+
+			<div id="reliability_bars">
+
+			</div>	
+		</div>
+
+
+		<div class="header">
+			<div id="timechartTitle" class="title">ENTRIES BY DATE AND BY SEVERITY</div>
+
+			<div class="subtitle">
+				Drag the sliders to select a date range
+			</div>
+
+			<div class="selectedDate">
+				<img src="images/calendar.jpg" height="9px"/>
+				<span id="dateRange">dateRange</span>
+			</div>
+		</div>
+
+		<div id="timeline" class="widget">
+
+		</div>
+	</div><!-- / .rightcol -->
 	
 </body>
 

@@ -1,14 +1,38 @@
 body {
 	background-color: #FFF;
     font-family: Source Sans Pro, sans-serif;
-	max-width: 1000px;
 	font-size: 14px;
+	padding: 1px 7px;
+}
 
+.leftcol {
+	width: 41%;
+	float:left;
+}
+
+.rightcol {
+	width: 59%;
+	float:right;
 }
 
 .widget {
 	margin-bottom: 0px;
 }
+
+#map {
+	width: 100%;
+	height: 300px;
+}
+
+.mapboxgl-control-container {
+	zoom: 70%;
+}
+
+#mapcontainer {
+	padding-right: 15px;
+	padding-top: 2px;
+}
+
 
 @media only screen and (max-width: 900px) {
 
@@ -166,7 +190,7 @@ margin-top: 0px;
 
 #total_entries {
 	margin-bottom: 12px;
-    font-size: 52px;
+    font-size: 45px;
     font-weight: bold;
     color: #008974;
     line-height: 0.8;

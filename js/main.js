@@ -111,6 +111,9 @@ var Deepviz = new Deepviz(sources, function(data){
 		frame: [1]
 	});
 
+	var map = Deepviz.createMap({
+
+	});
 
 
 

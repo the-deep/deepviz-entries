@@ -189,6 +189,73 @@ var Deepviz = function(sources, callback){
 		return this.svg;
 	};
 
+
+	//**************************
+	// create map
+	//**************************
+	this.createMap = function(){
+
+		// set map height
+		var map = document.getElementById("map");
+		map.setAttribute("style","height:"+map.offsetWidth+"px");
+
+	    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
+	        
+	    //Setup mapbox-gl map
+	    var map = new mapboxgl.Map({
+	        container: 'map', // container id
+	        style: 'mapbox://styles/mapbox/light-v9',
+	        center: [17.2283, 26.3351],
+	        zoom: 4,  
+	        trackResize: true,
+	        pitchWithRotate: false,
+	        dragRotate: false
+	    })
+	    
+	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+	    
+	    var container = map.getCanvasContainer()
+	    var svg = d3.select(container).append("svg")
+
+		var transform = d3.geoTransform({point: projectPoint});
+		var path = d3.geoPath().projection(transform);
+	    
+	 	// var featureElement = svg.selectAll("path")
+			// .data(geojson.features)
+			// .enter()
+	  //       .append("path")
+	  //       .attr("stroke", "red")
+	  //       .attr("fill", "green")
+	  //       .attr("fill-opacity", 0.4)
+	    
+	    function update() {
+	        // featureElement.attr("d", path);
+	    }
+	    
+	    //
+	    map.on("viewreset", update)
+
+	    map.on("movestart", function(){
+			svg.classed("hidden", true);
+		});	
+	    map.on("rotate", function(){
+			svg.classed("hidden", true);
+		});	
+	    map.on("moveend", function(){
+			update()
+			svg.classed("hidden", false);
+		})
+	    
+	    // update()
+	    
+		function projectPoint(lon, lat) {
+	        var point = map.project(new mapboxgl.LngLat(lon, lat));
+			this.stream.point(point.x, point.y);
+		}
+    
+	}
+
+
 	//**************************
 	// create timechart
 	//**************************
@@ -423,10 +490,7 @@ var Deepviz = function(sources, callback){
 			    gBrush.call(brush.move, dateRange.map(xScale));
 			})
 
-			console.log(tick);
-		})
-
-
+		});
 
 		//**************************
 		// Bar/event drop groups (by date)
@@ -739,9 +803,6 @@ var Deepviz = function(sources, callback){
 		updateDate();
 		updateSeverityReliability('init');
 		updateTrendline();
-
-
-
 		
 		return bars;
 	}
@@ -1153,6 +1214,10 @@ var Deepviz = function(sources, callback){
 	var updateTimeline = function(target = null){
 		// use filters
 		console.log('updateTimeline()');
+
+		// set map height again due to some unexplained bug
+		var map = document.getElementById("map");
+		map.setAttribute("style","height:"+map.offsetWidth+"px");
 
 		var timedata = data;
 
@@ -1675,6 +1740,11 @@ var updateTrendline = function(){
 	}
 
 	var resizeDevice = function() {
+
+		// set map height
+		var map = document.getElementById("map");
+		map.setAttribute("style","height:"+map.offsetWidth+"px");
+
 		$('.vizlibResponsiveDiv').each(function(){
 			var rDiv = this;
 			if($(rDiv).hasClass('vizlibResponsiveDiv')){
