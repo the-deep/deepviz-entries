@@ -6,6 +6,10 @@ var Deepviz = function(sources, callback){
 	var maxDate;
 	var dateIndex;
 	var dateData;
+	var maxValue;
+	var geoData;
+	var bubbleScale;
+	var maxBubbleValue;
 	var data; // active dataset after filters applied
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
 	var trendlinePoints;
@@ -119,6 +123,24 @@ var Deepviz = function(sources, callback){
 		dateMax.setHours(0);
 		dateMax.setMinutes(0);
 
+		dateData = d3.nest()
+		.key(function(d) { return d.date;})
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data);
+
+		maxValue = d3.max(dateData, function(d) {
+			return d.value;
+		});
+
+		geoData = d3.nest()
+		.key(function(d) { return d.geo;})
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data);
+
+		maxBubbleValue = d3.max(geoData, function(d) {
+			return d.value;
+		});
+
 		originalData = data;
 
 		dateIndex = data.map(function(d) { return d['date']; });
@@ -197,6 +219,7 @@ var Deepviz = function(sources, callback){
 
 		// set map height
 		var map = document.getElementById("map");
+
 		map.setAttribute("style","height:"+map.offsetWidth+"px");
 
 	    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
@@ -205,7 +228,7 @@ var Deepviz = function(sources, callback){
 	    var map = new mapboxgl.Map({
 	        container: 'map', // container id
 	        style: 'mapbox://styles/mapbox/light-v9',
-	        center: [17.2283, 26.3351],
+	        center: [17.4283, 28],
 	        zoom: 4,  
 	        trackResize: true,
 	        pitchWithRotate: false,
@@ -215,42 +238,123 @@ var Deepviz = function(sources, callback){
 	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 	    
 	    var container = map.getCanvasContainer()
-	    var svg = d3.select(container).append("svg")
+
+	    var mapsvg = d3.select(container).append("svg").style('position', 'absolute').style('width', '100%').style('height', '100%');
 
 		var transform = d3.geoTransform({point: projectPoint});
 		var path = d3.geoPath().projection(transform);
 	    
-	 	// var featureElement = svg.selectAll("path")
-			// .data(geojson.features)
-			// .enter()
-	  //       .append("path")
-	  //       .attr("stroke", "red")
-	  //       .attr("fill", "green")
-	  //       .attr("fill-opacity", 0.4)
-	    
+	    bubbleScale = d3.scaleLinear()
+			.range([0.3,1.8])
+			.domain([0,maxBubbleValue]);// 
+
+		var gd = dateData.filter(function(d){
+			return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
+		});
+
+		var geoSum = [];
+
+		for(var g=0; g < metadata.geo_array.length; g++) {
+			geoSum[g] = 0;
+		}
+
+		gd.forEach(function(d,i){
+			for(var g=0; g < metadata.geo_array.length; g++) {
+				if(d.geo[g]>0){
+					var t = (geoSum[g]) + (d.geo[g]);
+					geoSum[g] = t;
+				}
+	   		}
+		});
+
+	 	var featureElement = mapsvg.selectAll("g")
+			.data(geoSum)
+			.enter()
+			.append('g')
+			.attr('id', function(d,i){
+				return 'bubble'+i
+			})
+			.attr('transform', function(d,i){
+				p = projectPoint(metadata.geo_array[i].centroid_lon, metadata.geo_array[i].centroid_lat);
+				return 'translate('+p.x+','+p.y+')';
+			})
+			.style('opacity', 0.9);
+
+			var featureElementG = featureElement
+			.append('g')
+			.attr('class', 'map-bubble')
+			.attr('transform', function(d,i){
+				return 'scale('+bubbleScale(geoSum[i])+')';
+			})
+			.style('opacity', function(d,i){
+				if(geoSum[i]>0){
+					return 1;
+				} else {
+					return 0;
+				}
+			})
+
+			featureElementG
+	        .append("circle")
+	        .attr('class',  'outerCircle')
+	        .attr("stroke", colorGreen[4])
+	        .attr("fill", "#FFF")
+	        .attr('cx', 0)
+	        .attr('cy', 0)
+	        .attr('r' , 30)
+	        .attr("stroke-width", 2);
+
+			featureElementG
+	        .append("circle")
+	        .attr('class',  'innerCircle')
+	        .attr("fill", colorGreen[4])
+	        .attr('cx', 0)
+	        .attr('cy', 0)
+	        .attr('r' , 26)
+	        .attr("stroke-width", 0);
+
+	        featureElementG
+	        .append('text')
+	        .attr('text-anchor', 'middle')
+	        .attr('class', 'map-bubble-value')
+	        .text(function(d,i){
+	        	return geoSum[i];
+	        })
+	        .attr('y', 8)
+	        .style('font-weight', 'normal')
+	        .style('font-size', '24px')
+	        .style('fill', '#FFF')
+
 	    function update() {
-	        // featureElement.attr("d", path);
+		 	featureElement.attr('transform', function(d,i){
+				p = projectPoint(metadata.geo_array[i].centroid_lon, metadata.geo_array[i].centroid_lat);
+				return 'translate('+p.x+','+p.y+')';
+			});  
 	    }
 	    
 	    //
 	    map.on("viewreset", update)
 
 	    map.on("movestart", function(){
-			svg.classed("hidden", true);
+			mapsvg.classed("hidden", true);
 		});	
+		map.on("move", function(){
+			update();
+		});
 	    map.on("rotate", function(){
-			svg.classed("hidden", true);
+			mapsvg.classed("hidden", true);
 		});	
 	    map.on("moveend", function(){
 			update()
-			svg.classed("hidden", false);
+			mapsvg.classed("hidden", false);
 		})
 	    
 	    // update()
 	    
 		function projectPoint(lon, lat) {
 	        var point = map.project(new mapboxgl.LngLat(lon, lat));
-			this.stream.point(point.x, point.y);
+			return point;
+			// this.stream.point(point.x, point.y);
 		}
     
 	}
@@ -298,10 +402,6 @@ var Deepviz = function(sources, callback){
 		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+margin.left+','+(timechartHeight+margin.top+5)+')');
 
 		var color = options.color;
-
-		var maxValue = d3.max(chartdata, function(d) {
-			return d.total_entries;
-		});
 
 	    var xAxis = d3.axisBottom()
 	    .scale(xScale)
@@ -461,7 +561,6 @@ var Deepviz = function(sources, callback){
 		// add the axis buttons
 
 		xAxisObj.selectAll(".tick").each(function(d,i){
-			console.log(d);
 			var tick = d3.select(this);
 			svgAxisBtns.append('rect')
 			.attr('width', 80)
@@ -761,6 +860,7 @@ var Deepviz = function(sources, callback){
 			colorBars();
 			updateDate();
 			updateSeverityReliability('brush');
+			updateBubbles();
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(xScale));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(xScale)[i]-1) + ", -"+ margin.top +")"; });
@@ -1239,6 +1339,12 @@ var Deepviz = function(sources, callback){
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(timedata);
 
+		geoData = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.geo; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(timedata)	
+
 		trendlinePoints = [];
 
 		dateData.forEach(function(d,i){
@@ -1246,8 +1352,10 @@ var Deepviz = function(sources, callback){
 			dt.setHours(0,0,0,0);
 			d.key = dt;
 			d.date = d.key;
-			d.severity = [0,0,0,0,0];
 			var count = 0;
+
+			d.severity = [0,0,0,0,0];
+
 			d.values.forEach(function(dx){
 				d.severity[dx.key-1] = dx.value;
 				count += dx.value;
@@ -1275,6 +1383,20 @@ var Deepviz = function(sources, callback){
 
 		    d.context = contextArr;
 
+		    // geo array
+			var geoArr = [];
+
+			geoData[i].values.forEach(function(dx, ii){
+				// console.log('dx:');
+				// console.log(dx);
+				var k = dx.key-1;
+				// console.log(k);
+				// console.log(dx.value);
+				geoArr[k] = dx.value
+			});
+
+		    d.geo = geoArr;
+
 			d.total_entries = count;
 
 		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
@@ -1284,6 +1406,9 @@ var Deepviz = function(sources, callback){
 
 			delete d.values;
 		});
+
+		// console.log('dateData');
+		// console.log(dateData);
 
 		// update bars
 
@@ -1372,6 +1497,7 @@ var Deepviz = function(sources, callback){
 
 		updateSeverityReliability(target);
 		updateTrendline();
+		updateBubbles();
 
 		// reorganize data
 		dateData.forEach(function(d, i) {
@@ -1391,6 +1517,66 @@ var Deepviz = function(sources, callback){
 	}
 
 
+//**************************
+// update map bubbles
+//**************************
+function updateBubbles(){
+	console.log('updateBubbles()');
+
+	d3.selectAll('.map-bubble')
+	.style('opacity', 0);
+
+		var gd = dateData.filter(function(d){
+			return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
+		});
+
+		var geoSum = [];
+
+		for(var g=0; g < metadata.geo_array.length; g++) {
+			geoSum[g] = 0;
+		}
+
+		gd.forEach(function(d,i){
+			for(var g=0; g < metadata.geo_array.length; g++) {
+				if(d.geo[g]>0){
+					var t = (geoSum[g]) + (d.geo[g]);
+					geoSum[g] = t;
+				}
+	   		}
+		});
+
+		var bubbles = d3.selectAll('.map-bubble')
+			.attr('transform', function(d,i){
+				return 'scale('+bubbleScale(geoSum[i])+')';
+			})
+			.style('opacity', function(d,i){
+				if(geoSum[i]>0){
+					return 1;
+				} else {
+					return 0;
+				}
+			}).select('.map-bubble-value')
+	        .text(function(d,i){
+	        	return geoSum[i];
+	        });
+
+	// geoSum.forEach(function(d,i){
+	// 	console.log(i);
+	// 	d3.select('#bubble'+(d.key-1) + ' .map-bubble')
+	// 	.style('opacity', 1)
+	// 	.transition().duration(500)
+	// 	.attr('transform', function(dd,ii){
+	// 		// console.log(i);
+	// 				// geo bubble data
+	// 				console.log('dd');
+	// 				console.log(dd);
+	// 		return 'scale('+bubbleScale(geoSum[i].value)+')';
+	// 	});
+
+	// 	d3.select('#bubble'+(d.key-1) + ' .map-bubble-value')
+	// 	.text(geoSum[i].value);
+	// })
+}
 //**************************
 // update date text 
 //**************************
@@ -1673,6 +1859,9 @@ var updateTrendline = function(){
 			d3.select('#leftAxisBox').style('fill', colorOrange[3]);
 			d3.select('.selection').style('fill', colorOrange[1]);
 
+			d3.selectAll('.outerCircle').style('stroke', colorOrange[3]);
+			d3.selectAll('.innerCircle').style('fill', colorOrange[3]);
+
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
@@ -1690,6 +1879,10 @@ var updateTrendline = function(){
 			d3.select('#rightAxisLabelLine').style('stroke', colorGreen[3]);
 			d3.select('#leftAxisBox').style('fill', colorGreen[3]);
 			d3.select('.selection').style('fill', colorGreen[2]);
+
+			d3.selectAll('.outerCircle').style('stroke', colorGreen[4]);
+			d3.selectAll('.innerCircle').style('fill', colorGreen[4]);
+
 
 		}
 

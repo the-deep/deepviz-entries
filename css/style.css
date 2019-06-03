@@ -5,13 +5,16 @@ body {
 	padding: 1px 7px;
 }
 
+svg {
+	font-family: Source Sans Pro, sans-serif !important;
+}
 .leftcol {
-	width: 41%;
+	width: 36%;
 	float:left;
 }
 
 .rightcol {
-	width: 59%;
+	width: 64%;
 	float:right;
 }
 
