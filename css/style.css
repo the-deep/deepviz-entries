@@ -1,8 +1,19 @@
+html {
+	background-color: #e0e0e0;
+}
+
 body {
 	background-color: #FFF;
     font-family: Source Sans Pro, sans-serif;
 	font-size: 14px;
-	padding: 1px 7px;
+	padding: 11px 15px 0px 15px;
+	max-width: 1300px;
+	margin: 10px auto;
+	height: 845px;
+	-webkit-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+-moz-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+
 }
 
 svg {
@@ -271,7 +282,7 @@ margin-top: 0px;
 }
 
 .header {
-	margin-bottom: 3px;
+	margin-bottom: 9px;
 }
 
 .title {
@@ -311,7 +322,6 @@ margin-top: 0px;
 }
 
 .selection {
-	fill: #36BBA6;
 	fill-opacity: 0.01;
 	 filter: grayscale(50%);
 	 stroke-opacity: 0;

@@ -22,21 +22,23 @@ var Deepviz = function(sources, callback){
 	var tp_reliability = [];
 	var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
 	var severityArray = ["No/minor problem", "Of Concern", "Major", "Severe", "Critical"];
-	var colorGreen = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
+	var colorPrimary = ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603']; // severity
+	var colorPrimary = ['#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
 	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
 	var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
 	var colorLightgrey = ['#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
 	var width = 1300;
 	var margin = {top: 18, right: 30, bottom: 0, left: 37};
 	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
-	var colorOrange = ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603'];
+	var colorSecondary = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']; // reliability
+	var colorSecondary = ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
 	var yScale;
 	var xScale;
 	var pathData = {};
 	var clickTimer = 0;
-	var timechartHeight = 400;
+	var timechartHeight = 505;
 	var timechartHeightOriginal = timechartHeight;
-	var numContextualRows = 5;
+	var numContextualRows = 6;
 	var metadata;
 	var sxScale = d3.scaleLinear()
 		.range([0, 995])
@@ -158,6 +160,15 @@ var Deepviz = function(sources, callback){
 		d3.selectAll('.reliabilityToggle').on('click', function(){
 			toggle('reliability');
 		});
+
+		// override colors
+		d3.select('#total_entries').style('color',colorPrimary[3]);
+		d3.select('#severity_value').style('color',colorPrimary[3]);
+		d3.select('#reliability_value').style('color',colorSecondary[3]);
+		d3.select('#severityToggle').style('fill',colorPrimary[3]);
+		d3.select('#reliabilityToggle').style('fill',colorSecondary[3]);
+		d3.select('.selection').style('fill', colorPrimary[2]);
+
 
 		return callback(values);
 	});
@@ -297,7 +308,7 @@ var Deepviz = function(sources, callback){
 			featureElementG
 	        .append("circle")
 	        .attr('class',  'outerCircle')
-	        .attr("stroke", colorGreen[4])
+	        .attr("stroke", colorPrimary[3])
 	        .attr("fill", "#FFF")
 	        .attr('cx', 0)
 	        .attr('cy', 0)
@@ -307,7 +318,7 @@ var Deepviz = function(sources, callback){
 			featureElementG
 	        .append("circle")
 	        .attr('class',  'innerCircle')
-	        .attr("fill", colorGreen[4])
+	        .attr("fill", colorPrimary[3])
 	        .attr('cx', 0)
 	        .attr('cy', 0)
 	        .attr('r' , 26)
@@ -427,7 +438,7 @@ var Deepviz = function(sources, callback){
 		.scale(yScale)
 		.ticks(4)
 		.tickSize(0)
-		.tickPadding(4);
+		.tickPadding(8);
 
 		// y-axis
 		var yAxisText = svgBg.append("g")
@@ -454,7 +465,7 @@ var Deepviz = function(sources, callback){
 		.attr("x", -37)
 		.attr('width', 10)
 		.attr('height', 13)
-		.style('fill', colorGreen[3]);
+		.style('fill', colorPrimary[3]);
 
 		
 		//**************************
@@ -507,7 +518,7 @@ var Deepviz = function(sources, callback){
 		.attr("y2", 255)
 		.attr("x1", 18)
 		.attr("x2", 18)
-		.style('stroke', colorGreen[3])
+		.style('stroke', colorPrimary[3])
 		.style('stroke-width',4)
 		.style('stroke-opacity',1)
 		.style('stroke-dasharray', '2 3');
@@ -556,7 +567,7 @@ var Deepviz = function(sources, callback){
 		.attr('x1', 0)
 		.attr('x2', 0)
 		.attr('y1', -timechartHeight)
-		.attr('y2', timechartHeight+margin.top+1)
+		.attr('y2', timechartHeight+margin.top+20)
 
 		// add the axis buttons
 
@@ -572,9 +583,9 @@ var Deepviz = function(sources, callback){
 			.style('opacity', 0)
 			.on('mouseover', function(){
 				if(filters.toggle == 'severity'){
-					tick.style('color', colorGreen[4]);
+					tick.style('color', colorPrimary[3]);
 				} else { 
-					tick.style('color', colorOrange[4]);
+					tick.style('color', colorSecondary[4]);
 
 				}
 			})
@@ -621,7 +632,7 @@ var Deepviz = function(sources, callback){
 		.style('stroke', '#fff')
 		.style('stroke-opacity',0)
 		.attr('fill', function(d,i){
-			return colorGreen[i];
+			return colorPrimary[i];
 		})
 		.attr("x", function(d,i) { 
 			return (barWidth*(1-1))/2+1;
@@ -667,13 +678,13 @@ var Deepviz = function(sources, callback){
 		//**************************
 		var severityTrendline = d3.select('#svgchartbg').append('path')
 			.style('fill', 'none')
-			.style('stroke', colorGreen[4])
+			.style('stroke', colorPrimary[3])
 			.attr('id', 'severityTrendline');
 
 		var reliabilityTrendline = d3.select('#svgchartbg').append('path')
 			.style('fill', 'none')
 			.style('opacity',0)
-			.style('stroke', colorOrange[4])
+			.style('stroke', colorSecondary[4])
 			.attr('id', 'reliabilityTrendline');
 
 		// *************************
@@ -681,7 +692,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		var timechart = d3.select('#timeChart');
-		var yPadding =25;
+		var yPadding = 14;
 
 		var contextualRows = svgChartBg.append('g')
 			.attr('id', 'contextualRows')
@@ -701,7 +712,7 @@ var Deepviz = function(sources, callback){
 			.attr('height', contextualRowsHeight+45)
 			.attr('width', 10)
 			.attr('x', -5)
-			.attr('y',-40)
+			.attr('y',-30)
 			.style('fill', '#FFF')
 			.style('fill-opacity',1);
 
@@ -767,9 +778,9 @@ var Deepviz = function(sources, callback){
 				return barWidth/2;
 			})
 			.attr('cy', function(d,i){
-				return contextualRowsHeight + 110 + (contextualRowHeight*i);
+				return contextualRowsHeight + 73 + (contextualRowHeight*i);
 			})
-			.style('fill', colorGreen[3]);
+			.style('fill', colorPrimary[3]);
 
 		//**************************
 		// date slider brushes
@@ -939,7 +950,7 @@ var Deepviz = function(sources, callback){
 		})
 		.attr('y',2)
 		.attr('fill', function(d,i){
-			return colorGreen[i];
+			return colorPrimary[i];
 		}).on('mouseover', function(d,i){
 
 			if(clickTimer == 0 ){
@@ -978,7 +989,7 @@ var Deepviz = function(sources, callback){
 
 			if(filters.severity.length==0){
 				d3.selectAll('.severityBar').style('fill', function(d,i){
-					return colorGreen[i];
+					return colorPrimary[i];
 				});		
 			} else {
 				d3.selectAll('.severityBar').style('fill', function(d,i){
@@ -987,7 +998,7 @@ var Deepviz = function(sources, callback){
 				filters.severity.forEach(function(d,i){
 
 					d3.select('.severityBar.severity'+(d))
-					.style('fill', colorGreen[d-1])
+					.style('fill', colorPrimary[d-1])
 
 				});
 			}
@@ -1011,7 +1022,7 @@ var Deepviz = function(sources, callback){
 			console.log('click filter');
 			d3.select('#severityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
-				return colorGreen[i];
+				return colorPrimary[i];
 			});	
 			return filter('severity', 'clear'); 
 		});
@@ -1051,7 +1062,7 @@ var Deepviz = function(sources, callback){
 		.style('cursor', 'pointer')
 		.attr('y',2)
 		.attr('fill', function(d,i){
-			return colorGreen[i];
+			return colorPrimary[i];
 		}).on('mouseover', function(d,i){
 
 			if(clickTimer == 0 ){
@@ -1088,7 +1099,7 @@ var Deepviz = function(sources, callback){
 
 			if(filters.reliability.length==0){
 				d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
-					return colorOrange[i];
+					return colorSecondary[i];
 				});		
 			} else {
 				d3.selectAll('.reliabilityBar').transition().duration(500).style('fill', function(d,i){
@@ -1097,7 +1108,7 @@ var Deepviz = function(sources, callback){
 				filters.reliability.forEach(function(d,i){
 
 					d3.select('.reliabilityBar.reliability'+(d)).transition().duration(200)
-					.style('fill', colorOrange[d-1])
+					.style('fill', colorSecondary[d-1])
 
 				});
 			}
@@ -1121,7 +1132,7 @@ var Deepviz = function(sources, callback){
 			console.log('click filter');
 			d3.select('#reliabilityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
-				return colorOrange[i];
+				return colorSecondary[i];
 			});	
 			return filter('reliability', 'clear'); 
 		});
@@ -1432,9 +1443,9 @@ var Deepviz = function(sources, callback){
 				var iBars = group.selectAll('.bar' )
 				.style('fill', function(d,i){
 					if(filters.toggle=='severity'){
-						return colorGreen[i];
+						return colorPrimary[i];
 					} else {
-						return colorOrange[i];
+						return colorSecondary[i];
 					}
 				})
 				.transition().duration(500)
@@ -1680,11 +1691,11 @@ var updateTrendline = function(){
 
 		d3.selectAll('.severityBar')
 		.attr('fill', function(d,i){
-			return colorGreen[i];
+			return colorPrimary[i];
 		});
 		d3.selectAll('.reliabilityBar')
 		.attr('fill', function(d,i){
-			return colorOrange[i];
+			return colorSecondary[i];
 		});
 
 		var reliabilityData = timedata;
@@ -1849,18 +1860,18 @@ var updateTrendline = function(){
 			d3.select('#reliabilityTrendline').style('opacity',1);
 			d3.select('#severityTrendline').style('opacity',0);
 
-			d3.select('#total_entries').style('color',colorOrange[3]);
+			d3.select('#total_entries').style('color',colorSecondary[3]);
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
 
-			d3.selectAll('.eventDrop').style('fill', colorOrange[3]);
+			d3.selectAll('.eventDrop').style('fill', colorSecondary[3]);
 
 			d3.select('#rightAxisLabel').text('Avg. Reliability');
-			d3.select('#rightAxisLabelLine').style('stroke', colorOrange[3]);
-			d3.select('#leftAxisBox').style('fill', colorOrange[3]);
-			d3.select('.selection').style('fill', colorOrange[1]);
+			d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
+			d3.select('#leftAxisBox').style('fill', colorSecondary[3]);
+			d3.select('.selection').style('fill', colorSecondary[1]);
 
-			d3.selectAll('.outerCircle').style('stroke', colorOrange[3]);
-			d3.selectAll('.innerCircle').style('fill', colorOrange[3]);
+			d3.selectAll('.outerCircle').style('stroke', colorSecondary[3]);
+			d3.selectAll('.innerCircle').style('fill', colorSecondary[3]);
 
 		} else {
 			// switch to Severity
@@ -1871,17 +1882,17 @@ var updateTrendline = function(){
 			d3.select('#severityTrendline').style('opacity',1);
 			d3.select('#reliabilityTrendline').style('opacity',0);
 
-			d3.select('#total_entries').style('color',colorGreen[3]);
+			d3.select('#total_entries').style('color',colorPrimary[3]);
 
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY SEVERITY');
-			d3.selectAll('.eventDrop').style('fill', colorGreen[3]);
+			d3.selectAll('.eventDrop').style('fill', colorPrimary[3]);
 			d3.select('#rightAxisLabel').text('Avg. Severity');
-			d3.select('#rightAxisLabelLine').style('stroke', colorGreen[3]);
-			d3.select('#leftAxisBox').style('fill', colorGreen[3]);
-			d3.select('.selection').style('fill', colorGreen[2]);
+			d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
+			d3.select('#leftAxisBox').style('fill', colorPrimary[3]);
+			d3.select('.selection').style('fill', colorPrimary[2]);
 
-			d3.selectAll('.outerCircle').style('stroke', colorGreen[4]);
-			d3.selectAll('.innerCircle').style('fill', colorGreen[4]);
+			d3.selectAll('.outerCircle').style('stroke', colorPrimary[3]);
+			d3.selectAll('.innerCircle').style('fill', colorPrimary[3]);
 
 
 		}
@@ -1905,17 +1916,17 @@ var updateTrendline = function(){
 			} else {
 				d3.select(this).selectAll('.bar').style('fill', function(d,i){
 					if(filters.toggle == 'severity'){
-						return colorGreen[i];
+						return colorPrimary[i];
 					} else {
-						return colorOrange[i];
+						return colorSecondary[i];
 					}
 				}).style('fill-opacity', 1);
 
 				d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
 					if(filters.toggle == 'severity'){
-						return colorGreen[3];
+						return colorPrimary[3];
 					} else {
-						return colorOrange[3];
+						return colorSecondary[3];
 					}
 				});
 			}
