@@ -20,7 +20,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	var timelineSvg = Deepviz.createSvg({
 		id: 'timeline_viz',
 		viewBoxWidth: 1300,
-		viewBoxHeight: 1050,
+		viewBoxHeight: 1200,
 		div: '#timeline'
 	});
 
@@ -29,7 +29,7 @@ var Deepviz = new Deepviz(sources, function(data){
 		id: 'timeChart',
 		opacity: 1,
 		gutter: 0.5,
-		svgheight: 1050,
+		svgheight: 1200,
 		width: 1300,
 		color: ['#0033A0'],
 		maxValue: 'round', // integerValue (force define the maximum), 'auto' (find the maximum value in the data), 'round' (pretty rounding based on maximum value in the data)

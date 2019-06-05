@@ -36,7 +36,7 @@ var Deepviz = function(sources, callback){
 	var xScale;
 	var pathData = {};
 	var clickTimer = 0;
-	var timechartHeight = 505;
+	var timechartHeight = 567;
 	var timechartHeightOriginal = timechartHeight;
 	var numContextualRows = 6;
 	var metadata;
@@ -231,7 +231,7 @@ var Deepviz = function(sources, callback){
 		// set map height
 		var map = document.getElementById("map");
 
-		map.setAttribute("style","height:"+map.offsetWidth+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*0.8)+"px");
 
 	    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
 	        
@@ -567,7 +567,7 @@ var Deepviz = function(sources, callback){
 		.attr('x1', 0)
 		.attr('x2', 0)
 		.attr('y1', -timechartHeight)
-		.attr('y2', timechartHeight+margin.top+20)
+		.attr('y2', timechartHeight+margin.top+48)
 
 		// add the axis buttons
 
@@ -778,7 +778,7 @@ var Deepviz = function(sources, callback){
 				return barWidth/2;
 			})
 			.attr('cy', function(d,i){
-				return contextualRowsHeight + 73 + (contextualRowHeight*i);
+				return contextualRowsHeight + 53 + (contextualRowHeight*i);
 			})
 			.style('fill', colorPrimary[3]);
 
@@ -1317,6 +1317,7 @@ var Deepviz = function(sources, callback){
 		// updateSeverityReliability(dateRange, data);
 
 		updateTimeline(filterClass);
+
 	}
 
 	//**************************
@@ -1325,10 +1326,6 @@ var Deepviz = function(sources, callback){
 	var updateTimeline = function(target = null){
 		// use filters
 		console.log('updateTimeline()');
-
-		// set map height again due to some unexplained bug
-		var map = document.getElementById("map");
-		map.setAttribute("style","height:"+map.offsetWidth+"px");
 
 		var timedata = data;
 
@@ -1510,6 +1507,7 @@ var Deepviz = function(sources, callback){
 		updateTrendline();
 		updateBubbles();
 
+
 		// reorganize data
 		dateData.forEach(function(d, i) {
 			d.date = new Date(d.date);
@@ -1587,6 +1585,11 @@ function updateBubbles(){
 	// 	d3.select('#bubble'+(d.key-1) + ' .map-bubble-value')
 	// 	.text(geoSum[i].value);
 	// })
+
+
+				var map = document.getElementById("map");
+		map.setAttribute("style","height:"+(map.offsetWidth*0.8)+"px");
+
 }
 //**************************
 // update date text 
@@ -1947,7 +1950,7 @@ var updateTrendline = function(){
 
 		// set map height
 		var map = document.getElementById("map");
-		map.setAttribute("style","height:"+map.offsetWidth+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*0.8)+"px");
 
 		$('.vizlibResponsiveDiv').each(function(){
 			var rDiv = this;
