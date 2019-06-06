@@ -1338,7 +1338,7 @@ var Deepviz = function(sources, callback){
 		var sliderPadding = 60;
 
 		var xt = d3.scaleSqrt()
-		    .domain([0, (dataByDate.length/3)])
+		    .domain([0.1, (dataByDate.length/3)])
 		    .range([0, 190-sliderPadding])
 		    .clamp(true);
 
@@ -1371,7 +1371,7 @@ var Deepviz = function(sources, callback){
 		        .on('end', function(){
 		        	avgSliderBrushing = false;
 
-		        		d3.selectAll('#severityTrendline, #reliabilityTrendline')
+		        		d3.selectAll('#avg-line')
 					.style('stroke-width',1)
 					.transition().duration(750)
 					.style('stroke-opacity',0.4);	
@@ -1659,7 +1659,7 @@ var Deepviz = function(sources, callback){
 
 		d3.select('#chartarea').style('opacity', 0.2);
 
-		d3.select('#n-days').text('( n days = '+Math.round(v)+' )');
+		d3.select('#n-days').text('( n days = '+(Math.round(v)+1)+' )');
 
 
 	}
@@ -1848,9 +1848,6 @@ var Deepviz = function(sources, callback){
 			d3.select('#severityToggle').style('opacity', 0);
 			filters.toggle = 'reliability';
 
-			d3.select('#reliabilityTrendline').style('opacity',1);
-			d3.select('#severityTrendline').style('opacity',0);
-
 			d3.select('#total_entries').style('color',colorSecondary[3]);
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
 
@@ -1877,9 +1874,6 @@ var Deepviz = function(sources, callback){
 			d3.select('#reliabilityToggle').style('opacity', 0);
 			d3.select('#severityToggle').style('opacity', 1);	
 			filters.toggle = 'severity';
-
-			d3.select('#severityTrendline').style('opacity',1);
-			d3.select('#reliabilityTrendline').style('opacity',0);
 
 			d3.select('#total_entries').style('color',colorPrimary[3]);
 
