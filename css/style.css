@@ -317,7 +317,7 @@ svg text {
 }
 
 #dateRangeContainer {
-	padding-top: 0px;
+	padding-top: 3px;
 }
 
 #dateRange {
@@ -371,11 +371,11 @@ svg text {
   stroke-width: 0;
 }
 
-#reliabilityTrendline,
-#severityTrendline {
+#avg-line {
   stroke-dasharray: 3 3; 
   stroke-width: 1;
   stroke-opacity: 0.4;
+  fill: none;
 }
 
 .yAxis line,
