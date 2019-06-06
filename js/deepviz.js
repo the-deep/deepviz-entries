@@ -3,8 +3,13 @@ var Deepviz = function(sources, callback){
 	//**************************
 	// define variables
 	//**************************
-	var dateRange = [new Date(2019, 2, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date(2018,11,1);
+	var dateRange = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
+	var minDate = new Date('2019-02-01');
+
+	// use url parameters
+	var url = new URL(window.location.href);
+	// minDate = new Date(url.searchParams.get("min_date"));
+
 	var maxDate;
 	var dateIndex;
 	var scale = {
@@ -48,11 +53,14 @@ var Deepviz = function(sources, callback){
 	var avgSliderBrushing = false; // brush state
 	var pathData = {};
 	var clickTimer = 0;
+	var smoothingVal = 3;
 
 	var curvedLine = d3.line()
-		    .x((d,i) => scale.trendline.x(i))
+		    .x(function(d,i){
+		    	return scale.timechart.x(dataByDate[i].date);
+		    })
 		    .y(d => (d))
-		    .curve(d3.curveBasis);
+		    .curve(d3.curveLinear);
 
 	// map
 	var maxMapBubbleValue;
@@ -113,11 +121,11 @@ var Deepviz = function(sources, callback){
 			d.date = new Date(d.date);
 		});
 
+		// TEMPORARY for testing - filter data before minDate
+		data = data.filter(function(d){return (d.date) >= (minDate);});
+
 		// set the data again for reset purposes
 		originalData = data;
-
-		// TEMPORARY for testing - filter data before minDate
-		data = data.filter(function(d){return (d.date) >= minDate;});
 
 		//**************************
 		// find maximum and minimum values in the data to define scales
@@ -230,6 +238,7 @@ var Deepviz = function(sources, callback){
 		.entries(data)	
 
 		trendlinePoints = [];
+		tp = [];
 
 		dataByDate.forEach(function(d,i){
 			var dt = new Date(d.key);
@@ -289,6 +298,10 @@ var Deepviz = function(sources, callback){
 
 			delete d.values;
 		});
+
+		dataByDate.sort(function(x,y){
+			return d3.ascending(x.date, y.date);
+		})
 
 		updateTotals();
 
@@ -800,6 +813,9 @@ var Deepviz = function(sources, callback){
 		// draw trendline
 		//**************************
 		var trendline = d3.select('#svgchartbg')
+			.append('g')
+			.attr('class', 'trendline')
+			.attr('transform', 'translate('+(barWidth/2) + ', 0)' )
 			.append('path')
 			.attr('id', 'avg-line')
 			.style('stroke', colorPrimary[3]);
@@ -879,7 +895,7 @@ var Deepviz = function(sources, callback){
 
 			// row total value
 			rows.append('text')
-			.text('999 entries')
+			.text('0')
 			.attr('class', 'total-label')
 			.attr('id', function(d,i){
 				return 'total-label'+i;
@@ -1338,7 +1354,7 @@ var Deepviz = function(sources, callback){
 		var sliderPadding = 60;
 
 		var xt = d3.scaleSqrt()
-		    .domain([0.1, (dataByDate.length/3)])
+		    .domain([0, (dataByDate.length/3)])
 		    .range([0, 190-sliderPadding])
 		    .clamp(true);
 
@@ -1639,7 +1655,7 @@ var Deepviz = function(sources, callback){
 		  })
 		}
 
-		var dataAvg = movingAvg(tp, 10);
+		var dataAvg = movingAvg(tp, smoothingVal);
 
 		d3.select('#avg-line')
 			.datum(dataAvg)
@@ -1648,6 +1664,8 @@ var Deepviz = function(sources, callback){
 	}
 
 	function smoothAverage(v = 3){
+
+		smoothingVal = v;
 
 		var dataAvg = movingAvg(tp, v);
 
