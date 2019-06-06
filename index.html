@@ -7,14 +7,14 @@
 	<script src='js/vendor/mapbox-gl.js'></script>
 
 	<!-- load custom JavaScript -->
-	<script type="text/javascript" src="js/deepviz.js?cache=275"></script>
-	<script type="text/javascript" src="js/main.js?cache=275"></script>
+	<script type="text/javascript" src="js/deepviz.js?cache=277"></script>
+	<script type="text/javascript" src="js/main.js?cache=277"></script>
 
 	<!-- load vendor CSS -->
 	<link href='js/vendor/mapbox-gl.css' rel='stylesheet' />
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=275" rel="stylesheet" type="text/css" media="all">
+	<link href="css/style.css?cache=277" rel="stylesheet" type="text/css" media="all">
 
 </head>
 
@@ -22,30 +22,39 @@
 
 	<div class="leftcol">
 
-					<div class="title">
+			<div class="title">
 				ENTRIES BY LOCATION
 			</div>
 
 		<div id="mapcontainer">
-
 			<div id="map"></div>
 		</div>
 	</div><!-- /.leftcol -->
 
 
 	<div class="rightcol">
-		<div id="total" class="widget">
-			<div class="title">
-				TOTAL ENTRIES
+		<div class="header-row">
+			<div id="total" class="widget">
+				<div class="title">
+					TOTAL ENTRIES
+				</div>
+				<div id="total_entries"></div>
 			</div>
-			<div id="total_entries">
 
+			<div class="selectedDate">
+				<div class="title">
+					
+					SELECTED DATE RANGE
+				</div><br/>
+				
+				<div id="dateRangeContainer"><img src="images/calendar.jpg" height="11px"/>&nbsp;&nbsp;<div id="dateRange">dateRange</div></div><br/>
+			</div>
+
+			<div id="avg_slider">
 			</div>
 		</div>
 
-		<div id="avg_slider">
-		</div>
-
+	<div class="secondRow row">
 		<div id="severity" class="widget">
 			<div class="title severityToggle">
 				ENTRIES BY SEVERITY&nbsp; 
@@ -78,6 +87,8 @@
 			</div>	
 		</div>
 
+	</div>
+
 
 		<div class="header">
 			<div id="timechartTitle" class="title">ENTRIES BY DATE AND BY SEVERITY</div>
@@ -86,10 +97,9 @@
 				Drag the sliders to select a date range
 			</div>
 
-			<div class="selectedDate">
-				<img src="images/calendar.jpg" height="9px"/>
-				<span id="dateRange">dateRange</span>
-			</div>
+
+			<div id="timechart-legend"></div>
+
 		</div>
 
 		<div id="timeline" class="widget">

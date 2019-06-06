@@ -30,7 +30,7 @@ var Deepviz = function(sources, callback){
 
 	// timechart variables
 	var width = 1300;
-	var margin = {top: 18, right: 30, bottom: 0, left: 37};
+	var margin = {top: 18, right: 17, bottom: 0, left: 25};
 	var timechartHeight = 567;
 	var timechartHeightOriginal = timechartHeight;
 	var brush;
@@ -91,7 +91,6 @@ var Deepviz = function(sources, callback){
 			promises.push(d3.csv(url));			
 		};
 
-		console.log('loading "' + url +'"');
 	});
 
 	// after all data has been loaded
@@ -99,8 +98,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 		// all data loaded
 		//**************************
-		console.log('all data loaded');
-		
+
 		// return the data
 		data = values[0].deep.data;
 		metadata = values[0].deep.meta_data;
@@ -134,9 +132,9 @@ var Deepviz = function(sources, callback){
 			return d.date;
 		}));
 
-		minDate.setDate(minDate.getDate() + 1);
-		minDate.setHours(0);
-		minDate.setMinutes(0);
+		// minDate.setDate(minDate.getDate());
+		// minDate.setHours(0);
+		// minDate.setMinutes(0);
 
 		// define maximum value by date
 		dataByDate = d3.nest()
@@ -183,6 +181,8 @@ var Deepviz = function(sources, callback){
 		d3.select('#severityToggle').style('fill',colorPrimary[3]);
 		d3.select('#reliabilityToggle').style('fill',colorSecondary[3]);
 		d3.select('.selection').style('fill', colorPrimary[2]);
+		d3.select('#dateRange').style('color', colorPrimary[3]);
+
 
 		refreshData();
 
@@ -190,9 +190,7 @@ var Deepviz = function(sources, callback){
 	});
 
 	var refreshData = function(){
-
 		console.log('refreshData()');
-
 		dataByDate = d3.nest()
 		.key(function(d) { return d.date;})
 		.key(function(d) { return d.severity; })
@@ -260,11 +258,7 @@ var Deepviz = function(sources, callback){
 			var geoArr = [];
 
 			dataByLocation[i].values.forEach(function(dx, ii){
-				// console.log('dx:');
-				// console.log(dx);
 				var k = dx.key-1;
-				// console.log(k);
-				// console.log(dx.value);
 				geoArr[k] = dx.value
 			});
 
@@ -293,7 +287,6 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.createSvg = function(options){
 
-		console.log('create svg');
 		// defaults
 		var w = '100%',
 		height = '100%',
@@ -516,12 +509,63 @@ var Deepviz = function(sources, callback){
 		.attr('height',timechartHeight)
 		.attr('opacity',0);
 
-		var gridlines = svg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+margin.left+','+margin.top+')');
-		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
-		var svgChart = svg.append('g').attr('id', 'chartarea').attr('transform', 'translate('+margin.left+','+margin.top+')');
-		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+margin.left+','+(timechartHeight+margin.top+5)+')');
+		var gridlines = svg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
+		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
+		var svgChart = svg.append('g').attr('id', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
+		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+(margin.left+0)+','+(timechartHeight+margin.top+5)+')');
 
-		var color = options.color;
+
+		// create average svg
+		var timechartLegend = this.createSvg({
+			id: 'timechart_legend',
+			viewBoxWidth: 235,
+			viewBoxHeight: 20,
+			div: '#timechart-legend',
+			width: '100%'
+		}).append('g');
+
+		timechartLegend
+		.append("text")
+		.attr('class','axisLabel')
+		.attr('id', 'rightAxisLabel')
+		.attr("y", 16)
+		.attr("x", 135)
+		.style('font-weight','lighter')
+		.style('font-size', '15px')
+		.style('fill', '#000')
+		.text('Avg. Severity')
+
+		timechartLegend
+		.append("line")
+		.attr('id', 'rightAxisLabelLine')
+		.attr("y1", 12)
+		.attr("y2", 12)
+		.attr("x1", 128)
+		.attr("x2", 112)
+		.style('stroke', colorPrimary[3])
+		.style('stroke-width',3)
+		.style('stroke-opacity',1)
+		.style('stroke-dasharray', '2 2');
+
+		timechartLegend
+		.append("text")
+		.attr('class','axisLabel')
+		.attr("y", 16)
+		.attr("x", 22)
+		.style('font-weight','lighter')
+		.style('font-size', '15px')
+		.style('fill', '#000')
+		.text('Total Entries')
+
+		timechartLegend
+		.append("rect")
+		.attr('id', 'leftAxisBox')
+		.attr("y", 6)
+		.attr("x", 5)
+		.attr('width', 10)
+		.attr('height', 10)
+		.style('fill', colorPrimary[3]);
+
 
 	    var xAxis = d3.axisBottom()
 	    .scale(xScale)
@@ -556,26 +600,6 @@ var Deepviz = function(sources, callback){
 		.call(yAxis)
 		.style('font-size', options.yAxis.font.values.size);
 
-		yAxisText
-		.append("text")
-		.attr('class','axisLabel')
-		.attr("transform", "rotate(-90)")
-		.attr("y", -25)
-		.attr("x", -140)
-		.style('font-weight','normal')
-		.style('font-size', '15px')
-		.style('fill', '#000')
-		.text('Total Entries')
-
-		yAxisText
-		.append("rect")
-		.attr('id', 'leftAxisBox')
-		.attr("y", 230)
-		.attr("x", -37)
-		.attr('width', 10)
-		.attr('height', 13)
-		.style('fill', colorPrimary[3]);
-
 		//**************************
 		// Y AXIS right
 		//**************************
@@ -597,17 +621,7 @@ var Deepviz = function(sources, callback){
 		.call(yAxis2)
 		.style('font-size', options.yAxis.font.values.size);
 
-		yAxisText2
-		.append("text")
-		.attr('class','axisLabel')
-		.attr('id', 'rightAxisLabel')
-		.attr("transform", "rotate(-90)")
-		.attr("y", 23)
-		.attr("x", -225)
-		.style('font-weight','normal')
-		.style('font-size', '15px')
-		.style('fill', '#000')
-		.text('Avg. Severity')
+
 
 		yAxisText2
 		.append("text")
@@ -619,17 +633,7 @@ var Deepviz = function(sources, callback){
 		.style('fill', '#000')
 		.text('1')
 
-		yAxisText2
-		.append("line")
-		.attr('id', 'rightAxisLabelLine')
-		.attr("y1", 238)
-		.attr("y2", 255)
-		.attr("x1", 18)
-		.attr("x2", 18)
-		.style('stroke', colorPrimary[3])
-		.style('stroke-width',4)
-		.style('stroke-opacity',1)
-		.style('stroke-dasharray', '2 3');
+
 
 		// add the Y gridlines
 		gridlines.append("g")			
@@ -645,14 +649,12 @@ var Deepviz = function(sources, callback){
 		}
 
 		// x-axis 
-		console.log('xaxis');
 		var xAxisObj = svgBg.append("g")
 		.attr("class", "xAxis axis")
 		.attr("transform", "translate(" + margin.left + "," + (timechartHeight + margin.top +0) + ")")
 		.call(xAxis)
 		.style('font-size', '16px')
 		.style('font-weight', options.xAxis.font.values.weight)
-		.style('fill', options.xAxis.font.values.color)
 
 		xAxisObj
 		.selectAll('path, line')
@@ -675,7 +677,7 @@ var Deepviz = function(sources, callback){
 		.attr('x1', 0)
 		.attr('x2', 0)
 		.attr('y1', -timechartHeight)
-		.attr('y2', timechartHeight+margin.top+48)
+		.attr('y2', timechartHeight+margin.top+95)
 
 		// add the axis buttons
 
@@ -685,7 +687,7 @@ var Deepviz = function(sources, callback){
 			.attr('width', 80)
 			.attr('height',20)
 			.attr('x', 5)
-			.attr('y', 2)
+			.attr('y', 0)
 			.attr('transform', tick.attr('transform'))
 			.style('cursor', 'pointer')
 			.style('opacity', 0)
@@ -762,7 +764,6 @@ var Deepviz = function(sources, callback){
 		.attr("height", function(d,i) { 
 			return timechartHeight-scale.timechart.y1(d); 
 		})
-		.style('fill', function(d,i){ if(color.length > 1){return color[i]} else {return color[0];}})
 		.on('mouseover', function(){
 			d3.select(this).style('fill-opacity', options.fillOpacity - 0.05)
 		})
@@ -827,8 +828,8 @@ var Deepviz = function(sources, callback){
 		svg.append('rect')
 			.attr('height', contextualRowsHeight+38)
 			.attr('width', 35)
-			.attr('x', 1276)
-			.attr('y',timechartHeightOriginal+10)
+			.attr('x', 1286)
+			.attr('y',timechartHeightOriginal+2)
 			.style('fill', '#FFF')
 			.style('fill-opacity',1);
 
@@ -873,7 +874,6 @@ var Deepviz = function(sources, callback){
 			.text('999 entries')
 			.attr('class', 'total-label')
 			.attr('id', function(d,i){
-				console.log(i);
 				return 'total-label'+i;
 			})
 			.attr('x', function(d,i){
@@ -883,9 +883,6 @@ var Deepviz = function(sources, callback){
 			.attr('y',19)
 			.style('font-weight', 'bold')
 			.style('fill', colorPrimary[4]);
-
-			console.log(dataByContext);
-
 
 		//**************************
 		// event drops
@@ -1153,7 +1150,6 @@ var Deepviz = function(sources, callback){
 		// severity filter remove button
 		//**************************
 		d3.selectAll('#severityRemoveFilter').on('click', function(){
-			console.log('click filter');
 			d3.select('#severityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
 				return colorPrimary[i];
@@ -1268,7 +1264,6 @@ var Deepviz = function(sources, callback){
 		// reliability filter remove button
 		//**************************
 		d3.selectAll('#reliabilityRemoveFilter').on('click', function(){
-			console.log('click filter');
 			d3.select('#reliabilityRemoveFilter').style('opacity', 0).style('cursor', 'default');
 			d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
 				return colorSecondary[i];
@@ -1281,7 +1276,6 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		// create slider
-
 
 		// create average svg
 		var avgSliderSvg = this.createSvg({
@@ -1537,7 +1531,6 @@ var Deepviz = function(sources, callback){
 	// update map bubbles
 	//**************************
 	function updateBubbles(){
-		console.log('updateBubbles()');
 
 		d3.selectAll('.map-bubble')
 		.style('opacity', 0);
@@ -1585,7 +1578,6 @@ var Deepviz = function(sources, callback){
 	// update date text 
 	//**************************
 	function updateDate(){
-		console.log('updateDate()');
 		var dateformatter = d3.timeFormat("%d %b %Y");
 		var dx = new Date(dateRange[1]);
 		var dateTo = dx.setDate(dx.getDate()-1);
@@ -1594,7 +1586,6 @@ var Deepviz = function(sources, callback){
 	}
 
 	function updateTotals(){
-		console.log('updateTotals()');
 
 		var dc = data.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
 
@@ -1622,7 +1613,6 @@ var Deepviz = function(sources, callback){
 	//**************************
 	var updateTrendline = function(){
 		// refreshData();
-		console.log('updateTrendline()');
 		//**************************
 		// trendline
 		//**************************
@@ -1688,8 +1678,6 @@ var Deepviz = function(sources, callback){
 	// update severity / reliability bars
 	//**************************
 	function updateSeverityReliability(target=null){
-
-		console.log('updateSeverityReliability(target)');
 
 		var s_total = 0;
 		var r_total = 0;
@@ -1863,7 +1851,6 @@ var Deepviz = function(sources, callback){
 	// toggle between severity and reliability
 	//**************************
 	var toggle = function(d){
-		console.log('toggle()');
 
 		if(d != 'severity'){
 			// switch to Reliability
@@ -1890,6 +1877,10 @@ var Deepviz = function(sources, callback){
 			// update colors of contextual row total values
 			d3.selectAll('.total-label').style('fill', colorSecondary[4]);
 
+			d3.select('#dateRange').style('color', colorSecondary[4]);
+
+
+
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
@@ -1914,6 +1905,9 @@ var Deepviz = function(sources, callback){
 			// update colors of contextual row total values
 			d3.selectAll('.total-label').style('fill', colorPrimary[4]);
 
+			d3.select('#dateRange').style('color', colorPrimary[3]);
+
+
 		}
 
 		updateTimeline();
@@ -1921,8 +1915,6 @@ var Deepviz = function(sources, callback){
 
 
 	function colorBars(){
-
-		console.log('colorBars()');
 
 		d3.selectAll('.barGroup').each(function(d,i){
 
