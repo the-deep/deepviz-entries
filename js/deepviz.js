@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange = [new Date(2019, 2, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date(2018,10,1);
+	var minDate = new Date(2018,11,1);
 	var maxDate;
 	var dateIndex;
 	var scale = {
