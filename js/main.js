@@ -2,15 +2,8 @@ var sources = [ 'data/data3.json'];
 
 var Deepviz = new Deepviz(sources, function(data){
 
-	//**************************
-	// severity chart
-	//**************************
-	var severityChart = Deepviz.createSeverityChart();
 
-	//**************************
-	// reliability chart
-	//**************************
-	var reliabilityChart = Deepviz.createReliabilityChart();
+	// loads data... then 
 
 	//**************************
 	// time chart
@@ -20,7 +13,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	var timelineSvg = Deepviz.createSvg({
 		id: 'timeline_viz',
 		viewBoxWidth: 1300,
-		viewBoxHeight: 1200,
+		viewBoxHeight: 1250,
 		div: '#timeline'
 	});
 
@@ -29,7 +22,7 @@ var Deepviz = new Deepviz(sources, function(data){
 		id: 'timeChart',
 		opacity: 1,
 		gutter: 0.5,
-		svgheight: 1200,
+		svgheight: 1250,
 		width: 1300,
 		color: ['#0033A0'],
 		maxValue: 'round', // integerValue (force define the maximum), 'auto' (find the maximum value in the data), 'round' (pretty rounding based on maximum value in the data)
@@ -114,6 +107,17 @@ var Deepviz = new Deepviz(sources, function(data){
 	var map = Deepviz.createMap({
 
 	});
+
+	
+	//**************************
+	// severity chart
+	//**************************
+	var severityChart = Deepviz.createSeverityChart();
+
+	//**************************
+	// reliability chart
+	//**************************
+	var reliabilityChart = Deepviz.createReliabilityChart();
 
 
 

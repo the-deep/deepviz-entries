@@ -9,16 +9,21 @@ body {
 	padding: 11px 15px 0px 15px;
 	max-width: 1300px;
 	margin: 10px auto;
-	height: 850px;
+	height: 870px;
 	-webkit-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
--moz-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
-
+	-moz-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+	box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
 }
 
 svg {
 	font-family: Source Sans Pro, sans-serif !important;
+	font-size: 18px;
 }
+
+svg text {
+	fill: #2A2A2A;
+}
+
 .leftcol {
 	width: 44%;
 	float:left;

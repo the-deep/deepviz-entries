@@ -1,72 +1,56 @@
 var Deepviz = function(sources, callback){
 
+	//**************************
 	// define variables
-	var dateRange = [new Date(2019, 2, 1), new Date(2019, 3, 31)];
+	//**************************
+	var dateRange = [new Date(2019, 2, 1), new Date(2019, 3, 31)]; // selected dateRange on load
 	var minDate = new Date(2019,0,1);
 	var maxDate;
 	var dateIndex;
-	var dateData;
-	var maxValue;
-	var geoData;
-	var bubbleScale;
-	var maxBubbleValue;
-	var data; // active dataset after filters applied
+	var scale = {
+		'timechart': {x: '', y1: '', y2: ''},
+		'map': '',
+		'severity': {x: '', y: ''},
+		'reliability': {x: '', y: ''},
+	};
+
+	// data related
+	var metadata;
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
-	var trendlinePoints;
+	var data; // active dataset after filters applied
+	var dataByDate;
+	var dataByLocation;
+	var dataByLocationSum;
+	var dataByContext;
+	var total = 0;
+	var maxValue; // max value on a given date
+	var maxContextValue;
+	var tp_severity = [];
+	var tp_reliability = [];
+
+	// timechart variables
+	var width = 1300;
+	var margin = {top: 18, right: 30, bottom: 0, left: 37};
+	var timechartHeight = 567;
+	var timechartHeightOriginal = timechartHeight;
 	var brush;
 	var gBrush; 
 	var barWidth;
-	var avgSliderBrushing = false;
-	var lineGenerator = d3.line().curve(d3.curveBundle.beta(.5));
-	var tp_severity = [];
-	var tp_reliability = [];
+	var numContextualRows = 6;
+
+	// severity / reliability charts
 	var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
 	var severityArray = ["No/minor problem", "Of Concern", "Major", "Severe", "Critical"];
-	var colorPrimary = ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603']; // severity
-	var colorPrimary = ['#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
-	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
-	var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
-	var colorLightgrey = ['#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
-	var width = 1300;
-	var margin = {top: 18, right: 30, bottom: 0, left: 37};
-	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
-	var colorSecondary = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']; // reliability
-	var colorSecondary = ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
-	var yScale;
-	var xScale;
+
+	// trendline
+	var trendlinePoints;
+	var avgSliderBrushing = false; // brush state
+	var lineGenerator = d3.line().curve(d3.curveBundle.beta(.5));
 	var pathData = {};
 	var clickTimer = 0;
-	var timechartHeight = 567;
-	var timechartHeightOriginal = timechartHeight;
-	var numContextualRows = 6;
-	var metadata;
-	var sxScale = d3.scaleLinear()
-		.range([0, 995])
-		.domain([1, 5]);// severity/reliability x xcale
 
-	var lineSmoothingArray = [
-		'd3.curveLinear',
-		'd3.curveCardinal.tension(0.3)',
-		'd3.curveCardinal.tension(.1)',
-		'd3.curveCardinal.tension(0.01)',
-		'd3.curveBundle.beta(1)',
-		'd3.curveBundle.beta(.9)',
-		'd3.curveBundle.beta(.8)',
-		'd3.curveBundle.beta(.75)',
-		'd3.curveBundle.beta(.7)',
-		'd3.curveBundle.beta(.65)',
-		'd3.curveBundle.beta(.6)',
-		'd3.curveBundle.beta(0.55)', // 10
-		'd3.curveBundle.beta(.5)',
-		'd3.curveBundle.beta(0.4)',
-		'd3.curveBundle.beta(0.3)',
-		'd3.curveBundle.beta(.25)',
-		'd3.curveBundle.beta(.2)',
-		'd3.curveBundle.beta(.15)',
-		'd3.curveBundle.beta(0.1)',
-		'd3.curveBundle.beta(0.05)',
-		'd3.curveBundle.beta(0.01)' // 19
-	];
+	// map
+	var maxMapBubbleValue;
 
 	// filters
 	var filters = {
@@ -77,6 +61,16 @@ var Deepviz = function(sources, callback){
 		specificNeeds: [],
 		toggle: 'severity'
 	};
+
+	// colors
+	var colorPrimary = ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603']; // severity
+	var colorPrimary = ['#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
+	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
+	var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
+	var colorLightgrey = ['#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
+	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
+	var colorSecondary = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']; // reliability
+	var colorSecondary = ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
 
 	//**************************
 	// load data
@@ -102,64 +96,85 @@ var Deepviz = function(sources, callback){
 
 	// after all data has been loaded
 	Promise.all(promises).then(function(values) {
-		// do something after data has been loaded
+		//**************************
+		// all data loaded
+		//**************************
 		console.log('all data loaded');
+		
 		// return the data
 		data = values[0].deep.data;
 		metadata = values[0].deep.meta_data;
 
-		data = data.filter(function(d){return new Date(d.date) >= minDate;});
+		// convert date strings into js date objects
+		data.forEach(function(d,i){
+			d.date = new Date(d.date);
+		});
+
+		// set the data again for reset purposes
+		originalData = data;
+
+		// TEMPORARY for testing - filter data before minDate
+		data = data.filter(function(d){return (d.date) >= minDate;});
+
+		//**************************
+		// find maximum and minimum values in the data to define scales
+		//**************************
 
 		// define maximum date 
 		maxDate = new Date(d3.max(data, function(d){
 			return d.date;
 		}));
 
+		maxDate.setDate(maxDate.getDate() + 1);
+		maxDate.setHours(0);
+		maxDate.setMinutes(0);
+
 		// define minimum date 
 		minDate = new Date(d3.min(data, function(d){
 			return d.date;
 		}));
 
-		dateMax = new Date(maxDate);
-		dateMax.setDate(maxDate.getDate() + 1);
-		dateMax.setHours(0);
-		dateMax.setMinutes(0);
+		minDate.setDate(minDate.getDate() + 1);
+		minDate.setHours(0);
+		minDate.setMinutes(0);
 
-		dateData = d3.nest()
+		// define maximum value by date
+		dataByDate = d3.nest()
 		.key(function(d) { return d.date;})
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(data);
 
-		maxValue = d3.max(dateData, function(d) {
+		maxValue = d3.max(dataByDate, function(d) {
 			return d.value;
 		});
 
-		geoData = d3.nest()
+		// define maximum location value
+		dataByLocation = d3.nest()
 		.key(function(d) { return d.geo;})
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(data);
 
-		maxBubbleValue = d3.max(geoData, function(d) {
+		maxMapBubbleValue = d3.max(dataByLocation, function(d) {
 			return d.value;
 		});
 
-		originalData = data;
+		// define maximum context value
+		dataByContext = d3.nest()
+		.key(function(d) { return d.context;})
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data);
 
+		maxContextValue = d3.max(dataByContext, function(d) {
+			return d.value;
+		});
+
+	    // define timechart X scale
 		dateIndex = data.map(function(d) { return d['date']; });
 
-	    // define scales
 	    xScale = d3.scaleTime()
-	    .domain([minDate, dateMax])
+	    .domain([minDate, maxDate])
 	    .range([0, (width - (margin.right + margin.left)) +barWidth])
 	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
-
-		d3.selectAll('.severityToggle').on('click', function(){
-			toggle('severity');
-		});
-
-		d3.selectAll('.reliabilityToggle').on('click', function(){
-			toggle('reliability');
-		});
 
 		// override colors
 		d3.select('#total_entries').style('color',colorPrimary[3]);
@@ -169,12 +184,112 @@ var Deepviz = function(sources, callback){
 		d3.select('#reliabilityToggle').style('fill',colorSecondary[3]);
 		d3.select('.selection').style('fill', colorPrimary[2]);
 
+		refreshData();
 
 		return callback(values);
 	});
 
+	var refreshData = function(){
+
+		console.log('refreshData()');
+
+		dataByDate = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.severity; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data);
+
+		dataByContext = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.context; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data);
+
+		var dateByReliability = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.reliability; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data);
+
+		dataByLocation = d3.nest()
+		.key(function(d) { return d.date;})
+		.key(function(d) { return d.geo; })
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data)	
+
+		trendlinePoints = [];
+
+		dataByDate.forEach(function(d,i){
+			var dt = new Date(d.key);
+			dt.setHours(0,0,0,0);
+			d.key = dt;
+			d.date = d.key;
+
+			var count = 0;
+
+			d.severity = [0,0,0,0,0];
+
+			d.values.forEach(function(dx){
+				d.severity[dx.key-1] = dx.value;
+				count += dx.value;
+			});
+
+			d.reliability = [0,0,0,0,0];
+
+			dateByReliability[i].values.forEach(function(dx){
+				d.reliability[dx.key-1] = dx.value;
+			});
+
+			// set up empty context array for data loop
+			var contextArr = [];
+			var numContextRows = metadata.context_array.length;
+			for(b=0; b<=numContextRows-1; b++){
+				contextArr[b] = 0;
+			}
+
+			d.context = contextArr;
+
+			dataByContext[i].values.forEach(function(dx, ii){
+				var k = dx.key-1;
+				contextArr[k] = dx.value
+			});
+
+		    d.context = contextArr;
+
+		    // geo array
+			var geoArr = [];
+
+			dataByLocation[i].values.forEach(function(dx, ii){
+				// console.log('dx:');
+				// console.log(dx);
+				var k = dx.key-1;
+				// console.log(k);
+				// console.log(dx.value);
+				geoArr[k] = dx.value
+			});
+
+		    d.geo = geoArr;
+
+			d.total_entries = count;
+
+		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
+		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
+
+		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
+
+			dataByDate[i].barValues = d.severity;
+
+			delete d.values;
+		});
+
+		updateTotals();
+
+		return dataByDate;
+
+	}
+
 	//**************************
-	// svg
+	// create svg function (reuseable)
 	//**************************
 	this.createSvg = function(options){
 
@@ -255,31 +370,31 @@ var Deepviz = function(sources, callback){
 		var transform = d3.geoTransform({point: projectPoint});
 		var path = d3.geoPath().projection(transform);
 	    
-	    bubbleScale = d3.scaleLinear()
+	    scale.map = d3.scaleLinear()
 			.range([0.3,1.8])
-			.domain([0,maxBubbleValue]);// 
+			.domain([0,maxMapBubbleValue]);// 
 
-		var gd = dateData.filter(function(d){
+		var gd = dataByDate.filter(function(d){
 			return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
 		});
 
-		var geoSum = [];
+		var dataByLocationSum = [];
 
 		for(var g=0; g < metadata.geo_array.length; g++) {
-			geoSum[g] = 0;
+			dataByLocationSum[g] = 0;
 		}
 
 		gd.forEach(function(d,i){
 			for(var g=0; g < metadata.geo_array.length; g++) {
 				if(d.geo[g]>0){
-					var t = (geoSum[g]) + (d.geo[g]);
-					geoSum[g] = t;
+					var t = (dataByLocationSum[g]) + (d.geo[g]);
+					dataByLocationSum[g] = t;
 				}
 	   		}
 		});
 
 	 	var featureElement = mapsvg.selectAll("g")
-			.data(geoSum)
+			.data(dataByLocationSum)
 			.enter()
 			.append('g')
 			.attr('id', function(d,i){
@@ -295,10 +410,10 @@ var Deepviz = function(sources, callback){
 			.append('g')
 			.attr('class', 'map-bubble')
 			.attr('transform', function(d,i){
-				return 'scale('+bubbleScale(geoSum[i])+')';
+				return 'scale('+scale.map(dataByLocationSum[i])+')';
 			})
 			.style('opacity', function(d,i){
-				if(geoSum[i]>0){
+				if(dataByLocationSum[i]>0){
 					return 1;
 				} else {
 					return 0;
@@ -329,7 +444,7 @@ var Deepviz = function(sources, callback){
 	        .attr('text-anchor', 'middle')
 	        .attr('class', 'map-bubble-value')
 	        .text(function(d,i){
-	        	return geoSum[i];
+	        	return dataByLocationSum[i];
 	        })
 	        .attr('y', 8)
 	        .style('font-weight', 'normal')
@@ -343,7 +458,6 @@ var Deepviz = function(sources, callback){
 			});  
 	    }
 	    
-	    //
 	    map.on("viewreset", update)
 
 	    map.on("movestart", function(){
@@ -358,16 +472,13 @@ var Deepviz = function(sources, callback){
 	    map.on("moveend", function(){
 			update()
 			mapsvg.classed("hidden", false);
-		})
-	    
-	    // update()
+		});
 	    
 		function projectPoint(lon, lat) {
 	        var point = map.project(new mapboxgl.LngLat(lon, lat));
 			return point;
 			// this.stream.point(point.x, point.y);
 		}
-    
 	}
 
 
@@ -376,9 +487,7 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.timeChart = function(options){
 
-		// margins
-
-		var chartdata = updateTimeline();
+		var chartdata = refreshData();
 
 		barWidth = (1300/chartdata.length)-1;
 
@@ -424,18 +533,18 @@ var Deepviz = function(sources, callback){
 	    //**************************
 	    // Y AXIS left
 	    //**************************
-		yScale = d3.scaleLinear()
+		scale.timechart.y1 = d3.scaleLinear()
 		.range([timechartHeight, 0])
 		.domain([0, (maxValue)]);
 
 		if(options.maxValue=='round'){
-			yScale = d3.scaleLinear()
+			scale.timechart.y1 = d3.scaleLinear()
 			.range([timechartHeight, 0])
 			.domain([0, rounder(maxValue)]);
 		}
 
 		var yAxis = d3.axisLeft()
-		.scale(yScale)
+		.scale(scale.timechart.y1)
 		.ticks(4)
 		.tickSize(0)
 		.tickPadding(8);
@@ -467,18 +576,17 @@ var Deepviz = function(sources, callback){
 		.attr('height', 13)
 		.style('fill', colorPrimary[3]);
 
-		
 		//**************************
 		// Y AXIS right
 		//**************************
 
 		// define y-axis secondary
-		yScale2 = d3.scaleLinear()
+		scale.timechart.y2 = d3.scaleLinear()
 		.range([timechartHeight, 0])
 		.domain([1, 5]);
 
 		var yAxis2 = d3.axisRight()
-		.scale(yScale2)
+		.scale(scale.timechart.y2)
 		.ticks(1)
 		.tickSize(5)
 		.tickPadding(4);
@@ -533,16 +641,16 @@ var Deepviz = function(sources, callback){
 
 		// gridlines in y axis function
 		function make_y_gridlines() {		
-			return d3.axisLeft(yScale).ticks(5);
+			return d3.axisLeft(scale.timechart.y1).ticks(5);
 		}
 
 		// x-axis 
 		console.log('xaxis');
 		var xAxisObj = svgBg.append("g")
 		.attr("class", "xAxis axis")
-		.attr("transform", "translate(" + margin.left + "," + (timechartHeight + margin.top +1) + ")")
+		.attr("transform", "translate(" + margin.left + "," + (timechartHeight + margin.top +0) + ")")
 		.call(xAxis)
-		.style('font-size', options.xAxis.font.values.size)
+		.style('font-size', '16px')
 		.style('font-weight', options.xAxis.font.values.weight)
 		.style('fill', options.xAxis.font.values.color)
 
@@ -649,10 +757,10 @@ var Deepviz = function(sources, callback){
 			}
 
 			bars.data()[i].y = d + prevY;
-			return yScale(d + prevY); 
+			return scale.timechart.y1(d + prevY); 
 		})
 		.attr("height", function(d,i) { 
-			return timechartHeight-yScale(d); 
+			return timechartHeight-scale.timechart.y1(d); 
 		})
 		.style('fill', function(d,i){ if(color.length > 1){return color[i]} else {return color[0];}})
 		.on('mouseover', function(){
@@ -751,12 +859,33 @@ var Deepviz = function(sources, callback){
 			.attr('y1', contextualRowsHeight)
 			.attr('y2', contextualRowsHeight);
 
+			// row title
 			rows.append('text').text(function(d,i){
 				return d.name.toUpperCase();
 			})
-			.attr('y',17)
+			.attr('class', 'label')
+			.attr('y',19)
 			.attr('x',1)
+			.style('font-weight', 'bold');
+
+			// row total value
+			rows.append('text')
+			.text('999 entries')
+			.attr('class', 'total-label')
+			.attr('id', function(d,i){
+				console.log(i);
+				return 'total-label'+i;
+			})
+			.attr('x', function(d,i){
+				var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
+				return xoffset + 8;
+			})
+			.attr('y',19)
 			.style('font-weight', 'bold')
+			.style('fill', colorPrimary[4]);
+
+			console.log(dataByContext);
+
 
 		//**************************
 		// event drops
@@ -778,7 +907,7 @@ var Deepviz = function(sources, callback){
 				return barWidth/2;
 			})
 			.attr('cy', function(d,i){
-				return contextualRowsHeight + 53 + (contextualRowHeight*i);
+				return contextualRowsHeight + 7 + (contextualRowHeight*i);
 			})
 			.style('fill', colorPrimary[3]);
 
@@ -877,13 +1006,7 @@ var Deepviz = function(sources, callback){
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(xScale)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(xScale)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
 
-			var total = d3.sum(dateData, function(d){
-			if((d.date>=dateRange[0])&&(d.date<dateRange[1]))
-				return d.total_entries;
-			;
-			});
-
-			d3.select('#total_entries').text(total);
+			updateTotals();
 
 		}
 
@@ -912,8 +1035,9 @@ var Deepviz = function(sources, callback){
 
 		colorBars();
 		updateDate();
-		updateSeverityReliability('init');
 		updateTrendline();
+		updateSeverityReliability('init');
+			updateTotals();
 		
 		return bars;
 	}
@@ -923,6 +1047,11 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.createSeverityChart = function(options){
 
+		// set toggle button listener
+		d3.selectAll('.severityToggle').on('click', function(){
+			toggle('severity');
+		});
+
 		// create severity svg
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
@@ -931,6 +1060,11 @@ var Deepviz = function(sources, callback){
 			div: '#severity_bars',
 			width: '100%'
 		});
+
+		// define x scale
+		scale.severity.x = d3.scaleLinear()
+		.range([0, 995])
+		.domain([1, 5]);// severity/reliability x xcale
 
 		var severityBars = severitySvg.selectAll('.severityBar')
 		.data(severityArray)
@@ -1033,6 +1167,11 @@ var Deepviz = function(sources, callback){
 	// reliability chart
 	//**************************
 	this.createReliabilityChart = function(options){
+
+		// set toggle button listener
+		d3.selectAll('.reliabilityToggle').on('click', function(){
+			toggle('reliability');
+		});
 
 		// create reliability svg
 		var reliabilitySvg = Deepviz.createSvg({
@@ -1313,9 +1452,6 @@ var Deepviz = function(sources, callback){
 		if(filters['specificNeeds'].length>0)
 			data = data.filter(function(d){return  filters['specificNeeds'].includes(d['specificNeeds']);});
 
-// updateTotal(dateRange);
-		// updateSeverityReliability(dateRange, data);
-
 		updateTimeline(filterClass);
 
 	}
@@ -1324,99 +1460,8 @@ var Deepviz = function(sources, callback){
 	// get the data
 	//**************************
 	var updateTimeline = function(target = null){
-		// use filters
-		console.log('updateTimeline()');
 
-		var timedata = data;
-
-		dateData = d3.nest()
-		.key(function(d) { return d.date;})
-		.key(function(d) { return d.severity; })
-		.rollup(function(leaves) { return leaves.length; })
-		.entries(timedata);
-
-		var contextData = d3.nest()
-		.key(function(d) { return d.date;})
-		.key(function(d) { return d.context; })
-		.rollup(function(leaves) { return leaves.length; })
-		.entries(timedata);
-
-		var dateByReliability = d3.nest()
-		.key(function(d) { return d.date;})
-		.key(function(d) { return d.reliability; })
-		.rollup(function(leaves) { return leaves.length; })
-		.entries(timedata);
-
-		geoData = d3.nest()
-		.key(function(d) { return d.date;})
-		.key(function(d) { return d.geo; })
-		.rollup(function(leaves) { return leaves.length; })
-		.entries(timedata)	
-
-		trendlinePoints = [];
-
-		dateData.forEach(function(d,i){
-			var dt = new Date(d.key);
-			dt.setHours(0,0,0,0);
-			d.key = dt;
-			d.date = d.key;
-			var count = 0;
-
-			d.severity = [0,0,0,0,0];
-
-			d.values.forEach(function(dx){
-				d.severity[dx.key-1] = dx.value;
-				count += dx.value;
-			});
-
-			d.reliability = [0,0,0,0,0];
-
-			dateByReliability[i].values.forEach(function(dx){
-				d.reliability[dx.key-1] = dx.value;
-			});
-
-			// set up empty context array for data loop
-			var contextArr = [];
-			var numContextRows = metadata.context_array.length;
-			for(b=0; b<=numContextRows-1; b++){
-				contextArr[b] = 0;
-			}
-
-			d.context = contextArr;
-
-			contextData[i].values.forEach(function(dx, ii){
-				var k = dx.key-1;
-				contextArr[k] = dx.value
-			});
-
-		    d.context = contextArr;
-
-		    // geo array
-			var geoArr = [];
-
-			geoData[i].values.forEach(function(dx, ii){
-				// console.log('dx:');
-				// console.log(dx);
-				var k = dx.key-1;
-				// console.log(k);
-				// console.log(dx.value);
-				geoArr[k] = dx.value
-			});
-
-		    d.geo = geoArr;
-
-			d.total_entries = count;
-
-		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
-		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
-
-		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
-
-			delete d.values;
-		});
-
-		// console.log('dateData');
-		// console.log(dateData);
+		refreshData();
 
 		// update bars
 
@@ -1427,7 +1472,7 @@ var Deepviz = function(sources, callback){
 
 			var timeid = this.id;
 
-			var dD = dateData.filter(obj => {
+			var dD = dataByDate.filter(obj => {
 				return 'date'+obj.date.getTime() == timeid;
 			})[0]
 
@@ -1447,7 +1492,7 @@ var Deepviz = function(sources, callback){
 				})
 				.transition().duration(500)
 				.attr("height", function(d,i) {
-					return timechartHeight-yScale(dD[filters.toggle][i]); 
+					return timechartHeight-scale.timechart.y1(dD[filters.toggle][i]); 
 				})
 				.attr("y", function(d,i) { 
 					var d = dD[filters.toggle][i];
@@ -1459,7 +1504,7 @@ var Deepviz = function(sources, callback){
 
 					bars.data()[i].y = d + prevY;
 
-					return yScale(d + prevY);
+					return scale.timechart.y1(d + prevY);
 
 				});
 
@@ -1469,28 +1514,7 @@ var Deepviz = function(sources, callback){
 					return dx*4;
 				})
 
-				// .transition().duration(500)
-				// .attr("height", function(d,i) {
-				// 	return timechartHeight-yScale(dD[filters.toggle][i]); 
-				// })
-				// .attr("y", function(d,i) { 
-				// 	var d = dD[filters.toggle][i];
-				// 	if(i>0){
-				// 		var prevY = bars.data()[i-1].y;
-				// 	} else {
-				// 		var prevY = 0;
-				// 	}
-
-				// 	bars.data()[i].y = d + prevY;
-
-				// 	return yScale(d + prevY);
-
-				// });
-
-
-
 			} else {
-
 
 				group.selectAll('.bar').transition("h").duration(0).attr('height',0);
 				group.selectAll('.bar').transition().duration(500).attr('y',timechartHeight).attr('height',0);
@@ -1507,111 +1531,98 @@ var Deepviz = function(sources, callback){
 		updateTrendline();
 		updateBubbles();
 
-
-		// reorganize data
-		dateData.forEach(function(d, i) {
-			d.date = new Date(d.date);
-			d.date.setHours(0);
-			dateData[i].barValues = d.severity;
-		});
-
-		var total = d3.sum(dateData, function(d){
-			if((d.date>=dateRange[0])&&(d.date<dateRange[1]))
-				return d.total_entries;
-		});
-
-		d3.select('#total_entries').text(total);
-
-		return dateData;
 	}
 
+	//**************************
+	// update map bubbles
+	//**************************
+	function updateBubbles(){
+		console.log('updateBubbles()');
 
-//**************************
-// update map bubbles
-//**************************
-function updateBubbles(){
-	console.log('updateBubbles()');
+		d3.selectAll('.map-bubble')
+		.style('opacity', 0);
 
-	d3.selectAll('.map-bubble')
-	.style('opacity', 0);
-
-		var gd = dateData.filter(function(d){
+		var gd = dataByDate.filter(function(d){
 			return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
 		});
 
-		var geoSum = [];
+		var dataByLocationSum = [];
 
 		for(var g=0; g < metadata.geo_array.length; g++) {
-			geoSum[g] = 0;
+			dataByLocationSum[g] = 0;
 		}
 
 		gd.forEach(function(d,i){
 			for(var g=0; g < metadata.geo_array.length; g++) {
 				if(d.geo[g]>0){
-					var t = (geoSum[g]) + (d.geo[g]);
-					geoSum[g] = t;
+					var t = (dataByLocationSum[g]) + (d.geo[g]);
+					dataByLocationSum[g] = t;
 				}
 	   		}
 		});
 
 		var bubbles = d3.selectAll('.map-bubble')
 			.attr('transform', function(d,i){
-				return 'scale('+bubbleScale(geoSum[i])+')';
+				return 'scale('+scale.map(dataByLocationSum[i])+')';
 			})
 			.style('opacity', function(d,i){
-				if(geoSum[i]>0){
+				if(dataByLocationSum[i]>0){
 					return 1;
 				} else {
 					return 0;
 				}
 			}).select('.map-bubble-value')
 	        .text(function(d,i){
-	        	return geoSum[i];
+	        	return dataByLocationSum[i];
 	        });
 
-	// geoSum.forEach(function(d,i){
-	// 	console.log(i);
-	// 	d3.select('#bubble'+(d.key-1) + ' .map-bubble')
-	// 	.style('opacity', 1)
-	// 	.transition().duration(500)
-	// 	.attr('transform', function(dd,ii){
-	// 		// console.log(i);
-	// 				// geo bubble data
-	// 				console.log('dd');
-	// 				console.log(dd);
-	// 		return 'scale('+bubbleScale(geoSum[i].value)+')';
-	// 	});
-
-	// 	d3.select('#bubble'+(d.key-1) + ' .map-bubble-value')
-	// 	.text(geoSum[i].value);
-	// })
-
-
-				var map = document.getElementById("map");
+		var map = document.getElementById("map");
 		map.setAttribute("style","height:"+(map.offsetWidth*0.8)+"px");
 
-}
-//**************************
-// update date text 
-//**************************
+	}
 
-// update date range text in the chart header
-function updateDate(){
-	console.log('updateDate()');
-	var dateformatter = d3.timeFormat("%d %b %Y");
-	var dx = new Date(dateRange[1]);
-	var dateTo = dx.setDate(dx.getDate()-1);
-	var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
-	d3.select('#dateRange').text(string);
-}
+	//**************************
+	// update date text 
+	//**************************
+	function updateDate(){
+		console.log('updateDate()');
+		var dateformatter = d3.timeFormat("%d %b %Y");
+		var dx = new Date(dateRange[1]);
+		var dateTo = dx.setDate(dx.getDate()-1);
+		var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+		d3.select('#dateRange').text(string);
+	}
 
+	function updateTotals(){
+		console.log('updateTotals()');
 
-//**************************
-// update trendline
-//**************************
-var updateTrendline = function(){
+		var dc = data.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
 
-	console.log('updateTrendline()');
+		// define maximum context value
+		var contextualRowTotals = d3.nest()
+		.key(function(d) { return d.context;})
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(dc);
+
+		contextualRowTotals.forEach(function(d,i){
+			d3.select('#total-label'+(d.key-1)).text(d.value);
+
+		})
+
+		total = d3.sum(dataByDate, function(d){
+			if((d.date>=dateRange[0])&&(d.date<dateRange[1]))
+				return d.total_entries;
+		});
+
+		d3.select('#total_entries').text(total);
+	}
+
+	//**************************
+	// update trendline
+	//**************************
+	var updateTrendline = function(){
+		// refreshData();
+		console.log('updateTrendline()');
 		//**************************
 		// trendline
 		//**************************
@@ -1660,10 +1671,6 @@ var updateTrendline = function(){
 
 		d3.select('#chartarea').style('opacity', 0.2);
 
-		// v = Math.round(v);
-		// lineGenerator = d3.line()
-			// .curve(eval(lineSmoothingArray[v]));
-
 		lineGenerator = d3.line().curve(d3.curveBundle.beta(v))
 
 		pathData.severity = lineGenerator(tp_severity);
@@ -1677,10 +1684,12 @@ var updateTrendline = function(){
 
 	}
 
-//**************************
-// update severity / reliability bars
-//**************************
+	//**************************
+	// update severity / reliability bars
+	//**************************
 	function updateSeverityReliability(target=null){
+
+		console.log('updateSeverityReliability(target)');
 
 		var s_total = 0;
 		var r_total = 0;
@@ -1824,14 +1833,14 @@ var updateTrendline = function(){
 			d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
 
 			d3.select('#severityAvg').attr('x',function(d){
-				return sxScale(severityAverage);
+				return scale.severity.x(severityAverage);
 			});
 
 			var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
 			d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
 			
 			d3.select('#reliabiltiyAvg').attr('x',function(d){
-				return sxScale(reliabilityAverage);
+				return scale.severity.x(reliabilityAverage);
 			});
 
 		} else {
@@ -1854,6 +1863,8 @@ var updateTrendline = function(){
 	// toggle between severity and reliability
 	//**************************
 	var toggle = function(d){
+		console.log('toggle()');
+
 		if(d != 'severity'){
 			// switch to Reliability
 			d3.select('#reliabilityToggle').style('opacity', 1);
@@ -1876,6 +1887,9 @@ var updateTrendline = function(){
 			d3.selectAll('.outerCircle').style('stroke', colorSecondary[3]);
 			d3.selectAll('.innerCircle').style('fill', colorSecondary[3]);
 
+			// update colors of contextual row total values
+			d3.selectAll('.total-label').style('fill', colorSecondary[4]);
+
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
@@ -1897,6 +1911,8 @@ var updateTrendline = function(){
 			d3.selectAll('.outerCircle').style('stroke', colorPrimary[3]);
 			d3.selectAll('.innerCircle').style('fill', colorPrimary[3]);
 
+			// update colors of contextual row total values
+			d3.selectAll('.total-label').style('fill', colorPrimary[4]);
 
 		}
 
@@ -1905,6 +1921,8 @@ var updateTrendline = function(){
 
 
 	function colorBars(){
+
+		console.log('colorBars()');
 
 		d3.selectAll('.barGroup').each(function(d,i){
 
@@ -1989,60 +2007,60 @@ var updateTrendline = function(){
 
 			} 
 		});
-	}
+	} // .resize
 
 	//**************************
 	// useful functions
 	//**************************
 
-		// rounding function
-		var rounder = function(value){
-			var v = Math.abs(value);
+	// rounding function
+	var rounder = function(value){
+		var v = Math.abs(value);
 
-			if(v<100){
-				return Math.ceil(value/10)*10;
-			};
-			if(v<500){
-				return Math.ceil(value/50)*50;
-			};
-			if(v<1000) {
-				return Math.ceil(value/100)*100;
-			}
-			if(v<10000){
-				return Math.ceil(value/1000)*1000;
-			}
-			if(v<100000){
-				return Math.ceil(value/10000)*10000;
-			}
-			if(v<1000000){
-				return Math.ceil(value/100000)*100000;
-			}
-			if(v<10000000){
-				return Math.ceil(value/1000000)*1000000;
-			}
-			if(v<100000000){
-				return Math.ceil(value/10000000)*10000000;
-			}
+		if(v<100){
+			return Math.ceil(value/10)*10;
+		};
+		if(v<500){
+			return Math.ceil(value/50)*50;
+		};
+		if(v<1000) {
+			return Math.ceil(value/100)*100;
 		}
-
-		// add or remove values from an array if exists
-		function addOrRemove(array, value) {
-			var index = array.indexOf(value);
-
-			if (index === -1) {
-				array.push(value);
-			} else {
-				array.splice(index, 1);
-			}
+		if(v<10000){
+			return Math.ceil(value/1000)*1000;
 		}
-
-		var removeFromArray = function(array, elem) {  
-			var index = array.indexOf(elem);
-			while (index > -1) {
-				array.splice(index, 1);
-				index = array.indexOf(elem);
-			}
+		if(v<100000){
+			return Math.ceil(value/10000)*10000;
 		}
-
-
+		if(v<1000000){
+			return Math.ceil(value/100000)*100000;
+		}
+		if(v<10000000){
+			return Math.ceil(value/1000000)*1000000;
+		}
+		if(v<100000000){
+			return Math.ceil(value/10000000)*10000000;
+		}
 	}
+
+	// add or remove values from an array if exists
+	function addOrRemove(array, value) {
+		var index = array.indexOf(value);
+
+		if (index === -1) {
+			array.push(value);
+		} else {
+			array.splice(index, 1);
+		}
+	}
+
+	var removeFromArray = function(array, elem) {  
+		var index = array.indexOf(elem);
+		while (index > -1) {
+			array.splice(index, 1);
+			index = array.indexOf(elem);
+		}
+	}
+
+
+}
