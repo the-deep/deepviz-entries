@@ -316,6 +316,10 @@ svg text {
 
 }
 
+#n-days {
+	opacity: 0;
+}
+
 #dateRangeContainer {
 	padding-top: 3px;
 }

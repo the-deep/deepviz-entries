@@ -192,10 +192,6 @@ var Deepviz = function(sources, callback){
 	    .range([0, (width - (margin.right + margin.left)) +barWidth])
 	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
 
-		// define y-axis
-		scale.trendline.y = d3.scaleLinear()
-			.range([timechartHeight, 0])
-			.domain([1, (5)]);
 
 		// override colors
 		d3.select('#total_entries').style('color',colorPrimary[3]);
@@ -207,7 +203,6 @@ var Deepviz = function(sources, callback){
 		d3.select('#dateRange').style('color', colorPrimary[3]);
 		
 		refreshData();
-
 		return callback(values);
 	});
 
@@ -632,12 +627,12 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		// define y-axis secondary
-		scale.timechart.y2 = d3.scaleLinear()
-		.range([timechartHeight, 0])
+		scale.trendline.y = d3.scaleLinear()
+		.range([(timechartHeight), 0])
 		.domain([1, 5]);
 
 		var yAxis2 = d3.axisRight()
-		.scale(scale.timechart.y2)
+		.scale(scale.trendline.y)
 		.ticks(1)
 		.tickSize(5)
 		.tickPadding(4);
@@ -648,8 +643,6 @@ var Deepviz = function(sources, callback){
 		.call(yAxis2)
 		.style('font-size', options.yAxis.font.values.size);
 
-
-
 		yAxisText2
 		.append("text")
 		.attr('class','axisLabel0')
@@ -659,8 +652,6 @@ var Deepviz = function(sources, callback){
 		.style('font-size', '15px')
 		.style('fill', '#000')
 		.text('1')
-
-
 
 		// add the Y gridlines
 		gridlines.append("g")			
@@ -1181,6 +1172,9 @@ var Deepviz = function(sources, callback){
 			return filter('severity', 'clear'); 
 		});
 
+		updateSeverityReliability('init');
+
+
 	}
 
 	//**************************
@@ -1221,7 +1215,7 @@ var Deepviz = function(sources, callback){
 		.style('cursor', 'pointer')
 		.attr('y',2)
 		.attr('fill', function(d,i){
-			return colorPrimary[i];
+			return colorSecondary[i];
 		}).on('mouseover', function(d,i){
 
 			if(clickTimer == 0 ){
@@ -1294,6 +1288,9 @@ var Deepviz = function(sources, callback){
 			});	
 			return filter('reliability', 'clear'); 
 		});
+
+		updateSeverityReliability('init');
+
 
 		//**************************
 		// trendline smoothing slider
@@ -1668,7 +1665,7 @@ var Deepviz = function(sources, callback){
 		smoothingVal = v;
 
 		var dataAvg = movingAvg(tp, v);
-
+		
 		d3.select('#avg-line')
 			.datum(dataAvg)
 			.attr('d', curvedLine)
@@ -1677,7 +1674,7 @@ var Deepviz = function(sources, callback){
 
 		d3.select('#chartarea').style('opacity', 0.2);
 
-		d3.select('#n-days').text('( n days = '+(Math.round(v)+1)+' )');
+		d3.select('#n-days').text('( n days = '+(Math.round(v))+' )');
 
 
 	}
