@@ -1104,6 +1104,7 @@ var Deepviz = function(sources, callback){
 			width: '100%'
 		});
 
+		// title
 		var columnHeaders = frameworkSvg.append('g')
 		.attr('id', 'col-header')
 		.selectAll('.frameworkColHeader')
@@ -1145,11 +1146,24 @@ var Deepviz = function(sources, callback){
 			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -8)+')';
 		});
 
+		var cat = '';
+		var cat0 = 0,
+		cat1 = 0;
+
 		rows.append('text')
 		.text(function(d,i){
-			return d.category_name;
+			if(cat!=d.category_name){
+				cat = d.category_name;
+				cat1++;
+				console.log(cat1);
+				return d.category_name;
+			}
+			cat = d.category_name;
+			cat1++;
 		})
-		.attr('x', 0);
+		.attr('x', 0)
+		.style('font-weight', 'bold')
+
 
 		rows.append('text')
 		.text(function(d,i){
@@ -1194,7 +1208,28 @@ var Deepviz = function(sources, callback){
 		.style('font-size', '16px')
 		.attr('id', function(d,i){
 			return d3.select(this.parentNode).attr('id') + 'text';
+		});
+
+				rows
+		.append('line')
+		.style('opacity', function(d,i){
+			if(cat!=d.category_name){
+				cat = d.category_name;
+				cat1++;
+				return 1;
+			} else {
+				return 0
+			}
+			cat = d.category_name;
+			cat1++;
 		})
+		.attr('x1', 0)
+		.attr('x2', frameworkWidth)
+		.attr('y1', -20)
+		.attr('y2', -20)
+		.style('stroke', '#727271')
+		.style('stroke-width', '1px');
+
 
 	}
 

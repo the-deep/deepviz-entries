@@ -398,13 +398,17 @@ svg text {
 
 #framework-chart {
 	width: 100%;
-	padding-top: 10px;
+	padding-top: 5px;
+}
+
+#framework-chart .title {
+	position: relative;
+	top:12px;
 }
 
 #framework-chart svg {
 	font-size: 15px;
 }
-
 
 #framework-chart svg .frameworkColHeader text {
 	font-weight: normal;
