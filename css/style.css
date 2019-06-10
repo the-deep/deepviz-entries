@@ -9,7 +9,6 @@ body {
 	padding: 11px 15px 0px 15px;
 	max-width: 1300px;
 	margin: 10px auto;
-	height: 870px;
 	-webkit-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
 	-moz-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
 	box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
@@ -25,12 +24,12 @@ svg text {
 }
 
 .leftcol {
-	width: 44%;
+	width: 34%;
 	float:left;
 }
 
 .rightcol {
-	width: 56%;
+	width: 66%;
 	float:right;
 }
 
@@ -395,4 +394,22 @@ svg text {
 
 .clearfix {
   overflow: auto;
+}
+
+#framework-chart {
+	width: 100%;
+}
+
+#framework-chart svg {
+	font-size: 15px;
+}
+
+
+#framework-chart svg .frameworkColHeader text {
+	font-weight: normal;
+}
+
+.cell {
+	stroke: #6A6A6A;
+	stroke-opacity: .1;
 }

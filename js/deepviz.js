@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date('2019-02-01');
+	var minDate = new Date('2019-03-01');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -28,6 +28,8 @@ var Deepviz = function(sources, callback){
 	var dataByLocation;
 	var dataByLocationSum;
 	var dataByContext;
+	var dataByFramework;
+	var dataBySector;
 	var total = 0;
 	var maxValue; // max value on a given date
 	var maxContextValue;
@@ -37,8 +39,9 @@ var Deepviz = function(sources, callback){
 	// timechart variables
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 25};
-	var timechartHeight = 567;
+	var timechartHeight = 420;
 	var timechartHeightOriginal = timechartHeight;
+	var timechartSvgHeight = 1000;
 	var brush;
 	var gBrush; 
 	var barWidth;
@@ -84,6 +87,11 @@ var Deepviz = function(sources, callback){
 	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
 	var colorSecondary = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']; // reliability
 	var colorSecondary = ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
+
+	var maxCellSize = 4;
+
+	var cellColorScale = d3.scaleSequential().domain([1,maxCellSize])
+	  .interpolator(d3.interpolateReds);
 
 	//**************************
 	// load data
@@ -145,9 +153,9 @@ var Deepviz = function(sources, callback){
 			return d.date;
 		}));
 
-		// minDate.setDate(minDate.getDate());
-		// minDate.setHours(0);
-		// minDate.setMinutes(0);
+		minDate.setDate(minDate.getDate());
+		minDate.setHours(0);
+		minDate.setMinutes(0);
 
 		// define maximum value by date
 		dataByDate = d3.nest()
@@ -192,7 +200,6 @@ var Deepviz = function(sources, callback){
 	    .range([0, (width - (margin.right + margin.left)) +barWidth])
 	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
 
-
 		// override colors
 		d3.select('#total_entries').style('color',colorPrimary[3]);
 		d3.select('#severity_value').style('color',colorPrimary[3]);
@@ -207,6 +214,7 @@ var Deepviz = function(sources, callback){
 	});
 
 	var refreshData = function(){
+
 		console.log('refreshData()');
 		dataByDate = d3.nest()
 		.key(function(d) { return d.date;})
@@ -230,7 +238,17 @@ var Deepviz = function(sources, callback){
 		.key(function(d) { return d.date;})
 		.key(function(d) { return d.geo; })
 		.rollup(function(leaves) { return leaves.length; })
-		.entries(data)	
+		.entries(data);
+
+		dataByFramework = [];
+
+		data.forEach(function(d,i){
+			d.sector.forEach(function(dd,ii){
+				var f = parseInt(Object.keys(dd)[0]);
+				var s = Object.values(dd)[0];
+				dataByFramework.push({"date": d.date, "framework": f, "sector": s})
+			})
+		});
 
 		trendlinePoints = [];
 		tp = [];
@@ -298,6 +316,7 @@ var Deepviz = function(sources, callback){
 			return d3.ascending(x.date, y.date);
 		})
 
+		updateFramework();
 		updateTotals();
 
 		return dataByDate;
@@ -361,7 +380,7 @@ var Deepviz = function(sources, callback){
 		// set map height
 		var map = document.getElementById("map");
 
-		map.setAttribute("style","height:"+(map.offsetWidth*0.8)+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*1.84)+"px");
 
 	    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
 	        
@@ -504,8 +523,6 @@ var Deepviz = function(sources, callback){
 
 		var chartdata = refreshData();
 
-		barWidth = (1300/chartdata.length)-1;
-
 		// container g, and
 		var svg = options.appendTo
 		.append("svg")
@@ -515,12 +532,21 @@ var Deepviz = function(sources, callback){
 		.attr('x',0+options.offsetX)
 		.attr('y',0+options.offsetY)
 		.attr('width',width)
-		.attr('height', options.svgheight)
+		.attr('height', timechartSvgHeight)
 		.append('g')
 		.attr("transform", "translate(0,0)");
 
 		width = width - (margin.right + margin.left);
 		timechartHeight = timechartHeight - (margin.top + margin.bottom);
+
+
+		// get number of days between dates
+		var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+		var diffDays = Math.round(Math.abs((maxDate.getTime() - minDate.getTime()) / (oneDay)));
+		console.log(diffDays);
+
+		barWidth = (width/diffDays)*0.99;
+
 
 		var svgBg = svg.append('g');
 
@@ -763,7 +789,7 @@ var Deepviz = function(sources, callback){
 			return colorPrimary[i];
 		})
 		.attr("x", function(d,i) { 
-			return (barWidth*(1-1))/2+1;
+			return 0;
 		})
 		.attr("width", function(d,i) { 
 			return (barWidth*1)-2;
@@ -816,13 +842,13 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		var timechart = d3.select('#timeChart');
-		var yPadding = 14;
+		var yPadding = 20;
 
 		var contextualRows = svgChartBg.append('g')
 			.attr('id', 'contextualRows')
 			.attr('transform', 'translate(0,'+ (timechartHeightOriginal + yPadding ) + ')');
 
-		var contextualRowsHeight = timechart.attr('height') - timechartHeightOriginal - yPadding - 36;
+		var contextualRowsHeight = timechartSvgHeight - timechartHeightOriginal - yPadding - 36;
 
 		contextualRows.append('rect')
 			.attr('height', contextualRowsHeight)
@@ -919,7 +945,7 @@ var Deepviz = function(sources, callback){
 				return barWidth/2;
 			})
 			.attr('cy', function(d,i){
-				return contextualRowsHeight + 7 + (contextualRowHeight*i);
+				return timechartHeight + (contextualRowHeight*(i+1))-0;
 			})
 			.style('fill', colorPrimary[3]);
 
@@ -928,7 +954,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 	    // initialise the brush
 	    brush = d3.brushX()
-		    .extent([[0, -margin.top], [width, options.svgheight-(margin.top+margin.bottom)]])
+		    .extent([[0, -margin.top], [width, timechartSvgHeight-(margin.top+margin.bottom)]])
 	        .on("brush", brushed)
 	        .on("start", brush);
 
@@ -966,7 +992,7 @@ var Deepviz = function(sources, callback){
 		handleTop.append('rect')
 	    	.attr('x',-5)
 	    	.attr('width', 10)
-	    	.attr('height', options.svgheight)
+	    	.attr('height', timechartSvgHeight)
 	    	.attr('y', 0)
 	    	// .style('fill', 'blue')
 	    	.style('cursor', 'ew-resize');
@@ -984,7 +1010,7 @@ var Deepviz = function(sources, callback){
 		    .attr("d", 'M -9,0 -1,-11 8,0 z');
 
 	    handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -" + margin.top + ")"; });
-	    handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
+	    handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
 	    // programattically set date range
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
@@ -1013,10 +1039,11 @@ var Deepviz = function(sources, callback){
 			updateDate();
 			updateSeverityReliability('brush');
 			updateBubbles();
+			updateFramework();
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
-			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
+			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
 			updateTotals();
 
@@ -1042,7 +1069,7 @@ var Deepviz = function(sources, callback){
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
-			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (options.svgheight - margin.top) + ")"; });
+			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 		}
 
 		colorBars();
@@ -1052,6 +1079,99 @@ var Deepviz = function(sources, callback){
 			updateTotals();
 		
 		return bars;
+	}
+
+
+	//**************************
+	// framework chart
+	//**************************	
+	this.createFrameworkChart = function(options){
+
+		var frameworkHeight = 500;
+		var numFrameworkRows = metadata.framework_groups_array.length;
+		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 0};
+		var leftSpacing = 460;
+		var frameworkWidth = 1600;
+		var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
+		var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom))/numFrameworkRows;
+
+		// create framework svg
+		var frameworkSvg = this.createSvg({
+			id: 'framework-svg',
+			viewBoxWidth: frameworkWidth,
+			viewBoxHeight: frameworkHeight,
+			div: '#framework-chart',
+			width: '100%'
+		});
+
+		var columnHeaders = frameworkSvg.append('g')
+		.attr('id', 'col-header')
+		.selectAll('.frameworkColHeader')
+		.data(metadata.sector_array)
+		.enter()
+		.append('g')
+		.attr('class', function(d,i){
+			return 'frameworkColHeader frameworkColHeader'+i
+		})
+		.attr('transform', function(d,i){
+			return 'translate('+ ((colWidth)*i+leftSpacing) + ',12)';
+		});
+
+		columnHeaders
+		.append('text')
+		.text(function(d,i){
+			return d.name;
+		})
+		.attr('x', colWidth/2)
+		.style('text-anchor', 'middle')
+
+		columnHeaders
+		.append('line')
+		.attr('x1', 0)
+		.attr('x2', 0)
+		.attr('y1', -20)
+		.attr('y2', frameworkHeight)
+		.style('stroke', '#EDEDED')
+		.style('width', '1px')
+
+		var rows = frameworkSvg.selectAll('.frameworkRow')
+		.data(metadata.framework_groups_array)
+		.enter()
+		.append('g')
+		.attr('class', function(d,i){
+			return 'frameworkRow f'+i
+		})
+		.attr('transform', function(d,i){
+			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -8)+')';
+		});
+
+		rows.append('text')
+		.text(function(d,i){
+			return d.category_name;
+		})
+		.attr('x', 0);
+
+		rows.append('text')
+		.text(function(d,i){
+			return d.name;
+		})
+		.attr('x', 220);
+
+		var cells = rows.selectAll('.cell')
+		.data(metadata.sector_array)
+		.enter()
+		.append('rect')
+		.attr('transform', function(d,i){
+			return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - frameworkMargins.top + ')';
+		})
+		.attr('class', 'cell')
+		.attr('id', function(d,i){
+			var c = d3.select(this.parentNode).attr('class').split(' ')[1];
+			return c+'s'+i;
+		})
+		.attr('width', colWidth)
+		.attr('height', rowHeight);
+
 	}
 
 	//**************************
@@ -1068,7 +1188,7 @@ var Deepviz = function(sources, callback){
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 43,
+			viewBoxHeight: 33,
 			div: '#severity_bars',
 			width: '100%'
 		});
@@ -1191,7 +1311,7 @@ var Deepviz = function(sources, callback){
 		var reliabilitySvg = Deepviz.createSvg({
 			id: 'reliabilitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 43,
+			viewBoxHeight: 33,
 			div: '#reliability_bars',
 			width: '100%'
 		});
@@ -1346,7 +1466,6 @@ var Deepviz = function(sources, callback){
 				d3.select('#chartarea').transition().duration(750).style('opacity', 1);		
 			}
 		});
-
 
 		var sliderPadding = 60;
 
@@ -1584,7 +1703,7 @@ var Deepviz = function(sources, callback){
 	        });
 
 		var map = document.getElementById("map");
-		map.setAttribute("style","height:"+(map.offsetWidth*0.8)+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*1.84)+"px");
 
 	}
 
@@ -1853,6 +1972,46 @@ var Deepviz = function(sources, callback){
 
 
 	//**************************
+	// update framework
+	//**************************
+	var updateFramework = function(){
+
+		var d = dataByFramework.filter(function(d){
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+		});
+
+		d = d3.nest()
+		.key(function(d) { return d.framework; })
+		.key(function(d) { return d.sector; })
+		.rollup(function(leaves) { return leaves.length; })		
+		.entries(d);	
+		console.log('framework/sector data');
+
+		maxCellSize = d3.max(d, function(dd){
+			return d3.max(dd.values, function(ddd){
+				return ddd.value;
+			});
+		})
+		var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
+		  .interpolator(d3.interpolateOrRd);
+
+		d3.selectAll('.cell')
+		.style('fill', '#FFF');
+
+		d.forEach(function(d,i){
+			var f = d.key;
+			d.values.forEach(function(dd,ii){
+				var s = dd.key;
+				var id = 'f'+f+'s'+s;
+				d3.select('#'+id).style('fill', cellColorScale(dd.value));
+				// cellColorScale
+
+				// console.log(dd);
+			});
+		});
+	}
+
+	//**************************
 	// toggle between severity and reliability
 	//**************************
 	var toggle = function(d){
@@ -1961,7 +2120,7 @@ var Deepviz = function(sources, callback){
 
 		// set map height
 		var map = document.getElementById("map");
-		map.setAttribute("style","height:"+(map.offsetWidth*0.8)+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*1.84)+"px");
 
 		$('.vizlibResponsiveDiv').each(function(){
 			var rDiv = this;
