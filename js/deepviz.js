@@ -39,7 +39,7 @@ var Deepviz = function(sources, callback){
 	// timechart variables
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 25};
-	var timechartHeight = 420;
+	var timechartHeight = 400;
 	var timechartHeightOriginal = timechartHeight;
 	var timechartSvgHeight = 1000;
 	var brush;
@@ -722,7 +722,7 @@ var Deepviz = function(sources, callback){
 		.attr('x1', 0)
 		.attr('x2', 0)
 		.attr('y1', -timechartHeight)
-		.attr('y2', timechartHeight+margin.top+95)
+		.attr('y2', timechartSvgHeight-timechartHeight-35)
 
 		// add the axis buttons
 
