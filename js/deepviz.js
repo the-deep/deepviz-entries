@@ -3,8 +3,8 @@ var Deepviz = function(sources, callback){
 	//**************************
 	// define variables
 	//**************************
-	var dateRange = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date('2019-03-01');
+	var dateRange = [new Date(2019, 1, 1), new Date(2019, 3, 31)]; // selected dateRange on load
+	var minDate = new Date('2019-01-01');
 
 	// use url parameters
 	var url = new URL(window.location.href);
