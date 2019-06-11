@@ -908,7 +908,7 @@ var Deepviz = function(sources, callback){
 			})
 			.attr('class', 'label')
 			.attr('y',19)
-			.attr('x',1)
+			.attr('x',4)
 			.style('font-weight', 'bold');
 
 			// row total value
