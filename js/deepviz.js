@@ -56,7 +56,7 @@ var Deepviz = function(sources, callback){
 	var avgSliderBrushing = false; // brush state
 	var pathData = {};
 	var clickTimer = 0;
-	var smoothingVal = 4;
+	var smoothingVal = 10;
 
 	var curvedLine = d3.line()
 		    .x(function(d,i){
@@ -1529,8 +1529,8 @@ var Deepviz = function(sources, callback){
 
 		var sliderPadding = 60;
 
-		var xt = d3.scaleSqrt()
-		    .domain([0, (dataByDate.length/3)])
+		var xt = d3.scaleLinear()
+		    .domain([0, (dataByDate.length/2)])
 		    .range([0, 190-sliderPadding])
 		    .clamp(true);
 
@@ -1587,7 +1587,7 @@ var Deepviz = function(sources, callback){
 
 		    // slider init
 		var handle = slider.insert('g', '.track-overlay')
-			.attr('transform', 'translate('+xt(4.5)+',-10)')
+			.attr('transform', 'translate('+xt(smoothingVal)+',-10)')
 			.attr("class", "handle");
 
 		handle
@@ -1833,12 +1833,6 @@ var Deepviz = function(sources, callback){
 		}
 
 		var dataAvg = movingAvg(tp, smoothingVal);
-
-		d3.select('#avg-line')
-			.datum(dataAvg)
-			.attr('d', curvedLine);
-
-		var dataAvg = movingAvg(tp, smoothingVal);
 		
 		d3.select('#avg-line')
 			.datum(dataAvg)
@@ -1848,7 +1842,7 @@ var Deepviz = function(sources, callback){
 
 	function smoothAverage(v = 4){
 
-		smoothingVal = v;
+		smoothingVal = Math.ceil(v);
 
 		var dataAvg = movingAvg(tp, v);
 		
