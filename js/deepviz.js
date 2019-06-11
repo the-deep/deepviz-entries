@@ -2080,7 +2080,7 @@ var Deepviz = function(sources, callback){
 			var f = d.key;
 			d.values.forEach(function(dd,ii){
 				var s = dd.key;
-				var id = 'f'+f+'s'+(s-1);
+				var id = 'f'+(f-1)+'s'+(s-1);
 				d3.select('#'+id +'rect').style('fill', cellColorScale(dd.value));
 				d3.select('#'+id +'text').text(dd.value);
 				// cellColorScale
