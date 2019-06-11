@@ -439,7 +439,7 @@ var Deepviz = function(sources, callback){
 				p = projectPoint(metadata.geo_array[i].centroid_lon, metadata.geo_array[i].centroid_lat);
 				return 'translate('+p.x+','+p.y+')';
 			})
-			.style('opacity', 0.9);
+			.style('opacity', 1);
 
 			var featureElementG = featureElement
 			.append('g')
@@ -1195,6 +1195,17 @@ var Deepviz = function(sources, callback){
 		.attr('id', function(d,i){
 			return d3.select(this.parentNode).attr('id') + 'rect';
 		})
+
+		cells
+		.append('rect')
+		.attr('width', colWidth-2)
+		.attr('height', rowHeight-2)
+		.attr('x', 1)
+			.attr('y', 1)
+		.style('stroke', '#FFF')
+		.style('stroke-width', 1)
+		.style('fill', 'transparent')
+
 
 		cells
 		.append('text')
