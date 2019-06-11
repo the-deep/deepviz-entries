@@ -396,6 +396,7 @@ var Deepviz = function(sources, callback){
 	    })
 	    
 	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+	    map.scrollZoom.disable();
 	    
 	    var container = map.getCanvasContainer()
 
