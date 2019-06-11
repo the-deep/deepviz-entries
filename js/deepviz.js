@@ -397,7 +397,7 @@ var Deepviz = function(sources, callback){
 	    
 	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 	    map.scrollZoom.disable();
-	    
+
 	    var container = map.getCanvasContainer()
 
 	    var mapsvg = d3.select(container).append("svg").style('position', 'absolute').style('width', '100%').style('height', '100%');
@@ -546,7 +546,7 @@ var Deepviz = function(sources, callback){
 		var diffDays = Math.round(Math.abs((maxDate.getTime() - minDate.getTime()) / (oneDay)));
 		console.log(diffDays);
 
-		barWidth = (width/diffDays)*0.99;
+		barWidth = (width/diffDays)*.9;
 
 
 		var svgBg = svg.append('g');
@@ -790,7 +790,7 @@ var Deepviz = function(sources, callback){
 			return colorPrimary[i];
 		})
 		.attr("x", function(d,i) { 
-			return 0;
+			return (width/diffDays)*.1;
 		})
 		.attr("width", function(d,i) { 
 			return (barWidth*1)-2;
@@ -2051,8 +2051,15 @@ var Deepviz = function(sources, callback){
 				return ddd.value;
 			});
 		})
-		var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
-		  .interpolator(d3.interpolateOrRd);
+
+		if(filters.toggle == 'severity'){
+			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
+			  .interpolator(d3.interpolateOrRd);
+		} else {
+			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
+			  .interpolator(d3.interpolatePuBu);
+		}
+
 
 		d3.selectAll('.cell')
 		.style('fill', '#FFF');
