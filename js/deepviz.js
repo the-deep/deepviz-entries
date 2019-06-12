@@ -67,6 +67,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
+	var mapAspectRatio = 1.65;
 
 	// filters
 	var filters = {
@@ -380,7 +381,7 @@ var Deepviz = function(sources, callback){
 		// set map height
 		var map = document.getElementById("map");
 
-		map.setAttribute("style","height:"+(map.offsetWidth*1.84)+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 
 	    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
 	        
@@ -708,7 +709,7 @@ var Deepviz = function(sources, callback){
 		.style('stroke-width', 1);
 
 		xAxisObj.selectAll(".tick line, text")
-		.attr("transform", "translate(" +40 + ", 0)")
+		.attr("transform", "translate(" +42 + ", 3)")
 		.append('line')
 		.attr('class', 'xAxisHorizontalLine')
 		.attr('x1', 0)
@@ -907,9 +908,10 @@ var Deepviz = function(sources, callback){
 				return d.name.toUpperCase();
 			})
 			.attr('class', 'label')
-			.attr('y',19)
+			.attr('y',22)
 			.attr('x',4)
-			.style('font-weight', 'bold');
+			.style('font-weight', 'bold')
+			.style('fill', '#303030')
 
 			// row total value
 			rows.append('text')
@@ -920,9 +922,9 @@ var Deepviz = function(sources, callback){
 			})
 			.attr('x', function(d,i){
 				var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
-				return xoffset + 8;
+				return xoffset + 10;
 			})
-			.attr('y',19)
+			.attr('y',22)
 			.style('font-weight', 'bold')
 			.style('fill', colorPrimary[4]);
 
@@ -1259,7 +1261,7 @@ var Deepviz = function(sources, callback){
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 33,
+			viewBoxHeight: 42,
 			div: '#severity_bars',
 			width: '100%'
 		});
@@ -1382,7 +1384,7 @@ var Deepviz = function(sources, callback){
 		var reliabilitySvg = Deepviz.createSvg({
 			id: 'reliabilitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 33,
+			viewBoxHeight: 42,
 			div: '#reliability_bars',
 			width: '100%'
 		});
@@ -1493,7 +1495,7 @@ var Deepviz = function(sources, callback){
 		var avgSliderSvg = this.createSvg({
 			id: 'avg_slide_svg',
 			viewBoxWidth: 300,
-			viewBoxHeight: 40,
+			viewBoxHeight: 30,
 			div: '#avg_slider',
 			width: '100%'
 		});
@@ -1775,7 +1777,7 @@ var Deepviz = function(sources, callback){
 	        });
 
 		var map = document.getElementById("map");
-		map.setAttribute("style","height:"+(map.offsetWidth*1.84)+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 
 	}
 
@@ -2199,7 +2201,7 @@ var Deepviz = function(sources, callback){
 
 		// set map height
 		var map = document.getElementById("map");
-		map.setAttribute("style","height:"+(map.offsetWidth*1.84)+"px");
+		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 
 		$('.vizlibResponsiveDiv').each(function(){
 			var rDiv = this;

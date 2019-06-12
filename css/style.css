@@ -3,15 +3,11 @@ html {
 }
 
 body {
-	background-color: #FFF;
     font-family: Source Sans Pro, sans-serif;
 	font-size: 14px;
-	padding: 11px 15px 0px 15px;
-	max-width: 1300px;
-	margin: 10px auto;
-	-webkit-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
-	-moz-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
-	box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+	margin: 0;
+
+
 }
 
 svg {
@@ -23,13 +19,43 @@ svg text {
 
 }
 
+#main-content {
+	padding-top: 74px
+}
+
+#top-row {
+    height: 55px;
+    border-bottom: 2px solid #e8e8e8;
+    margin-bottom: 7px;
+    padding-top: 8px;
+    position: fixed;
+    top: 0px;
+    z-index: 3;
+    width: 96%;
+    max-width: 1300px;
+    background-color: #FFF;
+
+
+}
+
+#container {
+	padding: 0px 15px 0px 15px;
+	max-width: 1300px;
+	margin: 0px auto;
+	-webkit-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+	-moz-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+	box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+	background-color: #FFF;
+
+}
+
 .leftcol {
-	width: 34%;
+	width: 33%;
 	float:left;
 }
 
 .rightcol {
-	width: 66%;
+	width: 67%;
 	float:right;
 }
 
@@ -49,6 +75,10 @@ svg text {
 #mapcontainer {
 	padding-right: 15px;
 	padding-top: 2px;
+}
+
+#timechart-container {
+	position: relative;
 }
 
 
@@ -160,14 +190,21 @@ svg text {
 	position: relative;
 }
 #total { 
-	width: 25%;
+
 	float: left; 
 }
 
 #avg_slider { 
-    float: right;
-    width: 39%;
-    margin-top: 0px;
+	margin-top: 0px;
+    position: absolute;
+    right: -3px;
+    top: -8px;
+}
+
+#timechart-legend {
+	position: absolute;
+	top: 0px;
+	    left: 273px;
 }
 
 #avg_slider .ticks {
@@ -209,8 +246,8 @@ svg text {
 }
 
 #total_entries {
-	margin-bottom: 12px;
-    font-size: 45px;
+	margin-bottom: 0px;
+    font-size: 40px;
     font-weight: bold;
     color: #008974;
     line-height: 0.8;
@@ -245,6 +282,13 @@ svg text {
 	display: inline-block;
 	fill: green;
 	padding-right: 2%;
+	    position: relative;
+    top: -4px;
+}
+
+#severity svg,
+#reliability svg {
+	margin-top: 2px;
 }
 
 #severity_bars {
@@ -271,6 +315,8 @@ svg text {
 	display: inline-block;
 	fill: red;
 	float: right;
+	    position: relative;
+    top: -4px;
 }
 
 #reliability_bars {
@@ -286,6 +332,8 @@ svg text {
     font-size: 12px;
     font-weight: bold;
 }
+
+
 
 .header {
 	margin-bottom: 9px;
@@ -305,13 +353,13 @@ svg text {
 }
 
 .selectedDate {
-	width: 35%;
-	font-size: 14px;
-	font-weight: normal;
+	font-size: 16px;
+	font-weight: bold;
 	display: inline-block;
-	padding-left: 1px;
+	padding-left: 14%;
 	line-height: 1.3;
-    margin-bottom: 18px;
+    margin-bottom: 0px;
+    margin-top: 1px;
 
 }
 
@@ -417,4 +465,31 @@ svg text {
 .cell {
 	stroke: #6A6A6A;
 	stroke-opacity: .1;
+}
+
+
+#footerRow {
+
+}
+
+.footerCol {
+	width: 33%;
+	display: inline-block;
+	min-height: 300px;
+}
+
+.col-content {
+	background-color: lightgreen;
+	min-height: 300px;
+}
+
+#col1 {
+	width: 33%;
+}
+
+#col2 {
+
+}
+
+#col3 {
 }
