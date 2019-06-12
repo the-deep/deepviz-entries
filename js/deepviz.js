@@ -1094,8 +1094,8 @@ var Deepviz = function(sources, callback){
 
 		var frameworkHeight = 500;
 		var numFrameworkRows = metadata.framework_groups_array.length;
-		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 0};
-		var leftSpacing = 460;
+		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2};
+		var leftSpacing = 530;
 		var frameworkWidth = 1600;
 		var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
 		var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom))/numFrameworkRows;
@@ -1226,7 +1226,7 @@ var Deepviz = function(sources, callback){
 			return d3.select(this.parentNode).attr('id') + 'text';
 		});
 
-				rows
+		rows
 		.append('line')
 		.style('opacity', function(d,i){
 			if(cat!=d.category_name){
@@ -1243,6 +1243,16 @@ var Deepviz = function(sources, callback){
 		.attr('x2', frameworkWidth)
 		.attr('y1', -20)
 		.attr('y2', -20)
+		.style('stroke', '#727271')
+		.style('stroke-width', '1px');
+
+		var bottomLine = frameworkSvg
+		.append('line')
+		.style('opacity', 1)
+		.attr('x1', 0)
+		.attr('x2', frameworkWidth)
+		.attr('y1', frameworkHeight-1)
+		.attr('y2', frameworkHeight-1)
 		.style('stroke', '#727271')
 		.style('stroke-width', '1px');
 
@@ -1285,10 +1295,8 @@ var Deepviz = function(sources, callback){
 
 		var labelWidth = svg.node().getBBox().width + padding.left;
 		var width = a.width - labelWidth - padding.right; 
-		// var svgWidth = 
-		console.log(width);
 
-		// // define x scale
+		// define x scale
 		scale.sector.x = d3.scaleLinear()
 		.range([labelWidth, a.width - padding.right])
 		.domain([0, 10]);// severity/reliability x xcale
@@ -1296,7 +1304,7 @@ var Deepviz = function(sources, callback){
 		for(var s=0; s <= 4; s++) {
 			var bar = rows.append('rect')
 				.attr('id', function(d,i){
-					return 'sector'+d.id+'s'+(s+1);
+					return a.classname+d.id+'s'+(s+1);
 				})
 				.attr('class', 's'+(s+1))
 				.attr('x', function(d,i){
@@ -1306,17 +1314,18 @@ var Deepviz = function(sources, callback){
 				.attr('y', padding.bar.y)
 				.attr('height', rowHeight-(padding.bar.y*2))
 				.style('fill', colorPrimary[s]);
-
 		}
 
 		var dataLabel = rows.append('text')
 		.text(999)
+		.attr('id', function(d,i){
+			return a.classname+d.id+'label';
+		})
 		.attr('y', rowHeight/2)
 		.style('alignment-baseline', 'middle')
 		.attr('x', width+labelWidth + 4 )
 		.style('fill', colorPrimary[4])
 		.style('font-weight', 'bold')
-
 
 		// var height = d3.select(d.container).getBBox();
 		// console.log('height:'+height);
@@ -1331,21 +1340,9 @@ var Deepviz = function(sources, callback){
 		var sectorChart = this.createStackedBarChart({
 			rows: metadata.sector_array,
 			width: 700,
+			classname: 'sc',
 			div: 'sector-svg'
 		});
-
-		console.log(sectorChart);
-
-
-
-		// // define x scale
-		// scale.severity.x = d3.scaleLinear()
-		// .range([0, 995])
-		// .domain([1, 5]);// severity/reliability x xcale
-
-		// var severityBars = severitySvg.selectAll('.severityBar')
-		// .data(severityArray)
-		// .enter()
 
 	}
 
@@ -1356,6 +1353,7 @@ var Deepviz = function(sources, callback){
 
 		var specificNeedsChart = this.createStackedBarChart({
 			rows: metadata.specific_needs_groups_array,
+			classname: 'sn',
 			width: 700,
 			div: 'specific-needs-svg'
 		});
@@ -1369,6 +1367,7 @@ var Deepviz = function(sources, callback){
 
 		var affectedGroupsChart = this.createStackedBarChart({
 			rows: metadata.affected_groups_array,
+			classname: 'ag',
 			width: 700,
 			div: 'affected-groups-svg'
 		});
