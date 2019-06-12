@@ -1,3 +1,6 @@
+/*.leftcol, .rightcol {display: none;}*/
+
+
 html {
 	background-color: #e0e0e0;
 }
@@ -474,13 +477,12 @@ svg text {
 
 .footerCol {
 	width: 33%;
-	display: inline-block;
-	min-height: 300px;
+	display: inline-grid;
 }
 
 .col-content {
-	background-color: lightgreen;
-	min-height: 300px;
+	padding-top: 6px;
+	/*background-color: lightgreen;*/
 }
 
 #col1 {

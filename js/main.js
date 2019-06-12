@@ -17,10 +17,22 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// framework chart
 	//**************************
-
 	var frameworkChart = Deepviz.createFrameworkChart();
 
-	// loads data... then 
+	//**************************
+	// sector chart
+	//**************************
+	var sectorChart = Deepviz.createSectorChart();
+
+	//**************************
+	// specific needs chart
+	//**************************
+	var specificNeedsChart = Deepviz.createSpecificNeedsChart();
+
+	//**************************
+	// specific needs chart
+	//**************************
+	var affectedGroupsChart = Deepviz.createAffectedGroupsChart();
 
 	//**************************
 	// time chart

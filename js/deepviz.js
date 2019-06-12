@@ -17,6 +17,7 @@ var Deepviz = function(sources, callback){
 		'trendline': {x: '', y: ''},
 		'map': '',
 		'severity': {x: '', y: ''},
+		'sector': {x: '', y: ''},
 		'reliability': {x: '', y: ''},
 	};
 
@@ -93,6 +94,9 @@ var Deepviz = function(sources, callback){
 
 	var cellColorScale = d3.scaleSequential().domain([1,maxCellSize])
 	  .interpolator(d3.interpolateReds);
+
+	// stacked bar charts (sector, affected groups, special needs groups)
+	var rowHeight = 40; 
 
 	//**************************
 	// load data
@@ -517,7 +521,6 @@ var Deepviz = function(sources, callback){
 		}
 	}
 
-
 	//**************************
 	// create timechart
 	//**************************
@@ -726,7 +729,6 @@ var Deepviz = function(sources, callback){
 		.attr('y2', timechartSvgHeight-timechartHeight-35)
 
 		// add the axis buttons
-
 		xAxisObj.selectAll(".tick").each(function(d,i){
 			var tick = d3.select(this);
 			svgAxisBtns.append('rect')
@@ -1244,6 +1246,132 @@ var Deepviz = function(sources, callback){
 		.style('stroke', '#727271')
 		.style('stroke-width', '1px');
 
+
+	}
+
+	//**************************
+	// stacked bar chart
+	//**************************
+	this.createStackedBarChart = function(a){
+
+		// create svg
+		var svg = this.createSvg({
+			id: a.div+'-svg',
+			viewBoxWidth: a.width,
+			viewBoxHeight: rowHeight*a.rows.length,
+			div: '#'+a.div,
+			width: '100%'
+		});
+
+		svg = svg.append('g');
+
+		var rows = svg.selectAll('.stacked-bar-row')
+		.data(a.rows)
+		.enter()
+		.append('g')
+		.attr('class', 'stacked-bar-row')
+		.attr('transform', function(d,i){
+			return 'translate(0,' + i*rowHeight + ')';
+		});
+
+		var label = rows.append('text')
+		.attr('y', rowHeight/2)
+		.style('alignment-baseline', 'middle')
+		.text(function(d,i){
+			return d.name;
+		});
+
+		var padding = {left: 20, right: 52, bar: {y: 5}};
+
+		var labelWidth = svg.node().getBBox().width + padding.left;
+		var width = a.width - labelWidth - padding.right; 
+		// var svgWidth = 
+		console.log(width);
+
+		// // define x scale
+		scale.sector.x = d3.scaleLinear()
+		.range([labelWidth, a.width - padding.right])
+		.domain([0, 10]);// severity/reliability x xcale
+
+		for(var s=0; s <= 4; s++) {
+			var bar = rows.append('rect')
+				.attr('id', function(d,i){
+					return 'sector'+d.id+'s'+(s+1);
+				})
+				.attr('class', 's'+(s+1))
+				.attr('x', function(d,i){
+					return scale.sector.x(2*s);
+				})
+				.attr('width', width/5)
+				.attr('y', padding.bar.y)
+				.attr('height', rowHeight-(padding.bar.y*2))
+				.style('fill', colorPrimary[s]);
+
+		}
+
+		var dataLabel = rows.append('text')
+		.text(999)
+		.attr('y', rowHeight/2)
+		.style('alignment-baseline', 'middle')
+		.attr('x', width+labelWidth + 4 )
+		.style('fill', colorPrimary[4])
+		.style('font-weight', 'bold')
+
+
+		// var height = d3.select(d.container).getBBox();
+		// console.log('height:'+height);
+		return 'hello';
+	}
+
+	//**************************
+	// create sector chart
+	//**************************
+	this.createSectorChart = function(options){
+
+		var sectorChart = this.createStackedBarChart({
+			rows: metadata.sector_array,
+			width: 700,
+			div: 'sector-svg'
+		});
+
+		console.log(sectorChart);
+
+
+
+		// // define x scale
+		// scale.severity.x = d3.scaleLinear()
+		// .range([0, 995])
+		// .domain([1, 5]);// severity/reliability x xcale
+
+		// var severityBars = severitySvg.selectAll('.severityBar')
+		// .data(severityArray)
+		// .enter()
+
+	}
+
+	//**************************
+	// create specific needs chart
+	//**************************
+	this.createSpecificNeedsChart = function(options){
+
+		var specificNeedsChart = this.createStackedBarChart({
+			rows: metadata.specific_needs_groups_array,
+			width: 700,
+			div: 'specific-needs-svg'
+		});
+
+	}
+
+	//**************************
+	// create affected groups chart
+	//**************************
+	this.createAffectedGroupsChart = function(options){
+
+		var affectedGroupsChart = this.createStackedBarChart({
+			rows: metadata.affected_groups_array,
+			width: 700,
+			div: 'affected-groups-svg'
+		});
 
 	}
 
