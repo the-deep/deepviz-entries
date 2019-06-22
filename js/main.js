@@ -1,7 +1,23 @@
-var sources = [ 'data/data3.json'];
+var sources = [ 'data/data.json'];
 
 var Deepviz = new Deepviz(sources, function(data){
 
+	console.log('data loaded');
+
+		//**************************
+	// sector chart
+	//**************************
+	var sectorChart = Deepviz.createSectorChart();
+
+	//**************************
+	// specific needs chart
+	//**************************
+	var specificNeedsChart = Deepviz.createSpecificNeedsChart();
+
+	//**************************
+	// specific needs chart
+	//**************************
+	var affectedGroupsChart = Deepviz.createAffectedGroupsChart();
 
 	//**************************
 	// severity chart
@@ -19,20 +35,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	var frameworkChart = Deepviz.createFrameworkChart();
 
-	//**************************
-	// sector chart
-	//**************************
-	var sectorChart = Deepviz.createSectorChart();
 
-	//**************************
-	// specific needs chart
-	//**************************
-	var specificNeedsChart = Deepviz.createSpecificNeedsChart();
-
-	//**************************
-	// specific needs chart
-	//**************************
-	var affectedGroupsChart = Deepviz.createAffectedGroupsChart();
 
 	//**************************
 	// time chart
@@ -138,6 +141,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	});
 
 	
+
 
 
 
