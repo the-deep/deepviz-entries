@@ -995,7 +995,7 @@ var Deepviz = function(sources, callback){
 				return barWidth/2;
 			})
 			.attr('cy', function(d,i){
-				return timechartHeight + (contextualRowHeight*(i+1))-0;
+				return timechartHeight + (contextualRowHeight*(i+1))+4;
 			})
 			.style('fill', colorPrimary[3]);
 
