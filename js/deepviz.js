@@ -1152,7 +1152,7 @@ var Deepviz = function(sources, callback){
 		var frameworkSvg = this.createSvg({
 			id: 'framework-svg',
 			viewBoxWidth: frameworkWidth,
-			viewBoxHeight: frameworkHeight-2,
+			viewBoxHeight: frameworkHeight,
 			div: '#framework-chart',
 			width: '100%'
 		});
@@ -1237,12 +1237,14 @@ var Deepviz = function(sources, callback){
 			cat1++;
 		})
 		.attr('x', 0)
+		// .attr('y', -5)
 		.style('font-weight', 'bold')
 
 		rows.append('text')
 		.text(function(d,i){
 			return d.name;
 		})
+		.attr('y', -2)
 		.attr('x', 220);
 
 		var cells = rows.selectAll('g')
@@ -1321,8 +1323,8 @@ var Deepviz = function(sources, callback){
 		.style('opacity', 1)
 		.attr('x1', 0)
 		.attr('x2', frameworkWidth)
-		.attr('y1', frameworkHeight-3)
-		.attr('y2', frameworkHeight-3)
+		.attr('y1', frameworkHeight-1)
+		.attr('y2', frameworkHeight-1)
 		.style('stroke', '#727271')
 		.style('stroke-width', '1px');
 
