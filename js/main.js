@@ -46,7 +46,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	var timelineSvg = Deepviz.createSvg({
 		id: 'timeline_viz',
 		viewBoxWidth: 1300,
-		viewBoxHeight: 1000,
+		viewBoxHeight: 860,
 		div: '#timeline'
 	});
 

@@ -43,9 +43,9 @@ var Deepviz = function(sources, callback){
 	// timechart variables
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 25};
-	var timechartHeight = 400;
+	var timechartHeight = 300;
 	var timechartHeightOriginal = timechartHeight;
-	var timechartSvgHeight = 1000;
+	var timechartSvgHeight = 850;
 	var brush;
 	var gBrush; 
 	var barWidth;
@@ -71,7 +71,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.65;
+	var mapAspectRatio = 1.37;
 
 	// filters
 	var filters = {
@@ -1140,7 +1140,7 @@ var Deepviz = function(sources, callback){
 	//**************************	
 	this.createFrameworkChart = function(options){
 
-		var frameworkHeight = 500;
+		var frameworkHeight = 470;
 		var numFrameworkRows = metadata.framework_groups_array.length;
 		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2};
 		var leftSpacing = 530;
@@ -1152,13 +1152,13 @@ var Deepviz = function(sources, callback){
 		var frameworkSvg = this.createSvg({
 			id: 'framework-svg',
 			viewBoxWidth: frameworkWidth,
-			viewBoxHeight: frameworkHeight,
+			viewBoxHeight: frameworkHeight-2,
 			div: '#framework-chart',
 			width: '100%'
 		});
 
 		var layer1 = frameworkSvg.append('g');
-		var layer2 = frameworkSvg.append('g');
+		var layer2 = frameworkSvg.append('g').attr('id', 'framework-layer2');
 		var layer3 = frameworkSvg.append('g');
 
 		// title
@@ -1172,7 +1172,7 @@ var Deepviz = function(sources, callback){
 			return 'frameworkColHeader frameworkColHeader'+i
 		})
 		.attr('transform', function(d,i){
-			return 'translate('+ ((colWidth)*i+leftSpacing) + ',12)';
+			return 'translate('+ ((colWidth)*i+leftSpacing) + ',17)';
 		});
 
 		columnHeaders
@@ -1187,7 +1187,7 @@ var Deepviz = function(sources, callback){
 		.append('line')
 		.attr('x1', 0)
 		.attr('x2', 0)
-		.attr('y1', -20)
+		.attr('y1', 2)
 		.attr('y2', frameworkHeight)
 		.style('stroke', '#EDEDED')
 		.style('width', '1px')
@@ -1200,7 +1200,7 @@ var Deepviz = function(sources, callback){
 			return 'frameworkRow f'+i
 		})
 		.attr('transform', function(d,i){
-			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -8)+')';
+			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -4)+')';
 		});
 
 		var rows2 = layer2.selectAll('.frameworkRow')
@@ -1211,7 +1211,7 @@ var Deepviz = function(sources, callback){
 			return 'frameworkRow f'+i
 		})
 		.attr('transform', function(d,i){
-			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -8)+')';
+			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -4)+')';
 		});
 
 		rows.append('rect')
@@ -1321,30 +1321,19 @@ var Deepviz = function(sources, callback){
 		.style('opacity', 1)
 		.attr('x1', 0)
 		.attr('x2', frameworkWidth)
-		.attr('y1', frameworkHeight-1)
-		.attr('y2', frameworkHeight-1)
+		.attr('y1', frameworkHeight-3)
+		.attr('y2', frameworkHeight-3)
 		.style('stroke', '#727271')
 		.style('stroke-width', '1px');
 
-		var hSel = layer1.append('g')
-		.attr('class', 'selector')
-		.attr('transform', 'translate(0,0)');
 
-		hSel.append('rect')
-		.attr('x', 205)
-		.attr('width', frameworkWidth+20)
-		.attr('height', rowHeight)
-		.style('fill', '#000')
-		.style('fill-opacity', 0.05)
-		.style('stroke', '#000')
-		.style('stroke-width', 'px');
 
-		hSel.append('rect')
-		.attr('x', 200)
-		.attr('y', -1)
-		.attr('width', 10)
-		.attr('height', rowHeight)
-		.style('fill', '#FAFAFA');
+		// hSel.append('rect')
+		// .attr('x', 214)
+		// .attr('y', -1)
+		// .attr('width', 6)
+		// .attr('height', rowHeight+2)
+		// .style('fill', '#FAFAFA');
 
 		var cells2 = rows2.selectAll('g')
 		.data(metadata.sector_array)
@@ -1354,7 +1343,7 @@ var Deepviz = function(sources, callback){
 			return d3.select(this.parentNode).attr('class').split(' ')[1];
 		})
 		.attr('transform', function(d,i){
-			return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - frameworkMargins.top + ')';
+			return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - (frameworkMargins.top ) + ')';
 		})
 		.attr('id', function(d,i){
 			var c = d3.select(this.parentNode).attr('class').split(' ')[1];
@@ -1371,15 +1360,32 @@ var Deepviz = function(sources, callback){
 		})
 		.style('opacity', 0)
 
+		var frameworkSelectStyle = { 'stroke': '#000', 'fill': '#479A96', 'fillOpacity': 0.13, 'strokeOpacity': 0.3};
+
+		var hSel = layer1.append('g')
+		.attr('class', 'selector')
+		.attr('transform', 'translate(0,0)');
+
+		hSel.append('rect')
+		.attr('x', 210)
+		.attr('width', frameworkWidth+20)
+		.attr('height', rowHeight)
+		.style('fill', frameworkSelectStyle.fill)
+		.style('fill-opacity', frameworkSelectStyle.fillOpacity)
+		.style('stroke-opacity', frameworkSelectStyle.strokeOpacity)
+		.style('stroke', frameworkSelectStyle.stroke)
+		.style('stroke-width', '1px');
+
 		var vSel = layer1.append('rect')
 		.attr('class', 'selector')
 		.attr('x', 194+colWidth+leftSpacing-4)
-		.attr('y', -5)
+		.attr('y', 1)
 		.attr('width', colWidth+2)
 		.attr('height', frameworkHeight+20)
-		.style('fill', '#000')
-		.style('fill-opacity', 0.05)
-		.style('stroke', '#000')
+		.style('fill', frameworkSelectStyle.fill)
+		.style('fill-opacity', frameworkSelectStyle.fillOpacity)
+		.style('stroke', frameworkSelectStyle.stroke)
+		.style('stroke-opacity', frameworkSelectStyle.strokeOpacity)
 		.style('stroke-width', '1px');
 
 		cells2.on('mouseover', function(d,i){
@@ -1388,13 +1394,13 @@ var Deepviz = function(sources, callback){
 
 		rows2.on('mouseover', function(d,i){
 			hSel.attr('transform', function(){
-				return 'translate(0,'+((i*rowHeight)+frameworkMargins.top)+')';
+				return 'translate(0,'+((i*rowHeight)+frameworkMargins.top+3)+')';
 			})
 		});
 
 		d3.selectAll('.selector').style('opacity', 0);
 
-		frameworkSvg.on('mouseover', function(d,i){
+		d3.select('#framework-layer2').on('mouseover', function(d,i){
 			d3.selectAll('.selector').style('opacity', 1);
 		}).on('mouseout', function(d,i){
 			d3.selectAll('.selector').style('opacity', 0);
