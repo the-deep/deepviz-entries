@@ -43,7 +43,7 @@ var Deepviz = function(sources, callback){
 	// timechart variables
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 25};
-	var timechartHeight = 300;
+	var timechartHeight = 350;
 	var timechartHeightOriginal = timechartHeight;
 	var timechartSvgHeight = 850;
 	var brush;
@@ -847,7 +847,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return (width/diffDays)*.05;
 		})
 		.attr("width", function(d,i) { 
-			return (barWidth*1)-2;
+			return (barWidth*1)-1;
 		})
 		.attr("y", function(d,i) { 
 
@@ -1321,7 +1321,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('x', 1)
 			.attr('y', 1)
 		.style('stroke', '#FFF')
-		.style('stroke-width', 1)
+		.style('stroke-width', 0)
 		.style('fill', 'transparent')
 
 
@@ -1496,7 +1496,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return d.name;
 		}).style('text-anchor', 'end');
 
-		var padding = {left: 20, right: 25, bar: {y: 8}};
+		var padding = {left: 20, right: 25, bar: {y: 7}};
 
 		var labelWidth = svg.node().getBBox().width + padding.left;
 		label.attr('x', labelWidth-20);
@@ -1600,7 +1600,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 48,
+			viewBoxHeight: 50,
 			div: '#severity_bars',
 			width: '100%'
 		});
@@ -1797,7 +1797,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		var reliabilitySvg = Deepviz.createSvg({
 			id: 'reliabilitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 48,
+			viewBoxHeight: 50,
 			div: '#reliability_bars',
 			width: '100%'
 		});
