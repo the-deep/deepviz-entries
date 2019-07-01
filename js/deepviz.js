@@ -43,9 +43,9 @@ var Deepviz = function(sources, callback){
 	// timechart variables
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 25};
-	var timechartHeight = 350;
+	var timechartHeight = 410;
 	var timechartHeightOriginal = timechartHeight;
-	var timechartSvgHeight = 850;
+	var timechartSvgHeight = 950;
 	var brush;
 	var gBrush; 
 	var barWidth;
@@ -71,7 +71,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.37;
+	var mapAspectRatio = 1.54;
 
 	// filters
 	var filters = {
@@ -99,8 +99,7 @@ var Deepviz = function(sources, callback){
 	  .interpolator(d3.interpolateReds);
 
 	// stacked bar charts (sector, affected groups, special needs groups)
-	var rowHeight = 40; 
-
+	var rowHeight = 36;
 	//**************************
 	// load data
 	//**************************
@@ -1156,7 +1155,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 	//**************************	
 	this.createFrameworkChart = function(options){
 
-		var frameworkHeight = 470;
+		var frameworkHeight = 450;
 		var numFrameworkRows = metadata.framework_groups_array.length;
 		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2};
 		var leftSpacing = 530;
@@ -1448,7 +1447,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		rows2.on('mouseover', function(d,i){
 			hSel.attr('transform', function(){
-				return 'translate(0,'+((i*rowHeight)+frameworkMargins.top+3)+')';
+				return 'translate(0,'+((i*rowHeight)+frameworkMargins.top+1)+')';
 			})
 		});
 
@@ -1496,7 +1495,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return d.name;
 		}).style('text-anchor', 'end');
 
-		var padding = {left: 20, right: 25, bar: {y: 7}};
+		var padding = {left: 20, right: 25, bar: {y: 5}};
 
 		var labelWidth = svg.node().getBBox().width + padding.left;
 		label.attr('x', labelWidth-20);
