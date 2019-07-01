@@ -1286,11 +1286,12 @@ var Deepviz = function(sources, callback){
 		.append('text')
 		.style('text-anchor', 'middle')
 		.text('')
+		.attr('class', 'framework-text')
 		.attr('y', function(d){
 			return rowHeight/2+3;
 		})
 		.attr('x', colWidth/2)
-		.style('fill', "#FFF")
+		.style('fill', "#000")
 		.style('font-weight', 'bold')
 		.style('font-size', '16px')
 		.attr('id', function(d,i){
@@ -1362,7 +1363,7 @@ var Deepviz = function(sources, callback){
 		})
 		.style('opacity', 0)
 
-		var frameworkSelectStyle = { 'stroke': '#000', 'fill': '#479A96', 'fillOpacity': 0.13, 'strokeOpacity': 0.3};
+		var frameworkSelectStyle = { 'stroke': '#000', 'fill': 'black', 'fillOpacity': 0.03, 'strokeOpacity': 0.8};
 
 		var hSel = layer1.append('g')
 		.attr('class', 'selector')
@@ -1392,6 +1393,14 @@ var Deepviz = function(sources, callback){
 
 		cells2.on('mouseover', function(d,i){
 			vSel.attr('x', (colWidth*(d.id-1))+leftSpacing-1);
+			d3.selectAll('.framework-text').style('visibility', 'hidden');
+			d3.select('#'+this.id+'text').style('visibility', 'visible');
+			var val = d3.select('#'+this.id+'text').text();
+			if(val>0){
+				d3.selectAll('.selector').style('opacity', 1);
+			} else {
+				d3.selectAll('.selector').style('opacity', 0);
+			}
 		});
 
 		rows2.on('mouseover', function(d,i){
@@ -1403,9 +1412,10 @@ var Deepviz = function(sources, callback){
 		d3.selectAll('.selector').style('opacity', 0);
 
 		d3.select('#framework-layer2').on('mouseover', function(d,i){
-			d3.selectAll('.selector').style('opacity', 1);
+			// d3.selectAll('.selector').style('opacity', 1);
 		}).on('mouseout', function(d,i){
 			d3.selectAll('.selector').style('opacity', 0);
+			d3.selectAll('.framework-text').style('visibility', 'hidden');
 		})
 
 
@@ -1441,11 +1451,14 @@ var Deepviz = function(sources, callback){
 		.style('alignment-baseline', 'middle')
 		.text(function(d,i){
 			return d.name;
-		});
+		}).style('text-anchor', 'end');
 
-		var padding = {left: 20, right: 72, bar: {y: 13}};
+		var padding = {left: 20, right: 25, bar: {y: 8}};
 
 		var labelWidth = svg.node().getBBox().width + padding.left;
+		label.attr('x', labelWidth-20);
+		labelWidth = labelWidth + 16;
+
 		var width = a.width - labelWidth - padding.right; 
 
 		// define x scale
@@ -1456,7 +1469,7 @@ var Deepviz = function(sources, callback){
 
 		scale[a.classname].paddingLeft = labelWidth;
 
-		for(var s=0; s <= 4; s++) {
+		for(var s=4; s >= 0; s--) {
 			var bar = rows.append('rect')
 				.attr('id', function(d,i){
 					return a.classname+d.id+'s'+(s+1);
@@ -1480,7 +1493,8 @@ var Deepviz = function(sources, callback){
 		.attr('class', a.classname+'-label')
 		.attr('y', rowHeight/2)
 		.style('alignment-baseline', 'middle')
-		.attr('x', width+labelWidth + 20 )
+		.style('text-anchor', 'middle')
+		.attr('x', labelWidth -20 )
 		.style('fill', colorPrimary[4])
 		.style('font-weight', 'bold')
 
@@ -2236,7 +2250,6 @@ var Deepviz = function(sources, callback){
 			d.reliability = [0,0,0,0,0];
 			d.severity = [0,0,0,0,0];
 
-
 			dateByReliability[i].values.forEach(function(dx){
 				d.reliability[dx.key-1] = dx.value;
 				count += dx.value;
@@ -2340,13 +2353,13 @@ var Deepviz = function(sources, callback){
 		var d = d3.nest()
 		.key(function(d) { return d[group]; })
 		// .rollup(function(leaves) { return leaves.length; })		
-		.key(function(d) { if(filters.toggle == 'severity'){ return d.s; } else { return d.r } })
+		.key(function(d) { if(filters.toggle == 'severity'){ return d.s; } else { return d.r } }).sortKeys(d3.ascending)
 		.rollup(function(leaves) { return leaves.length; })		
 		.entries(dat);	
 
 		var labels = d3.nest().key(function(d) {
 	        return d[group];
-	      })
+	      }).sortKeys(d3.ascending)
 	      .rollup(function(leaves) {
 	        return d3.sum(leaves, function(d) {
 	          return 1;
@@ -2378,6 +2391,7 @@ var Deepviz = function(sources, callback){
 		});
 
 		d.forEach(function(d,i){
+
 			var key = d.key;
 			var wcount = scale[group].paddingLeft;
 			var xcount = scale[group].paddingLeft;
@@ -2429,9 +2443,11 @@ var Deepviz = function(sources, callback){
 			  .interpolator(d3.interpolatePuBu);
 		}
 
-
 		d3.selectAll('.cell')
 		.style('fill', '#FFF');
+
+				d3.selectAll('.framework-text').text('');
+
 
 		d.forEach(function(d,i){
 			var f = d.key;
@@ -2439,8 +2455,8 @@ var Deepviz = function(sources, callback){
 				var s = dd.key;
 				var id = 'f'+(f-1)+'s'+(s-1);
 				d3.select('#'+id +'rect').style('fill', cellColorScale(dd.value));
-				d3.select('#'+id +'text').text(dd.value);
-				// cellColorScale
+				// set the text for all cells
+				d3.select('#'+id +'text').text(dd.value).style('visibility', 'hidden');
 
 			});
 		});
@@ -2476,7 +2492,6 @@ var Deepviz = function(sources, callback){
 			d3.select('#dateRange').style('color', colorSecondary[4]);
 
 			d3.select('#avg-line').style('stroke', colorSecondary[3]);
-
 
 		} else {
 			// switch to Severity
