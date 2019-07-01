@@ -294,6 +294,11 @@ svg text {
 	margin-top: 2px;
 }
 
+#severitySvg text,
+#reliabilitySvg text {
+	cursor: pointer;
+}
+
 #severity_bars {
 	width: 100%;
 	margin-top: 2px;
@@ -306,6 +311,7 @@ svg text {
     display: inline;
     font-size: 12px;
     font-weight: bold;
+    padding-top: 2px;
 
 }
 
@@ -334,6 +340,8 @@ svg text {
     display: inline;
     font-size: 12px;
     font-weight: bold;
+    padding-top: 2px;
+
 }
 
 
@@ -494,4 +502,17 @@ svg text {
 }
 
 #col3 {
+}
+
+#tooltip {
+	position: absolute;
+	left: -100px;
+	top: -100px;
+	z-index: 100;
+	background-color: #000;
+	color: #FFF;
+	padding: 1px 4px;
+	font-size: 12px;
+	font-weight: 12px;
+	text-anchor: left;
 }

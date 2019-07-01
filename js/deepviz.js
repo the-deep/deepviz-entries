@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date('2019-01-01');
+	var minDate = new Date('2019-02-01');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -1557,7 +1557,7 @@ var Deepviz = function(sources, callback){
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 42,
+			viewBoxHeight: 48,
 			div: '#severity_bars',
 			width: '100%'
 		});
@@ -1570,7 +1570,10 @@ var Deepviz = function(sources, callback){
 		var severityBars = severitySvg.selectAll('.severityBar')
 		.data(severityArray)
 		.enter()
-		.append('rect')
+		.append('g')
+		.attr('class','top-bar');
+
+		severityBars.append('rect')
 		.attr('class', function(d,i){
 			return 'severityBar severity' + (i+1);
 		})
@@ -1586,7 +1589,66 @@ var Deepviz = function(sources, callback){
 		.attr('y',2)
 		.attr('fill', function(d,i){
 			return colorPrimary[i];
-		}).on('mouseover', function(d,i){
+		});
+
+		var labels = severityBars.append('g')
+		.attr('class', function(d,i){
+			return 's'+(i+1)+'-text'
+		})
+		.attr('transform', function(d,i){
+			var x = (1000/5)*i + ((1000/5)/2);
+			return 'translate('+x+',30)';
+		});
+
+		labels
+		.append('text')
+		.attr('class', function(d,i){
+			return 's'+(i+1)+'-percent bar-percent'
+		})
+		.style('fill', function(d,i){
+			if(i<3){
+				return '#000'
+			} else {
+				return '#FFF'
+			}
+		})
+		.style('font-size', '25px')
+		.style('text-anchor', 'middle')
+		.style('opacity', 1)
+		.text('00%');
+
+		labels
+		.append('text')
+		.attr('class', function(d,i){
+			return 's'+(i+1)+'-value bar-value'
+		})
+		.style('fill', function(d,i){
+			if(i<3){
+				return '#000'
+			} else {
+				return '#FFF'
+			}
+		})
+		.style('font-size', '25px')
+		.style('text-anchor', 'middle')
+		.style('opacity', 0)
+		.text('00');
+
+		severityBars.on('mouseover', function(d,i){
+
+			d3.select(this).select('.bar-percent').style('opacity',0);
+			d3.select(this).select('.bar-value').style('opacity',1);
+
+			d3.select('#tooltip')
+			.transition('tooltip')
+			.delay(1000)
+			.duration(600)
+            .style("opacity", 1);
+
+            d3.select('#tooltip')		
+            .style("left", (d3.event.pageX+15) + "px")		
+            .style("top", (d3.event.pageY - 0) + "px")
+            .text(d);
 
 			if(clickTimer == 0 ){
 
@@ -1610,6 +1672,18 @@ var Deepviz = function(sources, callback){
 				}
 			}
 		}).on('mouseout', function(d,i){
+
+			d3.select('#tooltip')
+			.transition('tooltip')
+			.duration(0)
+            .style("opacity", 0);
+
+            d3.select('#tooltip')		
+            .style("left", "-100px")		
+            .style("top", "-100px");
+
+			d3.select(this).select('.bar-percent').style('opacity',1);
+			d3.select(this).select('.bar-value').style('opacity',0);
 			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
 			d3.selectAll('.bar').transition("mouseoutSeverity").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
@@ -1680,7 +1754,7 @@ var Deepviz = function(sources, callback){
 		var reliabilitySvg = Deepviz.createSvg({
 			id: 'reliabilitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 42,
+			viewBoxHeight: 48,
 			div: '#reliability_bars',
 			width: '100%'
 		});
@@ -1688,7 +1762,10 @@ var Deepviz = function(sources, callback){
 		var reliabilityBars = reliabilitySvg.selectAll('.reliabilityBar')
 		.data(reliabilityArray)
 		.enter()
-		.append('rect')
+		.append('g')
+		.attr('class','top-bar');
+
+		reliabilityBars.append('rect')
 		.attr('class', function(d,i){
 			return 'reliabilityBar reliability' + (i+1);
 		})
@@ -1705,7 +1782,66 @@ var Deepviz = function(sources, callback){
 		.attr('y',2)
 		.attr('fill', function(d,i){
 			return colorSecondary[i];
-		}).on('mouseover', function(d,i){
+		});
+
+		var labels = reliabilityBars.append('g')
+		.attr('class', function(d,i){
+			return 'r'+(i+1)+'-text'
+		})
+		.attr('transform', function(d,i){
+			var x = (1000/5)*i + ((1000/5)/2);
+			return 'translate('+x+',30)';
+		});
+
+		labels
+		.append('text')
+		.attr('class', function(d,i){
+			return 'r'+(i+1)+'-percent bar-percent'
+		})
+		.style('fill', function(d,i){
+			if(i<3){
+				return '#000'
+			} else {
+				return '#FFF'
+			}
+		})
+		.style('font-size', '25px')
+		.style('text-anchor', 'middle')
+		.style('opacity', 1)
+		.text('00%');
+
+		labels
+		.append('text')
+		.attr('class', function(d,i){
+			return 'r'+(i+1)+'-value bar-value'
+		})
+		.style('fill', function(d,i){
+			if(i<3){
+				return '#000'
+			} else {
+				return '#FFF'
+			}
+		})
+		.style('font-size', '25px')
+		.style('text-anchor', 'middle')
+		.style('opacity', 0)
+		.text('00');
+
+		reliabilityBars.on('mouseover', function(d,i){
+
+			d3.select(this).select('.bar-percent').style('opacity',0);
+			d3.select(this).select('.bar-value').style('opacity',1);
+
+			d3.select('#tooltip')
+			.transition('tooltip')
+			.delay(1000)
+			.duration(600)
+            .style("opacity", 1);
+
+            d3.select('#tooltip')		
+            .style("left", (d3.event.pageX+15) + "px")		
+            .style("top", (d3.event.pageY - 0) + "px")
+            .text(d);
 
 			if(clickTimer == 0 ){
 
@@ -1728,6 +1864,19 @@ var Deepviz = function(sources, callback){
 				}
 			}
 		}).on('mouseout', function(d,i){
+
+			d3.select('#tooltip')
+			.transition('tooltip')
+			.duration(0)
+            .style("opacity", 0);
+
+            d3.select('#tooltip')		
+            .style("left", "-100px")		
+            .style("top", "-100px");
+
+			d3.select(this).select('.bar-percent').style('opacity',1);
+			d3.select(this).select('.bar-value').style('opacity',0);
+
 			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
 			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
@@ -2287,10 +2436,29 @@ var Deepviz = function(sources, callback){
 					} else {
 						var s = severityRolling[i-1];
 					}
-					return (s/s_total)*1000;
+					var v = (s/s_total)*1000;
+					var w = (severity[i]/s_total)*1000;
+					d3.select('.s'+(i+1)+'-text')
+					.attr('transform', function(d,i){
+						return 'translate('+(v+(w/2))+',34)';
+					})
+					.style('opacity', function(){
+						if(w<10){ return  0 } else { return 1};
+					});
+					d3.select('.s'+(i+1)+'-percent')
+					.text(function(){
+						var v = (severity[i]/s_total)*100;
+						return Math.round(v)+'%';
+					});
+					d3.select('.s'+(i+1)+'-value')
+					.text(function(){
+						return severity[i];
+					});
+					return v;
 				})
 				.attr('width', function(d,i){
-					return (severity[i]/s_total)*1000;
+					var v = (severity[i]/s_total)*1000;
+					return v;
 				});				
 			};
 
@@ -2304,10 +2472,30 @@ var Deepviz = function(sources, callback){
 					} else {
 						var s = reliabilityRolling[i-1];
 					}
-					return (s/r_total)*1000;
+					var v = (s/r_total)*1000;
+					var w = (reliability[i]/r_total)*1000;
+					d3.select('.r'+(i+1)+'-text')
+					.attr('transform', function(d,i){
+						return 'translate('+(v+(w/2))+',34)';
+					})
+					.style('opacity', function(){
+						if(w<10){ return  0 } else { return 1};
+					});
+
+					d3.select('.r'+(i+1)+'-percent')
+					.text(function(){
+						var v = (reliability[i]/r_total)*100;
+						return Math.round(v)+'%';
+					});
+					d3.select('.r'+(i+1)+'-value')
+					.text(function(){
+						return reliability[i];
+					});					
+					return v;
 				})
 				.attr('width', function(d,i){
-					return (reliability[i]/r_total)*1000;
+					var v = (reliability[i]/r_total)*1000;
+					return v;
 				});
 			}
 
@@ -2456,7 +2644,14 @@ var Deepviz = function(sources, callback){
 				var id = 'f'+(f-1)+'s'+(s-1);
 				d3.select('#'+id +'rect').style('fill', cellColorScale(dd.value));
 				// set the text for all cells
-				d3.select('#'+id +'text').text(dd.value).style('visibility', 'hidden');
+				d3.select('#'+id +'text').text(dd.value).style('visibility', 'hidden')
+				.style('fill', function(){
+					if((dd.value/maxCellSize)>=0.8){
+						return '#FFF';
+					} else {
+						return '#000';
+					}
+				});
 
 			});
 		});
