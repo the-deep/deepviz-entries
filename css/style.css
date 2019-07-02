@@ -516,3 +516,7 @@ svg text {
 	font-weight: 12px;
 	text-anchor: left;
 }
+
+.top-bar text {
+	cursor: pointer;
+}

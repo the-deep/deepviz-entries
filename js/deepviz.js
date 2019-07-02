@@ -1678,8 +1678,11 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		severityBars.on('mouseover', function(d,i){
 
-			d3.select(this).select('.bar-percent').style('opacity',0);
-			d3.select(this).select('.bar-value').style('opacity',1);
+			d3.select(this).select('.bar-percent')
+			.style('opacity',0);
+
+			d3.select(this).select('.bar-value')
+			.style('opacity',1);
 
 			d3.select('#tooltip')
 			.transition('tooltip')
@@ -1688,7 +1691,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
             .style("opacity", 1);
 
             d3.select('#tooltip')		
-            .style("left", (d3.event.pageX+15) + "px")		
+            .style("left", (d3.event.pageX+35) + "px")		
             .style("top", (d3.event.pageY - 0) + "px")
             .text(d);
 
@@ -1715,17 +1718,23 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			}
 		}).on('mouseout', function(d,i){
 
-			d3.select('#tooltip')
-			.transition('tooltip')
-			.duration(0)
-            .style("opacity", 0);
+			if((d3.event.target.tagName!='text')&&(1!=2)){
+				console.log('nottext')
 
-            d3.select('#tooltip')		
-            .style("left", "-100px")		
-            .style("top", "-100px");
+				d3.select('#tooltip')
+	            .style("opacity", 0);
 
-			d3.select(this).select('.bar-percent').style('opacity',1);
-			d3.select(this).select('.bar-value').style('opacity',0);
+	            d3.select('#tooltip')		
+	            .style("left", "-100px")		
+	            .style("top", "-100px");
+
+				d3.select(this).select('.bar-percent')
+				.style('opacity',1);
+
+				d3.select(this).select('.bar-value')
+				.style('opacity',0);
+			}
+
 			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
 			d3.selectAll('.bar').transition("mouseoutSeverity").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
