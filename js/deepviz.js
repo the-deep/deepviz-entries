@@ -1550,8 +1550,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('x', labelWidth -20 )
 		.style('fill', colorPrimary[4])
 		.style('font-weight', 'bold')
+		.style('font-size', '16px');
 
-		return 'hello';
 	}
 
 	//**************************
