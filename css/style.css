@@ -474,8 +474,8 @@ svg text {
 }
 
 .cell {
-	stroke: #6A6A6A;
-	stroke-opacity: .1;
+	stroke: #FFF;
+	stroke-opacity: 1;
 }
 
 

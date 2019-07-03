@@ -29,18 +29,14 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	var reliabilityChart = Deepviz.createReliabilityChart();
 
-
 	//**************************
 	// framework chart
 	//**************************
 	var frameworkChart = Deepviz.createFrameworkChart();
 
-
-
 	//**************************
 	// time chart
 	//**************************
-
 
 	// create svg
 	var timelineSvg = Deepviz.createSvg({

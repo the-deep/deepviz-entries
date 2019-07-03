@@ -961,9 +961,10 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				return d.name.toUpperCase();
 			})
 			.attr('class', 'label')
-			.attr('y',22)
+			.attr('y',21)
 			.attr('x',4)
 			.style('font-weight', 'bold')
+			.style('font-size', '16px')
 			.style('fill', '#303030')
 
 			// row total value
@@ -977,7 +978,9 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
 				return xoffset + 10;
 			})
-			.attr('y',22)
+			.attr('y',21)
+			.style('font-size', '16px')
+
 			.style('font-weight', 'bold')
 			.style('fill', colorPrimary[4]);
 
@@ -1001,7 +1004,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				return barWidth/2;
 			})
 			.attr('cy', function(d,i){
-				return timechartHeight + (contextualRowHeight*(i+1))+9;
+				return timechartHeight + (contextualRowHeight*(i+1))+7;
 			})
 			.style('fill', colorPrimary[3]);
 
@@ -1204,7 +1207,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('x2', 0)
 		.attr('y1', 2)
 		.attr('y2', frameworkHeight)
-		.style('stroke', '#EDEDED')
+		.style('stroke', '#FFF')
 		.style('width', '1px')
 
 		var rows = layer1.selectAll('.frameworkRow')
@@ -1257,7 +1260,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			cat = cat_name;
 			cat1++;
 		})
-		.attr('x', 0)
+		.attr('x',7)
 		.attr('class', function(d,i){
 			return 'category-name'
 		})
@@ -1265,15 +1268,21 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		var secondCol = rows.append('g');
 
-		secondCol.append('text')
+		var labels = secondCol.append('text')
 		.attr('class','frameworkCol2')
 		.text(function(d,i){
 			return d.name;
 		})
 		.attr('y', -2)
-		.attr('x', 220);
+		.style('text-anchor', 'end');
 
-		secondCol.append('text')
+		labels
+		.attr('x', function(d,i){
+			var bbox = d3.select(this).node().getBBox();
+			return leftSpacing-32;
+		})
+
+		var dataLabels = secondCol.append('text')
 		// .attr('x', cat_name.length*7.5)
 		.text('00')
 		.style('font-weight','bold')
@@ -1282,10 +1291,11 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return 'f'+d.id+'-val';
 		})
 		.attr('class', 'f-val')
-		.style('text-anchor', 'left')
+		.style('text-anchor', 'middle')
 		.attr('x', function(d,i){
-			var bbox = d3.select(this.parentNode).select('.frameworkCol2').node().getBBox();
-			return 220+bbox.width+6;
+			// var bbox = d3.select(this.parentNode).select('.frameworkCol2').node().getBBox();
+			// return 220+bbox.width+6;
+			return leftSpacing-17;
 		})
 		.attr('y', -2);
 
@@ -1719,8 +1729,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		}).on('mouseout', function(d,i){
 
 			if((d3.event.target.tagName!='text')&&(1!=2)){
-				console.log('nottext')
-
 				d3.select('#tooltip')
 	            .style("opacity", 0);
 
