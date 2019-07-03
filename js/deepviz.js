@@ -1287,6 +1287,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.text('00')
 		.style('font-weight','bold')
 		.style('fill', colorPrimary[4])
+		.style('font-size', '13px')
 		.attr('id',function(d,i){
 			return 'f'+d.id+'-val';
 		})
@@ -1295,7 +1296,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('x', function(d,i){
 			// var bbox = d3.select(this.parentNode).select('.frameworkCol2').node().getBBox();
 			// return 220+bbox.width+6;
-			return leftSpacing-17;
+			return leftSpacing-19;
 		})
 		.attr('y', -2);
 
