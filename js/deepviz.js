@@ -1455,8 +1455,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.style('stroke', '#727271')
 		.style('stroke-width', '2px');
 
-
-
 		// hSel.append('rect')
 		// .attr('x', 214)
 		// .attr('y', -1)
@@ -1520,13 +1518,18 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		cells2.on('mouseover', function(d,i){
 			vSel.attr('x', (colWidth*(d.id-1))+leftSpacing);
 			d3.selectAll('.framework-text').style('visibility', 'hidden');
-			d3.select('#'+this.id+'text').style('visibility', 'visible');
 			var val = d3.select('#'+this.id+'text').text();
-			// if(val>0){
-				d3.selectAll('.selector').style('opacity', 1);
-			// } else {
-				// d3.selectAll('.selector').style('opacity', 0);
-			// }
+				if(filters.frameworkToggle=='entries'){
+					d3.select('#'+this.id+'text').style('visibility', 'visible');
+					d3.selectAll('.selector').style('opacity', 1);
+				} else {
+					if(val>0){
+						d3.select('#'+this.id+'text').style('visibility', 'visible');
+						d3.selectAll('.selector').style('opacity', 1);
+					} else {
+						d3.selectAll('.selector').style('opacity', 0);
+					}					
+				}
 		});
 
 		rows2.on('mouseover', function(d,i){
@@ -2334,7 +2337,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		}
 
 		updateTimeline(filterClass);
-
+		// updateSeverityReliability();
 		d3.select('#globalRemoveFilter').on('click', function(){ filter('clear', 'clear'); });
 
 	}
@@ -2543,7 +2546,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 	function smoothAverage(v = 4){
 
 		smoothingVal = Math.ceil(v);
-
 		var dataAvg = movingAvg(tp, v);
 		
 		d3.select('#avg-line')
@@ -2553,9 +2555,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.style('stroke-opacity',1);
 
 		d3.select('#chartarea').style('opacity', 0.2);
-
 		d3.select('#n-days').text('( n days = '+(Math.round(v))+' )');
-
 
 	}
 
@@ -2572,7 +2572,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		var reliability = [0,0,0,0,0];
 		var reliabilityRolling = [0,0,0,0,0];
 		var reliabilityCount = 0;
-		var timedata = originalData;
+		var timedata = data;
 
 		d3.selectAll('.severityBar')
 		.attr('fill', function(d,i){
@@ -2668,7 +2668,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				reliabilityRolling[i] = reliabilityCount;
 			}
 
-			if((target=='reliability')||(target=='init')||(target=='brush')){
+			if((target=='reliability')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||((target=='severity')&&(filters.severity.length == 0))){
 				d3.selectAll('.severityBar')
 				.attr('opacity', 1)
 				.attr('x', function(d,i){
@@ -2703,7 +2703,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				});				
 			};
 
-			if((target=='severity')||(target=='init')||(target=='brush')){
+			if((target=='severity')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
 
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', 1)
@@ -2782,7 +2782,13 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			// 	return scale.severity.x(reliabilityAverage);
 			// });
 
+			d3.select('#severitySvg').style('visibility', 'visible');
+			d3.select('#reliabilitySvg').style('visibility', 'visible');
+
 		} else {
+
+			d3.select('#severitySvg').style('visibility', 'hidden');
+			d3.select('#reliabilitySvg').style('visibility', 'hidden');
 
 			d3.select('#severity_value').text('');
 			d3.select('#reliability_value').text('');
@@ -2883,61 +2889,93 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		d = d3.nest()
 		.key(function(d) { return d.framework; })
 		.key(function(d) { return d.sc; })
-		.rollup(function(leaves) { return leaves.length; })		
+		.rollup(function(leaves) { 
+			return { 
+				'mean_r': d3.mean(leaves, function(d,i){return d.r;}), 
+				'mean_s': d3.mean(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
 		.entries(d);	
 
-		maxCellSize = d3.max(d, function(dd){
-			return d3.max(dd.values, function(ddd){
-				return ddd.value;
-			});
-		})
-
 		if(filters.frameworkToggle == 'entries'){
+
+			maxCellSize = d3.max(d, function(dd){
+				return d3.max(dd.values, function(ddd){
+					return ddd.value.total;
+				});
+			})
+
+
 			var cellColorScale = d3.scaleLinear().domain([1,maxCellSize])
 				.range([colorNeutral[0], colorNeutral[4]])
 		        .interpolate(d3.interpolateHcl);
 
-				d3.selectAll('.f-val').text('').style('fill', colorNeutral[4]);
-
+			d3.selectAll('.f-val').text('').style('fill', colorNeutral[4]);
+	
 		} else {
+
 			if(filters.toggle == 'severity'){
+
+				maxCellSize = d3.max(d, function(dd){
+					return d3.max(dd.values, function(ddd){
+						return ddd.value.mean_s;
+					});
+				});
+
 				d3.select('#toggle1').style('fill', colorPrimary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
 				  .interpolator(d3.interpolateOrRd);
-
 				// d3.selectAll('.f-val').text('').style('fill', colorPrimary[4]);
-
-
 			} else {
+
+				maxCellSize = d3.max(d, function(dd){
+					return d3.max(dd.values, function(ddd){
+						return ddd.value.mean_r;
+					});
+				});
 
 				d3.select('#toggle1').style('fill', colorSecondary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
 				  .interpolator(d3.interpolatePuBu);
-
 				// d3.selectAll('.f-val').text('').style('fill', colorSecondary[4]);
-
 			}
 		}
 
 		d3.selectAll('.cell')
 		.style('fill', '#FFF');
 
-		d3.selectAll('.framework-text').text(0).style('visibility', 'hidden')
+		d3.selectAll('.framework-text').text(0).style('visibility', 'hidden').style('fill', '#000');
 
+		d3.selectAll('.f-val').text('');
 
 		d.forEach(function(d,i){
-			var sum = d3.sum(d.values, function(d){ return d.value});
+			// if(filters.frameworkToggle=='entries'){
+			var sum = d3.sum(d.values, function(d){ return d.value.total});
 			d3.select('#f'+d.key+'-val').text(sum);
+			// } else {
+
+			// }
 			var f = d.key;
 			d.values.forEach(function(dd,ii){
 				var s = dd.key;
 				var id = 'f'+(f-1)+'s'+(s-1);
+				
+				if(filters.frameworkToggle == 'entries'){
+					var v = dd.value.total;
+				} else {
+					if(filters.toggle=='severity'){
+						var v = dd.value.mean_s.toFixed(1);
+					} else {
+						var v = dd.value.mean_r.toFixed(1);
+					}
+				}
 				// set cell colour
-				d3.select('#'+id +'rect').style('fill', cellColorScale(dd.value));
+				d3.select('#'+id +'rect').style('fill', cellColorScale(v));
 				// set the text for all cells
-				d3.select('#'+id +'text').text(dd.value).style('visibility', 'hidden')
+				d3.select('#'+id +'text').text(v).style('visibility', 'hidden')
 				.style('fill', function(){
-					if((dd.value/maxCellSize)>=0.8){
+					if((v/maxCellSize)>=0.8){
 						return '#FFF';
 					} else {
 						return '#000';
