@@ -1158,7 +1158,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 	//**************************	
 	this.createFrameworkChart = function(options){
 
-		var frameworkHeight = 450;
+		var frameworkHeight = 472;
 		var numFrameworkRows = metadata.framework_groups_array.length;
 		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2};
 		var leftSpacing = 530;
@@ -1170,7 +1170,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		var frameworkSvg = this.createSvg({
 			id: 'framework-svg',
 			viewBoxWidth: frameworkWidth,
-			viewBoxHeight: frameworkHeight,
+			viewBoxHeight: frameworkHeight+5,
 			div: '#framework-chart',
 			width: '100%'
 		});
@@ -1180,36 +1180,139 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		var layer3 = frameworkSvg.append('g');
 
 		// title
-		var columnHeaders = frameworkSvg.append('g')
+		var columnHeadersBg = frameworkSvg.append('g')
 		.attr('id', 'col-header')
 		.selectAll('.frameworkColHeader')
 		.data(metadata.sector_array)
 		.enter()
 		.append('g')
-		.attr('class', function(d,i){
-			return 'frameworkColHeader frameworkColHeader'+i
-		})
+		.attr('id', function(d,i){ return 'col-header-'+ d.id })
 		.attr('transform', function(d,i){
 			return 'translate('+ ((colWidth)*i+leftSpacing) + ',17)';
+		})
+
+		var columnHeaders = columnHeadersBg
+		.append('g')
+		.attr('class', function(d,i){
+			return 'frameworkColHeader frameworkColHeader'+i
+		});
+
+		columnHeadersBg
+		.append('rect')
+		.attr('class', 'col-header-bg-selected')
+		.attr('id', function(d,i){ return 'col-header-bg-'+ d.id })
+		.attr('x', 0)
+		.attr('y', -16)
+		.attr('width', colWidth)
+		.attr('height', 24)
+		.style('opacity', 0)
+		.style('fill', 'grey')
+		.style('stroke', 'transparent');
+
+		columnHeadersBg
+		.append('rect')
+		.attr('class', 'col-header-bg')
+		.attr('x', 0)
+		.attr('y', -16)
+		.attr('width', colWidth)
+		.attr('height', 24)
+		.style('opacity', 0)
+		.style('stroke', '#FFF')
+		.style('cursor', 'pointer')
+		.style('fill', '#000')
+		.attr('data-sector-id', function(d,i){
+			return d.id;
 		});
 
 		columnHeaders
 		.append('text')
+		.attr('class', 'col-header-text')
 		.text(function(d,i){
 			return d.name;
 		})
-		.attr('x', colWidth/2)
-		.style('text-anchor', 'middle')
+		.attr('id', function(d,i){ return 'framework-col-'+i; })
+		.attr('x', 21)
+		.attr('y', 1)
+		// .style('font-size', '13px')
+		// .attr('x', (colWidth/2)+10)
+		// .style('text-anchor', 'middle');
 
 		columnHeaders
-		.append('line')
-		.attr('x1', 0)
-		.attr('x2', 0)
-		.attr('y1', 2)
-		.attr('y2', frameworkHeight)
-		.style('stroke', '#FFF')
-		.style('width', '1px')
+		.append('image')
+		.attr('class', 'sector-icon')
+		.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
+		.attr('height', 14)
+		.attr('width', 14)
+		.attr('y', -11)
+		.attr('x', 2);
 
+		// columnHeadersBg
+		// .append('line')
+		// .attr('x1', 0)
+		// .attr('x2', 0)
+		// .attr('y1', 10)
+		// .attr('y2', frameworkHeight)
+		// .style('stroke', '#FFF')
+		// .style('width', '1px');
+
+		columnHeaders
+		.attr('transform', function(d,i){
+			var t = d3.select(this).node().getBBox();
+			var tx = this.parentNode.getBBox();
+			return 'translate('+((colWidth - t.width)/2 - 3)+',0)';
+		});
+
+		columnHeadersBg.on('mouseover', function(d,i){
+			d3.select(this).select('.col-header-bg').style('opacity', 0.05);
+			// d3.select(this).select('.sector-icon').style('opacity', 1);
+		}).on('mouseout', function(d,i){
+			d3.select(this).select('.col-header-bg').style('opacity', 0);
+			// d3.select(this).select('.sector-icon').style('opacity', 0.3);
+		}).on('click', function(d,i){
+			// toggle 
+			filter('sector',i+1);
+
+			d3.selectAll('.sector-icon').style('opacity', 0.3);
+
+			if(filters.sector.length==0){
+				d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
+				d3.selectAll('.col-header-text').style('opacity', 1);	
+				d3.select('#frameworkRemoveFilter').style('opacity', 0).style('cursor', 'default');
+
+			} else {
+				d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
+				d3.selectAll('.col-header-text').style('opacity', 0.3);	
+
+				d3.select('#frameworkRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
+
+
+			// 	d3.selectAll('.severityBar').style('fill', function(d,i){
+			// 		return colorLightgrey[i];
+			// 	});	
+				filters.sector.forEach(function(d,i){
+
+					d3.select('#col-header-bg-'+(d))
+					.style('opacity', .1)
+
+					d3.select('#col-header-'+(d) + ' .sector-icon' )
+					.style('opacity', 1)
+
+					d3.select('#col-header-'+(d) + ' .col-header-text' )
+					.style('opacity', 1)
+
+				});
+			}
+
+		});
+
+		d3.select('#frameworkRemoveFilter').on('click', function(d,i){
+			filter('sector', 'clear');
+				d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
+				d3.selectAll('.col-header-text').style('opacity', 1);	
+				d3.select('#frameworkRemoveFilter').style('opacity', 0).style('cursor', 'default');
+				d3.selectAll('.sector-icon').style('opacity', 0.3);
+		});
+		
 		var rows = layer1.selectAll('.frameworkRow')
 		.data(metadata.framework_groups_array)
 		.enter()
@@ -1218,7 +1321,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return 'frameworkRow f'+i
 		})
 		.attr('transform', function(d,i){
-			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -4)+')';
+			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight )+')';
 		});
 
 		var rows2 = layer2.selectAll('.frameworkRow')
@@ -1229,7 +1332,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return 'frameworkRow f'+i
 		})
 		.attr('transform', function(d,i){
-			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight -4)+')';
+			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight )+')';
 		});
 
 		rows.append('rect')
@@ -1331,9 +1434,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('x', 1)
 			.attr('y', 1)
 		.style('stroke', '#FFF')
-		.style('stroke-width', 0)
+		.style('stroke-width', 3)
 		.style('fill', 'transparent')
-
 
 		cells
 		.append('text')
@@ -1341,7 +1443,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.text('')
 		.attr('class', 'framework-text')
 		.attr('y', function(d){
-			return rowHeight/2+3;
+			return rowHeight/2+4;
 		})
 		.attr('x', colWidth/2)
 		.style('fill', "#000")
@@ -1377,10 +1479,10 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.style('opacity', 1)
 		.attr('x1', 0)
 		.attr('x2', frameworkWidth)
-		.attr('y1', frameworkHeight-1)
-		.attr('y2', frameworkHeight-1)
+		.attr('y1', frameworkHeight+5)
+		.attr('y2', frameworkHeight+5)
 		.style('stroke', '#727271')
-		.style('stroke-width', '1px');
+		.style('stroke-width', '2px');
 
 
 
@@ -1416,7 +1518,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		})
 		.style('opacity', 0)
 
-		var frameworkSelectStyle = { 'stroke': '#000', 'fill': 'black', 'fillOpacity': 0.03, 'strokeOpacity': 0.8};
+		var frameworkSelectStyle = { 'stroke': '#FFF', 'fill': 'black', 'fillOpacity': 0.03, 'strokeOpacity': 0.8};
 
 		var hSel = layer1.append('g')
 		.attr('class', 'selector')
@@ -1425,7 +1527,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		hSel.append('rect')
 		.attr('x', 210)
 		.attr('width', frameworkWidth+20)
-		.attr('height', rowHeight)
+		.attr('height', rowHeight-1)
 		.style('fill', frameworkSelectStyle.fill)
 		.style('fill-opacity', frameworkSelectStyle.fillOpacity)
 		.style('stroke-opacity', frameworkSelectStyle.strokeOpacity)
@@ -1436,7 +1538,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('class', 'selector')
 		.attr('x', 194+colWidth+leftSpacing-4)
 		.attr('y', 1)
-		.attr('width', colWidth+2)
+		.attr('width', colWidth)
 		.attr('height', frameworkHeight+20)
 		.style('fill', frameworkSelectStyle.fill)
 		.style('fill-opacity', frameworkSelectStyle.fillOpacity)
@@ -1445,20 +1547,20 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.style('stroke-width', '1px');
 
 		cells2.on('mouseover', function(d,i){
-			vSel.attr('x', (colWidth*(d.id-1))+leftSpacing-1);
+			vSel.attr('x', (colWidth*(d.id-1))+leftSpacing);
 			d3.selectAll('.framework-text').style('visibility', 'hidden');
 			d3.select('#'+this.id+'text').style('visibility', 'visible');
 			var val = d3.select('#'+this.id+'text').text();
-			if(val>0){
+			// if(val>0){
 				d3.selectAll('.selector').style('opacity', 1);
-			} else {
-				d3.selectAll('.selector').style('opacity', 0);
-			}
+			// } else {
+				// d3.selectAll('.selector').style('opacity', 0);
+			// }
 		});
 
 		rows2.on('mouseover', function(d,i){
 			hSel.attr('transform', function(){
-				return 'translate(0,'+((i*rowHeight)+frameworkMargins.top+1)+')';
+				return 'translate(0,'+((i*rowHeight)+frameworkMargins.top+7)+')';
 			})
 		});
 
@@ -2148,8 +2250,14 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
 			d3.select('#reliabilityRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
 		}
+
+		console.log(filters['sector']);
+
 		if(filters['sector'].length>0)
-			data = data.filter(function(d){return  filters['sector'].includes(d['sector']);});
+			data = data.filter(function(d){
+				return d['sector'].some(r=> filters['sector'].indexOf(r[2]) >= 0);
+				// return filters['sector'].includes(d['sector'][2]);
+			});
 
 		if(filters['affectedGroups'].length>0)
 			data = data.filter(function(d){return  filters['affectedGroups'].includes(d['affectedGroups']);});
@@ -2694,7 +2802,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		d3.selectAll('.cell')
 		.style('fill', '#FFF');
 
-		d3.selectAll('.framework-text').text('');
+		d3.selectAll('.framework-text').text(0).style('visibility', 'hidden')
 		d3.selectAll('.f-val').text('');
 
 		d.forEach(function(d,i){

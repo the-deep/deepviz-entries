@@ -269,6 +269,7 @@ svg text {
 }
 
 #reliabilityRemoveFilter,
+#frameworkRemoveFilter,
 #severityRemoveFilter {
 	height: 15px;
 	padding-left: 3px;
@@ -279,6 +280,12 @@ svg text {
 
 }
 
+#frameworkRemoveFilter {
+    position: relative;
+    top: 20px;
+    left: 2px;
+    z-index: 10;
+}
 
 #severity {
 	width: 49%;
@@ -390,6 +397,7 @@ svg text {
 #timeline {
 	width: 100%;
 	background-color: #FFF;
+	margin-bottom: 7px;
 }
 
 #timechart-legend {
@@ -418,6 +426,10 @@ svg text {
   fill: none;
   stroke: steelblue;
   stroke-width: 2px;
+}
+
+.sector-icon {
+	opacity: 0.3;
 }
 
 .grid line,
@@ -462,7 +474,7 @@ svg text {
 
 #framework-chart .title {
 	position: relative;
-	top:12px;
+	top: 18px;
 }
 
 #framework-chart svg {
@@ -480,7 +492,7 @@ svg text {
 
 
 #footerRow {
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 .footerCol {
