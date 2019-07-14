@@ -1029,10 +1029,10 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		// hover effect on overlay
 		d3.select('.selection')
 		.on('mouseover', function(){
-			d3.select('.selection').style('fill-opacity',0.07).style('fill', colorNeutral[2]);
+			d3.select('.selection').style('fill-opacity',0.05).style('fill', colorNeutral[2]);
 		})
 		.on('mouseout', function(){
-			d3.select(this).style('fill-opacity',0.01);
+			d3.select(this).style('fill-opacity',0.03);
 		})
 
 	    d3.selectAll('.handle rect').attr('fill-opacity', '1').style('visibility', 'visible').attr('width', 2).attr('fill', '#000').style('stroke-opacity', 0);
