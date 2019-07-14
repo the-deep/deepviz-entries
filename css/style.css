@@ -34,11 +34,10 @@ svg text {
     position: fixed;
     top: 0px;
     z-index: 3;
-    width: 96%;
+    width: 100%;
     max-width: 1300px;
     background-color: #FFF;
-
-
+    border-right: 1px solid #FFF;
 }
 
 #container {
@@ -338,7 +337,7 @@ svg text {
     display: inline;
     font-size: 12px;
     font-weight: bold;
-    padding-top: 2px;
+    padding-top: 3px;
 
 }
 
@@ -367,7 +366,7 @@ svg text {
     display: inline;
     font-size: 12px;
     font-weight: bold;
-    padding-top: 2px;
+    padding-top: 3px;
 
 }
 
