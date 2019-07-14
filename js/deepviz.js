@@ -43,9 +43,9 @@ var Deepviz = function(sources, callback){
 	// timechart variables
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 25};
-	var timechartHeight = 410;
+	var timechartHeight = 380;
 	var timechartHeightOriginal = timechartHeight;
-	var timechartSvgHeight = 950;
+	var timechartSvgHeight = 870;
 	var brush;
 	var gBrush; 
 	var barWidth;
@@ -71,7 +71,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.54;
+	var mapAspectRatio = 1.4;
 
 	// filters
 	var filters = {
@@ -80,7 +80,8 @@ var Deepviz = function(sources, callback){
 		reliability: [],
 		affectedGroups: [],
 		specificNeeds: [],
-		toggle: 'severity'
+		toggle: 'severity',
+		frameworkToggle: 'entries'
 	};
 
 	// colors
@@ -90,6 +91,7 @@ var Deepviz = function(sources, callback){
 	var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
 	var colorLightgrey = ['#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
 	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
+	var colorNeutral = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
 	var colorSecondary = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']; // reliability
 	var colorSecondary = ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
 
@@ -1540,8 +1542,25 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		}).on('mouseout', function(d,i){
 			d3.selectAll('.selector').style('opacity', 0);
 			d3.selectAll('.framework-text').style('visibility', 'hidden');
-		})
+		});
 
+		// framework toggle switch
+
+		d3.select('#framework-toggle').on('mouseover', function(d,i){
+			d3.selectAll('#framework-toggle circle').style('stroke', '#FFF').style('stroke-width', 1);
+		}).on('mouseout', function(d,i){
+			d3.selectAll('#framework-toggle circle').style('stroke', '#FFF').style('stroke-width', 0);
+		}).on('click', function(d,i){
+			if(filters.frameworkToggle=='entries'){
+				d3.select('#toggle0').style('opacity', 0);
+				d3.select('#toggle1').style('opacity', 1);
+				filters.frameworkToggle = 'average';
+			} else {
+				d3.select('#toggle0').style('opacity', 1);
+				d3.select('#toggle1').style('opacity', 0);
+				filters.frameworkToggle = 'entries';				
+			}
+		});
 
 	}
 
@@ -2181,7 +2200,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 	//**************************
 	var filter = function(filterClass, value){
 
-		console.log(filterClass);
 		if(filterClass=='clear'){
 			filters.sector = [];
 			filters.severity = [];
@@ -2190,12 +2208,12 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			filters.specificNeeds = [];
 		}
 
-			d3.selectAll('.sector-icon').style('opacity', 0.3);
-			d3.selectAll('.sc').style('opacity', 1);
-			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
-			d3.selectAll('.col-header-text').style('opacity', 1);	
-			d3.select('#frameworkRemoveFilter').style('opacity', 0).style('cursor', 'default');
-			d3.select('#scRemoveFilter').style('opacity', 0).style('cursor', 'default');
+		d3.selectAll('.sector-icon').style('opacity', 0.3);
+		d3.selectAll('.sc').style('opacity', 1);
+		d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
+		d3.selectAll('.col-header-text').style('opacity', 1);	
+		d3.select('#frameworkRemoveFilter').style('opacity', 0).style('cursor', 'default');
+		d3.select('#scRemoveFilter').style('opacity', 0).style('cursor', 'default');
 
 		d3.selectAll('.sn').style('opacity', 1);
 		d3.selectAll('.ag').style('opacity', 1);
@@ -2316,7 +2334,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		updateTimeline(filterClass);
 
-		d3.select('#globalRemoveFilter').on('click', function(){ console.log('test');filter('clear', 'clear'); });
+		d3.select('#globalRemoveFilter').on('click', function(){ filter('clear', 'clear'); });
 
 	}
 
@@ -2726,7 +2744,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			var s_median = 0;
 			severity.every(function(d,i){
 				s += severity[i];
-				console.log(s);
 				  if (s > s_total / 2){
 					s_median = i+1;
 					return false;	
@@ -2740,7 +2757,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			var r_median = 0;
 			reliability.every(function(d,i){
 				r += reliability[i];
-				console.log(r);
 				  if (r > r_total / 2){
 					r_median = i+1;
 					return false;	
@@ -2876,9 +2892,16 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		})
 
 		if(filters.toggle == 'severity'){
+
+			d3.select('#framework-toggle-text').text('average severity');
+			d3.select('#toggle1').style('fill', colorPrimary[3]);
 			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
 			  .interpolator(d3.interpolateOrRd);
 		} else {
+
+			d3.select('#framework-toggle-text').text('average reliability');
+			d3.select('#toggle1').style('fill', colorSecondary[3]);
+
 			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
 			  .interpolator(d3.interpolatePuBu);
 		}

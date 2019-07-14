@@ -9,7 +9,11 @@ body {
     font-family: Source Sans Pro, sans-serif;
 	font-size: 14px;
 	margin: 0;
-
+     -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer */
+   -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+  -webkit-user-select: none; /* Chrome, Safari, and Opera */
+  -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 
 }
 
@@ -19,12 +23,17 @@ svg {
 }
 
 svg text {
-
+     -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer */
+   -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+  -webkit-user-select: none; /* Chrome, Safari, and Opera */
+  -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
 
 #main-content {
-	padding-top: 74px
+	padding-top: 73px
 }
+
 
 #top-row {
     height: 55px;
@@ -416,7 +425,6 @@ svg text {
 #timeline {
 	width: 100%;
 	background-color: #FFF;
-	margin-bottom: 7px;
 }
 
 #timechart-legend {
@@ -488,7 +496,6 @@ svg text {
 
 #framework-chart {
 	width: 100%;
-	padding-top: 5px;
 }
 
 #framework-chart .title {
@@ -498,6 +505,13 @@ svg text {
 
 #framework-chart svg {
 	font-size: 15px;
+}
+
+#framework-toggle {
+    left: 63px;
+    position: relative;
+    top: 23px;
+    cursor: pointer;
 }
 
 #framework-chart svg .frameworkColHeader text {
