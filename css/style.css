@@ -263,6 +263,15 @@ svg text {
 
 }
 
+#globalRemoveFilter {
+    height: 16px;
+    display: inline;
+    position: absolute;
+    top: 7px;
+    left: 94px;
+    opacity: 0;
+}
+
 .removeFilterBtn {
 	display: inline;
 	opacity: 0;
@@ -270,9 +279,20 @@ svg text {
 
 #reliabilityRemoveFilter,
 #frameworkRemoveFilter,
+#agRemoveFilter,
+#scRemoveFilter,
+#snRemoveFilter,
 #severityRemoveFilter {
 	height: 15px;
 	padding-left: 3px;
+	display: inline;
+}
+
+#agRemoveFilter,
+#scRemoveFilter,
+#snRemoveFilter {
+	position: relative;
+    top: 3px;
 }
 
 #reliabilityRemoveFilter:hover,

@@ -7,14 +7,14 @@
 	<script src='js/vendor/mapbox-gl.js'></script>
 
 	<!-- load custom JavaScript -->
-	<script type="text/javascript" src="js/deepviz.js?cache=427"></script>
-	<script type="text/javascript" src="js/main.js?cache=427"></script>
+	<script type="text/javascript" src="js/deepviz.js?cache=428"></script>
+	<script type="text/javascript" src="js/main.js?cache=428"></script>
 
 	<!-- load vendor CSS -->
 	<link href='js/vendor/mapbox-gl.css' rel='stylesheet' />
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=427" rel="stylesheet" type="text/css" media="all">
+	<link href="css/style.css?cache=428" rel="stylesheet" type="text/css" media="all">
 
 </head>
 
@@ -31,6 +31,7 @@
 					TOTAL ENTRIES
 				</div>
 				<div id="total_entries"></div>
+				<img id="globalRemoveFilter" class="globalRemoveFilterBtn" src="images/filter.png" title="Clear filter"/>
 			</div>
 
 			<div class="selectedDate">
@@ -134,21 +135,27 @@
 
 		<div id="footerRow">
 			<div id="col1" class="footerCol">
-				<div class="title">SECTOR</div>
+				<div class="title">SECTOR
+				<img id="scRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+				</div>
 				<div id="sector-svg" class="col-content">
 
 
 				</div>
 			</div>
 			<div id="col2" class="footerCol">
-				<div class="title">SPECIFIC NEEDS GROUPS</div>
+				<div class="title">SPECIFIC NEEDS GROUPS
+				<img id="snRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+				</div>
 				<div id="specific-needs-svg" class="col-content">
 
 
 				</div>
 			</div>
 			<div id="col3" class="footerCol">
-				<div class="title">AFFECTED GROUPS</div>
+				<div class="title">AFFECTED GROUPS
+				<img id="agRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+				</div>
 				<div id="affected-groups-svg" class="col-content">
 
 
