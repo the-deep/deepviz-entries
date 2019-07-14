@@ -1849,13 +1849,13 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			setTimeout(function(){ clickTimer = 0 }, 2000);
 		});
 
-		severitySvg.append('rect')
-		.attr('id', 'severityAvg')
-		.attr('x', 0)
-		.attr('y', -2)
-		.attr('height', 55)
-		.attr('width', 5)
-		.style('fill', '#000');		
+		// severitySvg.append('rect')
+		// .attr('id', 'severityAvg')
+		// .attr('x', 0)
+		// .attr('y', -2)
+		// .attr('height', 55)
+		// .attr('width', 5)
+		// .style('fill', '#000');		
 
 		//**************************
 		// severity filter remove button
@@ -2025,13 +2025,13 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		});
 
-		reliabilitySvg.append('rect')
-		.attr('id', 'reliabiltiyAvg')
-		.attr('x', 0)
-		.attr('y', -2)
-		.attr('height', 55)
-		.attr('width', 5)
-		.style('fill', '#000');	
+		// reliabilitySvg.append('rect')
+		// .attr('id', 'reliabiltiyAvg')
+		// .attr('x', 0)
+		// .attr('y', -2)
+		// .attr('height', 55)
+		// .attr('width', 5)
+		// .style('fill', '#000');	
 
 		//**************************
 		// reliability filter remove button
@@ -2721,19 +2721,49 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				});
 			}
 
-			var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
-			d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
-
-			d3.select('#severityAvg').attr('x',function(d){
-				return scale.severity.x(severityAverage);
+			// severity median
+			var s = 0;
+			var s_median = 0;
+			severity.every(function(d,i){
+				s += severity[i];
+				console.log(s);
+				  if (s > s_total / 2){
+					s_median = i+1;
+					return false;	
+				  } else { 
+				  	return true;
+				  }
 			});
 
-			var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
-			d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
-			
-			d3.select('#reliabiltiyAvg').attr('x',function(d){
-				return scale.severity.x(reliabilityAverage);
+			// reliability median
+			var r = 0;
+			var r_median = 0;
+			reliability.every(function(d,i){
+				r += reliability[i];
+				console.log(r);
+				  if (r > r_total / 2){
+					r_median = i+1;
+					return false;	
+				  } else { 
+				  	return true;
+				  }
 			});
+
+			// var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
+			// d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
+			d3.select('#severity_value').text(severityArray[s_median-1] )
+
+			// d3.select('#severityAvg').attr('x',function(d){
+			// 	return scale.severity.x(severityAverage);
+			// });
+
+			// var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
+			// d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
+			d3.select('#reliability_value').text(reliabilityArray[r_median-1] )
+
+			// d3.select('#reliabiltiyAvg').attr('x',function(d){
+			// 	return scale.severity.x(reliabilityAverage);
+			// });
 
 		} else {
 
@@ -2745,8 +2775,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.selectAll('.reliabilityBar')
 			.attr('fill', '#CDCDCD');
 
-			d3.select('#reliabiltiyAvg').attr('x',-100);
-			d3.select('#severityAvg').attr('x',-100);
+			// d3.select('#reliabiltiyAvg').attr('x',-100);
+			// d3.select('#severityAvg').attr('x',-100);
 		}
 	}
 
