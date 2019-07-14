@@ -2893,13 +2893,13 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		if(filters.toggle == 'severity'){
 
-			d3.select('#framework-toggle-text').text('average severity');
+			d3.select('#framework-toggle-text tspan').text('average severity');
 			d3.select('#toggle1').style('fill', colorPrimary[3]);
 			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
 			  .interpolator(d3.interpolateOrRd);
 		} else {
 
-			d3.select('#framework-toggle-text').text('average reliability');
+			d3.select('#framework-toggle-text tspan').text('average reliability');
 			d3.select('#toggle1').style('fill', colorSecondary[3]);
 
 			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
