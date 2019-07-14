@@ -2901,7 +2901,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		} else {
 			if(filters.toggle == 'severity'){
-				d3.select('#framework-toggle-text tspan').text('average severity');
 				d3.select('#toggle1').style('fill', colorPrimary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
 				  .interpolator(d3.interpolateOrRd);
@@ -2910,7 +2909,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 
 			} else {
-				d3.select('#framework-toggle-text tspan').text('average reliability');
+
 				d3.select('#toggle1').style('fill', colorSecondary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
 				  .interpolator(d3.interpolatePuBu);
@@ -2979,6 +2978,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 			d3.select('#avg-line').style('stroke', colorSecondary[3]);
 
+			d3.select('#framework-toggle-text tspan').text('average reliability');
+
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
@@ -3003,6 +3004,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.select('#dateRange').style('color', colorNeutral[4]);
 
 			d3.select('#avg-line').style('stroke', colorPrimary[3]);
+
+			d3.select('#framework-toggle-text tspan').text('average severity');
 
 		}
 
