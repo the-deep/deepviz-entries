@@ -218,13 +218,13 @@ var Deepviz = function(sources, callback){
 	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
 
 		// override colors
-		d3.select('#total_entries').style('color',colorPrimary[3]);
+		d3.select('#total_entries').style('color',colorNeutral[3]);
 		d3.select('#severity_value').style('color',colorPrimary[3]);
 		d3.select('#reliability_value').style('color',colorSecondary[3]);
 		d3.select('#severityToggle').style('fill',colorPrimary[3]);
 		d3.select('#reliabilityToggle').style('fill',colorSecondary[3]);
-		d3.select('.selection').style('fill', colorPrimary[2]);
-		d3.select('#dateRange').style('color', colorPrimary[3]);
+		d3.select('.selection').style('fill', colorNeutral[3]);
+		d3.select('#dateRange').style('color', colorNeutral[4]);
 		
 		return callback(values);
 	});
@@ -518,7 +518,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			featureElementG
 	        .append("circle")
 	        .attr('class',  'outerCircle')
-	        .attr("stroke", colorPrimary[3])
+	        .attr("stroke", colorNeutral[3])
 	        .attr("fill", "#FFF")
 	        .attr('cx', 0)
 	        .attr('cy', 0)
@@ -528,7 +528,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			featureElementG
 	        .append("circle")
 	        .attr('class',  'innerCircle')
-	        .attr("fill", colorPrimary[3])
+	        .attr("fill", colorNeutral[3])
 	        .attr('cx', 0)
 	        .attr('cy', 0)
 	        .attr('r' , 26)
@@ -669,7 +669,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr("x", 5)
 		.attr('width', 10)
 		.attr('height', 10)
-		.style('fill', colorPrimary[3]);
+		.style('fill', colorNeutral[3]);
 
 
 	    var xAxis = d3.axisBottom()
@@ -793,9 +793,9 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			.style('opacity', 0)
 			.on('mouseover', function(){
 				if(filters.toggle == 'severity'){
-					tick.style('color', colorPrimary[3]);
+					tick.style('color', colorNeutral[4]);
 				} else { 
-					tick.style('color', colorSecondary[4]);
+					tick.style('color', colorNeutral[4]);
 
 				}
 			})
@@ -984,7 +984,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			.style('font-size', '16px')
 
 			.style('font-weight', 'bold')
-			.style('fill', colorPrimary[4]);
+			.style('fill', colorNeutral[4]);
 
 		//**************************
 		// event drops
@@ -1008,7 +1008,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			.attr('cy', function(d,i){
 				return timechartHeight + (contextualRowHeight*(i+1))+7;
 			})
-			.style('fill', colorPrimary[3]);
+			.style('fill', colorNeutral[3]);
 
 		//**************************
 		// date slider brushes
@@ -1029,7 +1029,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		// hover effect on overlay
 		d3.select('.selection')
 		.on('mouseover', function(){
-			d3.select('.selection').style('fill-opacity',0.03);
+			d3.select('.selection').style('fill-opacity',0.07).style('fill', colorNeutral[2]);
 		})
 		.on('mouseout', function(){
 			d3.select(this).style('fill-opacity',0.01);
@@ -1559,7 +1559,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				d3.select('#toggle0').style('opacity', 1);
 				d3.select('#toggle1').style('opacity', 0);
 				filters.frameworkToggle = 'entries';				
-			}
+			};
+			updateFramework();
 		});
 
 	}
@@ -2838,9 +2839,9 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.select('#'+group+dd.key+'label').text(dd.value).style('opacity', 1)
 			.style('fill', function(){
 				if(filters.toggle == 'severity'){
-					return colorPrimary[4];
+					return colorNeutral[4];
 				} else {
-					return colorSecondary[4];
+					return colorNeutral[4];
 				}
 			});
 			var row = dd.key;
@@ -2891,26 +2892,39 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			});
 		})
 
-		if(filters.toggle == 'severity'){
+		if(filters.frameworkToggle == 'entries'){
+			var cellColorScale = d3.scaleLinear().domain([1,maxCellSize])
+				.range([colorNeutral[0], colorNeutral[4]])
+		        .interpolate(d3.interpolateHcl);
 
-			d3.select('#framework-toggle-text tspan').text('average severity');
-			d3.select('#toggle1').style('fill', colorPrimary[3]);
-			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
-			  .interpolator(d3.interpolateOrRd);
+				d3.selectAll('.f-val').text('').style('fill', colorNeutral[4]);
+
 		} else {
+			if(filters.toggle == 'severity'){
+				d3.select('#framework-toggle-text tspan').text('average severity');
+				d3.select('#toggle1').style('fill', colorPrimary[3]);
+				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
+				  .interpolator(d3.interpolateOrRd);
 
-			d3.select('#framework-toggle-text tspan').text('average reliability');
-			d3.select('#toggle1').style('fill', colorSecondary[3]);
+				// d3.selectAll('.f-val').text('').style('fill', colorPrimary[4]);
 
-			var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
-			  .interpolator(d3.interpolatePuBu);
+
+			} else {
+				d3.select('#framework-toggle-text tspan').text('average reliability');
+				d3.select('#toggle1').style('fill', colorSecondary[3]);
+				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
+				  .interpolator(d3.interpolatePuBu);
+
+				// d3.selectAll('.f-val').text('').style('fill', colorSecondary[4]);
+
+			}
 		}
 
 		d3.selectAll('.cell')
 		.style('fill', '#FFF');
 
 		d3.selectAll('.framework-text').text(0).style('visibility', 'hidden')
-		d3.selectAll('.f-val').text('');
+
 
 		d.forEach(function(d,i){
 			var sum = d3.sum(d.values, function(d){ return d.value});
@@ -2919,6 +2933,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d.values.forEach(function(dd,ii){
 				var s = dd.key;
 				var id = 'f'+(f-1)+'s'+(s-1);
+				// set cell colour
 				d3.select('#'+id +'rect').style('fill', cellColorScale(dd.value));
 				// set the text for all cells
 				d3.select('#'+id +'text').text(dd.value).style('visibility', 'hidden')
@@ -2929,7 +2944,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 						return '#000';
 					}
 				});
-
 			});
 		});
 	}
@@ -2945,27 +2959,25 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.select('#severityToggle').style('opacity', 0);
 			filters.toggle = 'reliability';
 
-			d3.select('#total_entries').style('color',colorSecondary[3]);
+			d3.select('#total_entries').style('color',colorNeutral[3]);
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
 
-			d3.selectAll('.eventDrop').style('fill', colorSecondary[3]);
+			d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
 
 			d3.select('#rightAxisLabel').text('Avg. Reliability');
 			d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
-			d3.select('#leftAxisBox').style('fill', colorSecondary[3]);
-			d3.select('.selection').style('fill', colorSecondary[1]);
+			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
+			d3.select('.selection').style('fill', colorNeutral[3]);
 
-			d3.selectAll('.outerCircle').style('stroke', colorSecondary[3]);
-			d3.selectAll('.innerCircle').style('fill', colorSecondary[3]);
+			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 
 			// update colors of contextual row total values
-			d3.selectAll('.total-label').style('fill', colorSecondary[4]);
+			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
 
-			d3.select('#dateRange').style('color', colorSecondary[4]);
+			d3.select('#dateRange').style('color', colorNeutral[4]);
 
 			d3.select('#avg-line').style('stroke', colorSecondary[3]);
-
-			d3.selectAll('.f-val').style('fill', colorSecondary[4]);
 
 		} else {
 			// switch to Severity
@@ -2973,26 +2985,24 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.select('#severityToggle').style('opacity', 1);	
 			filters.toggle = 'severity';
 
-			d3.select('#total_entries').style('color',colorPrimary[3]);
+			d3.select('#total_entries').style('color',colorNeutral[3]);
 
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY SEVERITY');
-			d3.selectAll('.eventDrop').style('fill', colorPrimary[3]);
+			d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
 			d3.select('#rightAxisLabel').text('Avg. Severity');
 			d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
-			d3.select('#leftAxisBox').style('fill', colorPrimary[3]);
-			d3.select('.selection').style('fill', colorPrimary[2]);
+			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
+			d3.select('.selection').style('fill', colorNeutral[3]);
 
-			d3.selectAll('.outerCircle').style('stroke', colorPrimary[3]);
-			d3.selectAll('.innerCircle').style('fill', colorPrimary[3]);
+			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 
 			// update colors of contextual row total values
-			d3.selectAll('.total-label').style('fill', colorPrimary[4]);
+			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
 
-			d3.select('#dateRange').style('color', colorPrimary[3]);
+			d3.select('#dateRange').style('color', colorNeutral[4]);
 
 			d3.select('#avg-line').style('stroke', colorPrimary[3]);
-
-			d3.selectAll('.f-val').style('fill', colorPrimary[4]);
 
 		}
 
@@ -3023,9 +3033,9 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 				d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
 					if(filters.toggle == 'severity'){
-						return colorPrimary[3];
+						return colorNeutral[3];
 					} else {
-						return colorSecondary[3];
+						return colorNeutral[3];
 					}
 				});
 			}
