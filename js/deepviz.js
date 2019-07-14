@@ -2906,7 +2906,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				});
 			})
 
-
 			var cellColorScale = d3.scaleLinear().domain([1,maxCellSize])
 				.range([colorNeutral[0], colorNeutral[4]])
 		        .interpolate(d3.interpolateHcl);
@@ -2917,11 +2916,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 			if(filters.toggle == 'severity'){
 
-				maxCellSize = d3.max(d, function(dd){
-					return d3.max(dd.values, function(ddd){
-						return ddd.value.mean_s;
-					});
-				});
+				maxCellSize = 5;
 
 				d3.select('#toggle1').style('fill', colorPrimary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
@@ -2929,11 +2924,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				// d3.selectAll('.f-val').text('').style('fill', colorPrimary[4]);
 			} else {
 
-				maxCellSize = d3.max(d, function(dd){
-					return d3.max(dd.values, function(ddd){
-						return ddd.value.mean_r;
-					});
-				});
+				maxCellSize = 5;
 
 				d3.select('#toggle1').style('fill', colorSecondary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
