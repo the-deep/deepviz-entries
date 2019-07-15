@@ -71,7 +71,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.4;
+	var mapAspectRatio = 1.48;
 
 	// filters
 	var filters = {
@@ -505,7 +505,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			.append('g')
 			.attr('class', 'map-bubble')
 			.attr('transform', function(d,i){
-				return 'scale('+scale.map(dataByLocationSum[i])+')';
+				var size = scale.map(dataByLocationSum[i]);
+				return 'scale('+size+')';
 			})
 			.style('opacity', function(d,i){
 				if(dataByLocationSum[i]>0){
@@ -2451,9 +2452,18 @@ maxContextValue = d3.max(dataByContext, function(d) {
 	   		}
 		});
 
+		maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
+			return d;
+		});
+
+	    scale.map = d3.scaleLinear()
+			.range([0.2,1])
+			.domain([0,maxMapBubbleValue]);// 
+
 		var bubbles = d3.selectAll('.map-bubble')
 			.attr('transform', function(d,i){
-				return 'scale('+scale.map(dataByLocationSum[i])+')';
+				var size = scale.map(dataByLocationSum[i]);
+				return 'scale('+size+')';
 			})
 			.style('opacity', function(d,i){
 				if(dataByLocationSum[i]>0){
