@@ -460,7 +460,14 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 	    var container = map.getCanvasContainer()
 
-	    var mapsvg = d3.select(container).append("svg").style('position', 'absolute').style('width', '100%').style('height', '100%');
+	    var mapsvg = d3.select(container).append("svg")
+	    .attr('id','map-bubble-svg')
+	    .style('position', 'absolute')
+	    .style('width', '100%')
+	    .style('height', '100%');
+
+	    // // add dropshadow
+	    // mapsvg.append('defs');
 
 		var transform = d3.geoTransform({point: projectPoint});
 		var path = d3.geoPath().projection(transform);
