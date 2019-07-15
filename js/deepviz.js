@@ -1001,7 +1001,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			var id = d3.select(this).attr('id');
 			var v = id.substr(-1);
 			if(filters.time!=v)
-			d3.select(this).select('rect').style('fill', colorNeutral[2]);
+			d3.select(this).select('rect').style('fill', colorGrey[3]);
 		})
 		.on('mouseout', function(d,i){
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
