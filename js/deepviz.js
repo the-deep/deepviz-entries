@@ -1299,8 +1299,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			filter('sector', 'clear');
 				d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 				d3.selectAll('.col-header-text').style('opacity', 1);	
-				d3.select('#frameworkRemoveFilter').style('opacity', 0).style('cursor', 'default');
-				d3.select('#scRemoveFilter').style('opacity', 0).style('cursor', 'default');
+				d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
+				d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
 				d3.selectAll('.sector-icon').style('opacity', 0.3);
 		});
 		
@@ -1904,7 +1904,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		// severity filter remove button
 		//**************************
 		d3.selectAll('#severityRemoveFilter').on('click', function(){
-			d3.select('#severityRemoveFilter').style('opacity', 0).style('cursor', 'default');
+			d3.select('#severityRemoveFilter').style('display', 'none').style('cursor', 'default');
 			d3.selectAll('.severityBar').transition().duration(200).style('fill', function(d,i){
 				return colorPrimary[i];
 			});	
@@ -2080,7 +2080,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		// reliability filter remove button
 		//**************************
 		d3.selectAll('#reliabilityRemoveFilter').on('click', function(){
-			d3.select('#reliabilityRemoveFilter').style('opacity', 0).style('cursor', 'default');
+			d3.select('#reliabilityRemoveFilter').style('display', 'none').style('cursor', 'default');
 			d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
 				return colorSecondary[i];
 			});	
@@ -2236,13 +2236,13 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		d3.selectAll('.sc').style('opacity', 1);
 		d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 		d3.selectAll('.col-header-text').style('opacity', 1);	
-		d3.select('#frameworkRemoveFilter').style('opacity', 0).style('cursor', 'default');
-		d3.select('#scRemoveFilter').style('opacity', 0).style('cursor', 'default');
+		d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
+		d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 		d3.selectAll('.sn').style('opacity', 1);
 		d3.selectAll('.ag').style('opacity', 1);
-		d3.select('#snRemoveFilter').style('opacity', 0).style('cursor', 'default');
-		d3.select('#agRemoveFilter').style('opacity', 0).style('cursor', 'default');
+		d3.select('#snRemoveFilter').style('display', 'none').style('cursor', 'default');
+		d3.select('#agRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 		if(value=='clear'){
 			filters[filterClass] = [];
@@ -2251,15 +2251,15 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		}
 
 		if((filters['severity'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['specificNeeds'].length>0)||(filters['affectedGroups'].length>0)){
-			d3.select('#globalRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
+			d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		} else { 
-			d3.select('#globalRemoveFilter').style('opacity', 0).style('cursor', 'default');
+			d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
 		}
 		// reset data using original loaded data
 		data = originalData;
 
-		d3.select('#severityRemoveFilter').style('opacity', 0).style('cursor', 'default');
-		d3.select('#reliabilityRemoveFilter').style('opacity', 0).style('cursor', 'default');
+		d3.select('#severityRemoveFilter').style('display', 'none').style('cursor', 'default');
+		d3.select('#reliabilityRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 		// apply filters to data array
 		if(filters['severity'].length==5){
@@ -2267,12 +2267,12 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		}
 		if(filters['severity'].length>0){
 			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
-			d3.select('#severityRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
+			d3.select('#severityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 		if(filters['reliability'].length==5)filters['reliability'] = [];
 		if(filters['reliability'].length>0){
 			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
-			d3.select('#reliabilityRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
+			d3.select('#reliabilityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
 		if(filters.reliability.length==0){
@@ -2316,8 +2316,8 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.selectAll('.sc-bg').style('opacity', 0);
 			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 			d3.selectAll('.col-header-text').style('opacity', 0.3);	
-			d3.select('#frameworkRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
-			d3.select('#scRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
+			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			d3.select('#scRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 			filters.sector.forEach(function(d,i){
 				d3.selectAll('.sc-'+(d-1)).style('opacity', 1);
 				d3.selectAll('.sc-bg-'+(d-1)).style('opacity', 0);
@@ -2338,7 +2338,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				d3.selectAll('.ag-'+(d-1)).style('opacity', 1);
 			});
 
-			d3.select('#agRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
+			d3.select('#agRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
 		if(filters['specificNeeds'].length>0){
@@ -2352,7 +2352,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				d3.selectAll('.sn-'+(d-1)).style('opacity', 1);
 			});
 
-			d3.select('#snRemoveFilter').style('opacity', 1).style('cursor', 'pointer');
+			d3.select('#snRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 
 		}
 

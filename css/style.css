@@ -123,9 +123,9 @@ svg text {
 		left: 280px !important;
 	}
 
-	#framework-chart svg {
-		left: 20px !important;
-		top: 19px;
+	#framework-toggle-switch {
+		left: 155px !important;
+		top: 16px !important;
 	}
 
 	#framework-chart .title {
@@ -138,10 +138,9 @@ svg text {
 
 	#frameworkRemoveFilter {
 		height: 13px !important;
-		top: 18px !important;
-		left: 0px !important;
+		top: 12px !important;
+		left: -1px !important;
 	}
-
 
 	#scRemoveFilter,
 	#snRemoveFilter,
@@ -198,9 +197,10 @@ svg text {
 	    top: 8px !important;
 	}
 
-	#framework-chart svg {
-		left: 1px !important;
-		top: 18px !important;
+	#framework-toggle-switch {
+		left: 145px !important;
+		top: 12px !important;
+		width: 160px;
 	}
 
 	#avg_slider {
@@ -213,8 +213,8 @@ svg text {
 	}
 
 	#frameworkRemoveFilter {
-		top: 15px !important;
-		left: 0px !important;
+		top: 9px !important;
+		left: -13px !important;
 	}
 
 	#scRemoveFilter,
@@ -242,9 +242,11 @@ svg text {
 		width: 40%;
 	}
 
-	#framework-chart svg {
-		left: -10px !important;
-		top: 13px;
+	#framework-toggle-switch {
+		left: 19% !important;
+		top: 12px !important;
+		width: 18%;
+
 	}
 	#framework-chart .title {
 		top: 10px !important;
@@ -255,7 +257,7 @@ svg text {
 	}
 
 	#frameworkRemoveFilter {
-		visibility: hidden;
+		left: -307px !important;
 	}
 
 	#globalRemoveFilter {
@@ -310,7 +312,7 @@ svg text {
 		display: none;
 	}
 
-	#framework-chart svg { 
+	#framework-toggle-switch{ 
 		top: 10px !important;
 	}
 
@@ -380,7 +382,7 @@ svg text {
 		top: 7px !important;
 	}
 
-	#framework-chart svg { 
+	#framework-toggle-switch{ 
 		top: 9px !important;
 	}
 
@@ -544,16 +546,14 @@ svg text {
 
 #globalRemoveFilter {
 	height: 16px;
-	display: inline;
+	display: none;
 	position: absolute;
 	top: 7px;
 	left: 94px;
-	opacity: 0;
 }
 
 .removeFilterBtn {
-	display: inline;
-	opacity: 0;
+	display: none;
 }
 
 #reliabilityRemoveFilter,
@@ -564,7 +564,7 @@ svg text {
 #severityRemoveFilter {
 	height: 15px;
 	padding-left: 3px;
-	display: inline;
+	display: none;
 }
 
 #agRemoveFilter,
@@ -580,10 +580,12 @@ svg text {
 }
 
 #frameworkRemoveFilter {
-	position: relative;
-	top: 20px;
-	left: 2px;
+	position: absolute;
+	top: 13px;
+	left: 1px;
 	z-index: 10;
+    margin-left: 139px;
+    margin-top: 6px;
 }
 
 #severity {
@@ -777,10 +779,11 @@ svg text {
 
 #framework-chart {
 	width: 100%;
+    position: relative;
 }
 
 #framework-chart .title {
-	position: relative;
+	position: absolute;
 	top: 18px;
 }
 
@@ -788,12 +791,18 @@ svg text {
 	font-size: 15px;
 }
 
-#framework-toggle {
-	left: 2%;
+#framework-toggle-switch {
 	position: relative;
-	top: 22px;
-	cursor: pointer;
-	width: 15%;
+	top: 18px;
+	left: 170px;
+
+}
+
+#framework-toggle {
+    left: 14%;
+    position: relative;
+    top: 17px;
+    cursor: pointer;
 }
 
 #framework-chart svg .frameworkColHeader text {
