@@ -19,7 +19,7 @@ var Deepviz = function(sources, callback){
 		'eventdrop': '',
 		'severity': {x: '', y: ''},
 		'sector': {x: '', y: ''},
-		'reliability': {x: '', y: ''},
+		'reliability': {x: '', y: ''}
 	};
 
 	// data related
@@ -81,7 +81,8 @@ var Deepviz = function(sources, callback){
 		affectedGroups: [],
 		specificNeeds: [],
 		toggle: 'severity',
-		frameworkToggle: 'entries'
+		frameworkToggle: 'entries',
+		time: 'd'
 	};
 
 	// colors
@@ -627,7 +628,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		var svgChart = svg.append('g').attr('id', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+(margin.left+0)+','+(timechartHeight+margin.top+5)+')');
 
-
 		// create average svg
 		var timechartLegend = this.createSvg({
 			id: 'timechart_legend',
@@ -678,7 +678,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('width', 10)
 		.attr('height', 10)
 		.style('fill', colorNeutral[3]);
-
 
 	    var xAxis = d3.axisBottom()
 	    .scale(scale.timechart.x)
@@ -995,17 +994,18 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			.style('fill', colorNeutral[4]);
 
 		//**************************
-		// date buttons Y Q M
+		// date buttons Y M D
 		//**************************
 		var dateButtons = d3.selectAll('.time-select')
 		.on('mouseover', function(d,i){
 			d3.select(this).select('rect').style('fill', colorNeutral[2]);
 		})
 		.on('mouseout', function(d,i){
-			d3.selectAll('.time-select rect').style('fill', colorGrey[3]);
-		})
+			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
+			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+		});
 
-
+		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
 		//**************************
 		// event drops
 		//**************************
