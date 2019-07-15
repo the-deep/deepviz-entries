@@ -111,12 +111,16 @@ svg text {
 	}
 
 	#avg_slider {
-		top: -6px !important;
+		top: -5px !important;
 		width: 36%;
 	}
 
 	#timechart_legend {
 		width: 76% !important;
+	}
+
+	#timechart-legend {
+		left: 280px !important;
 	}
 
 	#framework-chart svg {
@@ -137,6 +141,7 @@ svg text {
 		top: 18px !important;
 		left: 0px !important;
 	}
+
 
 	#scRemoveFilter,
 	#snRemoveFilter,
@@ -465,8 +470,8 @@ svg text {
 
 #timechart-legend {
     position: absolute;
-    top: 5px;
-    left: 274px;
+    top: 6px;
+    left: 300px;
 }
 
 #avg_slider .ticks {
@@ -686,7 +691,7 @@ svg text {
 }
 
 #timechart-legend {
-	width: 170px;
+	width: 150px;
 	height: 20px;
 	padding-top: 2px;
 	float: right;
