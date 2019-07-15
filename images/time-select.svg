@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="126px" height="44px" viewBox="0 0 126 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>time-select</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="time-select" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="time-select-y" transform="translate(2.000000, 0.000000)">
+            <rect id="Rectangle" fill="#898989" x="0" y="2" width="40" height="40"></rect>
+            <text id="Y" font-family="SourceSansPro-Semibold, Source Sans Pro" font-size="35" font-weight="500" fill="#FFFFFF">
+                <tspan x="11.7325" y="34">Y</tspan>
+            </text>
+        </g>
+        <g id="time-select-q" transform="translate(43.000000, -1.000000)">
+            <rect id="Rectangle" fill="#898989" x="0" y="3" width="40" height="40"></rect>
+            <text id="Q" font-family="SourceSansPro-Semibold, Source Sans Pro" font-size="33" font-weight="500" fill="#FFFFFF">
+                <tspan x="8.879" y="32">Q</tspan>
+            </text>
+        </g>
+        <g id="time-select-m" transform="translate(84.000000, 0.000000)">
+            <rect id="Rectangle" fill="#898989" x="0" y="2" width="40" height="40"></rect>
+            <text id="M" font-family="SourceSansPro-Semibold, Source Sans Pro" font-size="35" font-weight="500" fill="#FFFFFF">
+                <tspan x="7.4625" y="34">M</tspan>
+            </text>
+        </g>
+    </g>
+</svg>

@@ -995,6 +995,18 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			.style('fill', colorNeutral[4]);
 
 		//**************************
+		// date buttons Y Q M
+		//**************************
+		var dateButtons = d3.selectAll('.time-select')
+		.on('mouseover', function(d,i){
+			d3.select(this).select('rect').style('fill', colorNeutral[2]);
+		})
+		.on('mouseout', function(d,i){
+			d3.selectAll('.time-select rect').style('fill', colorGrey[3]);
+		})
+
+
+		//**************************
 		// event drops
 		//**************************
 

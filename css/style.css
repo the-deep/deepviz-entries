@@ -35,7 +35,7 @@ svg text {
 }
 
 
-	#avg_slide_svg {
+	#avg_slider_svg {
 	    width: 100%;
 	    float: right;
 	}
@@ -103,7 +103,7 @@ svg text {
 	position: relative;
 }
 
-@media only screen and (max-width: 1100px) {
+@media only screen and (max-width: 1140px) {
 
 	.subtitle,
 	#dateRange {
@@ -111,12 +111,12 @@ svg text {
 	}
 
 	#avg_slider {
-		top: -8px !important;
-		width: 39%;
+		top: -6px !important;
+		width: 36%;
 	}
 
 	#timechart_legend {
-
+		width: 76% !important;
 	}
 
 	#framework-chart svg {
@@ -187,14 +187,22 @@ svg text {
 		height: 12px !important;
 	}
 
-	#timechart_legend {
-		display: none;
+	#timechart-legend {
+	    left: 254px !important;
+	    width: 140px !important;
+	    top: 8px !important;
 	}
 
 	#framework-chart svg {
 		left: 1px !important;
-		top: 15px;
+		top: 18px !important;
 	}
+
+	#avg_slider {
+		width: 34%;
+		top: 0px !important;
+	}
+
 	#framework-chart .title {
 		top: 13px !important;
 	}
@@ -215,7 +223,7 @@ svg text {
 }
 
 
-@media only screen and (max-width: 820px) {
+@media only screen and (max-width: 840px) {
 	.subtitle,
 	#dateRange {
 		font-size: 10px !important;
@@ -225,7 +233,8 @@ svg text {
 		display: none;
 	}
 	#avg_slider {
-		top: -5px !important;
+		top: 0px !important;
+		width: 40%;
 	}
 
 	#framework-chart svg {
@@ -252,7 +261,7 @@ svg text {
 
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 710px) {
 
 	body { font-size: 11px; }
 
@@ -304,7 +313,7 @@ svg text {
 		top: 7px !important;
 	}
 	#avg_slider {
-		top: -3px !important;
+		top: 0px !important;
 	}
 
 	#globalRemoveFilter {
@@ -374,12 +383,32 @@ svg text {
 		height: 11px !important;
 		left: 58px !important;
 	}
+
+	#avg_slider {
+		top: 0px !important;
+	}
+
+	#timechart-select {
+		width: 33px !important;
+	}
+
 }
 
 @media only screen and (max-width: 500px) {
 
 	#framework-chart #framework-toggle { 
 		display: none;
+	}
+
+	#timechart-select {
+		width: 22px !important;
+		top: 1px !important;
+		left: 1px !important;
+	}
+
+	#avg_slider {
+		top: -1px !important;
+		width: 35%;
 	}
 
 }
@@ -412,7 +441,10 @@ svg text {
 		left: 43px !important;
 		top: 20px !important;
 	}
-
+	#avg_slider {
+		top: 0px !important;
+		width: 33%;
+	}
 
 }
 
@@ -428,17 +460,21 @@ svg text {
 	margin-top: 0px;
 	position: absolute;
 	right: -3px;
-	top: -11px;
+	top: -7px;
 }
 
 #timechart-legend {
-	position: absolute;
-	top: 2px;
-	left: 213px;
+    position: absolute;
+    top: 5px;
+    left: 274px;
 }
 
 #avg_slider .ticks {
 	font: 10px sans-serif;
+}
+
+.time-select {
+	cursor: pointer;
 }
 
 .avgSliderLabel {
@@ -622,7 +658,9 @@ svg text {
 	line-height: 1.4;
 	margin-bottom: 0px;
 	margin-left: 15%;
+	cursor: pointer;
 }
+
 
 #n-days {
 	opacity: 0;
@@ -652,6 +690,13 @@ svg text {
 	height: 20px;
 	padding-top: 2px;
 	float: right;
+}
+
+#timechart-select {
+    top: 3px;
+    position: relative;
+    left: 2px;
+
 }
 
 .handle {
