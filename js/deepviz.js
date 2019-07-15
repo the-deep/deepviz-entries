@@ -998,12 +998,23 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		//**************************
 		var dateButtons = d3.selectAll('.time-select')
 		.on('mouseover', function(d,i){
+			var id = d3.select(this).attr('id');
+			var v = id.substr(-1);
+			if(filters.time!=v)
 			d3.select(this).select('rect').style('fill', colorNeutral[2]);
 		})
 		.on('mouseout', function(d,i){
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
 			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
-		});
+		}).on('click', function(d,i){
+			var id = d3.select(this).attr('id');
+			var v = id.substr(-1);
+			filters.time = v;
+			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
+			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+
+			console.log('update data to new time grouping: '+ v);
+		})
 
 		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
 		//**************************
