@@ -6,14 +6,14 @@ html {
 }
 
 body {
-    font-family: Source Sans Pro, sans-serif;
+	font-family: Source Sans Pro, sans-serif;
 	font-size: 14px;
 	margin: 0;
-     -moz-user-select: none; /* Firefox */
-      -ms-user-select: none; /* Internet Explorer */
-   -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
-  -webkit-user-select: none; /* Chrome, Safari, and Opera */
-  -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer */
+	-khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+	-webkit-user-select: none; /* Chrome, Safari, and Opera */
+	-webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 
 }
 
@@ -23,10 +23,10 @@ svg {
 }
 
 svg text {
-     -moz-user-select: none; /* Firefox */
-      -ms-user-select: none; /* Internet Explorer */
-   -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
-  -webkit-user-select: none; /* Chrome, Safari, and Opera */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer */
+	-khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+  -webkit-user-select: none; /* Chrome, Safari, and Opera *
   -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
 
@@ -35,18 +35,23 @@ svg text {
 }
 
 
+	#avg_slide_svg {
+	    width: 100%;
+	    float: right;
+	}
+
 #top-row {
-    height: 55px;
-    border-bottom: 2px solid #e8e8e8;
-    margin-bottom: 7px;
-    padding-top: 8px;
-    position: fixed;
-    top: 0px;
-    z-index: 3;
-    width: 100%;
-    max-width: 1300px;
-    background-color: #FFF;
-    border-right: 1px solid #FFF;
+	height: 58px;
+	border-bottom: 2px solid #e8e8e8;
+	margin-bottom: 7px;
+	padding-top: 5px;
+	position: fixed;
+	top: 0px;
+	z-index: 3;
+	width: 97.5%;
+	max-width: 1300px;
+	background-color: #FFF;
+	border-right: 1px solid #FFF;
 }
 
 #container {
@@ -61,12 +66,12 @@ svg text {
 }
 
 .leftcol {
-	width: 32%;
+	width: 34%;
 	float:left;
 }
 
 .rightcol {
-	width: 67%;
+	width: 66%;
 	float:right;
 	padding-top: 3px;
 }
@@ -82,7 +87,7 @@ svg text {
 
 #map-bubble-svg {
 	-webkit-filter: drop-shadow(1px 1px 4px rgba(0,0,0,0.2));      
-    filter: drop-shadow(1px 1px 4px rgba(0,0,0,0.2)); 
+	filter: drop-shadow(1px 1px 4px rgba(0,0,0,0.2)); 
 }
 
 .mapboxgl-control-container {
@@ -101,24 +106,70 @@ svg text {
 @media only screen and (max-width: 1100px) {
 
 	.subtitle,
-	.selectedDate {
+	#dateRange {
 		font-size: 14px !important;
+	}
+
+	#avg_slider {
+		top: -8px !important;
+		width: 39%;
+	}
+
+	#timechart_legend {
+
+	}
+
+	#framework-chart svg {
+		left: 20px !important;
+		top: 19px;
+	}
+
+	#framework-chart .title {
+		top: 16px !important;
+	}
+
+	#top-row {
+		width: 97% !important;
+	}
+
+	#frameworkRemoveFilter {
+		height: 13px !important;
+		top: 18px !important;
+		left: 0px !important;
+	}
+
+	#scRemoveFilter,
+	#snRemoveFilter,
+	#agRemoveFilter {
+		height: 13px !important;
+
 	}
 
 }
 
 @media only screen and (max-width: 970px) {
 
-.selectedDate { margin-left: 20px; }
+	.selectedDate { margin-left: 20px; }
 
 	body { font-size: 12px; }
 
-  #total_entries {
-	font-size: 32px !important;
-  }
+	#dateRange {
+		font-size: 12px !important;
+	}
 
-  .title {
-	font-size: 12px !important;
+	#total_entries {
+		font-size: 32px !important;
+	}
+
+	#top-row {
+		height: 48px;
+		width: 97% !important;
+	}
+	#main-content {
+		padding-top: 60px;
+	}
+	.title {
+		font-size: 12px !important;
 	}
 
 	#severity_value,
@@ -131,39 +182,93 @@ svg text {
 	}
 
 	.subtitle,
-	.selectedDate {
-		font-size: 12px !important;
-	}
-
 	#reliabilityRemoveFilter,
 	#severityRemoveFilter {
 		height: 12px !important;
 	}
 
-	#dateRangeContainer img {
+	#timechart_legend {
 		display: none;
 	}
 
+	#framework-chart svg {
+		left: 1px !important;
+		top: 15px;
+	}
+	#framework-chart .title {
+		top: 13px !important;
+	}
+
+	#frameworkRemoveFilter {
+		top: 15px !important;
+		left: 0px !important;
+	}
+
+	#scRemoveFilter,
+	#snRemoveFilter,
+	#agRemoveFilter,
+	#frameworkRemoveFilter {
+		height: 12px !important;
+		
+	}
+
 }
 
 
-@media only screen and (max-width: 780px) {
+@media only screen and (max-width: 820px) {
 	.subtitle,
-	.selectedDate {
+	#dateRange {
 		font-size: 10px !important;
 	}
+
+	#timechart_legend {
+		display: none;
+	}
+	#avg_slider {
+		top: -5px !important;
+	}
+
+	#framework-chart svg {
+		left: -10px !important;
+		top: 13px;
+	}
+	#framework-chart .title {
+		top: 10px !important;
+	}
+
+	#top-row {
+		width: 97% !important;
+	}
+
+	#frameworkRemoveFilter {
+		visibility: hidden;
+	}
+
+	#globalRemoveFilter {
+		height: 15px !important;
+		top: 7px;
+		left: 90px !important;
+	}
+
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 700px) {
 
 	body { font-size: 11px; }
 
-  #total_entries {
-	font-size: 26px !important;
-  }
+	#total_entries {
+		font-size: 26px !important;
+	}
 
-  .title {
-	font-size: 10px !important;
+	#top-row {
+		height: 40px;
+	}
+	#main-content {
+		padding-top: 50px;
+	}
+
+	.title {
+		font-size: 10px !important;
 	}
 
 	#severity_value,
@@ -176,30 +281,60 @@ svg text {
 	}
 
 	.subtitle,
-	.selectedDate {
-		font-size: 8px !important;
+	#dateRange {
+		font-size: 7px !important;
 	}
 
 	#reliabilityRemoveFilter,
 	#severityRemoveFilter {
 		height: 12px !important;
 		width: 12px !important;
+		display: none !important;
 	}
 
+	#timechart_legend {
+		display: none;
+	}
 
+	#framework-chart svg { 
+		top: 10px !important;
+	}
+
+	#framework-chart .title {
+		top: 7px !important;
+	}
+	#avg_slider {
+		top: -3px !important;
+	}
+
+	#globalRemoveFilter {
+		height: 12px !important;
+		left: 73px !important;
+	}
 
 }
 
-@media only screen and (max-width: 420px) {
+@media only screen and (max-width: 600px) {
 
 	body { font-size: 8px; }
 
-  #total_entries {
-	font-size: 20px !important;
-  }
+	#total_entries {
+		font-size: 20px !important;
+	}
 
-  .title {
-	font-size: 8px !important;
+	.title {
+		font-size: 8px !important;
+	}
+
+	#top-row {
+		height: 32px;
+	}
+	#main-content {
+		padding-top: 42px;
+	}
+
+	#timechart_legend {
+		display: none;
 	}
 
 	#severity_value,
@@ -210,12 +345,14 @@ svg text {
 	.toggle, {
 		height: 8px !important;
 	}
-	.subtitle
-	 {
-		visibility: hidden;
-	}
-	.selectedDate {
+
+	.subtitle,
+	#dateRange {
 		font-size: 6px !important;
+	}
+
+	#dateRangeContainer img {
+		display: none;
 	}
 
 	#reliabilityRemoveFilter,
@@ -225,31 +362,83 @@ svg text {
 		padding-left: 0px;
 	}
 
+	#framework-chart .title {
+		top: 7px !important;
+	}
+
+	#framework-chart svg { 
+		top: 9px !important;
+	}
+
+	#globalRemoveFilter {
+		height: 11px !important;
+		left: 58px !important;
+	}
+}
+
+@media only screen and (max-width: 500px) {
+
+	#framework-chart #framework-toggle { 
+		display: none;
+	}
+
+}
+
+@media only screen and (max-width: 450px) {
+	.selectedDate {
+		font-size: 4px !important;
+		display: none !important;
+	}
+
+	#top-row {
+		width: 95% !important;
+	}
+
+	#top-row .leftcol {
+		width: 18%;
+	}
+
+	#top-row .rightcol {
+		width: 82%;
+	}
+
+	#severity_value,
+	#reliability_value {
+		font-size: 5px !important;
+	}
+
+	#globalRemoveFilter {
+		height: 9px !important;
+		left: 43px !important;
+		top: 20px !important;
+	}
+
+
 }
 
 .header-row {
 	position: relative;
 }
 #total { 
-
+	margin-top: 2px;
 	float: left; 
 }
 
 #avg_slider { 
 	margin-top: 0px;
-    position: absolute;
-    right: -3px;
-    top: -8px;
+	position: absolute;
+	right: -3px;
+	top: -11px;
 }
 
 #timechart-legend {
 	position: absolute;
-	top: 0px;
-	    left: 273px;
+	top: 2px;
+	left: 213px;
 }
 
 #avg_slider .ticks {
-  font: 10px sans-serif;
+	font: 10px sans-serif;
 }
 
 .avgSliderLabel {
@@ -262,36 +451,36 @@ svg text {
 }
 
 #avg_slider .track {
-  stroke: #000;
-  stroke-opacity: 0.3;
-  stroke-width: 2px;
+	stroke: #000;
+	stroke-opacity: 0.3;
+	stroke-width: 2px;
 }
 
 #avg_slider .track-inset {
-  stroke: #000;
-  stroke-width: 1px;
+	stroke: #000;
+	stroke-width: 1px;
 }
 
 #avg_slider .track-overlay {
-  pointer-events: stroke;
-  stroke-width: 50px;
-  stroke: transparent;
-  cursor: ew-resize;
+	pointer-events: stroke;
+	stroke-width: 50px;
+	stroke: transparent;
+	cursor: ew-resize;
 }
 
 #avg_slider .handle {
-  fill: #fff;
-  stroke: #000;
-  stroke-opacity: 0.5;
-  stroke-width: 1.25px;
+	fill: #fff;
+	stroke: #000;
+	stroke-opacity: 0.5;
+	stroke-width: 1.25px;
 }
 
 #total_entries {
 	margin-bottom: 0px;
-    font-size: 40px;
-    font-weight: bold;
-    color: #008974;
-    line-height: 0.8;
+	font-size: 40px;
+	font-weight: bold;
+	color: #008974;
+	line-height: 0.8;
 }
 
 
@@ -302,12 +491,12 @@ svg text {
 }
 
 #globalRemoveFilter {
-    height: 16px;
-    display: inline;
-    position: absolute;
-    top: 7px;
-    left: 94px;
-    opacity: 0;
+	height: 16px;
+	display: inline;
+	position: absolute;
+	top: 7px;
+	left: 94px;
+	opacity: 0;
 }
 
 .removeFilterBtn {
@@ -330,7 +519,7 @@ svg text {
 #scRemoveFilter,
 #snRemoveFilter {
 	position: relative;
-    top: 3px;
+	top: 3px;
 }
 
 #reliabilityRemoveFilter:hover,
@@ -339,10 +528,10 @@ svg text {
 }
 
 #frameworkRemoveFilter {
-    position: relative;
-    top: 20px;
-    left: 2px;
-    z-index: 10;
+	position: relative;
+	top: 20px;
+	left: 2px;
+	z-index: 10;
 }
 
 #severity {
@@ -350,13 +539,14 @@ svg text {
 	display: inline-block;
 	fill: green;
 	padding-right: 2%;
-	    position: relative;
-    top: -4px;
+	position: relative;
+	top: -4px;
 }
 
 #severity svg,
 #reliability svg {
 	margin-top: 2px;
+	margin-bottom: -2px;
 }
 
 #severitySvg text,
@@ -371,12 +561,12 @@ svg text {
 }
 
 #severity_value {
-    color: #008974;
-    float: right;
-    display: inline;
-    font-size: 12px;
-    font-weight: bold;
-    padding-top: 3px;
+	color: #008974;
+	float: right;
+	display: inline;
+	font-size: 12px;
+	font-weight: bold;
+	padding-top: 3px;
 
 }
 
@@ -389,8 +579,8 @@ svg text {
 	display: inline-block;
 	fill: red;
 	float: right;
-	    position: relative;
-    top: -4px;
+	position: relative;
+	top: -4px;
 }
 
 #reliability_bars {
@@ -400,12 +590,12 @@ svg text {
 }
 
 #reliability_value {
-    color: #e6550d;
-    float: right;
-    display: inline;
-    font-size: 12px;
-    font-weight: bold;
-    padding-top: 3px;
+	color: #e6550d;
+	float: right;
+	display: inline;
+	font-size: 12px;
+	font-weight: bold;
+	padding-top: 3px;
 
 }
 
@@ -427,13 +617,11 @@ svg text {
 }
 
 .selectedDate {
-    font-size: 16px;
-    font-weight: bold;
-    display: inline-block;
-    line-height: 1.3;
-    margin-bottom: 0px;
-	margin-left: 28px;
-    margin-top: 1px;
+	font-weight: bold;
+	display: inline-block;
+	line-height: 1.4;
+	margin-bottom: 0px;
+	margin-left: 15%;
 }
 
 #n-days {
@@ -441,16 +629,17 @@ svg text {
 }
 
 #dateRangeContainer {
-	padding-top: 3px;
+	padding-top: 2px;
 }
 
 #dateRangeContainer img {
-	padding-right: 5px;
+	padding-right: 3px;
 }
 
 #dateRange {
 	margin-left: 1px;
 	display: inline;
+	font-size: 17px;
 }
 
 #timeline {
@@ -460,9 +649,9 @@ svg text {
 
 #timechart-legend {
 	width: 170px;
-    height: 20px;
-    padding-top: 2px;
-    float: right;
+	height: 20px;
+	padding-top: 2px;
+	float: right;
 }
 
 .handle {
@@ -472,18 +661,18 @@ svg text {
 
 .selection {
 	fill-opacity: 0.01;
-	 filter: grayscale(50%);
-	 stroke-opacity: 0;
+	filter: grayscale(50%);
+	stroke-opacity: 0;
 }
 
 #eventDrop {
-  clip: rect(10px, 190px, 190px, 10px);
+	clip: rect(10px, 190px, 190px, 10px);
 }
 
 .line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 2px;
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 2px;
 }
 
 .sector-icon {
@@ -492,22 +681,22 @@ svg text {
 
 .grid line,
 .contextualRowLine {
-  stroke: #6A6A6A;
-  stroke-opacity: .2;
-  shape-rendering: crispEdges;
-  stroke-dasharray: 2 2; 
-  stroke-width: 1;
+	stroke: #6A6A6A;
+	stroke-opacity: .2;
+	shape-rendering: crispEdges;
+	stroke-dasharray: 2 2; 
+	stroke-width: 1;
 }
 
 .grid path {
-  stroke-width: 0;
+	stroke-width: 0;
 }
 
 #avg-line {
-  stroke-dasharray: 3 3; 
-  stroke-width: 1;
-  stroke-opacity: 0.4;
-  fill: none;
+	stroke-dasharray: 3 3; 
+	stroke-width: 1;
+	stroke-opacity: 0.4;
+	fill: none;
 }
 
 .yAxis line,
@@ -517,12 +706,12 @@ svg text {
 
 .xAxisHorizontalLine {
 	stroke: #2D2E2E;
-	  stroke-dasharray: 1 1; 
-	  stroke-opacity: .5;
+	stroke-dasharray: 1 1; 
+	stroke-opacity: .5;
 }
 
 .clearfix {
-  overflow: auto;
+	overflow: auto;
 }
 
 #framework-chart {
@@ -539,10 +728,11 @@ svg text {
 }
 
 #framework-toggle {
-    left: 63px;
-    position: relative;
-    top: 23px;
-    cursor: pointer;
+	left: 2%;
+	position: relative;
+	top: 22px;
+	cursor: pointer;
+	width: 15%;
 }
 
 #framework-chart svg .frameworkColHeader text {
@@ -556,7 +746,7 @@ svg text {
 
 
 #footerRow {
-    margin-top: 10px;
+	margin-top: 20px;
 }
 
 .footerCol {

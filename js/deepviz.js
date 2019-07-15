@@ -45,7 +45,7 @@ var Deepviz = function(sources, callback){
 	var margin = {top: 18, right: 17, bottom: 0, left: 25};
 	var timechartHeight = 380;
 	var timechartHeightOriginal = timechartHeight;
-	var timechartSvgHeight = 870;
+	var timechartSvgHeight = 900;
 	var brush;
 	var gBrush; 
 	var barWidth;
@@ -71,7 +71,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.48;
+	var mapAspectRatio = 1.4;
 
 	// filters
 	var filters = {
