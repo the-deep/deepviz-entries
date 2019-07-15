@@ -562,7 +562,7 @@ svg text {
 #scRemoveFilter,
 #snRemoveFilter,
 #severityRemoveFilter {
-	height: 15px;
+	height: 14px;
 	padding-left: 3px;
 	display: none;
 }
