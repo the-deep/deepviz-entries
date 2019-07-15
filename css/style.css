@@ -527,6 +527,12 @@ svg text {
 
 .toggle, .severitytoggle, .reliabilitytoggle { cursor: pointer; }
 
+#severity img, 
+#reliability img {
+	top: 2px;
+    position: relative;
+}
+
 .contextualRowLine {
 
 }
