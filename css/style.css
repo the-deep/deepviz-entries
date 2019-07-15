@@ -533,6 +533,11 @@ svg text {
     position: relative;
 }
 
+.removeFilterBtn:hover,
+.globalRemoveFilterBtn:hover {
+	opacity: 0.7 !important;
+}
+
 .contextualRowLine {
 
 }

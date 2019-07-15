@@ -1570,9 +1570,9 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		// framework toggle switch
 
 		d3.select('#framework-toggle').on('mouseover', function(d,i){
-			d3.selectAll('#framework-toggle circle').style('stroke', '#FFF').style('stroke-width', 1);
+			d3.selectAll('#framework-toggle circle').style('stroke', '#000').style('stroke-width', '1px').style('stroke-opacity',.51)
 		}).on('mouseout', function(d,i){
-			d3.selectAll('#framework-toggle circle').style('stroke', '#FFF').style('stroke-width', 0);
+			d3.selectAll('#framework-toggle circle').style('stroke', '#FFF').style('stroke-width', '0px');
 		}).on('click', function(d,i){
 			if(filters.frameworkToggle=='entries'){
 				d3.select('#toggle0').style('opacity', 0);
