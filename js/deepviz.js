@@ -916,13 +916,13 @@ var Deepviz = function(sources, callback){
 			.style('opacity', 0)
 			.on('mouseover', function(){
 				if(filters.toggle == 'severity'){
-					tick.style('color', colorNeutral[4]);
+					return tick.style('color', colorNeutral[4]);
 				} else { 
-					tick.style('color', colorNeutral[4]);
+					return tick.style('color', colorNeutral[4]);
 				}
 			})
 			.on('mouseout', function(){
-				tick.style('color', '#000')
+				return tick.style('color', '#000')
 			})
 			.on('click', function(){
 				dateRange[0] = d;

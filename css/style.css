@@ -480,6 +480,11 @@ svg text {
 	font: 10px sans-serif;
 }
 
+.tick {
+color: hsla(171, 30%, 10%, 1);
+font-size: 15px;
+}
+
 .time-select {
 	cursor: pointer;
 }
