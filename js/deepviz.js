@@ -43,6 +43,7 @@ var Deepviz = function(sources, callback){
 	var tp_reliability = [];
 
 	// timechart variables
+	var timechartInit = 0;
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 37};
 	var timechartHeight = 380;
@@ -661,7 +662,6 @@ var Deepviz = function(sources, callback){
 		.append('g')
 		.attr("transform", "translate(0,0)");
 
-
 		var width_new = width - (margin.right + margin.left);
 		timechartHeight2 = timechartHeight - (margin.top + margin.bottom);
 
@@ -685,25 +685,31 @@ var Deepviz = function(sources, callback){
 		minDate.setHours(0);
 		minDate.setMinutes(0);
 
-		if(filters.time=='d'){
-			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
-			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-			dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
-			dateRange[1] = maxDate;
+
+
+		if(timechartInit==0){
+			if(filters.time=='d'){
+				maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
+				minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+				dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
+				dateRange[1] = maxDate;
+			}	
+			timechartInit = 1;		
 		}
 
 		if(filters.time=='m'){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-			dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
-			dateRange[1] = maxDate;
+			if(dateRange[0]<minDate)dateRange[0]=minDate;
+			// dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
+			// dateRange[1] = maxDate;
 		}
 
 		if(filters.time=='y'){
 			maxDate = new Date(maxDate.getFullYear()+1, 0, -1);
 			minDate = new Date(minDate.getFullYear(), 0, 1);
-			dateRange[0] = new Date(maxDate.getFullYear(), 0, 1);;
-			dateRange[1] = maxDate;
+			// dateRange[0] = new Date(maxDate.getFullYear(), 0, 1);;
+			// dateRange[1] = maxDate;
 		}
 
 		scale.timechart.x.domain([minDate, maxDate]);
