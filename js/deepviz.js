@@ -421,7 +421,7 @@ var Deepviz = function(sources, callback){
 
 		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
 
-			dataByDate[i].barValues = d.severity;
+			dataByDate[i].barValues = d[filters.toggle];
 
 			delete d.values;
 		});
@@ -936,7 +936,6 @@ var Deepviz = function(sources, callback){
 		//**************************
 		// Bar/event drop groups (by date)
 		//**************************
-
 		// bar groups
 		var bars = svgChart.selectAll(".barGroup")
 		.data(chartdata)
@@ -1045,7 +1044,17 @@ var Deepviz = function(sources, callback){
 			.attr('transform', 'translate('+(barWidth/2) + ', 0)' )
 			.append('path')
 			.attr('id', 'avg-line')
-			.style('stroke', colorPrimary[3]);
+			.style('stroke', function(){
+				if(filters.toggle=='severity'){
+					d3.select('#rightAxisLabel').text('Avg. Severity');
+					d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
+					return colorPrimary[3];
+				} else {
+					d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
+					d3.select('#rightAxisLabel').text('Avg. Reliability');
+					return colorSecondary[3];
+				}
+			});
 
 		// *************************
 		// draw contextual rows
