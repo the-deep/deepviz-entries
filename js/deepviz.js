@@ -977,19 +977,19 @@ var Deepviz = function(sources, callback){
 			var w = d3.select(this.parentNode).attr('data-width');
 			barWidth = w;
 			if(filters.time=='m'){
-				return w*0.1
+				return w*0.2
 			}
 			if(filters.time=='y'){
-				return w*0.2
+				return w*0.3
 			}
 		})
 		.attr("width", function(d,i) { 
 			var w = d3.select(this.parentNode).attr('data-width');
 			if(filters.time=='m'){
-				w=w*0.8
+				w=w*0.6
 			}
 			if(filters.time=='y'){
-				w=w*0.6
+				w=w*0.4
 			}
 			return w-1;
 			// return scale.timechart.x(d[options.dataKey])
@@ -2409,6 +2409,8 @@ var Deepviz = function(sources, callback){
 	//**************************
 	var filter = function(filterClass, value){
 
+		console.log('filter');
+
 		if(filterClass=='clear'){
 			filters.sector = [];
 			filters.severity = [];
@@ -2667,7 +2669,7 @@ var Deepviz = function(sources, callback){
 
 			var group = d3.select(this);
 
-			var eventDrops = group.selectAll('.eventDrop' )
+			var eventDrops = group.selectAll('.eventDrop' );
 
 			if(dD){
 
@@ -2713,13 +2715,15 @@ var Deepviz = function(sources, callback){
 				.attr('r', 0)
 			}
 
-			colorBars();
 
 		})
 
 		updateSeverityReliability(target);
 		updateTrendline();
 		updateBubbles();
+
+			colorBars();
+		
 
 	}
 
