@@ -717,8 +717,8 @@ var Deepviz = function(sources, callback){
 		if(filters.time=='y'){
 			maxDate = new Date(maxDate.getFullYear()+1, 0, -1);
 			minDate = new Date(minDate.getFullYear(), 0, 1);
-			// dateRange[0] = new Date(maxDate.getFullYear(), 0, 1);;
-			// dateRange[1] = maxDate;
+			dateRange[0] = new Date(dateRange[0].getFullYear(), 0, 1);;
+			dateRange[1] = new Date(dateRange[1].getFullYear()+1, 0, -1);
 		}
 
 		scale.timechart.x.domain([minDate, maxDate]);
@@ -736,7 +736,11 @@ var Deepviz = function(sources, callback){
 
 		var gridlines = svg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
-		var svgChart = svg.append('g').attr('id', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
+		var svgChart = svg.append('g')
+		.attr('id', 'chartarea')
+		.attr('transform', 'translate('+(margin.left+0)+','+margin.top+')')
+		.style('opacity', 0);
+
 		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+(margin.left+0)+','+(timechartHeight2+margin.top+5)+')');
 
 		// create average svg
@@ -1044,6 +1048,7 @@ var Deepviz = function(sources, callback){
 			.attr('transform', 'translate('+(barWidth/2) + ', 0)' )
 			.append('path')
 			.attr('id', 'avg-line')
+			.style('opacity', 0)
 			.style('stroke', function(){
 				if(filters.toggle=='severity'){
 					d3.select('#rightAxisLabel').text('Avg. Severity');
@@ -1366,6 +1371,9 @@ var Deepviz = function(sources, callback){
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 		}
+
+		d3.select('#chartarea').transition().duration(1000).style('opacity', 1);
+		d3.select('#avg-line').transition().duration(1000).style('opacity', 1);
 
 		colorBars();
 		updateDate();
@@ -2568,10 +2576,14 @@ var Deepviz = function(sources, callback){
 	// redraw timeline
 	//**************************
 	var redrawTimeline = function(){
-		d3.select('#timeline .vizlibResponsiveDiv').remove();
-		d3.select('#timechart-legend .vizlibResponsiveDiv').remove();
 
 		refreshData();
+
+		d3.select('#avg-line').transition().duration(500).style('opacity', 0)
+		d3.select('#chartarea').transition().duration(500).style('opacity', 0)
+		.on("end", function(){
+			d3.select('#timeline .vizlibResponsiveDiv').remove();
+			d3.select('#timechart-legend .vizlibResponsiveDiv').remove();		
 
 		// create svg
 		var timelineSvg = Deepviz.createSvg({
@@ -2660,7 +2672,7 @@ var Deepviz = function(sources, callback){
 			frame: [1]
 		});
 
-
+	});
 	}
 
 	//**************************
