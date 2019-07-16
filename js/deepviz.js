@@ -203,10 +203,6 @@ var Deepviz = function(sources, callback){
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(data);
 
-		maxMapBubbleValue = d3.max(dataByLocation, function(d) {
-			return d.value;
-		});
-
 	    // define timechart X scale
 		dateIndex = data.map(function(d) { return d['date']; });
 
@@ -535,10 +531,6 @@ var Deepviz = function(sources, callback){
 
 		var transform = d3.geoTransform({point: projectPoint});
 		var path = d3.geoPath().projection(transform);
-	    
-	    scale.map = d3.scaleLinear()
-			.range([0.5,1.6])
-			.domain([0,maxMapBubbleValue]);// 
 
 		var gd = dataByDate.filter(function(d){
 			return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
@@ -558,6 +550,14 @@ var Deepviz = function(sources, callback){
 				}
 	   		}
 		});
+
+		maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
+			return d;
+		});
+
+	    scale.map = d3.scaleLinear()
+			.range([0.2,1])
+			.domain([0,maxMapBubbleValue]);// 
 
 	 	var featureElement = mapsvg.selectAll("g")
 			.data(dataByLocationSum)
