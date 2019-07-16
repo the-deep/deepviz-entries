@@ -694,13 +694,21 @@ var Deepviz = function(sources, callback){
 				dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
 				dateRange[1] = maxDate;
 			}	
-			timechartInit = 1;		
+			timechartInit=1;
+		} else {
+			if(filters.time=='d'){
+				maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
+				if(dateRange[1]>maxDate)dateRange[1]=maxDate;
+			}				
 		}
+
 
 		if(filters.time=='m'){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
+			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
+
 			// dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
 			// dateRange[1] = maxDate;
 		}
@@ -1077,7 +1085,7 @@ var Deepviz = function(sources, callback){
 		svg.append('rect')
 			.attr('height', contextualRowsHeight+38)
 			.attr('width', 35)
-			.attr('x', 1286)
+			.attr('x', 1287)
 			.attr('y',timechartHeightOriginal+2)
 			.style('fill', '#FFF')
 			.style('fill-opacity',1);
