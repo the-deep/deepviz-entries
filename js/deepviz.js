@@ -686,8 +686,9 @@ var Deepviz = function(sources, callback){
 		minDate.setMinutes(0);
 
 		if(filters.time=='d'){
-			maxDate.setDate(maxDate.getDate() + 1);
-			minDate.setDate(minDate.getDate());
+			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
+			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+			dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
 			dateRange[1] = maxDate;
 		}
 
@@ -1149,7 +1150,6 @@ var Deepviz = function(sources, callback){
 			filters.time = v;
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
 			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
-
 			redrawTimeline();
 		})
 
@@ -2721,9 +2721,7 @@ var Deepviz = function(sources, callback){
 		updateSeverityReliability(target);
 		updateTrendline();
 		updateBubbles();
-
-			colorBars();
-		
+		colorBars();
 
 	}
 
