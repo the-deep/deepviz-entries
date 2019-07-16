@@ -811,6 +811,9 @@ font-size: 15px;
 
 #framework-chart svg .frameworkColHeader text {
 	font-weight: normal;
+	text-transform: uppercase;
+    font-size: 13px;
+    fill: #1E1E1E;
 }
 
 .cell {
