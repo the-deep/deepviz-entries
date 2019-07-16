@@ -710,6 +710,9 @@ var Deepviz = function(sources, callback){
 		if(filters.time=='m'){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+			dateRange[0] = new Date(dateRange[0].getFullYear(), dateRange[0].getMonth(), 1);
+			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth()+1, 1);
+
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
 			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
 		}
