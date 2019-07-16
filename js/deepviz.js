@@ -44,6 +44,8 @@ var Deepviz = function(sources, callback){
 
 	// timechart variables
 	var timechartInit = 0;
+	var timechartyAxis;
+	var timechartyGrids;
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 37};
 	var timechartHeight = 380;
@@ -432,6 +434,10 @@ var Deepviz = function(sources, callback){
 			return d3.ascending(x.date, y.date);
 		})
 
+		maxValue = d3.max(dataByDate, function(d) {
+			return d.total_entries;
+		});
+
 		updateFramework();
 		updateTotals();
 		updateStackedBars('ag', dataByAffectedGroups);
@@ -685,8 +691,6 @@ var Deepviz = function(sources, callback){
 		minDate.setHours(0);
 		minDate.setMinutes(0);
 
-
-
 		if(timechartInit==0){
 			if(filters.time=='d'){
 				maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
@@ -697,20 +701,17 @@ var Deepviz = function(sources, callback){
 			timechartInit=1;
 		} else {
 			if(filters.time=='d'){
+				minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 				maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 				if(dateRange[1]>maxDate)dateRange[1]=maxDate;
 			}				
 		}
-
 
 		if(filters.time=='m'){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
 			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
-
-			// dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
-			// dateRange[1] = maxDate;
 		}
 
 		if(filters.time=='y'){
@@ -809,15 +810,9 @@ var Deepviz = function(sources, callback){
 	    //**************************
 		scale.timechart.y1 = d3.scaleLinear()
 		.range([timechartHeight2, 0])
-		.domain([0, (maxValue)]);
+		.domain([0, rounder(maxValue)]);
 
-		if(options.maxValue=='round'){
-			scale.timechart.y1 = d3.scaleLinear()
-			.range([timechartHeight2, 0])
-			.domain([0, rounder(maxValue)]);
-		}
-
-		var yAxis = d3.axisLeft()
+		timechartyAxis = d3.axisLeft()
 		.scale(scale.timechart.y1)
 		.ticks(4)
 		.tickSize(0)
@@ -826,8 +821,9 @@ var Deepviz = function(sources, callback){
 		// y-axis
 		var yAxisText = svgBg.append("g")
 		.attr("class", "yAxis axis")
+		.attr("id", "timechartyAxis")
 		.attr('transform', 'translate('+(margin.left-1)+','+margin.top+')')
-		.call(yAxis)
+		.call(timechartyAxis)
 		.style('font-size', options.yAxis.font.values.size);
 
 		//**************************
@@ -861,18 +857,20 @@ var Deepviz = function(sources, callback){
 		.style('fill', '#000')
 		.text('1')
 
-		// add the Y gridlines
+		// add the Y gridline
+		timechartyGrid = d3.axisLeft(scale.timechart.y1)
+			.ticks(4)
+			.tickSize(-width)
+			.tickFormat("")
+
 		gridlines.append("g")			
 		.attr("class", "grid")
-		.call(make_y_gridlines()
-			.tickSize(-width_new)
-			.tickFormat("")
-			);
+		.attr('id', 'timechartyGrid')
+		.call(timechartyGrid);
 
-		// gridlines in y axis function
-		function make_y_gridlines() {		
-			return d3.axisLeft(scale.timechart.y1).ticks(5);
-		}
+		d3.select('#timechartyGrid')
+		.transition()
+		.call(timechartyGrid);
 
 		// x-axis 
 		var xAxisObj = svgBg.append("g")
@@ -972,8 +970,8 @@ var Deepviz = function(sources, callback){
 
 		})
 		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d[options.dataKey]);} return "translate(" + scale.timechart.x(d[options.dataKey]) + ",0)"; });
-
-		var dy;
+		
+		var yArray = [];
 
 		// individual bars
 		var individualBars = bars.selectAll('.bar')
@@ -1010,16 +1008,12 @@ var Deepviz = function(sources, callback){
 			// return scale.timechart.x(d[options.dataKey])
 		})
 		.attr("y", function(d,i) { 
-
-			if((i>0)&&(bars.data()[i-1])){
-				var prevY = bars.data()[i-1].y;
+			if(i>0){
+				yArray[i] = yArray[i-1] + d;
 			} else {
-				var prevY = 0;
+				yArray[i] = d;
 			}
-			if(bars.data()[i]){
-				bars.data()[i].y = d + prevY;
-			}
-			return scale.timechart.y1(d + prevY); 
+			return scale.timechart.y1(yArray[i]); 
 		})
 		.attr("height", function(d,i) { 
 			return timechartHeight2-scale.timechart.y1(d); 
@@ -2423,8 +2417,6 @@ var Deepviz = function(sources, callback){
 	//**************************
 	var filter = function(filterClass, value){
 
-		console.log('filter');
-
 		if(filterClass=='clear'){
 			filters.sector = [];
 			filters.severity = [];
@@ -2669,9 +2661,49 @@ var Deepviz = function(sources, callback){
 
 		refreshData();
 
+		scale.timechart.y1 = d3.scaleLinear()
+		.range([timechartHeight2, 0])
+		.domain([0, rounder(maxValue)]);
+
+		timechartyAxis = d3.axisLeft()
+		.scale(scale.timechart.y1)
+		.ticks(4)
+		.tickSize(0)
+		.tickPadding(8);
+
+		// .style('font-size', options.yAxis.font.values.size);
+
+		d3.select("#timechartyAxis")
+		.transition()
+		.call(timechartyAxis);
+
+		// var yAxis = d3.axisLeft()
+		// .scale(scale.timechart.y1)
+		// .ticks(4)
+		// .tickSize(0)
+		// .tickPadding(8);
+
+		timechartyGrid = d3.axisLeft(scale.timechart.y1)
+			.tickSize(-width)
+			.ticks(4)
+			.tickFormat("")
+
+		d3.select('#timechartyGrid')
+		.transition()
+		.call(timechartyGrid);
+
+		// // add the Y gridlines
+		// gridlines.append("g")			
+		// .attr("class", "grid")
+		// .call(d3.axisLeft(scale.timechart.y1).ticks(5)
+		// 	.tickSize(-width_new)
+		// 	.tickFormat("")
+		// );
+
 		// update bars
 		// bar groups
 		var bars = d3.selectAll(".barGroup");
+
 
 		bars.each(function(d,i){
 
@@ -2687,6 +2719,8 @@ var Deepviz = function(sources, callback){
 
 			if(dD){
 
+				var yArray = [];
+
 				var iBars = group.selectAll('.bar' )
 				.style('fill', function(d,i){
 					if(filters.toggle=='severity'){
@@ -2700,19 +2734,12 @@ var Deepviz = function(sources, callback){
 					return timechartHeight2-scale.timechart.y1(dD[filters.toggle][i]); 
 				})
 				.attr("y", function(d,i) { 
-					var d = dD[filters.toggle][i];
-					if((i>0)&&(bars.data()[i-1])){
-						var prevY = bars.data()[i-1].y;
+					if(i>0){
+						yArray[i] = yArray[i-1] + dD[filters.toggle][i];
 					} else {
-						var prevY = 0;
+						yArray[i] = dD[filters.toggle][i];
 					}
-
-					if(bars.data()[i]){
-						bars.data()[i].y = d + prevY;
-					}
-
-					return scale.timechart.y1(d + prevY);
-
+					return scale.timechart.y1(yArray[i]); 
 				});
 
 				eventDrops.transition().duration(500)
