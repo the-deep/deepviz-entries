@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date('2019-02-01');
+	var minDate = new Date('2018-01-01');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -27,6 +27,8 @@ var Deepviz = function(sources, callback){
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
 	var data; // active dataset after filters applied
 	var dataByDate;
+	var dataByMonth;
+	var dataByYear;
 	var dataByLocation;
 	var dataByLocationSum;
 	var dataByContext;
@@ -42,8 +44,9 @@ var Deepviz = function(sources, callback){
 
 	// timechart variables
 	var width = 1300;
-	var margin = {top: 18, right: 17, bottom: 0, left: 25};
+	var margin = {top: 18, right: 17, bottom: 0, left: 37};
 	var timechartHeight = 380;
+	var timechartHeight2 = 380;
 	var timechartHeightOriginal = timechartHeight;
 	var timechartSvgHeight = 900;
 	var brush;
@@ -137,6 +140,13 @@ var Deepviz = function(sources, callback){
 		// convert date strings into js date objects
 		data.forEach(function(d,i){
 			d.date = new Date(d.date);
+			d.month = new Date(d.date);
+			d.month.setHours(0,0,0,0);
+			d.month.setDate(1);
+			d.year = new Date(d.date);
+			d.year.setHours(0,0,0,0);
+			d.year.setDate(1);
+			d.year.setMonth(0);
 		});
 
 		// TEMPORARY for testing - filter data before minDate
@@ -158,6 +168,8 @@ var Deepviz = function(sources, callback){
 		maxDate.setHours(0);
 		maxDate.setMinutes(0);
 
+		dateRange[1] = maxDate;
+		
 		// define minimum date 
 		minDate = new Date(d3.min(data, function(d){
 			return d.date;
@@ -177,6 +189,11 @@ var Deepviz = function(sources, callback){
 			return d.value;
 		});
 
+		dataByMonth = d3.nest()
+		.key(function(d) { return d.date.getMonth();})
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(data);
+
 		// define maximum location value
 		dataByLocation = d3.nest()
 		.key(function(d) { return d.geo;})
@@ -186,24 +203,6 @@ var Deepviz = function(sources, callback){
 		maxMapBubbleValue = d3.max(dataByLocation, function(d) {
 			return d.value;
 		});
-
-		// define maximum context value
-		dataByContext = d3.nest()
-		.key(function(d) { return d.date;})
-		.key(function(d) { return d.context;})
-		.rollup(function(leaves) { return leaves.length; })
-		.entries(data);
-
-		maxContextValue = d3.max(dataByContext, function(d) {
-			var m = d3.max(d.values, function(d) {
-				return d.value;
-			})
-			return m;
-		});
-
-		scale.eventdrop = d3.scaleLinear()
-			.range([0,12])
-			.domain([0,maxContextValue]);// 
 
 	    // define timechart X scale
 		dateIndex = data.map(function(d) { return d['date']; });
@@ -236,13 +235,41 @@ var Deepviz = function(sources, callback){
 		.key(function(d) { return d.date;})
 		.key(function(d) { return d.severity; })
 		.rollup(function(leaves) { return leaves.length; })
-		.entries(data);
+		.entries(data);	
 
 		var dateByReliability = d3.nest()
 		.key(function(d) { return d.date;})
 		.key(function(d) { return d.reliability; })
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(data);
+
+		if(filters.time=='m'){
+			dataByDate = d3.nest()
+			.key(function(d) { return d.month;})
+			.key(function(d) { return d.severity; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(data);			
+
+			var dateByReliability = d3.nest()
+			.key(function(d) { return d.month;})
+			.key(function(d) { return d.reliability; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(data);
+		}
+
+		if(filters.time=='y'){
+			dataByDate = d3.nest()
+			.key(function(d) { return d.year;})
+			.key(function(d) { return d.severity; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(data);			
+
+			var dateByReliability = d3.nest()
+			.key(function(d) { return d.year;})
+			.key(function(d) { return d.reliability; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(data);
+		}
 
 		dataByFramework = [];
 		dataByAffectedGroups = [];
@@ -260,11 +287,11 @@ var Deepviz = function(sources, callback){
 			});
 
 			d.geo.forEach(function(dd,ii){
-				dataByLocationArray.push({"date": d.date, "geo": dd})
+				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd})
 			});
 
 			d.context.forEach(function(dd,ii){
-				dataByContextArray.push({"date": d.date, "context": dd})
+				dataByContextArray.push({"date": d.date, "month": d.month, "year": d.year, "context": dd})
 			});
 
 			d.special_needs.forEach(function(dd,ii){
@@ -289,7 +316,37 @@ var Deepviz = function(sources, callback){
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(dataByContextArray);
 
-maxContextValue = d3.max(dataByContext, function(d) {
+		if(filters.time=='m'){
+
+			dataByLocation = d3.nest()
+			.key(function(d) { return d.month;})
+			.key(function(d) { return d.geo; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(dataByLocationArray);
+
+			dataByContext = d3.nest()
+			.key(function(d) { return d.month;})
+			.key(function(d) { return d.context; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(dataByContextArray);
+		}
+
+		if(filters.time=='y'){
+
+			dataByLocation = d3.nest()
+			.key(function(d) { return d.year;})
+			.key(function(d) { return d.geo; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(dataByLocationArray);
+
+			dataByContext = d3.nest()
+			.key(function(d) { return d.year;})
+			.key(function(d) { return d.context; })
+			.rollup(function(leaves) { return leaves.length; })
+			.entries(dataByContextArray);
+		}
+
+		maxContextValue = d3.max(dataByContext, function(d) {
 			var m = d3.max(d.values, function(d) {
 				return d.value;
 			})
@@ -299,7 +356,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		scale.eventdrop = d3.scaleLinear()
 			.range([0,12])
 			.domain([0,maxContextValue]);// 
-
 
 		// dataByAffectedGroups = d3.nest()
 		// .key(function(d) { return d.date;})
@@ -605,28 +661,67 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.append('g')
 		.attr("transform", "translate(0,0)");
 
-		width = width - (margin.right + margin.left);
-		timechartHeight = timechartHeight - (margin.top + margin.bottom);
 
-		// get number of days between dates
-		var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-		var diffDays = Math.round(Math.abs((maxDate.getTime() - minDate.getTime()) / (oneDay)));
+		var width_new = width - (margin.right + margin.left);
+		timechartHeight2 = timechartHeight - (margin.top + margin.bottom);
 
-		barWidth = (width/diffDays)*.9;
+		maxValue = d3.max(dataByDate, function(d) {
+			return d.total_entries;
+		});
+
+		// define maximum date 
+		maxDate = new Date(d3.max(data, function(d){
+			return d.date;
+		}));
+
+		maxDate.setHours(0);
+		maxDate.setMinutes(0);
+		
+		// define minimum date 
+		minDate = new Date(d3.min(data, function(d){
+			return d.date;
+		}));
+
+		minDate.setHours(0);
+		minDate.setMinutes(0);
+
+		if(filters.time=='d'){
+			maxDate.setDate(maxDate.getDate() + 1);
+			minDate.setDate(minDate.getDate());
+			dateRange[1] = maxDate;
+		}
+
+		if(filters.time=='m'){
+			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
+			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+			dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
+			dateRange[1] = maxDate;
+		}
+
+		if(filters.time=='y'){
+			maxDate = new Date(maxDate.getFullYear()+1, 0, -1);
+			minDate = new Date(minDate.getFullYear(), 0, 1);
+			dateRange[0] = new Date(maxDate.getFullYear(), 0, 1);;
+			dateRange[1] = maxDate;
+		}
+
+		scale.timechart.x.domain([minDate, maxDate]);
+
+		barWidth = (width_new/1)*.9;
 
 		var svgBg = svg.append('g');
 
 		svgBg.append('rect')
 		.attr('x',margin.left)
 		.attr('y',margin.top)
-		.attr('width',width)
-		.attr('height',timechartHeight)
+		.attr('width',width_new)
+		.attr('height',timechartHeight2)
 		.attr('opacity',0);
 
 		var gridlines = svg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 		var svgChart = svg.append('g').attr('id', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
-		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+(margin.left+0)+','+(timechartHeight+margin.top+5)+')');
+		var svgAxisBtns = svg.append('g').attr('id', 'svgAxisBtns').attr('transform', 'translate('+(margin.left+0)+','+(timechartHeight2+margin.top+5)+')');
 
 		// create average svg
 		var timechartLegend = this.createSvg({
@@ -684,18 +779,26 @@ maxContextValue = d3.max(dataByContext, function(d) {
 	    .tickSize(0)
 	    .tickPadding(10)
 	    .ticks(d3.timeMonth.every(1))
-	    .tickFormat(d3.timeFormat("%b %Y"));
+
+    	if(filters.time=='y'){
+    		xAxis.ticks(d3.timeYear.every(1))
+		    .tickFormat(d3.timeFormat("%Y"));
+
+    	} else {
+    		xAxis.ticks(d3.timeMonth.every(1))
+		    .tickFormat(d3.timeFormat("%b %Y"));
+    	}
 
 	    //**************************
 	    // Y AXIS left
 	    //**************************
 		scale.timechart.y1 = d3.scaleLinear()
-		.range([timechartHeight, 0])
+		.range([timechartHeight2, 0])
 		.domain([0, (maxValue)]);
 
 		if(options.maxValue=='round'){
 			scale.timechart.y1 = d3.scaleLinear()
-			.range([timechartHeight, 0])
+			.range([timechartHeight2, 0])
 			.domain([0, rounder(maxValue)]);
 		}
 
@@ -718,7 +821,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		// define y-axis secondary
 		scale.trendline.y = d3.scaleLinear()
-		.range([(timechartHeight), 0])
+		.range([(timechartHeight2), 0])
 		.domain([1, 5]);
 
 		var yAxis2 = d3.axisRight()
@@ -729,14 +832,14 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 		var yAxisText2 = svgBg.append("g")
 		.attr("class", "yAxis axis")
-		.attr('transform', 'translate('+(width + margin.left-1)+','+margin.top+')')
+		.attr('transform', 'translate('+(width_new + margin.left-1)+','+margin.top+')')
 		.call(yAxis2)
 		.style('font-size', options.yAxis.font.values.size);
 
 		yAxisText2
 		.append("text")
 		.attr('class','axisLabel0')
-		.attr("y", timechartHeight+4)
+		.attr("y", timechartHeight2+4)
 		.attr("x", 8)
 		.style('font-weight','normal')
 		.style('font-size', '15px')
@@ -747,7 +850,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		gridlines.append("g")			
 		.attr("class", "grid")
 		.call(make_y_gridlines()
-			.tickSize(-width)
+			.tickSize(-width_new)
 			.tickFormat("")
 			);
 
@@ -759,7 +862,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		// x-axis 
 		var xAxisObj = svgBg.append("g")
 		.attr("class", "xAxis axis")
-		.attr("transform", "translate(" + margin.left + "," + (timechartHeight + margin.top +0) + ")")
+		.attr("transform", "translate(" + margin.left + "," + (timechartHeight2 + margin.top +0) + ")")
 		.call(xAxis)
 		.style('font-size', '16px')
 		.style('font-weight', options.xAxis.font.values.weight)
@@ -777,15 +880,15 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		.attr('x1', 0)
 		.attr('x2', 0)
 		.attr('y1', 0)
-		.attr('y2', timechartHeight+margin.top+1)
+		.attr('y2', timechartHeight2+margin.top+1)
 
 		xAxisObj.selectAll(".tick")
 		.append('line')
 		.attr('class', 'xAxisHorizontalLine')
 		.attr('x1', 0)
 		.attr('x2', 0)
-		.attr('y1', -timechartHeight)
-		.attr('y2', timechartSvgHeight-timechartHeight-35)
+		.attr('y1', -timechartHeight2)
+		.attr('y2', timechartSvgHeight-timechartHeight2-35)
 
 		// add the axis buttons
 		xAxisObj.selectAll(".tick").each(function(d,i){
@@ -803,7 +906,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 					tick.style('color', colorNeutral[4]);
 				} else { 
 					tick.style('color', colorNeutral[4]);
-
 				}
 			})
 			.on('mouseout', function(){
@@ -812,7 +914,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			.on('click', function(){
 				dateRange[0] = d;
 				dateRange[1] = new Date(d.getFullYear(), d.getMonth()+1, 1);
-
 			    // programattically set date range
 			    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 			})
@@ -834,7 +935,28 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return 'date'+dt.getTime();
 		})
 		.attr("class", "barGroup")
-		.attr("transform", function(d) { return "translate(" + scale.timechart.x(d[options.dataKey]) + ",0)"; });
+		.attr('data-width', function(d,i) { 
+
+			if(filters.time=='y'){
+				var date = new Date(d[options.dataKey]);
+				var endYear = new Date(date.getFullYear(), 11, 31);
+				return scale.timechart.x(endYear) - scale.timechart.x(d[options.dataKey]);   		
+			}
+
+			if(filters.time=='m'){
+				var date = new Date(d[options.dataKey]);
+				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
+				return scale.timechart.x(endMonth) - scale.timechart.x(d[options.dataKey]);   		
+			}
+
+			if(filters.time=='d'){
+				var date = new Date(d[options.dataKey]);
+				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
+				return scale.timechart.x(endDate) - scale.timechart.x(d[options.dataKey]);   		
+			}	
+
+		})
+		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d[options.dataKey]);} return "translate(" + scale.timechart.x(d[options.dataKey]) + ",0)"; });
 
 		var dy;
 
@@ -852,14 +974,29 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return colorPrimary[i];
 		})
 		.attr("x", function(d,i) { 
-			return (width/diffDays)*.05;
+			var w = d3.select(this.parentNode).attr('data-width');
+			barWidth = w;
+			if(filters.time=='m'){
+				return w*0.1
+			}
+			if(filters.time=='y'){
+				return w*0.2
+			}
 		})
 		.attr("width", function(d,i) { 
-			return (barWidth*1)-1;
+			var w = d3.select(this.parentNode).attr('data-width');
+			if(filters.time=='m'){
+				w=w*0.8
+			}
+			if(filters.time=='y'){
+				w=w*0.6
+			}
+			return w-1;
+			// return scale.timechart.x(d[options.dataKey])
 		})
 		.attr("y", function(d,i) { 
 
-			if(i>0){
+			if((i>0)&&(bars.data()[i-1])){
 				var prevY = bars.data()[i-1].y;
 			} else {
 				var prevY = 0;
@@ -870,7 +1007,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			return scale.timechart.y1(d + prevY); 
 		})
 		.attr("height", function(d,i) { 
-			return timechartHeight-scale.timechart.y1(d); 
+			return timechartHeight2-scale.timechart.y1(d); 
 		})
 		.on('mouseover', function(){
 			d3.select(this).style('fill-opacity', options.fillOpacity - 0.05)
@@ -1013,13 +1150,25 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
 			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
 
-			console.log('update data to new time grouping: '+ v);
+			redrawTimeline();
 		})
 
 		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
 		//**************************
 		// event drops
 		//**************************
+
+		maxContextValue = d3.max(dataByContext, function(d) {
+			var m = d3.max(d.values, function(d) {
+				return d.value;
+			})
+			return m;
+		});
+
+		scale.eventdrop = d3.scaleLinear()
+			.range([0,12])
+			.domain([0,maxContextValue]);// 
+
 
 		// event mask groups (to be used for event drop grey brush mask)
 		var eventDropGroup = bars.append('g')
@@ -1034,10 +1183,12 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				return scale.eventdrop(d);
 			})
 			.attr('cx', function(d,i){
-				return barWidth/2;
+				// return barWidth/2;
+				var w = d3.select(this.parentNode.parentNode).attr('data-width');
+				return (w/2);
 			})
 			.attr('cy', function(d,i){
-				return timechartHeight + (contextualRowHeight*(i+1))+7;
+				return timechartHeight2 + (contextualRowHeight*(i+1))+7;
 			})
 			.style('fill', colorNeutral[3]);
 
@@ -1046,7 +1197,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		//**************************
 	    // initialise the brush
 	    brush = d3.brushX()
-		    .extent([[0, -margin.top], [width, timechartSvgHeight-(margin.top+margin.bottom)]])
+		    .extent([[0, -margin.top], [width_new, timechartSvgHeight-(margin.top+margin.bottom)]])
 	        .on("brush", brushed)
 	        .on("start", brush);
 
@@ -1126,12 +1277,27 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			d3.select('.selection').style('fill-opacity',0.03);
 
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
-			var d1 = d0.map(d3.timeDay.round);
-
-			// If empty when rounded, use floor instead.
-			if (d1[0] >= d1[1]) {
-				d1[0] = d3.timeDay.floor(d0[0]);
-				d1[1] = d3.timeDay.offset(d1[0]);
+			if(filters.time=='d'){
+				var d1 = d0.map(d3.timeDay.round);
+				// If empty when rounded, use floor instead.
+				if (d1[0] >= d1[1]) {
+					d1[0] = d3.timeDay.floor(d0[0]);
+					d1[1] = d3.timeDay.offset(d1[0]);
+				}
+			}
+			if(filters.time=='m'){
+				var d1 = d0.map(d3.timeMonth.round);
+				if (d1[0] >= d1[1]) {
+					d1[0] = d3.timeMonth.floor(d0[0]);
+					d1[1] = d3.timeMonth.offset(d1[0]);
+				}
+			}
+			if(filters.time=='y'){
+				var d1 = d0.map(d3.timeYear.round);
+				if (d1[0] >= d1[1]) {
+					d1[0] = d3.timeYear.floor(d0[0]);
+					d1[1] = d3.timeYear.offset(d1[0]);
+				}
 			}
 
 			dateRange = d1;
@@ -1161,7 +1327,15 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			// updateSeverityReliability(dateRange,chartdata,'brush');
 
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
-			var d1 = d0.map(d3.timeDay.round);
+			if(filters.time=='d'){
+				var d1 = d0.map(d3.timeDay.round);
+			}
+			if(filters.time=='m'){
+				var d1 = d0.map(d3.timeMonth.round);
+			}
+			if(filters.time=='y'){
+				var d1 = d0.map(d3.timeYear.round);
+			}
 
 			// If empty when rounded, use floor instead.
 			if (d1[0] >= d1[1]) {
@@ -2373,8 +2547,104 @@ maxContextValue = d3.max(dataByContext, function(d) {
 
 	}
 
+	//**************************
+	// redraw timeline
+	//**************************
+	var redrawTimeline = function(){
+		d3.select('#timeline .vizlibResponsiveDiv').remove();
+		d3.select('#timechart-legend .vizlibResponsiveDiv').remove();
+
+		refreshData();
+
+		// create svg
+		var timelineSvg = Deepviz.createSvg({
+			id: 'timeline_viz',
+			viewBoxWidth: 1300,
+			viewBoxHeight: 900,
+			div: '#timeline'
+		});
+
+		var timeChart = Deepviz.timeChart({
+			appendTo: timelineSvg,
+			id: 'timeChart',
+			opacity: 1,
+			gutter: 0.5,
+			width: 1300,
+			color: ['#0033A0'],
+			maxValue: 'round', // integerValue (force define the maximum), 'auto' (find the maximum value in the data), 'round' (pretty rounding based on maximum value in the data)
+			paddingLeft: 0,
+			paddingTop: 0,
+			offsetX: 1,
+			offsetY: 0,
+
+			yAxis: {
+				enabled: true,
+				label: '',
+				gridlines: {
+					enabled: true,
+					stroke: '#A7A7A7',
+					strokeWidth: 1,
+					opacity: 1,
+					dotted: true
+				},
+				font: {
+					values: {
+						size: '15px',
+						weight: 'bold',
+						padding: 0
+					},
+					label: {
+						size: '14px',
+						weight: 'bold',
+						padding: 10
+					}
+				}
+			},
+			xAxis: {
+				enabled: true,
+				label: 'Date',
+				gridlines: {
+					enabled: true,
+					stroke: 'grey',
+					strokeWidth: 1,
+					opacity: 1
+				},
+				font: {
+					values: {
+						size: '14px',
+						weight: 'bold',
+					},
+					label: {
+						size: '14px',
+						weight: 'bold',
+					}
+				}
+			},
+			font: {
+				title: {
+					size: '20px',
+					weight: 'bold'
+				},
+				subtitle: {
+					size: '12px',
+					weight: 'normal'
+				},
+			},
+			legend: {
+				enabled: false,
+				position: 'top'
+			},
+			dateBrush: true,
+			dataValues: 'total_entries',
+			dataKey: 'key',
+			// sliderUpdate: function(a,b){
+			// 	sliderUpdate(a,b);
+			// },
+			frame: [1]
+		});
 
 
+	}
 
 	//**************************
 	// get the data
@@ -2384,7 +2654,6 @@ maxContextValue = d3.max(dataByContext, function(d) {
 		refreshData();
 
 		// update bars
-
 		// bar groups
 		var bars = d3.selectAll(".barGroup");
 
@@ -2412,11 +2681,11 @@ maxContextValue = d3.max(dataByContext, function(d) {
 				})
 				.transition().duration(500)
 				.attr("height", function(d,i) {
-					return timechartHeight-scale.timechart.y1(dD[filters.toggle][i]); 
+					return timechartHeight2-scale.timechart.y1(dD[filters.toggle][i]); 
 				})
 				.attr("y", function(d,i) { 
 					var d = dD[filters.toggle][i];
-					if(i>0){
+					if((i>0)&&(bars.data()[i-1])){
 						var prevY = bars.data()[i-1].y;
 					} else {
 						var prevY = 0;
@@ -2439,8 +2708,7 @@ maxContextValue = d3.max(dataByContext, function(d) {
 			} else {
 
 				group.selectAll('.bar').transition("h").duration(0).attr('height',0);
-				group.selectAll('.bar').transition().duration(500).attr('y',timechartHeight).attr('height',0);
-
+				group.selectAll('.bar').transition().duration(500).attr('y',timechartHeight2).attr('height',0);
 				eventDrops.transition().duration(750)
 				.attr('r', 0)
 			}

@@ -768,9 +768,8 @@ svg text {
 }
 
 .xAxisHorizontalLine {
-	stroke: #2D2E2E;
+	stroke: #DADADA;
 	stroke-dasharray: 1 1; 
-	stroke-opacity: .5;
 }
 
 .clearfix {
