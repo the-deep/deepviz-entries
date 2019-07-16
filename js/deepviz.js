@@ -48,8 +48,8 @@ var Deepviz = function(sources, callback){
 	var timechartyGrids;
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 37};
-	var timechartHeight = 380;
-	var timechartHeight2 = 380;
+	var timechartHeight = 390;
+	var timechartHeight2 = timechartHeight;
 	var timechartHeightOriginal = timechartHeight;
 	var timechartSvgHeight = 900;
 	var brush;
@@ -887,7 +887,7 @@ var Deepviz = function(sources, callback){
 		.style('stroke-width', 1);
 
 		xAxisObj.selectAll(".tick line, text")
-		.attr("transform", "translate(" +42 + ", 3)")
+		.attr("transform", "translate(" + 40 + ", 3)")
 		.append('line')
 		.attr('class', 'xAxisHorizontalLine')
 		.attr('x1', 0)
@@ -1664,17 +1664,17 @@ var Deepviz = function(sources, callback){
 		.attr('x2', frameworkWidth)
 		.attr('y1', -20)
 		.attr('y2', -20)
-		.style('stroke', '#727271')
+		.attr('class', 'framework-domain')
 		.style('stroke-width', '1px');
 
 		var bottomLine = frameworkSvg
 		.append('line')
 		.style('opacity', 1)
+		.attr('class', 'framework-domain')
 		.attr('x1', 0)
 		.attr('x2', frameworkWidth)
 		.attr('y1', frameworkHeight+5)
 		.attr('y2', frameworkHeight+5)
-		.style('stroke', '#727271')
 		.style('stroke-width', '2px');
 
 		// hSel.append('rect')

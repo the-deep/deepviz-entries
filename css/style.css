@@ -821,6 +821,13 @@ font-size: 15px;
 	stroke-opacity: 1;
 }
 
+.domain {
+	stroke: #9D9D9D !important;
+}
+
+.framework-domain {
+	stroke: #CCCCCC !important;
+}
 
 #footerRow {
 	margin-top: 20px;
