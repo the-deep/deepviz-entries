@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date('2018-01-01');
+	var minDate = new Date('2017-01-01');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -704,6 +704,7 @@ var Deepviz = function(sources, callback){
 				minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 				maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 				if(dateRange[1]>maxDate)dateRange[1]=maxDate;
+				if(dateRange[0]<minDate)dateRange[0]=minDate;
 			}				
 		}
 
@@ -711,17 +712,17 @@ var Deepviz = function(sources, callback){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 			dateRange[0] = new Date(dateRange[0].getFullYear(), dateRange[0].getMonth(), 1);
-			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth()+1, 1);
-
+			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth(), 1);
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
 			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
 		}
 
 		if(filters.time=='y'){
-			maxDate = new Date(maxDate.getFullYear()+1, 0, -1);
+			maxDate = new Date(maxDate.getFullYear(),12, -1);
 			minDate = new Date(minDate.getFullYear(), 0, 1);
+			 dateRange[1].setDate(dateRange[1].getDate()-1);
 			dateRange[0] = new Date(dateRange[0].getFullYear(), 0, 1);;
-			dateRange[1] = new Date(dateRange[1].getFullYear()+1, 0, -1);
+			dateRange[1] = new Date(dateRange[1].getFullYear()+1, 0, 1);
 		}
 
 		scale.timechart.x.domain([minDate, maxDate]);
@@ -1172,10 +1173,12 @@ var Deepviz = function(sources, callback){
 		}).on('click', function(d,i){
 			var id = d3.select(this).attr('id');
 			var v = id.substr(-1);
+			if(v!=filters.time){
+				redrawTimeline();
+			}
 			filters.time = v;
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
 			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
-			redrawTimeline();
 		})
 
 		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
@@ -1236,10 +1239,11 @@ var Deepviz = function(sources, callback){
 		// hover effect on overlay
 		d3.select('.selection')
 		.on('mouseover', function(){
-			d3.select('.selection').style('fill-opacity',0.05).style('fill', colorNeutral[2]);
+			// d3.select('.selection').style('fill-opacity',0.1).style('fill', colorNeutral[2]);
 		})
 		.on('mouseout', function(){
-			d3.select(this).style('fill-opacity',0.03);
+			// d3.select(this).style('fill-opacity',0.03);
+			// d3.select('.selection').style('fill','#FFF');
 		})
 
 	    d3.selectAll('.handle rect').attr('fill-opacity', '1').style('visibility', 'visible').attr('width', 2).attr('fill', '#000').style('stroke-opacity', 0);
@@ -1299,7 +1303,7 @@ var Deepviz = function(sources, callback){
 			if(!d3.event.sourceEvent) return;
 			if(d3.event.sourceEvent.type === "brush") return;
 
-			d3.select('.selection').style('fill-opacity',0.03);
+			// d3.select('.selection').style('fill','green');
 
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
 			if(filters.time=='d'){
@@ -1349,6 +1353,9 @@ var Deepviz = function(sources, callback){
 			if(!d3.event.sourceEvent) return;
 			if(d3.event.sourceEvent.type === "brush") return;
 
+			// d3.select('.selection').style('fill-opacity',0.1).style('fill', colorNeutral[2]);
+			// d3.select('.selection').style('fill','#FFF');
+
 			// updateSeverityReliability(dateRange,chartdata,'brush');
 
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
@@ -1376,7 +1383,7 @@ var Deepviz = function(sources, callback){
 		}
 
 		d3.select('#chartarea').transition().duration(1000).style('opacity', 1);
-		d3.select('#avg-line').transition().duration(1000).style('opacity', 1);
+		d3.select('#avg-line').transition().duration(500).style('opacity', 1);
 
 		colorBars();
 		updateDate();
@@ -2582,8 +2589,8 @@ var Deepviz = function(sources, callback){
 
 		refreshData();
 
-		d3.select('#avg-line').transition().duration(500).style('opacity', 0)
-		d3.select('#chartarea').transition().duration(500).style('opacity', 0)
+		d3.select('#avg-line').transition().duration(200).style('opacity', 0)
+		d3.select('#chartarea').transition().duration(200).style('opacity', 0)
 		.on("end", function(){
 			d3.select('#timeline .vizlibResponsiveDiv').remove();
 			d3.select('#timechart-legend .vizlibResponsiveDiv').remove();		

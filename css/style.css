@@ -731,9 +731,13 @@ font-size: 15px;
 }
 
 .selection {
-	fill-opacity: 0.01;
-	filter: grayscale(50%);
+	fill-opacity: 0.066;
 	stroke-opacity: 0;
+	fill: #36BBA6;
+}
+
+.selection:hover {
+	/*fill: green !important;*/
 }
 
 #eventDrop {
