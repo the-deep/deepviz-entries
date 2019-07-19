@@ -109,7 +109,7 @@ var Deepviz = function(sources, callback){
 	  .interpolator(d3.interpolateReds);
 
 	// stacked bar charts (sector, affected groups, special needs groups)
-	var rowHeight = 36;
+	var stackedBarHeight = 480;
 	//**************************
 	// load data
 	//**************************
@@ -1950,11 +1950,14 @@ var Deepviz = function(sources, callback){
 		var svg = this.createSvg({
 			id: a.div+'-svg',
 			viewBoxWidth: a.width,
-			viewBoxHeight: rowHeight*a.rows.length+padding.top,
+			viewBoxHeight: stackedBarHeight,
 			div: '#'+a.div,
 			width: '100%'
 		});
 
+		var height = stackedBarHeight - padding.top;
+
+		var rowHeight = height/a.rows.length;
 		// add title
 		var title = svg.append('g')
 		.attr('transform', 'translate(0,0)');

@@ -31,7 +31,8 @@ svg text {
 }
 
 #main-content {
-	padding-top: 73px
+	padding-top: 73px;
+	padding-bottom: 0px;
 }
 
 
