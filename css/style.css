@@ -138,20 +138,6 @@ svg text {
 	#top-row {
 		width: 97% !important;
 	}
-
-	#frameworkRemoveFilter {
-		height: 13px !important;
-		top: 12px !important;
-		left: -1px !important;
-	}
-
-	#scRemoveFilter,
-	#snRemoveFilter,
-	#agRemoveFilter {
-		height: 13px !important;
-
-	}
-
 }
 
 @media only screen and (max-width: 970px) {
@@ -215,19 +201,6 @@ svg text {
 		top: 13px !important;
 	}
 
-	#frameworkRemoveFilter {
-		top: 9px !important;
-		left: -13px !important;
-	}
-
-	#scRemoveFilter,
-	#snRemoveFilter,
-	#agRemoveFilter,
-	#frameworkRemoveFilter {
-		height: 12px !important;
-		
-	}
-
 }
 
 
@@ -257,10 +230,6 @@ svg text {
 
 	#top-row {
 		width: 97% !important;
-	}
-
-	#frameworkRemoveFilter {
-		left: -307px !important;
 	}
 
 	#globalRemoveFilter {
@@ -565,35 +534,15 @@ font-size: 15px;
 }
 
 #reliabilityRemoveFilter,
-#frameworkRemoveFilter,
-#agRemoveFilter,
-#scRemoveFilter,
-#snRemoveFilter,
 #severityRemoveFilter {
 	height: 14px;
 	padding-left: 3px;
 	display: none;
 }
 
-#agRemoveFilter,
-#scRemoveFilter,
-#snRemoveFilter {
-	position: relative;
-	top: 3px;
-}
-
 #reliabilityRemoveFilter:hover,
 #severityRemoveFilter:hover {
 
-}
-
-#frameworkRemoveFilter {
-	position: absolute;
-	top: 13px;
-	left: 1px;
-	z-index: 10;
-    margin-left: 139px;
-    margin-top: 6px;
 }
 
 #severity {
@@ -669,6 +618,7 @@ font-size: 15px;
 	font-size: 13px;
 	font-weight: bold;
 	display: inline;
+	white-space: nowrap;
 }
 
 .subtitle {
@@ -805,17 +755,11 @@ font-size: 15px;
 }
 
 #framework-toggle-switch {
-	position: relative;
-	top: 18px;
-	left: 170px;
-
+	cursor: pointer;
 }
 
 #framework-toggle {
-    left: 14%;
-    position: relative;
-    top: 17px;
-    cursor: pointer;
+
 }
 
 #framework-chart svg .frameworkColHeader text {
@@ -845,6 +789,7 @@ font-size: 15px;
 .footerCol {
 	width: 33%;
 	display: inline-grid;
+	vertical-align: top;
 }
 
 .col-content {

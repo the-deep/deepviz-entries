@@ -56,6 +56,7 @@ var Deepviz = function(sources, callback){
 	var gBrush; 
 	var barWidth;
 	var numContextualRows = 6;
+	var frameworkToggleImg;
 
 	// severity / reliability charts
 	var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
@@ -128,6 +129,10 @@ var Deepviz = function(sources, callback){
 			promises.push(d3.csv(url));			
 		};
 
+		if(url.endsWith('svg')){
+			promises.push(d3.xml(url));			
+		};
+
 	});
 
 	// after all data has been loaded
@@ -139,6 +144,7 @@ var Deepviz = function(sources, callback){
 		// return the data
 		data = values[0].deep.data;
 		metadata = values[0].deep.meta_data;
+		frameworkToggleImg = values[1];
 
 		// convert date strings into js date objects
 		data.forEach(function(d,i){
@@ -1430,6 +1436,63 @@ var Deepviz = function(sources, callback){
 		var layer3 = frameworkSvg.append('g');
 
 		// title
+		var title = frameworkSvg.append('g')
+		.attr('transform', 'translate(0,-2)');
+
+		title
+		.append('text')
+		.attr('x', 0)
+		.attr('y', 20)
+		.style('font-weight', 'bold')
+		.style('font-size', '18px')
+		.style('fill', '#000')
+		.text('SECTORAL FRAMEWORK');
+
+		// add filter icon
+		title.append('image')
+		.attr('id', 'frameworkRemoveFilter')
+		.attr('class', 'removeFilterBtn')
+		.attr('xlink:href', 'images/filter.png')
+		.attr('title', 'Reset filter')
+		.attr('y', 5)
+		.attr('x', title.node().getBBox().width +5 )
+		.attr('height', '17px')
+		.attr('width', '17px');
+
+		// add toggle switch
+		var toggleswitch = title.append('g')
+		.attr('id', 'framework-toggle-switch')
+		.attr('transform', 'translate(277,1)')
+
+		toggleswitch = toggleswitch.append('g').attr('transform', 'scale(0.52)');
+
+		toggleswitch.append('path').attr('d','M164.383333,2.03489404 L164.383333,2 L192.616667,2 L192.616667,2.03489404 C193.041489,2.01173252 193.469368,2 193.9,2 C206.657778,2 217,12.2974508 217,25 C217,37.7025492 206.657778,48 193.9,48 C193.469368,48 193.041489,47.9882675 192.616667,47.965106 L192.616667,48 L164.383333,48 L164.383333,47.965106 C163.958511,47.9882675 163.530632,48 163.1,48 C150.342222,48 140,37.7025492 140,25 C140,12.2974508 150.342222,2 163.1,2 C163.530632,2 163.958511,2.01173252 164.383333,2.03489404 Z')
+		.style('fill', '#FFF')
+		.style('stroke', '777777')
+		.style('stroke-width', '2px');
+
+		toggleswitch.append('circle')
+		.attr('id', 'framework-toggle')
+		.attr('cx', 164)
+		.attr('cy', 25)
+		.attr('r', 20)
+		.style('fill', colorNeutral[3]);
+
+		toggleswitch.append('text')
+		.attr('x', 12)
+		.attr('y', 32)
+		.style('font-size', '24px')
+		.text('# of entries')
+		.style('fill', '#5D5D5D')	;
+
+		toggleswitch.append('text')
+		.attr('x', 230)
+		.attr('y', 32)
+		.attr('id', 'framework-toggle-text')
+		.style('font-size', '24px')
+		.text('average severity')
+		.style('fill', '#5D5D5D')	;
+
 		var columnHeadersBg = frameworkSvg.append('g')
 		.attr('id', 'col-header')
 		.selectAll('.frameworkColHeader')
@@ -1797,23 +1860,27 @@ var Deepviz = function(sources, callback){
 
 		// framework toggle switch
 
-		d3.select('#framework-toggle').on('mouseover', function(d,i){
-			d3.selectAll('#framework-toggle circle').style('stroke', '#000').style('stroke-width', '1px').style('stroke-opacity',.51)
+		d3.select('#framework-toggle-switch').on('mouseover', function(d,i){
+			d3.selectAll('#framework-toggle').style('opacity', .9)
 		}).on('mouseout', function(d,i){
-			d3.selectAll('#framework-toggle circle').style('stroke', '#FFF').style('stroke-width', '0px');
+			d3.selectAll('#framework-toggle').style('opacity', 1)
+
 		}).on('click', function(d,i){
 			if(filters.frameworkToggle=='entries'){
-				d3.select('#toggle0').style('opacity', 0);
-				d3.select('#toggle1').style('opacity', 1);
+				if(filters.toggle == 'severity'){
+					d3.select('#framework-toggle').style('fill', colorPrimary[3]);
+				} else {
+					d3.select('#framework-toggle').style('fill', colorSecondary[3]);
+				}
+				d3.select('#framework-toggle').transition().duration(200).attr('cx', 194);
 				filters.frameworkToggle = 'average';
 			} else {
-				d3.select('#toggle0').style('opacity', 1);
-				d3.select('#toggle1').style('opacity', 0);
+				d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+				d3.select('#framework-toggle').transition().duration(200).attr('cx', 164);
 				filters.frameworkToggle = 'entries';				
 			};
 			updateFramework();
 		});
-
 	}
 
 	//**************************
@@ -1821,41 +1888,75 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.createStackedBarChart = function(a){
 
+		var padding = {left: 20, right: 25, top: 35, bar: {y: 5}};
+
 		// create svg
 		var svg = this.createSvg({
 			id: a.div+'-svg',
 			viewBoxWidth: a.width,
-			viewBoxHeight: rowHeight*a.rows.length,
+			viewBoxHeight: rowHeight*a.rows.length+padding.top,
 			div: '#'+a.div,
 			width: '100%'
 		});
 
-		svg = svg.append('g');
+		// add title
+		var title = svg.append('g')
+		.attr('transform', 'translate(0,0)');
 
-		var rows = svg.selectAll('.stacked-bar-row')
+		title
+		.append('text')
+		.attr('x', 0)
+		.attr('y', 20)
+		.style('font-weight', 'bold')
+		.style('font-size', '23px')
+		.style('fill', '#000')
+		.text(a.title);
+
+		// add filter icon
+		title.append('image')
+		.attr('id', a.classname+'RemoveFilter')
+		.attr('class', 'removeFilterBtn')
+		.attr('xlink:href', 'images/filter.png')
+		.attr('title', 'Reset filter')
+		.attr('y', 1)
+		.attr('x', title.node().getBBox().width +5 )
+		.attr('height', '22px')
+		.attr('width', '22px');
+
+		var chartarea = svg.append('g');
+
+		var rows = chartarea.selectAll('.stacked-bar-row')
 		.data(a.rows)
 		.enter()
 		.append('g')
 		.attr('class', 'stacked-bar-row')
 		.attr('transform', function(d,i){
-			return 'translate(0,' + i*rowHeight + ')';
+			return 'translate(0,' + ((i*rowHeight) + padding.top) + ')';
 		});
 
-		var padding = {left: 20, right: 25, bar: {y: 5}};
-
 		var label = rows.append('text')
-		.attr('y', rowHeight/2)
+		.attr('y', rowHeight/2 )
 		.attr('class', function(d,i){ return a.classname + ' ' + a.classname+'-'+i })
 		.style('alignment-baseline', 'middle')
 		.text(function(d,i){
 			return d.name;
 		}).style('text-anchor', 'end');
 
-		var labelWidth = svg.node().getBBox().width + padding.left;
+		var labelWidth = chartarea.node().getBBox().width + padding.left;
 		label.attr('x', labelWidth-20);
 		labelWidth = labelWidth + 16;
 
+		title.attr('transform', function(d,i){
+			var offset = d3.select(this).node().getBBox().width +35;
+			return 'translate('+(labelWidth-offset)+',0)';
+		})
+
 		var width = a.width - labelWidth - padding.right; 
+
+		// adjust title and filter button spacing
+		console.log(a.classname);
+		// d3.select('#'+a.classname+'Title').style('margin-right', 100-((labelWidth-35)/700)*100+'%').style('text-align', 'left').style('display', 'inline');
+		d3.select('#'+a.classname+'Title').style('text-align', 'left').style('display', 'inline');
 
 		var rowBg = rows.append('rect')
 		.attr('y', 1)
@@ -1929,6 +2030,7 @@ var Deepviz = function(sources, callback){
 	this.createSectorChart = function(options){
 
 		var sectorChart = this.createStackedBarChart({
+			title: 'SECTOR',
 			rows: metadata.sector_array,
 			width: 700,
 			classname: 'sc',
@@ -1943,6 +2045,7 @@ var Deepviz = function(sources, callback){
 	this.createSpecificNeedsChart = function(options){
 
 		var specificNeedsChart = this.createStackedBarChart({
+			title: 'SPECIFIC NEEDS GROUPS',
 			rows: metadata.specific_needs_groups_array,
 			classname: 'sn',
 			width: 700,
@@ -1958,6 +2061,7 @@ var Deepviz = function(sources, callback){
 	this.createAffectedGroupsChart = function(options){
 
 		var affectedGroupsChart = this.createStackedBarChart({
+			title: 'AFFECTED GROUPS',
 			rows: metadata.affected_groups_array,
 			classname: 'ag',
 			width: 700,
@@ -3376,6 +3480,8 @@ var Deepviz = function(sources, callback){
 	//**************************
 	var toggle = function(d){
 
+		d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+
 		if(d != 'severity'){
 			// switch to Reliability
 			d3.select('#reliabilityToggle').style('opacity', 1);
@@ -3395,6 +3501,9 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
 			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 
+			if(filters.frameworkToggle == 'average'){
+				d3.select('#framework-toggle').style('fill', colorSecondary[3])
+			}
 			// update colors of contextual row total values
 			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
 
@@ -3411,6 +3520,10 @@ var Deepviz = function(sources, callback){
 			filters.toggle = 'severity';
 
 			d3.select('#total_entries').style('color',colorNeutral[3]);
+
+			if(filters.frameworkToggle == 'average'){
+				d3.select('#framework-toggle').style('fill', colorPrimary[3]);
+			}
 
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY SEVERITY');
 			d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
@@ -3576,6 +3689,7 @@ var Deepviz = function(sources, callback){
 			index = array.indexOf(elem);
 		}
 	}
+
 
 
 
