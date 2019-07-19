@@ -1229,8 +1229,8 @@ var Deepviz = function(sources, callback){
 	    // initialise the brush
 	    brush = d3.brushX()
 		    .extent([[0, -margin.top], [width_new, timechartSvgHeight-(margin.top+margin.bottom)]])
-	        .on("brush", brushed)
-	        .on("start", brush);
+	        .on("brush", dragging)
+	        .on("start", dragged);
 
 	    // add the selectors
 	    gBrush = svgChart.append("g")
@@ -1300,7 +1300,7 @@ var Deepviz = function(sources, callback){
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 
 	    // function to handle the changes during slider dragging
-	    function brushed() {
+	    function dragging() {
 
 	    	// if not right event then break out of function
 			if(!d3.event.sourceEvent) return;
@@ -1311,25 +1311,30 @@ var Deepviz = function(sources, callback){
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
 			if(filters.time=='d'){
 				var d1 = d0.map(d3.timeDay.round);
-				// If empty when rounded, use floor instead.
+				d1[0] = d3.timeDay.floor(d0[0]);
+				d1[1] = d3.timeDay.ceil(d0[1]);
 				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeDay.floor(d0[0]);
-					d1[1] = d3.timeDay.offset(d1[0]);
-				}
+					d1[0] = d3.timeDay(d0[0]);
+					d1[1] = d3.timeDay.ceil(d0[0]);
+				} 
 			}
 			if(filters.time=='m'){
 				var d1 = d0.map(d3.timeMonth.round);
+				d1[0] = d3.timeMonth.floor(d0[0]);
+				d1[1] = d3.timeMonth.ceil(d0[1]);
 				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeMonth.floor(d0[0]);
-					d1[1] = d3.timeMonth.offset(d1[0]);
-				}
+					d1[0] = d3.timeMonth(d0[0]);
+					d1[1] = d3.timeMonth.ceil(d0[0]);
+				} 
 			}
 			if(filters.time=='y'){
 				var d1 = d0.map(d3.timeYear.round);
+				d1[0] = d3.timeYear.floor(d0[0]);
+				d1[1] = d3.timeYear.ceil(d0[1]);
 				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeYear.floor(d0[0]);
-					d1[1] = d3.timeYear.offset(d1[0]);
-				}
+					d1[0] = d3.timeYear(d0[0]);
+					d1[1] = d3.timeYear.ceil(d0[0]);
+				} 
 			}
 
 			dateRange = d1;
@@ -1351,7 +1356,7 @@ var Deepviz = function(sources, callback){
 
 		}
 
-		function brush() {
+		function dragged() {
 
 			if(!d3.event.sourceEvent) return;
 			if(d3.event.sourceEvent.type === "brush") return;
