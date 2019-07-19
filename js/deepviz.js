@@ -2493,11 +2493,14 @@ var Deepviz = function(sources, callback){
 		if(filters['severity'].length==5){
 			filters['severity'] = [];
 		}
+
 		if(filters['severity'].length>0){
 			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
 			d3.select('#severityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
+
 		if(filters['reliability'].length==5)filters['reliability'] = [];
+
 		if(filters['reliability'].length>0){
 			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
 			d3.select('#reliabilityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
@@ -2532,6 +2535,8 @@ var Deepviz = function(sources, callback){
 
 			});
 		}
+
+		if(filters['sector'].length>10)filters['sector'] = [];
 
 		if(filters['sector'].length>0){
 			// filter data
