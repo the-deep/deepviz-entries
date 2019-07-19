@@ -634,9 +634,23 @@ font-size: 15px;
 	line-height: 1.4;
 	margin-bottom: 0px;
 	margin-left: 15%;
-	cursor: pointer;
 }
 
+#dateRangeText {
+	    padding-top: 2px;
+    font-size: 14px;
+    color: #008974;
+}
+
+.monthly .table-condensed thead tr:nth-child(2),
+.monthly .table-condensed tbody {
+  display: none
+}
+
+/*.applyBtn {
+	background-color: #008974;
+	color: #FFF;
+}*/
 
 #n-days {
 	opacity: 0;
@@ -651,10 +665,19 @@ font-size: 15px;
 }
 
 #dateRange {
-	margin-left: 1px;
 	display: inline;
 	font-size: 16px;
+	text-align: left;
+	font-weight: bold;
+	border: none;
+	margin-top: 2px;
+	font-family: Source Sans Pro, sans-serif;
+	opacity: 0;
+	position: absolute;
+	top: 20px;
+	cursor: pointer;
 }
+
 
 #timeline {
 	width: 100%;

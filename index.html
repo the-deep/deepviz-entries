@@ -4,17 +4,20 @@
 	<!-- load vendor JavaScript -->
 	<script type="text/javascript" src="js/vendor/jquery-3.4.1.min.js"></script>
 	<script type="text/javascript" src="js/vendor/d3.v5.min.js"></script>
+	<script type="text/javascript" src="js/vendor/moment.min.js"></script>
+	<script type="text/javascript" src="js/vendor/daterangepicker.min.js"></script>
 	<script src='js/vendor/mapbox-gl.js'></script>
 
 	<!-- load custom JavaScript -->
-	<script type="text/javascript" src="js/deepviz.js?cache=465"></script>
-	<script type="text/javascript" src="js/main.js?cache=465"></script>
+	<script type="text/javascript" src="js/deepviz.js?cache=466"></script>
+	<script type="text/javascript" src="js/main.js?cache=466"></script>
 
 	<!-- load vendor CSS -->
 	<link href='js/vendor/mapbox-gl.css' rel='stylesheet' />
+	<link href='js/vendor/daterangepicker.css' rel='stylesheet' />
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=465" rel="stylesheet" type="text/css" media="all">
+	<link href="css/style.css?cache=466" rel="stylesheet" type="text/css" media="all">
 
 </head>
 
@@ -39,7 +42,7 @@
 					<div id="dateRangeContainer"><img src="images/calendar.jpg" height="11px"/> DATE RANGE
 				</div>
 				
-				<div id="dateRange">dateRange</div></div><br/>
+				<div><div id="dateRangeText"></div><input id="dateRange" value=""/></div></div><br/>
 			</div>
 
 		</div>

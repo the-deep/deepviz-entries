@@ -714,6 +714,26 @@ var Deepviz = function(sources, callback){
 			}				
 		}
 
+		if($('#dateRange').data('daterangepicker'))$('#dateRange').data('daterangepicker').remove();
+		d3.select('#dateRange').style('cursor', 'default');	
+
+		if(filters.time=='d'){
+
+			$('#dateRange').daterangepicker({
+			    "locale": {
+			        "format": "DD MMM YYYY",
+			    },
+			    showDropdowns: true,
+			    maxYear: maxDate.getFullYear(),
+			    minYear: minDate.getFullYear(),
+			    minDate: minDate,
+			    maxDate: maxDate
+			});		
+
+			d3.select('#dateRange').style('cursor', 'pointer');	
+		} 
+
+
 		if(filters.time=='m'){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
@@ -724,6 +744,20 @@ var Deepviz = function(sources, callback){
 
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
 			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
+
+
+			// $('#dateRange').daterangepicker({
+			//     "locale": {
+			//         "format": "MMM YYYY",
+			//     },
+			//     showDropdowns: true,
+			//     maxYear: maxDate.getFullYear(),
+			//     minYear: minDate.getFullYear(),
+			//     minDate: minDate,
+			//     maxDate: maxDate,
+			//     startDate: dateRange[0],
+			//     endDate: new Date(dateRange[1].getDate(-1)),
+			// });
 		}
 
 		if(filters.time=='y'){
@@ -1301,6 +1335,28 @@ var Deepviz = function(sources, callback){
 	    .on('mouseout', function(){
 	    	d3.selectAll('.handle--custom-top, .handle--custom-bottom').style('fill', '#000');
 	    })
+
+		$('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+		  dateRange[0] = picker.startDate._d;
+		  dateRange[1] = picker.endDate._d;
+		  gBrush.call(brush.move, dateRange.map(scale.timechart.x));
+
+			colorBars();
+			updateDate();
+			updateSeverityReliability('brush');
+			updateBubbles();
+			updateFramework();
+			updateStackedBars('ag', dataByAffectedGroups);
+			updateStackedBars('sn', dataBySpecificNeeds);
+			updateStackedBars('sc', dataByFramework);
+
+			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
+			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
+
+			updateTotals();
+
+		});
+
 
 	    // programattically set date range
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
@@ -1954,7 +2010,6 @@ var Deepviz = function(sources, callback){
 		var width = a.width - labelWidth - padding.right; 
 
 		// adjust title and filter button spacing
-		console.log(a.classname);
 		// d3.select('#'+a.classname+'Title').style('margin-right', 100-((labelWidth-35)/700)*100+'%').style('text-align', 'left').style('display', 'inline');
 		d3.select('#'+a.classname+'Title').style('text-align', 'left').style('display', 'inline');
 
@@ -2977,8 +3032,34 @@ var Deepviz = function(sources, callback){
 		var dateformatter = d3.timeFormat("%d %b %Y");
 		var dx = new Date(dateRange[1]);
 		var dateTo = dx.setDate(dx.getDate()-1);
-		var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
-		d3.select('#dateRange').text(string);
+
+		if(filters.time=='d'){
+			var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+			$('#dateRange').data('daterangepicker').setStartDate(dateRange[0]);
+			$('#dateRange').data('daterangepicker').setEndDate(dx);		
+
+		}
+
+		if(filters.time=='m'){
+			var dateformatter = d3.timeFormat("%b %Y");
+			if(dateformatter(dateRange[0]) == dateformatter(dateTo)){
+				var string = dateformatter(dateRange[0]);
+			} else {
+				var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+			}
+		}
+
+		if(filters.time=='y'){
+			var dateformatter = d3.timeFormat("%Y");
+			if(dateformatter(dateRange[0]) == dateformatter(dateTo)){
+				var string = dateformatter(dateRange[0]);
+			} else {
+				var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+			}
+		}
+
+		d3.select('#dateRangeText').text(string);
+
 	}
 
 	function updateTotals(){
