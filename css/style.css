@@ -740,9 +740,7 @@ font-size: 15px;
 
 #framework-chart {
 	width: 100%;
-    position: relative;
-    top: 2px;
-    margin-bottom: 25px;
+	padding-top: 20px;
 }
 
 #framework-chart .title {

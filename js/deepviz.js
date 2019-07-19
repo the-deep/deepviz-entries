@@ -1444,7 +1444,7 @@ var Deepviz = function(sources, callback){
 		.attr('x', 0)
 		.attr('y', 20)
 		.style('font-weight', 'bold')
-		.style('font-size', '18px')
+		.style('font-size', '17px')
 		.style('fill', '#000')
 		.text('SECTORAL FRAMEWORK');
 
