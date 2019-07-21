@@ -3,8 +3,8 @@ var Deepviz = function(sources, callback){
 	//**************************
 	// define variables
 	//**************************
-	var dateRange = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date('2017-01-01');
+	var dateRange  = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
+	var minDate = new Date('2018-01-01');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -733,31 +733,19 @@ var Deepviz = function(sources, callback){
 			d3.select('#dateRange').style('cursor', 'pointer');	
 		} 
 
-
 		if(filters.time=='m'){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-			 dateRange[1].setDate(dateRange[1].getDate()-1);
 			
 			dateRange[0] = new Date(dateRange[0].getFullYear(), dateRange[0].getMonth(), 1);
-			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth()+1, 1);
+			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth(), 1);
 
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
 			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
 
-
-			// $('#dateRange').daterangepicker({
-			//     "locale": {
-			//         "format": "MMM YYYY",
-			//     },
-			//     showDropdowns: true,
-			//     maxYear: maxDate.getFullYear(),
-			//     minYear: minDate.getFullYear(),
-			//     minDate: minDate,
-			//     maxDate: maxDate,
-			//     startDate: dateRange[0],
-			//     endDate: new Date(dateRange[1].getDate(-1)),
-			// });
+			if (dateRange[1] <= dateRange[0]) {
+				dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth() +1, 1);
+			} 
 		}
 
 		if(filters.time=='y'){
@@ -976,11 +964,16 @@ var Deepviz = function(sources, callback){
 				return tick.style('color', '#000')
 			})
 			.on('click', function(){
-				dateRange[0] = d;
-				dateRange[1] = new Date(d.getFullYear(), d.getMonth()+1, 1);
+				if((filters.time == 'm')||(filters.time =='d')){
+					dateRange[0] = d;
+					dateRange[1] = new Date(d.getFullYear(), d.getMonth()+1, 1);					
+				} else {
+					dateRange[0] = d;
+					dateRange[1] = new Date(d.getFullYear()+1, 0, 1);	
+				}
 			    // programattically set date range
 			    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
-			})
+			});
 
 		});
 
@@ -1240,7 +1233,6 @@ var Deepviz = function(sources, callback){
 			.range([0,12])
 			.domain([0,maxContextValue]);// 
 
-
 		// event mask groups (to be used for event drop grey brush mask)
 		var eventDropGroup = bars.append('g')
 		.attr("class", "eventDropGroup");
@@ -1337,9 +1329,11 @@ var Deepviz = function(sources, callback){
 	    })
 
 		$('#dateRange').on('apply.daterangepicker', function(ev, picker) {
-		  dateRange[0] = picker.startDate._d;
-		  dateRange[1] = picker.endDate._d;
-		  gBrush.call(brush.move, dateRange.map(scale.timechart.x));
+			dateRange[0] = picker.startDate._d;
+			var dx = (picker.endDate._d);
+			dx.setHours(0,0,0,0);
+			dateRange[1] = new Date(dx.setDate(dx.getDate()+1));
+			gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 
 			colorBars();
 			updateDate();
@@ -1366,28 +1360,38 @@ var Deepviz = function(sources, callback){
 
 	    	// if not right event then break out of function
 			if(!d3.event.sourceEvent) return;
+			if(d3.event.sourceEvent.type === "start") return;
+			if(d3.event.sourceEvent.type === "click") return;
 			if(d3.event.sourceEvent.type === "brush") return;
 
-			// d3.select('.selection').style('fill','green');
-
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
-			if(filters.time=='d'){
 				var d1 = d0.map(d3.timeDay.round);
-				d1[0] = d3.timeDay.floor(d0[0]);
-				d1[1] = d3.timeDay.ceil(d0[1]);
+
+			d1[0] = d3.timeDay.floor(d1[0]);
+			d1[1] = d3.timeDay.ceil(d1[1]);
+
+			if(filters.time=='d'){
+				d1[0] = d3.timeDay.floor(d1[0]);
+				d1[1] = d3.timeDay(d1[1]);
+				// if (d1[0] >= d1[1]) {
+				// 	d1[0] = d3.timeDay(d0[0]);
+				// 	d1[1] = d3.timeDay.ceil(d0[0]);
+				// } 
 				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeDay(d0[0]);
-					d1[1] = d3.timeDay.ceil(d0[0]);
-				} 
+						d1[0] = d3.timeDay.floor(d0[0]);
+						d1[1] = d3.timeDay.offset(d1[0]);
+					}
 			}
 			if(filters.time=='m'){
 				var d1 = d0.map(d3.timeMonth.round);
 				d1[0] = d3.timeMonth.floor(d0[0]);
-				d1[1] = d3.timeMonth.ceil(d0[1]);
+				d1[1] = d3.timeMonth.round(d0[1]);
 				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeMonth(d0[0]);
-					d1[1] = d3.timeMonth.ceil(d0[0]);
+					d1[0] = d3.timeMonth.floor(d0[0]);
+					d1[1] = d3.timeMonth.offset(d1[0]);
 				} 
+				// d1[0] = d3.timeMonth.floor(d0[0]);
+				// d1[1] = d3.timeMonth.ceil(d0[1]);
 			}
 			if(filters.time=='y'){
 				var d1 = d0.map(d3.timeYear.round);
@@ -1415,7 +1419,7 @@ var Deepviz = function(sources, callback){
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
 			updateTotals();
-
+			
 		}
 
 		function dragged() {
@@ -1423,22 +1427,31 @@ var Deepviz = function(sources, callback){
 			if(!d3.event.sourceEvent) return;
 			if(d3.event.sourceEvent.type === "brush") return;
 
-			// d3.select('.selection').style('fill-opacity',0.1).style('fill', colorNeutral[2]);
-			// d3.select('.selection').style('fill','#FFF');
-
-			// updateSeverityReliability(dateRange,chartdata,'brush');
-
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
 			if(filters.time=='d'){
 				var d1 = d0.map(d3.timeDay.round);
 			}
 			if(filters.time=='m'){
 				var d1 = d0.map(d3.timeMonth.round);
+				// d1[0] = d3.timeMonth.floor(d0[0]);
+				// d1[1] = d3.timeMonth.ceil(d0[1]);
+				if (d1[0] >= d1[1]) {
+					d1[0] = d3.timeMonth(d0[0]);
+					d1[1] = d3.timeMonth.ceil(d0[0]);
+				} 
+
+				if (d1[0] >= d1[1]) {
+					d1[0] = d3.timeDay.floor(d0[0]);
+					d1[1] = d3.timeDay.offset(d1[0]);
+				}
 			}
 			if(filters.time=='y'){
 				var d1 = d0.map(d3.timeYear.round);
+				if (d1[0] >= d1[1]) {
+					d1[0] = d3.timeYear.floor(d0[0]);
+					d1[1] = d3.timeYear.offset(d1[0]);
+				}
 			}
-
 			// If empty when rounded, use floor instead.
 			if (d1[0] >= d1[1]) {
 				d1[0] = d3.timeDay.floor(d0[0]);
@@ -1447,9 +1460,20 @@ var Deepviz = function(sources, callback){
 
 			dateRange = d1;
 
+			colorBars();
+			updateDate();
+			updateSeverityReliability('brush');
+			updateBubbles();
+			updateFramework();
+			updateStackedBars('ag', dataByAffectedGroups);
+			updateStackedBars('sn', dataBySpecificNeeds);
+			updateStackedBars('sc', dataByFramework);
+
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
+
+			updateTotals();
 		}
 
 		d3.select('#chartarea').transition().duration(1000).style('opacity', 1);
@@ -2762,8 +2786,6 @@ var Deepviz = function(sources, callback){
 	//**************************
 	var redrawTimeline = function(){
 
-		refreshData();
-
 		d3.select('#avg-line').transition().duration(200).style('opacity', 0)
 		d3.select('#chartarea').transition().duration(200).style('opacity', 0)
 		.on("end", function(){
@@ -2856,6 +2878,13 @@ var Deepviz = function(sources, callback){
 			// },
 			frame: [1]
 		});
+
+		updateBubbles();
+		updateFramework();
+		updateTotals();
+		updateStackedBars('ag', dataByAffectedGroups);
+		updateStackedBars('sn', dataBySpecificNeeds);
+		updateStackedBars('sc', dataByFramework);
 
 	});
 	}
@@ -3033,31 +3062,31 @@ var Deepviz = function(sources, callback){
 	//**************************
 	function updateDate(){
 		var dateformatter = d3.timeFormat("%d %b %Y");
+
 		var dx = new Date(dateRange[1]);
-		var dateTo = dx.setDate(dx.getDate()-1);
+		var dateToStr = dx.setDate(dx.getDate()-1);
 
 		if(filters.time=='d'){
-			var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+			var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
 			$('#dateRange').data('daterangepicker').setStartDate(dateRange[0]);
 			$('#dateRange').data('daterangepicker').setEndDate(dx);		
-
 		}
 
 		if(filters.time=='m'){
 			var dateformatter = d3.timeFormat("%b %Y");
-			if(dateformatter(dateRange[0]) == dateformatter(dateTo)){
+			if(dateformatter(dateRange[0]) == dateformatter(dateToStr)){
 				var string = dateformatter(dateRange[0]);
 			} else {
-				var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+				var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
 			}
 		}
 
 		if(filters.time=='y'){
 			var dateformatter = d3.timeFormat("%Y");
-			if(dateformatter(dateRange[0]) == dateformatter(dateTo)){
+			if(dateformatter(dateRange[0]) == dateformatter(dateToStr)){
 				var string = dateformatter(dateRange[0]);
 			} else {
-				var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateTo);
+				var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
 			}
 		}
 
