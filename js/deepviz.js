@@ -720,12 +720,23 @@ var Deepviz = function(sources, callback){
 
 		if(filters.time=='d'){
 
+			var thisYear = new Date().getFullYear();
+
 			$('#dateRange').daterangepicker({
 			    "locale": {
 			        "format": "DD MMM YYYY",
 			    },
 			    showDropdowns: true,
-			    showCustomRangeLabel: true,
+			    showCustomRangeLabel: false,
+			    alwaysShowCalendars: true,
+			     ranges: {
+			        'Today': [moment(), moment()],
+			        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+			        'This Year': [new Date(dateRange[0].getFullYear(), 0, 1), moment(maxDate).subtract(1, 'days')],
+			        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+			        'This Month': [new Date(dateRange[0].getFullYear(), dateRange[0].getMonth(), 1), new Date(dateRange[1].getFullYear(), dateRange[1].getMonth(), 0)],
+			        'Last Month': [new Date(dateRange[0].getFullYear(), dateRange[0].getMonth()-1, 0), new Date(dateRange[1].getFullYear(), dateRange[1].getMonth()-1, 0)]
+			    },
 			    maxYear: maxDate.getFullYear(),
 			    minYear: minDate.getFullYear(),
 			    minDate: minDate,
@@ -1321,10 +1332,15 @@ var Deepviz = function(sources, callback){
 	    })
 
 		$('#dateRange').on('apply.daterangepicker', function(ev, picker) {
-			dateRange[0] = picker.startDate._d;
-			var dx = (picker.endDate._d);
-			dx.setHours(0,0,0,0);
-			dateRange[1] = new Date(dx.setDate(dx.getDate()+1));
+			console.log('applying');
+			dateRange[0] = new Date(picker.startDate._d);
+			dateRange[0].setHours(0,0,0,0);
+
+			dateRange[1] = new Date(picker.endDate._d);
+			dateRange[1].setHours(0,0,0,0);
+			// console.log(ev);
+			// console.log(picker);
+			dateRange[1] = moment(dateRange[1].setDate(dateRange[1].getDate())).add(1, 'day');
 			gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 
 			colorBars();
@@ -1463,6 +1479,7 @@ var Deepviz = function(sources, callback){
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
+
 
 			updateTotals();
 		}
