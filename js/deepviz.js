@@ -661,7 +661,6 @@ var Deepviz = function(sources, callback){
 
 		// filter();
 		var chartdata = refreshData();
-
 		// container g, and
 		var svg = options.appendTo
 		.append("svg")
@@ -720,7 +719,8 @@ var Deepviz = function(sources, callback){
 
 		if(filters.time=='d'){
 
-			var thisYear = new Date().getFullYear();
+			var today = new Date();
+			var thisYear = today.getFullYear();
 
 			$('#dateRange').daterangepicker({
 			    "locale": {
@@ -729,13 +729,14 @@ var Deepviz = function(sources, callback){
 			    showDropdowns: true,
 			    showCustomRangeLabel: false,
 			    alwaysShowCalendars: true,
-			     ranges: {
+			    ranges: {
 			        'Today': [moment(), moment()],
 			        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-			        'This Year': [new Date(dateRange[0].getFullYear(), 0, 1), moment(maxDate).subtract(1, 'days')],
-			        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-			        'This Month': [new Date(dateRange[0].getFullYear(), dateRange[0].getMonth(), 1), new Date(dateRange[1].getFullYear(), dateRange[1].getMonth(), 0)],
-			        'Last Month': [new Date(dateRange[0].getFullYear(), dateRange[0].getMonth()-1, 0), new Date(dateRange[1].getFullYear(), dateRange[1].getMonth()-1, 0)]
+			        'This Year': [new Date(today.getFullYear(), 0, 1), moment(maxDate).subtract(1,'days')],
+			        'Last Year': [new Date(dateRange[0].getFullYear()-1, 0, 1), new Date(dateRange[0].getFullYear()-1, 12, 0)],
+			        'Last 30 Days': [moment(new Date()).subtract(29, 'days'), moment()],
+			        'This Month': [new Date(today.getFullYear(), today.getMonth(), 1), new Date(today.getFullYear(), today.getMonth()+1, 0)],
+			        'Last Month': [new Date(today.getFullYear(), today.getMonth()-1, 0), new Date(today.getFullYear(), today.getMonth(), 0)]
 			    },
 			    maxYear: maxDate.getFullYear(),
 			    minYear: minDate.getFullYear(),
@@ -755,8 +756,12 @@ var Deepviz = function(sources, callback){
 			maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 			
-			dateRange[0] = new Date(dateRange[0].getFullYear(), dateRange[0].getMonth(), 1);
-			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth()+1, 1);
+			var d1 = dateRange.map(d3.timeDay.round);
+			d1[0] = d3.timeMonth.floor(d1[0]);
+			d1[1] = d3.timeMonth.ceil(d1[1]);
+
+			dateRange[0] = d1[0];
+			dateRange[1] = d1[1];
 
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
 			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
@@ -769,9 +774,13 @@ var Deepviz = function(sources, callback){
 		if(filters.time=='y'){
 			maxDate = new Date(maxDate.getFullYear(),12, -1);
 			minDate = new Date(minDate.getFullYear(), 0, 1);
-			dateRange[1].setDate(dateRange[1].getDate()-1);
-			dateRange[0] = new Date(dateRange[0].getFullYear(), 0, 1);;
-			dateRange[1] = new Date(dateRange[1].getFullYear()+1, 0, 1);
+			var d1 = dateRange.map(d3.timeDay.round);
+			// dateRange[0] = d1[0];
+			// dateRange[1] = d1[1];
+			var d2 = new Date(dateRange[1]);
+			d2.setDate(d2.getDate()-1);
+			dateRange[0] = new Date(d1[0].getFullYear(), 0, 1);;
+			dateRange[1] = new Date(d2.getFullYear()+1, 0, -1);
 		}
 
 		scale.timechart.x.domain([minDate, maxDate]);
@@ -1376,25 +1385,24 @@ var Deepviz = function(sources, callback){
 			if(d3.event.sourceEvent.type === "brush") return;
 
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
-			var d1 = d0.map(d3.timeDay.round);
 
 			// d1[0] = d3.timeDay.floor(d1[0]);
 			// d1[1] = d3.timeDay.ceil(d1[1]);
 			if(filters.time=='d'){
 				var d1 = d0.map(d3.timeDay.round);
-				d1[0] = d3.timeDay.floor(d0[0]);
-				d1[1] = d3.timeDay.floor(d0[1]);
+				// d1[0] = d3.timeDay.floor(d0[0]);
+				// d1[1] = d3.timeDay.floor(d0[1]);
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeDay.floor(d0[0]);
 					d1[1] = d3.timeDay.ceil(d0[0]);
 				} 
 				if (d1[0] >= d1[1]) {
-						d1[0] = d3.timeDay.floor(d0[0]);
-						d1[1] = d3.timeDay.offset(d1[0]);
-					}
+					d1[0] = d3.timeDay.floor(d0[0]);
+					d1[1] = d3.timeDay.offset(d1[0]);
+				}
 			}
 			if(filters.time=='m'){
-				var d1 = d0.map(d3.timeMonth.round);
+				var d1 = d0.map(d3.timeDay.round);
 				d1[0] = d3.timeMonth.floor(d1[0]);
 				d1[1] = d3.timeMonth.ceil(d1[1]);
 				if (d1[0] >= d1[1]) {
