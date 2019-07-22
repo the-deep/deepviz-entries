@@ -1371,6 +1371,7 @@ var Deepviz = function(sources, callback){
 	    // function to handle the changes during slider dragging
 	    function dragging() {
 
+	    	if($('#dateRange').data('daterangepicker'))
 			$('#dateRange').data('daterangepicker').hide();
 	    	// if not right event then break out of function
 			if(!d3.event.sourceEvent) return;
