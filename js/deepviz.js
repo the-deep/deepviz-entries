@@ -743,7 +743,12 @@ var Deepviz = function(sources, callback){
 			    maxDate: maxDate
 			});		
 
-			d3.select('#dateRange').style('cursor', 'pointer');	
+			d3.select('#dateRange').style('cursor', 'pointer');
+
+			d3.select('#timeChart').on('click', function(){
+				console.log('ckick chartarea');
+				$('#dateRange').trigger('cancel.daterangepicker');
+			})	
 		} 
 
 		if(filters.time=='m'){
@@ -1372,22 +1377,22 @@ var Deepviz = function(sources, callback){
 			if(d3.event.sourceEvent.type === "brush") return;
 
 			var d0 = d3.event.selection.map(scale.timechart.x.invert);
-				var d1 = d0.map(d3.timeDay.round);
+			var d1 = d0.map(d3.timeDay.round);
 
-			d1[0] = d3.timeDay.floor(d1[0]);
-			d1[1] = d3.timeDay.ceil(d1[1]);
-
+			// d1[0] = d3.timeDay.floor(d1[0]);
+			// d1[1] = d3.timeDay.ceil(d1[1]);
 			if(filters.time=='d'){
-				d1[0] = d3.timeDay.floor(d1[0]);
-				d1[1] = d3.timeDay(d1[1]);
-				// if (d1[0] >= d1[1]) {
-				// 	d1[0] = d3.timeDay(d0[0]);
-				// 	d1[1] = d3.timeDay.ceil(d0[0]);
-				// } 
+				var d1 = d0.map(d3.timeDay.round);
+				d1[0] = d3.timeDay.floor(d0[0]);
+				d1[1] = d3.timeDay.ceil(d0[1]);
 				if (d1[0] >= d1[1]) {
-						d1[0] = d3.timeDay.floor(d0[0]);
-						d1[1] = d3.timeDay.offset(d1[0]);
-					}
+					d1[0] = d3.timeDay(d0[0]);
+					d1[1] = d3.timeDay.ceil(d0[0]);
+				} 
+				// if (d1[0] >= d1[1]) {
+				// 		d1[0] = d3.timeDay.floor(d0[0]);
+				// 		d1[1] = d3.timeDay.offset(d1[0]);
+				// 	}
 			}
 			if(filters.time=='m'){
 				var d1 = d0.map(d3.timeMonth.round);
