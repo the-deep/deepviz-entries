@@ -1385,15 +1385,15 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='d'){
 				var d1 = d0.map(d3.timeDay.round);
 				d1[0] = d3.timeDay.floor(d0[0]);
-				d1[1] = d3.timeDay.ceil(d0[1]);
+				d1[1] = d3.timeDay.floor(d0[1]);
 				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeDay(d0[0]);
+					d1[0] = d3.timeDay.floor(d0[0]);
 					d1[1] = d3.timeDay.ceil(d0[0]);
 				} 
-				// if (d1[0] >= d1[1]) {
-				// 		d1[0] = d3.timeDay.floor(d0[0]);
-				// 		d1[1] = d3.timeDay.offset(d1[0]);
-				// 	}
+				if (d1[0] >= d1[1]) {
+						d1[0] = d3.timeDay.floor(d0[0]);
+						d1[1] = d3.timeDay.offset(d1[0]);
+					}
 			}
 			if(filters.time=='m'){
 				var d1 = d0.map(d3.timeMonth.round);
