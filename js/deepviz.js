@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange  = [new Date(2019, 4, 15), new Date(2019, 7, 31)]; // selected dateRange on load
-	var minDate = new Date('2018-06-15');
+	var minDate = new Date('2019-06-15');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -1342,8 +1342,6 @@ var Deepviz = function(sources, callback){
 
 			dateRange[1] = new Date(picker.endDate._d);
 			dateRange[1].setHours(0,0,0,0);
-			// console.log(ev);
-			// console.log(picker);
 			dateRange[1] = moment(dateRange[1].setDate(dateRange[1].getDate())).add(1, 'day');
 			gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 
@@ -3096,7 +3094,7 @@ updateBubbles();
 		updateSeverityReliability(target);
 		updateTrendline();
 		updateBubbles();
-		// colorBars();
+		colorBars();
 
 	}
 
@@ -3823,16 +3821,10 @@ updateBubbles();
 	function colorBars(){
 
 		d3.selectAll('.barGroup').each(function(d,i){
+			var idate = parseInt(d3.select(this).attr('id').slice(4));
 
-			if((d.date<dateRange[0])||(d.date>= dateRange[1])){
-				d3.select(this).selectAll('.bar').style('fill', function(d,i){
-					return colorLightgrey[i];
-				}).style('fill-opacity', 1);
-				d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
-					return colorLightgrey[1];
-				});
-
-			} else {
+			if(((new Date(idate)) >= (dateRange[0]))&&((new Date(idate))< (dateRange[1]))){
+		
 				d3.select(this).selectAll('.bar').style('fill', function(d,i){
 					if(filters.toggle == 'severity'){
 						return colorPrimary[i];
@@ -3848,6 +3840,17 @@ updateBubbles();
 						return colorNeutral[3];
 					}
 				});
+
+
+			} else {
+
+				d3.select(this).selectAll('.bar').style('fill', function(d,i){
+					return colorLightgrey[i];
+				}).style('fill-opacity', 1);
+				d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
+					return colorLightgrey[1];
+				});
+
 			}
 		});
 	}
