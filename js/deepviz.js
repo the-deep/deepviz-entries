@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange  = [new Date(2019, 4, 15), new Date(2019, 7, 31)]; // selected dateRange on load
-	var minDate = new Date('2019-06-15');
+	var minDate = new Date('2018-10-15');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -756,7 +756,7 @@ var Deepviz = function(sources, callback){
 			minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 			
 			dateRange[0] = new Date(dateRange[0].getFullYear(), dateRange[0].getMonth(), 1);
-			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth(), 1);
+			dateRange[1] = new Date(dateRange[1].getFullYear(), dateRange[1].getMonth()+1, 1);
 
 			if(dateRange[0]<minDate)dateRange[0]=minDate;
 			if(dateRange[1]>maxDate)dateRange[1]=maxDate;
@@ -1395,8 +1395,8 @@ var Deepviz = function(sources, callback){
 			}
 			if(filters.time=='m'){
 				var d1 = d0.map(d3.timeMonth.round);
-				d1[0] = d3.timeMonth.floor(d0[0]);
-				d1[1] = d3.timeMonth.round(d0[1]);
+				d1[0] = d3.timeMonth.floor(d1[0]);
+				d1[1] = d3.timeMonth.ceil(d1[1]);
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeMonth.floor(d0[0]);
 					d1[1] = d3.timeMonth.offset(d1[0]);
