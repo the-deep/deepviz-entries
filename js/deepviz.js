@@ -746,7 +746,6 @@ var Deepviz = function(sources, callback){
 			d3.select('#dateRange').style('cursor', 'pointer');
 
 			d3.select('#timeChart').on('click', function(){
-				console.log('ckick chartarea');
 				// $('#dateRange').trigger('cancel.daterangepicker');
 				$('#dateRange').data('daterangepicker').hide();
 			})	
@@ -1338,7 +1337,6 @@ var Deepviz = function(sources, callback){
 	    })
 
 		$('#dateRange').on('apply.daterangepicker', function(ev, picker) {
-			console.log('applying');
 			dateRange[0] = new Date(picker.startDate._d);
 			dateRange[0].setHours(0,0,0,0);
 
@@ -2271,62 +2269,59 @@ updateBubbles();
 
 		severityBars.on('mouseover', function(d,i){
 
-			d3.select(this).select('.bar-percent')
-			.style('opacity',0);
+			d3.select(this).select('.bar-percent').style('opacity',0);
+			d3.select(this).select('.bar-value').style('opacity',1);
 
-			d3.select(this).select('.bar-value')
-			.style('opacity',1);
+			// d3.select('#tooltip')
+			// .transition('tooltip')
+			// .delay(1000)
+			// .duration(600)
+   //          .style("opacity", 1);
 
-			d3.select('#tooltip')
-			.transition('tooltip')
-			.delay(1000)
-			.duration(600)
-            .style("opacity", 1);
+   //          d3.select('#tooltip')		
+   //          .style("left", (d3.event.pageX+35) + "px")		
+   //          .style("top", (d3.event.pageY - 0) + "px")
+   //          .text(d);
 
-            d3.select('#tooltip')		
-            .style("left", (d3.event.pageX+35) + "px")		
-            .style("top", (d3.event.pageY - 0) + "px")
-            .text(d);
+			// if(clickTimer == 0 ){
 
-			if(clickTimer == 0 ){
+			// 	if((filters.severity.length>0)&&(!filters.severity.includes(i+1))){
+			// 		return false;
+			// 	}
+			// 	d3.selectAll('.severityBar').style('stroke-opacity',0)
+			// 	// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
 
-				if((filters.severity.length>0)&&(!filters.severity.includes(i+1))){
-					return false;
-				}
-				d3.selectAll('.severityBar').style('stroke-opacity',0)
-				// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
+			// 	d3.select('.severityBar.severity'+(i+1))
+			// 	.style('stroke', '#0E523B')
+			// 	.style('stroke-width', 3)
+			// 	.transition().duration(500)
+			// 	.style('stroke-opacity', 0.6);
 
-				d3.select('.severityBar.severity'+(i+1))
-				.style('stroke', '#0E523B')
-				.style('stroke-width', 3)
-				.transition().duration(500)
-				.style('stroke-opacity', 0.6);
-
-				if(filters.toggle=='severity'){
-					d3.selectAll('.bar:not(.severity'+(i+1)+')')
-					.transition("mouseoutSeverity").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
-					d3.selectAll('#timeline .severity'+(i+1))
-					.transition("mouseoutSeverity").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
-				}
-			}
+			// 	if(filters.toggle=='severity'){
+			// 		d3.selectAll('.bar:not(.severity'+(i+1)+')')
+			// 		.transition("mouseoutSeverity").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
+			// 		d3.selectAll('#timeline .severity'+(i+1))
+			// 		.transition("mouseoutSeverity").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
+			// 	}
+			// }
 		}).on('mouseout', function(d,i){
 
-			if((d3.event.target.tagName!='text')&&(1!=2)){
-				d3.select('#tooltip')
-	            .style("opacity", 0);
+			// if((d3.event.target.tagName!='text')&&(1!=2)){
+			// 	d3.select('#tooltip')
+	  //           .style("opacity", 0);
 
-	            d3.select('#tooltip')		
-	            .style("left", "-100px")		
-	            .style("top", "-100px");
+	            // d3.select('#tooltip')		
+	            // .style("left", "-100px")		
+	            // .style("top", "-100px");
 
 				d3.select(this).select('.bar-percent').style('opacity',1);
 				d3.select(this).select('.bar-value').style('opacity',0);
-			}
-			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
-			d3.selectAll('.bar').transition("mouseoutSeverity").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+			// }
+			// d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+			// d3.selectAll('.bar').transition("mouseoutSeverity").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
-			d3.selectAll('.severityBar').style('stroke-width', 0).style('stroke-opacity',0)
-			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);	
+			// d3.selectAll('.severityBar').style('stroke-width', 0).style('stroke-opacity',0)
+			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1);	
 			clickTimer = 1;
 			filter('severity',i+1);
 			setTimeout(function(){ clickTimer = 0 }, 2000);
@@ -2379,7 +2374,7 @@ updateBubbles();
 		.data(reliabilityArray)
 		.enter()
 		.append('g')
-		.attr('class','top-bar');
+		.attr('class','reliability-bar-group top-bar');
 
 		reliabilityBars.append('rect')
 		.attr('class', function(d,i){
@@ -2444,61 +2439,48 @@ updateBubbles();
 		.text('00');
 
 		reliabilityBars.on('mouseover', function(d,i){
-
 			d3.select(this).select('.bar-percent').style('opacity',0);
 			d3.select(this).select('.bar-value').style('opacity',1);
 
-			d3.select('#tooltip')
-			.transition('tooltip')
-			.delay(1000)
-			.duration(600)
-            .style("opacity", 1);
+			// if(clickTimer == 0 ){
+			// 	if((filters.reliability.length>0)&&(!filters.reliability.includes(i+1))) return false;
 
-            d3.select('#tooltip')		
-            .style("left", (d3.event.pageX+15) + "px")		
-            .style("top", (d3.event.pageY - 0) + "px")
-            .text(d);
+			// 	d3.selectAll('.reliabilityBar').style('stroke-opacity',0)
+			// 	// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
 
-			if(clickTimer == 0 ){
+			// 	d3.select('.reliabilityBar .severity'+(i+1))
+			// 	.style('stroke', '#0E523B')
+			// 	.style('stroke-width', 3)
+			// 	.transition().duration(500)
+			// 	.style('stroke-opacity', 0.6);
 
-				if((filters.reliability.length>0)&&(!filters.reliability.includes(i+1))) return false;
-
-				d3.selectAll('.reliabilityBar').style('stroke-opacity',0)
-				// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
-
-				d3.select('.reliabilityBar .severity'+(i+1))
-				.style('stroke', '#0E523B')
-				.style('stroke-width', 3)
-				.transition().duration(500)
-				.style('stroke-opacity', 0.6);
-
-				if(filters.toggle=='reliability'){
-					d3.selectAll('.bar:not(.severity'+(i+1)+')')
-					.transition("mouseoutReliability").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
-					d3.selectAll('#timeline .severity'+(i+1))
-					.transition("mouseoutReliability").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
-				}
-			}
+			// 	if(filters.toggle=='reliability'){
+			// 		d3.selectAll('.bar:not(.severity'+(i+1)+')')
+			// 		.transition("mouseoutReliability").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
+			// 		d3.selectAll('#timeline .severity'+(i+1))
+			// 		.transition("mouseoutReliability").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
+			// 	}
+			// }
 		}).on('mouseout', function(d,i){
 
-			d3.select('#tooltip')
-			.transition('tooltip')
-			.duration(0)
-            .style("opacity", 0);
+			// d3.select('#tooltip')
+			// .transition('tooltip')
+			// .duration(0)
+   //          .style("opacity", 0);
 
-            d3.select('#tooltip')		
-            .style("left", "-100px")		
-            .style("top", "-100px");
+   //          d3.select('#tooltip')		
+   //          .style("left", "-100px")		
+   //          .style("top", "-100px");
 
 			d3.select(this).select('.bar-percent').style('opacity',1);
 			d3.select(this).select('.bar-value').style('opacity',0);
 
-			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
-			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+			// d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
+			// d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
 
-			d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
-			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+			// d3.selectAll('.reliabilityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0);
+			// d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1);
 
 			clickTimer = 1;
 
@@ -3299,10 +3281,33 @@ updateBubbles();
 
 		d3.selectAll('.severityBar')
 		.attr('fill', function(d,i){
+			tippy(this.parentNode, { 
+				content: '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorPrimary[i] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d,
+				theme: 'light-border',
+				delay: [250,100],
+				inertia: false,
+				distance: 8,
+				allowHTML: true,
+				animation: 'shift-away',
+				arrow: true,
+				size: 'small'
+			 });
 			return colorPrimary[i];
 		});
+
 		d3.selectAll('.reliabilityBar')
 		.attr('fill', function(d,i){
+			tippy(this.parentNode, { 
+				content: '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorSecondary[i] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d,
+				theme: 'light-border',
+				delay: [250,100],
+				inertia: false,
+				distance: 8,
+				allowHTML: true,
+				animation: 'shift-away',
+				arrow: true,
+				size: 'small'
+			 });
 			return colorSecondary[i];
 		});
 

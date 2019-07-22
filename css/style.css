@@ -584,6 +584,13 @@ font-size: 15px;
 
 .severityBar {
 	cursor: pointer;
+	outline: none;
+}
+
+.reliabilityBar,
+.top-bar {
+	cursor: pointer;
+	outline: none;
 }
 
 #reliability {
