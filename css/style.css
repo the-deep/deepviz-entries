@@ -593,6 +593,14 @@ font-size: 15px;
 	outline: none;
 }
 
+.sn-bar,
+.ag-bar,
+.sc-bar {
+	cursor: pointer;
+	outline: none;
+}
+
+
 #reliability {
 	width: 49%;
 	display: inline-block;

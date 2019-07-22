@@ -2099,6 +2099,7 @@ updateBubbles();
 		scale[a.classname].paddingLeft = labelWidth;
 
 		for(var s=4; s >= 0; s--) {
+			var val = s;
 			var bar = rows.append('rect')
 				.attr('id', function(d,i){
 					return a.classname+d.id+'s'+(s+1);
@@ -2109,9 +2110,19 @@ updateBubbles();
 				})
 				.attr('width', width/5)
 				.attr('data-width', width)
+				.attr('data-id', s+1)
+				.attr('data-percent', 0)
 				.attr('y', padding.bar.y)
 				.attr('height', rowHeight-(padding.bar.y*2))
-				.style('fill', colorPrimary[s]);
+				.style('fill', colorPrimary[s])
+				.on('click', function(d,i){
+					var val = parseInt(d3.select(this).attr('data-id'));
+					if(filters.toggle=='severity'){
+						filter('severity',val);
+					} else {
+						filter('reliability',val);
+					}
+				})
 		}
 
 		var dataLabel = rows.append('text')
@@ -2478,16 +2489,11 @@ updateBubbles();
 			// d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
 			// d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
 		}).on('click', function(d,i){
-
 			// d3.selectAll('.reliabilityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0);
 			// d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1);
-
 			clickTimer = 1;
-
 			filter('reliability',i+1);
-
 			setTimeout(function(){ clickTimer = 0 }, 2000);
-
 		});
 
 		// reliabilitySvg.append('rect')
@@ -3426,6 +3432,9 @@ updateBubbles();
 					return v;
 				})
 				.attr('width', function(d,i){
+					// set tooltip
+
+
 					var v = (severity[i]/s_total)*1000;
 					return v;
 				});				
@@ -3593,6 +3602,7 @@ updateBubbles();
 				d3.select('#'+id )
 				.attr('x', xcount)
 				.attr('width', w)
+				.attr('data-value', dd.value)
 				.style('fill', function(){
 					if(filters.toggle == 'severity'){
 						return colorPrimary[s-1];
@@ -3600,11 +3610,42 @@ updateBubbles();
 						return colorSecondary[s-1];
 					}
 				});
+
+				var rect = document.querySelector('#'+id)
+				// var instance = tippy(rect);
+
+				tippy(rect, { 
+					content: setBarName(s),
+					theme: 'light-border',
+					delay: [250,100],
+					inertia: false,
+					distance: 8,
+					allowHTML: true,
+					animation: 'shift-away',
+					arrow: true,
+					size: 'small',
+					onShow(instance) {
+				        // instance.popper.hidden = instance.reference.dataset.tippy ? false : true;
+				        var v = d3.select('#'+id).attr('data-value')
+				      	instance.setContent(setBarName(s, v));
+					}
+				});
+
 				xcount = xcount + w;
 			});
 		});
 	}
 
+	var setBarName = function(s,v){
+		if(filters.toggle == 'severity'){
+			var color = colorPrimary[s-1];
+			var text = severityArray[s-1];
+		} else {
+			var color = colorSecondary[s-1];
+			var text = reliabilityArray[s-1];
+		}
+		return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + v + ' entries</div>';
+	}
 	//**************************
 	// update framework
 	//**************************
