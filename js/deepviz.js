@@ -747,7 +747,8 @@ var Deepviz = function(sources, callback){
 
 			d3.select('#timeChart').on('click', function(){
 				console.log('ckick chartarea');
-				$('#dateRange').trigger('cancel.daterangepicker');
+				// $('#dateRange').trigger('cancel.daterangepicker');
+				$('#dateRange').data('daterangepicker').hide();
 			})	
 		} 
 
@@ -1370,6 +1371,7 @@ var Deepviz = function(sources, callback){
 	    // function to handle the changes during slider dragging
 	    function dragging() {
 
+			$('#dateRange').data('daterangepicker').hide();
 	    	// if not right event then break out of function
 			if(!d3.event.sourceEvent) return;
 			if(d3.event.sourceEvent.type === "start") return;
