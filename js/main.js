@@ -4,7 +4,7 @@ var Deepviz = new Deepviz(sources, function(data){
 
 	console.log('data loaded');
 
-		//**************************
+	//**************************
 	// sector chart
 	//**************************
 	var sectorChart = Deepviz.createSectorChart();

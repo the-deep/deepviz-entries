@@ -3,8 +3,8 @@ var Deepviz = function(sources, callback){
 	//**************************
 	// define variables
 	//**************************
-	var dateRange  = [new Date(2019, 3, 1), new Date(2019, 3, 31)]; // selected dateRange on load
-	var minDate = new Date('2018-01-01');
+	var dateRange  = [new Date(2019, 4, 15), new Date(2019, 7, 31)]; // selected dateRange on load
+	var minDate = new Date('2019-06-15');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -659,6 +659,7 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.timeChart = function(options){
 
+		// filter();
 		var chartdata = refreshData();
 
 		// container g, and
@@ -724,6 +725,7 @@ var Deepviz = function(sources, callback){
 			        "format": "DD MMM YYYY",
 			    },
 			    showDropdowns: true,
+			    showCustomRangeLabel: true,
 			    maxYear: maxDate.getFullYear(),
 			    minYear: minDate.getFullYear(),
 			    minDate: minDate,
@@ -751,7 +753,7 @@ var Deepviz = function(sources, callback){
 		if(filters.time=='y'){
 			maxDate = new Date(maxDate.getFullYear(),12, -1);
 			minDate = new Date(minDate.getFullYear(), 0, 1);
-			 dateRange[1].setDate(dateRange[1].getDate()-1);
+			dateRange[1].setDate(dateRange[1].getDate()-1);
 			dateRange[0] = new Date(dateRange[0].getFullYear(), 0, 1);;
 			dateRange[1] = new Date(dateRange[1].getFullYear()+1, 0, 1);
 		}
@@ -981,7 +983,9 @@ var Deepviz = function(sources, callback){
 		// Bar/event drop groups (by date)
 		//**************************
 		// bar groups
-		var bars = svgChart.selectAll(".barGroup")
+		var barGroup = svgChart.append('g').attr('id', 'chart-bar-group');
+
+		var bars = barGroup.selectAll(".barGroup")
 		.data(chartdata)
 		.enter()
 		.append('g')
@@ -992,27 +996,26 @@ var Deepviz = function(sources, callback){
 		})
 		.attr("class", "barGroup")
 		.attr('data-width', function(d,i) { 
-
 			if(filters.time=='y'){
 				var date = new Date(d[options.dataKey]);
 				var endYear = new Date(date.getFullYear(), 11, 31);
-				return scale.timechart.x(endYear) - scale.timechart.x(d[options.dataKey]);   		
+				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   		
 			}
 
 			if(filters.time=='m'){
 				var date = new Date(d[options.dataKey]);
 				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
-				return scale.timechart.x(endMonth) - scale.timechart.x(d[options.dataKey]);   		
+				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);   		
 			}
 
 			if(filters.time=='d'){
 				var date = new Date(d[options.dataKey]);
 				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
-				return scale.timechart.x(endDate) - scale.timechart.x(d[options.dataKey]);   		
+				return scale.timechart.x(endDate) - scale.timechart.x(d.key);   		
 			}	
 
 		})
-		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d[options.dataKey]);} return "translate(" + scale.timechart.x(d[options.dataKey]) + ",0)"; });
+		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d.key);} return "translate(" + scale.timechart.x(d.key) + ",0)"; });
 		
 		var yArray = [];
 
@@ -1048,7 +1051,7 @@ var Deepviz = function(sources, callback){
 				w=w*0.4
 			}
 			return w-1;
-			// return scale.timechart.x(d[options.dataKey])
+			// return scale.timechart.x(d.key)
 		})
 		.attr("y", function(d,i) { 
 			if(i>0){
@@ -1067,17 +1070,6 @@ var Deepviz = function(sources, callback){
 		.on('mouseout', function(){
 			d3.select(this).style('fill-opacity', options.fillOpacity)
 		});
-
-		// // bar mouse over events
-		// individualBars
-		// .on('mouseover', function(d,i){
-		// 	d3.select(this)
-		// 	.style('fill', function(d,i){if(color.length > 1){return color[i]} else {return d3.rgb(color[0]).brighter(0.4);}})
-		// })
-		// .on('mouseout', function(d,i){
-		// 	d3.select(this)
-		// 	.style('fill', function(d,i){if(color.length > 1){return color[i]} else {return color[0];}})
-		// })
 
 		//**************************
 		// draw trendline
@@ -1351,7 +1343,6 @@ var Deepviz = function(sources, callback){
 
 		});
 
-
 	    // programattically set date range
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 
@@ -1483,8 +1474,18 @@ var Deepviz = function(sources, callback){
 		updateDate();
 		updateTrendline();
 		updateSeverityReliability('init');
-			updateTotals();
-		
+
+
+
+updateBubbles();
+		updateFramework();
+		updateTotals();
+		updateStackedBars('ag', dataByAffectedGroups);
+		updateStackedBars('sn', dataBySpecificNeeds);
+		updateStackedBars('sc', dataByFramework);
+
+
+
 		return bars;
 	}
 
@@ -2774,10 +2775,10 @@ var Deepviz = function(sources, callback){
 			d3.select('#snRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 
 		}
-
 		updateTimeline(filterClass);
-		// updateSeverityReliability();
+		updateSeverityReliability();
 		d3.select('#globalRemoveFilter').on('click', function(){ filter('clear', 'clear'); });
+
 
 	}
 
@@ -2894,11 +2895,109 @@ var Deepviz = function(sources, callback){
 	//**************************
 	var updateTimeline = function(target = null){
 
-		refreshData();
+		var chartdata = refreshData();
 
 		scale.timechart.y1 = d3.scaleLinear()
 		.range([timechartHeight2, 0])
 		.domain([0, rounder(maxValue)]);
+
+		//**************************
+		// Bar/event drop groups (by date)
+		//**************************
+		// bar groups
+		var barGroup = d3.select('#chart-bar-group');
+
+		var bars = barGroup.selectAll(".barGroup")
+		.data(chartdata)
+		.enter()
+		.append('g')
+		.attr('id', function(d,i){
+			var dt = new Date(d.date);
+			dt.setHours(0,0,0,0);
+			return 'date'+dt.getTime();
+		})
+		.attr("class", "barGroup")
+		.attr('data-width', function(d,i) { 
+			if(filters.time=='y'){
+				var date = new Date(d.key);
+				var endYear = new Date(date.getFullYear(), 11, 31);
+				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   		
+			}
+
+			if(filters.time=='m'){
+				var date = new Date(d.key);
+				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
+				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);   		
+			}
+
+			if(filters.time=='d'){
+				var date = new Date(d.key);
+				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
+				return scale.timechart.x(endDate) - scale.timechart.x(d.key);   		
+			}	
+
+		})
+		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d.key);} return "translate(" + scale.timechart.x(d.key) + ",0)"; })
+		.exit()
+		.remove();
+		
+		bars = d3.select('#chart-bar-group').selectAll(".barGroup");
+
+		var yArray = [];
+		// individual bars
+
+		var individualBars = bars.selectAll('.bar')
+		.data(function(d,i){ return d.barValues;})
+		.enter()
+		.append("rect")
+		.attr('class', function(d,i){
+			return 'bar severity'+(i+1);
+		})
+		.style('stroke', '#fff')
+		.style('stroke-opacity',0)
+		.attr("x", function(d,i) { 
+			var w = d3.select(this.parentNode).attr('data-width');
+			barWidth = w;
+			if(filters.time=='m'){
+				return w*0.2
+			}
+			if(filters.time=='y'){
+				return w*0.3
+			}
+		})
+		.attr("width", function(d,i) { 
+			var w = d3.select(this.parentNode).attr('data-width');
+			if(filters.time=='m'){
+				w=w*0.6;
+			}
+			if(filters.time=='y'){
+				w=w*0.4
+			}
+			return w-1;
+			// return scale.timechart.x(d.key)
+		})
+		.on('mouseover', function(){
+			d3.select(this).style('fill-opacity', 1 - 0.05)
+		})
+		.on('mouseout', function(){
+			d3.select(this).style('fill-opacity', 1)
+		})
+		.attr("height", 0)
+		.attr("y", timechartHeight2);
+
+		individualBars.transition()
+		.duration(500)
+		.attr("y", function(d,i) { 
+			if(i>0){
+				yArray[i] = yArray[i-1] + d;
+			} else {
+				yArray[i] = d;
+			}
+			return scale.timechart.y1(yArray[i]); 
+		})
+		.attr("height", function(d,i) { 
+			return timechartHeight2-scale.timechart.y1(d); 
+		});
 
 		timechartyAxis = d3.axisLeft()
 		.scale(scale.timechart.y1)
@@ -2912,12 +3011,6 @@ var Deepviz = function(sources, callback){
 		.transition()
 		.call(timechartyAxis);
 
-		// var yAxis = d3.axisLeft()
-		// .scale(scale.timechart.y1)
-		// .ticks(4)
-		// .tickSize(0)
-		// .tickPadding(8);
-
 		timechartyGrid = d3.axisLeft(scale.timechart.y1)
 			.tickSize(-width)
 			.ticks(4)
@@ -2927,18 +3020,10 @@ var Deepviz = function(sources, callback){
 		.transition()
 		.call(timechartyGrid);
 
-		// // add the Y gridlines
-		// gridlines.append("g")			
-		// .attr("class", "grid")
-		// .call(d3.axisLeft(scale.timechart.y1).ticks(5)
-		// 	.tickSize(-width_new)
-		// 	.tickFormat("")
-		// );
-
 		// update bars
 		// bar groups
-		var bars = d3.selectAll(".barGroup");
 
+		bars = d3.select('#chart-bar-group').selectAll(".barGroup");
 
 		bars.each(function(d,i){
 
@@ -2946,22 +3031,24 @@ var Deepviz = function(sources, callback){
 
 			var dD = dataByDate.filter(obj => {
 				return 'date'+obj.date.getTime() == timeid;
-			})[0]
+			})[0];
 
 			var group = d3.select(this);
-
 			var eventDrops = group.selectAll('.eventDrop' );
 
 			if(dD){
 
 				var yArray = [];
-
 				var iBars = group.selectAll('.bar' )
 				.style('fill', function(d,i){
-					if(filters.toggle=='severity'){
-						return colorPrimary[i];
+					if(dD.key<dateRange[0]){
+						return colorLightgrey[i];
 					} else {
-						return colorSecondary[i];
+						if(filters.toggle=='severity'){
+							return colorPrimary[i];
+						} else {
+							return colorSecondary[i];
+						}
 					}
 				})
 				.transition().duration(500)
@@ -2991,13 +3078,12 @@ var Deepviz = function(sources, callback){
 				.attr('r', 0)
 			}
 
-
-		})
+		});
 
 		updateSeverityReliability(target);
 		updateTrendline();
 		updateBubbles();
-		colorBars();
+		// colorBars();
 
 	}
 
