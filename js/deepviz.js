@@ -3724,8 +3724,8 @@ updateBubbles();
 		.key(function(d) { return d.sc; })
 		.rollup(function(leaves) { 
 			return { 
-				'mean_r': d3.mean(leaves, function(d,i){return d.r;}), 
-				'mean_s': d3.mean(leaves, function(d,i){return d.s;}), 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
 				'total': leaves.length, 
 			}
 		})		
@@ -3789,9 +3789,9 @@ updateBubbles();
 					var v = dd.value.total;
 				} else {
 					if(filters.toggle=='severity'){
-						var v = dd.value.mean_s.toFixed(1);
+						var v = dd.value.median_s.toFixed(1);
 					} else {
-						var v = dd.value.mean_r.toFixed(1);
+						var v = dd.value.median_r.toFixed(1);
 					}
 				}
 				// set cell colour
