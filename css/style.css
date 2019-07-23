@@ -139,6 +139,10 @@ svg text {
 	#top-row {
 		width: 97% !important;
 	}
+	#dateRangeText {
+		font-size: 15px !important;
+	}
+
 }
 
 @media only screen and (max-width: 970px) {
@@ -202,6 +206,18 @@ svg text {
 		top: 13px !important;
 	}
 
+	#framework-chart {
+	    padding-top: 10px !important;
+	}
+	#dateRangeText {
+		font-size: 13px !important;
+	}
+
+	#footerRow {
+	    margin-top: 10px !important;
+	}
+
+
 }
 
 
@@ -237,6 +253,10 @@ svg text {
 		height: 15px !important;
 		top: 7px;
 		left: 90px !important;
+	}
+
+	#dateRangeText {
+		font-size: 10px !important;
 	}
 
 }
@@ -301,6 +321,10 @@ svg text {
 		left: 73px !important;
 	}
 
+	#dateRangeText {
+		font-size: 7px !important;
+	}
+
 }
 
 @media only screen and (max-width: 600px) {
@@ -336,8 +360,8 @@ svg text {
 	}
 
 	.subtitle,
-	#dateRange {
-		font-size: 6px !important;
+	#dateRangeText {
+		font-size: 5px !important;
 	}
 
 	#dateRangeContainer img {
@@ -389,6 +413,10 @@ svg text {
 	#avg_slider {
 		top: -1px !important;
 		width: 35%;
+	}
+
+	#dateRangeText {
+		font-size: 5px !important;
 	}
 
 }
@@ -659,7 +687,7 @@ font-size: 15px;
 
 #dateRangeText {
 	    padding-top: 2px;
-    font-size: 14px;
+    font-size: 18px;
     color: #008974;
 }
 
