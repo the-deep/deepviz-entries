@@ -1630,7 +1630,7 @@ updateBubbles();
 		.attr('y', 32)
 		.attr('id', 'framework-toggle-text')
 		.style('font-size', '24px')
-		.text('average severity')
+		.text('median severity')
 		.style('fill', '#5D5D5D')	;
 
 		var columnHeadersBg = frameworkSvg.append('g')
@@ -3845,7 +3845,7 @@ updateBubbles();
 
 			d3.select('#avg-line').style('stroke', colorSecondary[3]);
 
-			d3.select('#framework-toggle-text tspan').text('average reliability');
+			d3.select('#framework-toggle-text tspan').text('median reliability');
 
 		} else {
 			// switch to Severity
@@ -3876,7 +3876,7 @@ updateBubbles();
 
 			d3.select('#avg-line').style('stroke', colorPrimary[3]);
 
-			d3.select('#framework-toggle-text tspan').text('average severity');
+			d3.select('#framework-toggle-text tspan').text('median severity');
 
 		}
 
