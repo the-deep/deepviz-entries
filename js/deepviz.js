@@ -2237,7 +2237,7 @@ updateBubbles();
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 50,
+			viewBoxHeight: 100,
 			div: '#severity_bars',
 			width: '100%'
 		});
@@ -2264,7 +2264,7 @@ updateBubbles();
 			return (1000/5);
 		})
 		.attr('height', function(d,i){
-			return (48);
+			return (53);
 		})
 		.attr('y',2)
 		.attr('fill', function(d,i){
@@ -2277,7 +2277,7 @@ updateBubbles();
 		})
 		.attr('transform', function(d,i){
 			var x = (1000/5)*i + ((1000/5)/2);
-			return 'translate('+x+',33)';
+			return 'translate('+x+',36)';
 		});
 
 		labels
@@ -2412,7 +2412,7 @@ updateBubbles();
 		var reliabilitySvg = Deepviz.createSvg({
 			id: 'reliabilitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 50,
+			viewBoxHeight: 100,
 			div: '#reliability_bars',
 			width: '100%'
 		});
@@ -2434,7 +2434,7 @@ updateBubbles();
 			return (1000/5);
 		})
 		.attr('height', function(d,i){
-			return (48);
+			return (53);
 		})
 		.style('cursor', 'pointer')
 		.attr('y',2)
@@ -2448,7 +2448,7 @@ updateBubbles();
 		})
 		.attr('transform', function(d,i){
 			var x = (1000/5)*i + ((1000/5)/2);
-			return 'translate('+x+',33)';
+			return 'translate('+x+',36)';
 		});
 
 		labels
@@ -3479,7 +3479,7 @@ updateBubbles();
 					var w = (severity[i]/s_total)*1000;
 					d3.select('.s'+(i+1)+'-text')
 					.attr('transform', function(d,i){
-						return 'translate('+(v+(w/2))+',34)';
+						return 'translate('+(v+(w/2))+',36)';
 					})
 					.style('opacity', function(){
 						if(w<10){ return  0 } else { return 1};
@@ -3518,7 +3518,7 @@ updateBubbles();
 					var w = (reliability[i]/r_total)*1000;
 					d3.select('.r'+(i+1)+'-text')
 					.attr('transform', function(d,i){
-						return 'translate('+(v+(w/2))+',34)';
+						return 'translate('+(v+(w/2))+',36)';
 					})
 					.style('opacity', function(){
 						if(w<10){ return  0 } else { return 1};
