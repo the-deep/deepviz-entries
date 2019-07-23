@@ -2237,7 +2237,7 @@ updateBubbles();
 		var severitySvg = this.createSvg({
 			id: 'severitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 100,
+			viewBoxHeight: 70,
 			div: '#severity_bars',
 			width: '100%'
 		});
@@ -2412,7 +2412,7 @@ updateBubbles();
 		var reliabilitySvg = Deepviz.createSvg({
 			id: 'reliabilitySvg',
 			viewBoxWidth: 1000,
-			viewBoxHeight: 100,
+			viewBoxHeight: 70,
 			div: '#reliability_bars',
 			width: '100%'
 		});
