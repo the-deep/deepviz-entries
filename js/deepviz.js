@@ -1557,7 +1557,7 @@ updateBubbles();
 		var frameworkHeight = 472;
 		var numFrameworkRows = metadata.framework_groups_array.length;
 		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2};
-		var leftSpacing = 530;
+		var leftSpacing = 470;
 		var frameworkWidth = 1600;
 		var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
 		var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom))/numFrameworkRows;
@@ -1602,7 +1602,7 @@ updateBubbles();
 		// add toggle switch
 		var toggleswitch = title.append('g')
 		.attr('id', 'framework-toggle-switch')
-		.attr('transform', 'translate(277,1)')
+		.attr('transform', 'translate(237,1)')
 
 		toggleswitch = toggleswitch.append('g').attr('transform', 'scale(0.52)');
 
@@ -1762,7 +1762,7 @@ updateBubbles();
 		rows.append('rect')
 		.attr('x', 0)
 		.attr('y', -20)
-		.attr('width', 210)
+		.attr('width', 220)
 		.attr('height', 28)
 		.style('fill', '#FAFAFA');
 
