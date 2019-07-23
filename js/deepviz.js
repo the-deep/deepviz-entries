@@ -1692,7 +1692,9 @@ updateBubbles();
 
 		columnHeaders
 		.append('image')
-		.attr('class', 'sector-icon')
+		.attr('class', function(d,i){
+			return 'sector-icon sector-icon-'+d.id;
+		})
 		.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
 		.attr('height', 14)
 		.attr('width', 14)
@@ -2089,6 +2091,20 @@ updateBubbles();
 		label.attr('x', labelWidth-20);
 		labelWidth = labelWidth + 16;
 
+		if(a.classname == 'sc'){
+			var icon = rows.append('image')
+			.attr('class', function(d,i){
+				return 'sector-icon sector-icon-'+d.id;
+			})
+			.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
+			.attr('height', 23)
+			.attr('width', 23)
+			.attr('y', 7)
+			.attr('x', labelWidth-26);
+
+			labelWidth = labelWidth + 30;
+		}
+
 		title.attr('transform', function(d,i){
 			var offset = d3.select(this).node().getBBox().width +35;
 			return 'translate('+(labelWidth-offset)+',0)';
@@ -2124,7 +2140,7 @@ updateBubbles();
 			if(a.classname=='sn'){
 				return filter ('specificNeeds', i+1);
 			}
-		})
+		});
 
 		// define x scale
 		scale[a.classname] = {};
@@ -2807,7 +2823,7 @@ updateBubbles();
 				d3.selectAll('.sc-'+(d-1)).style('opacity', 1);
 				d3.selectAll('.sc-bg-'+(d-1)).style('opacity', 0);
 				d3.select('#col-header-bg-'+(d)).style('opacity', .1)
-				d3.select('#col-header-'+(d) + ' .sector-icon' ).style('opacity', 1)
+				d3.selectAll('.sector-icon-'+(d)).style('opacity', 1)
 				d3.select('#col-header-'+(d) + ' .col-header-text' ).style('opacity', 1)
 			});
 		} 
