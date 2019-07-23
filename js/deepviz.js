@@ -2374,13 +2374,13 @@ updateBubbles();
 			setTimeout(function(){ clickTimer = 0 }, 2000);
 		});
 
-		// severitySvg.append('rect')
-		// .attr('id', 'severityAvg')
-		// .attr('x', 0)
-		// .attr('y', -2)
-		// .attr('height', 55)
-		// .attr('width', 5)
-		// .style('fill', '#000');		
+		severitySvg.append('rect')
+		.attr('id', 'severityAvg')
+		.attr('x', 0)
+		.attr('y', -2)
+		.attr('height', 55)
+		.attr('width', 5)
+		.style('fill', '#000');		
 
 		//**************************
 		// severity filter remove button
@@ -2532,13 +2532,13 @@ updateBubbles();
 			setTimeout(function(){ clickTimer = 0 }, 2000);
 		});
 
-		// reliabilitySvg.append('rect')
-		// .attr('id', 'reliabiltiyAvg')
-		// .attr('x', 0)
-		// .attr('y', -2)
-		// .attr('height', 55)
-		// .attr('width', 5)
-		// .style('fill', '#000');	
+		reliabilitySvg.append('rect')
+		.attr('id', 'reliabiltiyAvg')
+		.attr('x', 0)
+		.attr('y', -2)
+		.attr('height', 55)
+		.attr('width', 5)
+		.style('fill', '#000');	
 
 		//**************************
 		// reliability filter remove button
@@ -3571,17 +3571,17 @@ updateBubbles();
 			// d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
 			d3.select('#severity_value').text(severityArray[s_median-1] )
 
-			// d3.select('#severityAvg').attr('x',function(d){
-			// 	return scale.severity.x(severityAverage);
-			// });
+			d3.select('#severityAvg').attr('x',function(d){
+				return scale.severity.x(s_median);
+			});
 
 			// var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
 			// d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
 			d3.select('#reliability_value').text(reliabilityArray[r_median-1] )
 
-			// d3.select('#reliabiltiyAvg').attr('x',function(d){
-			// 	return scale.severity.x(reliabilityAverage);
-			// });
+			d3.select('#reliabiltiyAvg').attr('x',function(d){
+				return scale.severity.x(r_median);
+			});
 
 			d3.select('#severitySvg').style('visibility', 'visible');
 			d3.select('#reliabilitySvg').style('visibility', 'visible');
