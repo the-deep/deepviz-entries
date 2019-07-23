@@ -535,10 +535,12 @@ font-size: 15px;
 }
 
 #reliabilityRemoveFilter,
-#severityRemoveFilter {
+#severityRemoveFilter,
+#geoRemoveFilter {
 	height: 14px;
 	padding-left: 3px;
 	display: none;
+	position: absolute;
 }
 
 #reliabilityRemoveFilter:hover,
@@ -600,6 +602,9 @@ font-size: 15px;
 	outline: none;
 }
 
+.bubble {
+	cursor: pointer !important;
+}
 
 #reliability {
 	width: 49%;

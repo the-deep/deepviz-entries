@@ -87,6 +87,7 @@ var Deepviz = function(sources, callback){
 		reliability: [],
 		affectedGroups: [],
 		specificNeeds: [],
+		geo: [],
 		toggle: 'severity',
 		frameworkToggle: 'entries',
 		time: 'd'
@@ -518,6 +519,7 @@ var Deepviz = function(sources, callback){
 	        zoom: 4,  
 	        trackResize: true,
 	        pitchWithRotate: false,
+	        doubleClickZoom: false,
 	        dragRotate: false
 	    })
 	    
@@ -569,6 +571,11 @@ var Deepviz = function(sources, callback){
 			.data(dataByLocationSum)
 			.enter()
 			.append('g')
+			.attr('class','bubble')
+			.style('outline', 'none')
+			.attr('data-tippy-content',function(d,i){
+				return metadata.geo_array[i].name;
+			})
 			.attr('id', function(d,i){
 				return 'bubble'+i
 			})
@@ -576,7 +583,26 @@ var Deepviz = function(sources, callback){
 				p = projectPoint(metadata.geo_array[i].centroid_lon, metadata.geo_array[i].centroid_lat);
 				return 'translate('+p.x+','+p.y+')';
 			})
-			.style('opacity', 1);
+			.style('opacity', 1)
+			.on('mouseover', function(){
+				d3.select(this).style('opacity', 0.85);
+			}).on('mouseout', function(){
+				d3.select(this).style('opacity', 1);
+			}).on('click', function(d,i){
+				var geo = metadata.geo_array[i];
+				filter('geo',geo.id);
+			});
+
+			tippy('.bubble', { 
+				theme: 'light-border',
+				delay: [250,100],
+				inertia: false,
+				distance: 8,
+				allowHTML: true,
+				animation: 'shift-away',
+				arrow: true,
+				size: 'small'
+			 });
 
 			var featureElementG = featureElement
 			.append('g')
@@ -650,8 +676,12 @@ var Deepviz = function(sources, callback){
 		function projectPoint(lon, lat) {
 	        var point = map.project(new mapboxgl.LngLat(lon, lat));
 			return point;
-			// this.stream.point(point.x, point.y);
 		}
+
+		d3.selectAll('#geoRemoveFilter').on('click', function(){
+			d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
+			return filter('geo', 'clear'); 
+		});
 	}
 
 	//**************************
@@ -2664,6 +2694,7 @@ updateBubbles();
 			filters.reliability = [];
 			filters.affectedGroups = [];
 			filters.specificNeeds = [];
+			filters.geo = [];
 		}
 
 		d3.selectAll('.sector-icon').style('opacity', 0.3);
@@ -2678,13 +2709,16 @@ updateBubbles();
 		d3.select('#snRemoveFilter').style('display', 'none').style('cursor', 'default');
 		d3.select('#agRemoveFilter').style('display', 'none').style('cursor', 'default');
 
+		d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
+		d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
+
 		if(value=='clear'){
 			filters[filterClass] = [];
 		} else {
 			addOrRemove(filters[filterClass], value);		
 		}
 
-		if((filters['severity'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['specificNeeds'].length>0)||(filters['affectedGroups'].length>0)){
+		if((filters['severity'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specificNeeds'].length>0)||(filters['affectedGroups'].length>0)){
 			d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		} else { 
 			d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
@@ -2694,6 +2728,7 @@ updateBubbles();
 
 		d3.select('#severityRemoveFilter').style('display', 'none').style('cursor', 'default');
 		d3.select('#reliabilityRemoveFilter').style('display', 'none').style('cursor', 'default');
+		d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 		// apply filters to data array
 		if(filters['severity'].length==5){
@@ -2740,6 +2775,17 @@ updateBubbles();
 				.style('fill', colorPrimary[d-1])
 
 			});
+		}
+
+		if(filters['geo'].length==metadata.geo_array.length){
+			filters['geo'] = [];
+		}
+
+		if(filters['geo'].length>0){
+			data = data.filter(function(d){
+				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
+			});
+			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
 		if(filters['sector'].length>10)filters['sector'] = [];
@@ -3147,15 +3193,27 @@ updateBubbles();
 				return 'scale('+size+')';
 			})
 			.style('opacity', function(d,i){
+				d3.select(this).select('.outerCircle').style('stroke', function(){
+					var id = metadata.geo_array[i].id;
+					if(filters.geo.includes(id)){
+				    	return 'cyan';
+					}
+			    });
+
 				if(dataByLocationSum[i]>0){
 					return 1;
 				} else {
 					return 0;
 				}
-			}).select('.map-bubble-value')
+			});
+
+			bubbles.select('.map-bubble-value')
 	        .text(function(d,i){
 	        	return dataByLocationSum[i];
 	        });
+
+	    
+		bubbles.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 
 		var map = document.getElementById("map");
 		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
