@@ -6,7 +6,7 @@ html {
 }
 
 body {
-	font-family: Source Sans Pro, sans-serif;
+	font-family: 'Source Sans Pro' !important;
 	font-size: 14px;
 	margin: 0;
 	-moz-user-select: none; /* Firefox */
@@ -16,6 +16,8 @@ body {
 	-webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 
 }
+
+input { cursor: pointer; }
 
 svg {
 	font-family: Source Sans Pro, sans-serif !important;
@@ -689,6 +691,7 @@ font-size: 15px;
 	    padding-top: 2px;
     font-size: 18px;
     color: #008974;
+    cursor: default;
 }
 
 .monthly .table-condensed thead tr:nth-child(2),

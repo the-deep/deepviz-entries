@@ -591,6 +591,7 @@ var Deepviz = function(sources, callback){
 			}).on('click', function(d,i){
 				var geo = metadata.geo_array[i];
 				filter('geo',geo.id);
+				updateSeverityReliability('map', 500);
 			});
 
 			tippy('.bubble', { 
@@ -1386,7 +1387,7 @@ var Deepviz = function(sources, callback){
 
 			colorBars();
 			updateDate();
-			updateSeverityReliability('brush');
+			updateSeverityReliability('brush', 500);
 			updateBubbles();
 			updateFramework();
 			updateStackedBars('ag', dataByAffectedGroups);
@@ -1511,7 +1512,7 @@ var Deepviz = function(sources, callback){
 
 			colorBars();
 			updateDate();
-			updateSeverityReliability('brush');
+			updateSeverityReliability('brush',500);
 			updateBubbles();
 			updateFramework();
 			updateStackedBars('ag', dataByAffectedGroups);
@@ -1532,7 +1533,7 @@ var Deepviz = function(sources, callback){
 		colorBars();
 		updateDate();
 		updateTrendline();
-		updateSeverityReliability('init');
+		updateSeverityReliability('init', 500);
 
 
 
@@ -2409,7 +2410,7 @@ updateBubbles();
 			return filter('severity', 'clear'); 
 		});
 
-		updateSeverityReliability('init');
+		updateSeverityReliability('init', 500);
 
 
 	}
@@ -2567,7 +2568,7 @@ updateBubbles();
 			return filter('reliability', 'clear'); 
 		});
 
-		updateSeverityReliability('init');
+		updateSeverityReliability('init', 500);
 
 
 		//**************************
@@ -2857,7 +2858,6 @@ updateBubbles();
 
 		}
 		updateTimeline(filterClass);
-		updateSeverityReliability();
 		d3.select('#globalRemoveFilter').on('click', function(){ filter('clear', 'clear'); });
 
 
@@ -3161,7 +3161,7 @@ updateBubbles();
 
 		});
 
-		updateSeverityReliability(target);
+		updateSeverityReliability(target, 500);
 		updateTrendline();
 		updateBubbles();
 		colorBars();
@@ -3353,7 +3353,9 @@ updateBubbles();
 	//**************************
 	// update severity / reliability bars
 	//**************************
-	function updateSeverityReliability(target=null){
+	function updateSeverityReliability(target=null, duration = 0){
+
+		if(target == 'brush') duration = 0;
 
 		var s_total = 0;
 		var r_total = 0;
@@ -3482,8 +3484,10 @@ updateBubbles();
 				reliabilityRolling[i] = reliabilityCount;
 			}
 
-			if((target=='reliability')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||((target=='severity')&&(filters.severity.length == 0))){
+			if((target=='reliability')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
 				d3.selectAll('.severityBar')
+				.transition()
+				.duration(duration)
 				.attr('opacity', 1)
 				.attr('x', function(d,i){
 					if(i==0){
@@ -3494,12 +3498,23 @@ updateBubbles();
 					var v = (s/s_total)*1000;
 					var w = (severity[i]/s_total)*1000;
 					d3.select('.s'+(i+1)+'-text')
-					.attr('transform', function(d,i){
-						return 'translate('+(v+(w/2))+',36)';
-					})
 					.style('opacity', function(){
 						if(w<10){ return  0 } else { return 1};
 					});
+
+					if(duration>0){
+						d3.select('.s'+(i+1)+'-text')
+						.transition()
+						.duration(duration)
+						.attr('transform', function(d,i){
+							return 'translate('+(v+(w/2))+',36)';
+						});
+					} else {
+						d3.select('.s'+(i+1)+'-text')
+						.attr('transform', function(d,i){
+							return 'translate('+(v+(w/2))+',36)';
+						});
+					}
 					d3.select('.s'+(i+1)+'-percent')
 					.text(function(){
 						var v = (severity[i]/s_total)*100;
@@ -3512,18 +3527,17 @@ updateBubbles();
 					return v;
 				})
 				.attr('width', function(d,i){
-					// set tooltip
-
-
 					var v = (severity[i]/s_total)*1000;
 					return v;
 				});				
 			};
 
-			if((target=='severity')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
+			if((target=='severity')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
 
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', 1)
+				.transition()
+				.duration(duration)
 				.attr('x', function(d,i){
 					if(i==0){
 						var s = 0;
@@ -3623,7 +3637,7 @@ updateBubbles();
 	//**************************
 	// update stacked bars
 	//**************************
-	var updateStackedBars = function(group, dataset){
+	var updateStackedBars = function(group, dataset, duration = 0){
 
 		// affected groups
 		var dat = dataset.filter(function(d){
