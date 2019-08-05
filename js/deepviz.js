@@ -55,7 +55,7 @@ var Deepviz = function(sources, callback){
 	var brush;
 	var gBrush; 
 	var barWidth;
-	var numContextualRows = 6;
+	var numContextualRows;
 	var frameworkToggleImg;
 
 	// trendline
@@ -298,6 +298,8 @@ var Deepviz = function(sources, callback){
 		// set the data again for reset purposes
 		originalData = data;
 
+		// num contextual rows
+		numContextualRows = metadata.context_array.length;
 		//**************************
 		// find maximum and minimum values in the data to define scales
 		//**************************
@@ -3411,15 +3413,24 @@ updateBubbles();
 
 		var dc = data.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
 
+		var context = [];
+
+		dc.forEach(function(d,i){
+			d.context.forEach(function(dd,ii){
+				context.push(dd);
+			})
+		});
+
 		// define maximum context value
 		var contextualRowTotals = d3.nest()
-		.key(function(d) { return d.context;})
+		.key(function(d) { return d;})
 		.rollup(function(leaves) { return leaves.length; })
-		.entries(dc);
+		.entries(context);
 
+		d3.selectAll('.total-label').text(0);
+		
 		contextualRowTotals.forEach(function(d,i){
 			d3.select('#total-label'+(d.key-1)).text(d.value);
-
 		})
 
 		total = d3.sum(dataByDate, function(d){
