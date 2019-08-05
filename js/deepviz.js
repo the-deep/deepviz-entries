@@ -48,19 +48,15 @@ var Deepviz = function(sources, callback){
 	var timechartyGrids;
 	var width = 1300;
 	var margin = {top: 18, right: 17, bottom: 0, left: 37};
-	var timechartHeight = 390;
+	var timechartHeight = 370;
 	var timechartHeight2 = timechartHeight;
 	var timechartHeightOriginal = timechartHeight;
-	var timechartSvgHeight = 900;
+	var timechartSvgHeight = 870;
 	var brush;
 	var gBrush; 
 	var barWidth;
 	var numContextualRows = 6;
 	var frameworkToggleImg;
-
-	// severity / reliability charts
-	var reliabilityArray = ["Unreliable", "Not Usually Reliable", "Fairly Reliable", "Usually Reliable", "Completely Reliable"];
-	var severityArray = ["No/minor problem", "Of Concern", "Major", "Severe", "Critical"];
 
 	// trendline
 	var trendlinePoints;
@@ -78,7 +74,8 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.4;
+	var mapAspectRatio = 1.32;
+	var geoBounds = {'lat': [], 'lon': []};
 
 	// filters
 	var filters = {
@@ -143,13 +140,56 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		// return the data
-		data = values[0].deep.data;
-		metadata = values[0].deep.meta_data;
+		data = values[0].data;
+		metadata = values[0].meta;
 		frameworkToggleImg = values[1];
+
+		console.log(metadata);
+		// parse meta data, create integer id column from string ids
+		metadata.context_array.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+		});
+		metadata.framework_groups_array.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+			d._context_id = d.context_id;
+			metadata.context_array.forEach(function(ddd,ii){
+				if(d._context_id==ddd._id){
+					d.context_id = ddd.id;
+				}
+			});
+		});
+		metadata.affected_groups_array.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+		});
+		metadata.specific_needs_groups_array.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+		});
+		metadata.sector_array.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+		});
+		metadata.severity_units.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+		});
+		metadata.reliability_units.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+		});
+		metadata.geo_array.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+		});
+
 
 		// convert date strings into js date objects
 		data.forEach(function(d,i){
 			d.date = new Date(d.date);
+			d.date.setHours(0,0,0,0);
 			d.month = new Date(d.date);
 			d.month.setHours(0,0,0,0);
 			d.month.setDate(1);
@@ -157,7 +197,103 @@ var Deepviz = function(sources, callback){
 			d.year.setHours(0,0,0,0);
 			d.year.setDate(1);
 			d.year.setMonth(0);
+
+			// PARSE STRING IDS TO INTEGERS
+			// parse context array
+			d._context = d.context;
+			d.context = [];
+			d._context.forEach(function(dd,ii){
+				metadata.context_array.forEach(function(ddd,ii){
+					if(dd==ddd._id){
+						d.context.push(ddd.id);
+					}
+				});
+			});
+			// parse specific needs array
+			d._special_needs = d.special_needs;
+			d.special_needs = [];
+			d._special_needs.forEach(function(dd,ii){
+				metadata.specific_needs_groups_array.forEach(function(ddd,ii){
+					if(dd==ddd._id){
+						d.special_needs.push(ddd.id);
+					}
+				});
+			});
+			// parse affected groups array
+			d._affected_groups = d.affected_groups;
+			d.affected_groups = [];
+			d._affected_groups.forEach(function(dd,ii){
+				metadata.affected_groups_array.forEach(function(ddd,ii){
+					if(dd==ddd._id){
+						d.affected_groups.push(ddd.id);
+					}
+				});
+			});
+			// parse affected groups array
+			d._sector = d.sector;
+			d.sector = [];
+			d._sector.forEach(function(dd,ii){
+				var context_id = 0;
+				metadata.context_array.forEach(function(ddd,ii){
+					if(dd[0]==ddd._id){
+						context_id = ddd.id;
+					}
+				});
+				var framework_id = 0;
+				metadata.framework_groups_array.forEach(function(ddd,ii){
+					if(dd[1]==ddd._id){
+						framework_id = ddd.id;
+					}
+				});
+				var sector_id = 0;
+				metadata.sector_array.forEach(function(ddd,ii){
+					if(dd[2]==ddd._id){
+						sector_id = ddd.id;
+					}
+				});
+				d.sector.push([context_id,framework_id,sector_id]);
+			});
+
+			// parse severity id
+			d._severity = d.severity;
+			metadata.severity_units.forEach(function(ddd,ii){
+				if(d._severity==ddd._id){
+					d.severity = ddd.id;
+				}
+				// nuyll severity values
+				if(d._severity===null){
+					d.severity = 3;
+				}
+				if(d._reliability===null){
+					d.reliability = 3;
+				}
+			});
+			// parse reliability id
+			d._reliability = d.reliability;
+			metadata.reliability_units.forEach(function(ddd,ii){
+				if(d._reliability==ddd._id){
+					d.reliability = ddd.id;
+				}
+			});
+			// parse geo id
+			d._geo = d.geo;
+			d.geo = [];
+
+			d._geo.forEach(function(dd,ii){
+				metadata.geo_array.forEach(function(ddd,ii){
+					if(dd==ddd._id){
+						d.geo.push(ddd.id);
+						geoBounds.lat.push(ddd.bounds[0][0]);
+						geoBounds.lat.push(ddd.bounds[1][0]);
+						geoBounds.lon.push(ddd.bounds[0][1]);
+						geoBounds.lon.push(ddd.bounds[1][1]);
+					}
+				});
+			});
+
 		});
+
+		console.log(data);
 
 		// TEMPORARY for testing - filter data before minDate
 		data = data.filter(function(d){return (d.date) >= (minDate);});
@@ -309,6 +445,7 @@ var Deepviz = function(sources, callback){
 			});
 
 		});
+
 
 		dataByLocation = d3.nest()
 		.key(function(d) { return d.date;})
@@ -510,12 +647,14 @@ var Deepviz = function(sources, callback){
 		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 
 	    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
-	        
+ 
+		var bounds = new mapboxgl.LngLatBounds([d3.min(geoBounds.lat),d3.min(geoBounds.lon)], [d3.max(geoBounds.lat),d3.max(geoBounds.lon)] );
+
 	    //Setup mapbox-gl map
 	    var map = new mapboxgl.Map({
 	        container: 'map', // container id
 	        style: 'mapbox://styles/mapbox/light-v9',
-	        center: [17.4283, 28],
+	        center: [d3.mean(geoBounds.lat), d3.mean(geoBounds.lon)],
 	        zoom: 4,  
 	        trackResize: true,
 	        pitchWithRotate: false,
@@ -525,6 +664,10 @@ var Deepviz = function(sources, callback){
 	    
 	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 	    map.scrollZoom.disable();
+
+		map.fitBounds(bounds, {
+		padding: 20
+		});
 
 	    var container = map.getCanvasContainer()
 
@@ -580,7 +723,7 @@ var Deepviz = function(sources, callback){
 				return 'bubble'+i
 			})
 			.attr('transform', function(d,i){
-				p = projectPoint(metadata.geo_array[i].centroid_lon, metadata.geo_array[i].centroid_lat);
+				p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
 				return 'translate('+p.x+','+p.y+')';
 			})
 			.style('opacity', 1)
@@ -653,7 +796,7 @@ var Deepviz = function(sources, callback){
 
 	    function update() {
 		 	featureElement.attr('transform', function(d,i){
-				p = projectPoint(metadata.geo_array[i].centroid_lon, metadata.geo_array[i].centroid_lat);
+				p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
 				return 'translate('+p.x+','+p.y+')';
 			});  
 	    }
@@ -692,6 +835,9 @@ var Deepviz = function(sources, callback){
 
 		// filter();
 		var chartdata = refreshData();
+
+		// console.log(chartdata);
+
 		// container g, and
 		var svg = options.appendTo
 		.append("svg")
@@ -853,7 +999,6 @@ var Deepviz = function(sources, callback){
 		.attr("x", 135)
 		.style('font-weight','lighter')
 		.style('font-size', '15px')
-		.style('fill', '#000')
 		.text('Avg. Severity')
 
 		timechartLegend
@@ -875,7 +1020,6 @@ var Deepviz = function(sources, callback){
 		.attr("x", 22)
 		.style('font-weight','lighter')
 		.style('font-size', '15px')
-		.style('fill', '#000')
 		.text('Total Entries')
 
 		timechartLegend
@@ -1221,8 +1365,7 @@ var Deepviz = function(sources, callback){
 			.attr('y',21)
 			.attr('x',4)
 			.style('font-weight', 'bold')
-			.style('font-size', '16px')
-			.style('fill', '#303030')
+			.style('font-size', '16px');
 
 			// row total value
 			rows.append('text')
@@ -1586,7 +1729,6 @@ updateBubbles();
 		.attr('y', 20)
 		.style('font-weight', 'bold')
 		.style('font-size', '17px')
-		.style('fill', '#000')
 		.text('SECTORAL FRAMEWORK');
 
 		// add filter icon
@@ -1623,16 +1765,14 @@ updateBubbles();
 		.attr('x', 12)
 		.attr('y', 32)
 		.style('font-size', '24px')
-		.text('# of entries')
-		.style('fill', '#5D5D5D')	;
+		.text('# of entries');
 
 		toggleswitch.append('text')
 		.attr('x', 230)
 		.attr('y', 32)
 		.attr('id', 'framework-toggle-text')
 		.style('font-size', '24px')
-		.text('median severity')
-		.style('fill', '#5D5D5D')	;
+		.text('median severity');
 
 		var columnHeadersBg = frameworkSvg.append('g')
 		.attr('id', 'col-header')
@@ -2055,7 +2195,6 @@ updateBubbles();
 		.attr('y', 20)
 		.style('font-weight', 'bold')
 		.style('font-size', '23px')
-		.style('fill', '#000')
 		.text(a.title);
 
 		// add filter icon
@@ -2265,7 +2404,7 @@ updateBubbles();
 		.domain([1, 5]);// severity/reliability x xcale
 
 		var severityBars = severitySvg.selectAll('.severityBar')
-		.data(severityArray)
+		.data(metadata.severity_units)
 		.enter()
 		.append('g')
 		.attr('class','top-bar');
@@ -2435,7 +2574,7 @@ updateBubbles();
 		});
 
 		var reliabilityBars = reliabilitySvg.selectAll('.reliabilityBar')
-		.data(reliabilityArray)
+		.data(metadata.reliability_units)
 		.enter()
 		.append('g')
 		.attr('class','reliability-bar-group top-bar');
@@ -2765,15 +2904,15 @@ updateBubbles();
 		}
 
 		if(filters.reliability.length==0){
-			d3.selectAll('.reliabilityBar').transition().duration(200).style('fill', function(d,i){
+			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
 				return colorSecondary[i];
 			});		
 		} else {
-			d3.selectAll('.reliabilityBar').transition().duration(500).style('fill', function(d,i){
+			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
 				return colorLightgrey[i];
 			});	
 			filters.reliability.forEach(function(d,i){
-				d3.select('.reliabilityBar.reliability'+(d)).transition().duration(200)
+				d3.select('.reliabilityBar.reliability'+(d))
 				.style('fill', colorSecondary[d-1])
 			});
 		}
@@ -2977,6 +3116,7 @@ updateBubbles();
 	var updateTimeline = function(target = null){
 
 		var chartdata = refreshData();
+		console.log(chartdata);
 
 		scale.timechart.y1 = d3.scaleLinear()
 		.range([timechartHeight2, 0])
@@ -3370,7 +3510,7 @@ updateBubbles();
 		d3.selectAll('.severityBar')
 		.attr('fill', function(d,i){
 			tippy(this.parentNode, { 
-				content: '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorPrimary[i] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d,
+				content: '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorPrimary[i] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d.name,
 				theme: 'light-border',
 				delay: [250,100],
 				inertia: false,
@@ -3386,7 +3526,7 @@ updateBubbles();
 		d3.selectAll('.reliabilityBar')
 		.attr('fill', function(d,i){
 			tippy(this.parentNode, { 
-				content: '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorSecondary[i] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d,
+				content: '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorSecondary[i] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d.name,
 				theme: 'light-border',
 				delay: [250,100],
 				inertia: false,
@@ -3497,9 +3637,11 @@ updateBubbles();
 					}
 					var v = (s/s_total)*1000;
 					var w = (severity[i]/s_total)*1000;
+					console.log(w);
+					// hide show percent label
 					d3.select('.s'+(i+1)+'-text')
 					.style('opacity', function(){
-						if(w<10){ return  0 } else { return 1};
+						if(w<=20){ return  0 } else { return 1};
 					});
 
 					if(duration>0){
@@ -3551,7 +3693,9 @@ updateBubbles();
 						return 'translate('+(v+(w/2))+',36)';
 					})
 					.style('opacity', function(){
-						if(w<10){ return  0 } else { return 1};
+					// hide show percent label
+
+						if(w<=20){ return  0 } else { return 1};
 					});
 
 					d3.select('.r'+(i+1)+'-percent')
@@ -3598,16 +3742,16 @@ updateBubbles();
 			});
 
 			// var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
-			// d3.select('#severity_value').text(severityArray[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
-			d3.select('#severity_value').text(severityArray[s_median-1] )
+			// d3.select('#severity_value').text(metadata.severity_units[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
+			d3.select('#severity_value').text(metadata.severity_units[s_median-1].name )
 
 			d3.select('#severityAvg').attr('x',function(d){
 				return scale.severity.x(s_median);
 			});
 
 			// var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
-			// d3.select('#reliability_value').text(reliabilityArray[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
-			d3.select('#reliability_value').text(reliabilityArray[r_median-1] )
+			// d3.select('#reliability_value').text(metadata.reliability_units[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
+			d3.select('#reliability_value').text(metadata.reliability_units[r_median-1].name )
 
 			d3.select('#reliabiltiyAvg').attr('x',function(d){
 				return scale.severity.x(r_median);
@@ -3720,7 +3864,8 @@ updateBubbles();
 					size: 'small',
 					onShow(instance) {
 				        // instance.popper.hidden = instance.reference.dataset.tippy ? false : true;
-				        var v = d3.select('#'+id).attr('data-value')
+				        var v = d3.select('#'+id).attr('data-value');
+				        if(s>0)
 				      	instance.setContent(setBarName(s, v));
 					}
 				});
@@ -3731,12 +3876,13 @@ updateBubbles();
 	}
 
 	var setBarName = function(s,v){
+		if(s==0) return false;
 		if(filters.toggle == 'severity'){
 			var color = colorPrimary[s-1];
-			var text = severityArray[s-1];
+			var text = metadata.severity_units[s-1].name;
 		} else {
 			var color = colorSecondary[s-1];
-			var text = reliabilityArray[s-1];
+			var text = metadata.reliability_units[s-1].name;
 		}
 		return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + v + ' entries</div>';
 	}

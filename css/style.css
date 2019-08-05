@@ -2,7 +2,17 @@
 
 
 html {
-	background-color: #e0e0e0;
+	background-color: #f6f6f6;
+	color: #4c4c4c;
+}
+
+text {
+	fill: #4c4c4c;
+	color: #4c4c4c;
+}
+
+.time-select text {
+	fill: #FFF;
 }
 
 body {
@@ -14,7 +24,7 @@ body {
 	-khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
 	-webkit-user-select: none; /* Chrome, Safari, and Opera */
 	-webkit-touch-callout: none; /* Disable Android and iOS callouts*/
-
+	padding: 0px 10px 10px 10px;
 }
 
 input { cursor: pointer; }
@@ -52,18 +62,15 @@ svg text {
 	top: 0px;
 	z-index: 3;
 	width: 97.5%;
-	max-width: 1300px;
 	background-color: #FFF;
 	border-right: 1px solid #FFF;
 }
 
 #container {
 	padding: 0px 15px 0px 15px;
-	max-width: 1300px;
 	margin: 0px auto;
-	-webkit-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
-	-moz-box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
-	box-shadow: 0px 6px 29px -12px rgba(0,0,0,0.75);
+	border: 1px solid #00000033;
+	border-top: 1px solid #FFF;
 	background-color: #FFF;
 
 }
@@ -670,6 +677,7 @@ font-size: 15px;
 	font-weight: bold;
 	display: inline;
 	white-space: nowrap;
+	color: #4c4c4c;
 }
 
 .subtitle {
@@ -689,7 +697,7 @@ font-size: 15px;
 
 #dateRangeText {
 	    padding-top: 2px;
-    font-size: 18px;
+    font-size: 17px;
     color: #008974;
     cursor: default;
 }
@@ -839,7 +847,6 @@ font-size: 15px;
 	font-weight: normal;
 	text-transform: uppercase;
     font-size: 13px;
-    fill: #1E1E1E;
 }
 
 .cell {
