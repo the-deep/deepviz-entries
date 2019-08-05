@@ -144,7 +144,6 @@ var Deepviz = function(sources, callback){
 		metadata = values[0].meta;
 		frameworkToggleImg = values[1];
 
-		console.log(metadata);
 		// parse meta data, create integer id column from string ids
 		metadata.context_array.forEach(function(d,i){
 			d._id = d.id;
@@ -292,8 +291,6 @@ var Deepviz = function(sources, callback){
 			});
 
 		});
-
-		console.log(data);
 
 		// TEMPORARY for testing - filter data before minDate
 		data = data.filter(function(d){return (d.date) >= (minDate);});
@@ -835,8 +832,6 @@ var Deepviz = function(sources, callback){
 
 		// filter();
 		var chartdata = refreshData();
-
-		// console.log(chartdata);
 
 		// container g, and
 		var svg = options.appendTo
@@ -3116,7 +3111,6 @@ updateBubbles();
 	var updateTimeline = function(target = null){
 
 		var chartdata = refreshData();
-		console.log(chartdata);
 
 		scale.timechart.y1 = d3.scaleLinear()
 		.range([timechartHeight2, 0])
@@ -3624,7 +3618,7 @@ updateBubbles();
 				reliabilityRolling[i] = reliabilityCount;
 			}
 
-			if((target=='reliability')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
+			if((target=='reliability')||(target=='init')||(target=='geo')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
 				d3.selectAll('.severityBar')
 				.transition()
 				.duration(duration)
@@ -3637,7 +3631,6 @@ updateBubbles();
 					}
 					var v = (s/s_total)*1000;
 					var w = (severity[i]/s_total)*1000;
-					console.log(w);
 					// hide show percent label
 					d3.select('.s'+(i+1)+'-text')
 					.style('opacity', function(){
@@ -3674,7 +3667,7 @@ updateBubbles();
 				});				
 			};
 
-			if((target=='severity')||(target=='init')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
+			if((target=='severity')||(target=='init')||(target=='geo')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
 
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', 1)
