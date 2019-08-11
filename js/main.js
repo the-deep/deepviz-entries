@@ -2,8 +2,6 @@ var sources = [ 'data/data.json'];
 
 var Deepviz = new Deepviz(sources, function(data){
 
-	console.log('data loaded');
-
 	//**************************
 	// sector chart
 	//**************************

@@ -91,15 +91,13 @@ var Deepviz = function(sources, callback){
 	};
 
 	// colors
-	var colorPrimary = ['#feedde', '#fdbe85', '#fd8d3c', '#e6550d', '#a63603']; // severity
-	var colorPrimary = ['#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
+	var colorPrimary = ['#A1E6DB','#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
 	var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
 	var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
-	var colorLightgrey = ['#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
+	var colorLightgrey = ['#fafafa','#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
 	var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
-	var colorNeutral = ['#A1E6DB', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
-	var colorSecondary = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']; // reliability
-	var colorSecondary = ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
+	var colorNeutral = ['#ddf6f2', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
+	var colorSecondary = ['#A1E6DB','#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
 
 	var maxCellSize = 4;
 
@@ -184,6 +182,18 @@ var Deepviz = function(sources, callback){
 			d.id = i+1;
 		});
 
+		metadata.severity_units.unshift({
+			"id": 6,
+			"color": "grey",
+			"name": "Null",
+			"_id": null,
+		});
+		metadata.reliability_units.unshift({
+			"id": 6,
+			"color": "grey",
+			"name": "Null",
+			"_id": null,
+		})
 
 		// convert date strings into js date objects
 		data.forEach(function(d,i){
@@ -261,10 +271,10 @@ var Deepviz = function(sources, callback){
 				}
 				// nuyll severity values
 				if(d._severity===null){
-					d.severity = 3;
+					d.severity = 0;
 				}
 				if(d._reliability===null){
-					d.reliability = 3;
+					d.reliability = 0;
 				}
 			});
 			// parse reliability id
@@ -294,7 +304,6 @@ var Deepviz = function(sources, callback){
 
 		// TEMPORARY for testing - filter data before minDate
 		data = data.filter(function(d){return (d.date) >= (minDate);});
-
 		// set the data again for reset purposes
 		originalData = data;
 
@@ -518,17 +527,17 @@ var Deepviz = function(sources, callback){
 
 			var count = 0;
 
-			d.severity = [0,0,0,0,0];
+			d.severity = [0,0,0,0,0,0];
 
 			d.values.forEach(function(dx){
-				d.severity[dx.key-1] = dx.value;
+				d.severity[dx.key] = dx.value;
 				count += dx.value;
 			});
 
-			d.reliability = [0,0,0,0,0];
+			d.reliability = [0,0,0,0,0,0];
 
 			dateByReliability[i].values.forEach(function(dx){
-				d.reliability[dx.key-1] = dx.value;
+				d.reliability[dx.key] = dx.value;
 			});
 
 			// set up empty context array for data loop
@@ -2283,23 +2292,23 @@ updateBubbles();
 		scale[a.classname] = {};
 		scale[a.classname].x = d3.scaleLinear()
 		.range([labelWidth, a.width - padding.right])
-		.domain([0, 5]);// severity/reliability x xcale
+		.domain([1, 5]);// severity/reliability x xcale
 
 		scale[a.classname].paddingLeft = labelWidth;
 
-		for(var s=4; s >= 0; s--) {
+		for(var s=5; s >= 0; s--) {
 			var val = s;
 			var bar = rows.append('rect')
 				.attr('id', function(d,i){
-					return a.classname+d.id+'s'+(s+1);
+					return a.classname+d.id+'s'+(s);
 				})
-				.attr('class', a.classname+'-bar s'+(s+1))
+				.attr('class', a.classname+'-bar s'+(s))
 				.attr('x', function(d,i){
 					return scale[a.classname].x(s);
 				})
 				.attr('width', width/5)
 				.attr('data-width', width)
-				.attr('data-id', s+1)
+				.attr('data-id', s)
 				.attr('data-percent', 0)
 				.attr('y', padding.bar.y)
 				.attr('height', rowHeight-(padding.bar.y*2))
@@ -2398,7 +2407,7 @@ updateBubbles();
 		// define x scale
 		scale.severity.x = d3.scaleLinear()
 		.range([0, 995])
-		.domain([1, 5]);// severity/reliability x xcale
+		.domain([0, 5]);// severity/reliability x xcale
 
 		var severityBars = severitySvg.selectAll('.severityBar')
 		.data(metadata.severity_units)
@@ -2408,7 +2417,7 @@ updateBubbles();
 
 		severityBars.append('rect')
 		.attr('class', function(d,i){
-			return 'severityBar severity' + (i+1);
+			return 'severityBar severity' + (i);
 		})
 		.attr('x', function(d,i){
 			return (1000/5)*i;
@@ -2523,7 +2532,7 @@ updateBubbles();
 			// d3.selectAll('.severityBar').style('stroke-width', 0).style('stroke-opacity',0)
 			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1);	
 			clickTimer = 1;
-			filter('severity',i+1);
+			filter('severity',i);
 			setTimeout(function(){ clickTimer = 0 }, 2000);
 		});
 
@@ -2578,7 +2587,7 @@ updateBubbles();
 
 		reliabilityBars.append('rect')
 		.attr('class', function(d,i){
-			return 'reliabilityBar reliability' + (i+1);
+			return 'reliabilityBar reliability' + (i);
 		})
 		.attr('x', function(d,i){
 			return (1000/5)*i;
@@ -2681,7 +2690,7 @@ updateBubbles();
 			// d3.selectAll('.reliabilityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0);
 			// d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1);
 			clickTimer = 1;
-			filter('reliability',i+1);
+			filter('reliability',i);
 			setTimeout(function(){ clickTimer = 0 }, 2000);
 		});
 
@@ -2884,7 +2893,7 @@ updateBubbles();
 		d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 		// apply filters to data array
-		if(filters['severity'].length==5){
+		if(filters['severity'].length==6){
 			filters['severity'] = [];
 		}
 
@@ -2893,7 +2902,7 @@ updateBubbles();
 			d3.select('#severityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
-		if(filters['reliability'].length==5)filters['reliability'] = [];
+		if(filters['reliability'].length==6)filters['reliability'] = [];
 
 		if(filters['reliability'].length>0){
 			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
@@ -2910,7 +2919,7 @@ updateBubbles();
 			});	
 			filters.reliability.forEach(function(d,i){
 				d3.select('.reliabilityBar.reliability'+(d))
-				.style('fill', colorSecondary[d-1])
+				.style('fill', colorSecondary[d])
 			});
 		}
 
@@ -2923,10 +2932,8 @@ updateBubbles();
 				return colorLightgrey[i];
 			});	
 			filters.severity.forEach(function(d,i){
-
 				d3.select('.severityBar.severity'+(d))
-				.style('fill', colorPrimary[d-1])
-
+				.style('fill', colorPrimary[d]);
 			});
 		}
 
@@ -3504,11 +3511,13 @@ updateBubbles();
 
 		var s_total = 0;
 		var r_total = 0;
-		var severity = [0,0,0,0,0];
-		var severityRolling = [0,0,0,0,0];
+		var s_total_not_null = 0;
+		var r_total_not_null = 0;
+		var severity = [0,0,0,0,0,0];
+		var severityRolling = [0,0,0,0,0,0];
 		var severityCount = 0;
-		var reliability = [0,0,0,0,0];
-		var reliabilityRolling = [0,0,0,0,0];
+		var reliability = [0,0,0,0,0,0];
+		var reliabilityRolling = [0,0,0,0,0,0];
 		var reliabilityCount = 0;
 		var timedata = data;
 
@@ -3571,16 +3580,17 @@ updateBubbles();
 			dt.setHours(0,0,0,0);
 			d.key = dt;
 			d.date = d.key;
-			d.severity = [0,0,0,0,0];
+			d.severity = [0,0,0,0,0,0];
 			var count = 0;
 			d.values.forEach(function(dx){
-				d.severity[dx.key-1] = dx.value;
+				d.severity[dx.key] = dx.value;
 				count += dx.value;
 			});
 
 			d.total_entries = count;
 
-		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
+
+		    d.severity_avg = ( (1*d.severity[5]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
 
 			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < severity.length; i++) { 
@@ -3598,17 +3608,17 @@ updateBubbles();
 			d.date = d.key;
 			var count = 0;
 
-			d.reliability = [0,0,0,0,0];
-			d.severity = [0,0,0,0,0];
+			d.reliability = [0,0,0,0,0,0];
+			d.severity = [0,0,0,0,0,0];
 
 			dateByReliability[i].values.forEach(function(dx){
-				d.reliability[dx.key-1] = dx.value;
+				d.reliability[dx.key] = dx.value;
 				count += dx.value;
 			});
 
 			d.total_entries = count;
 
-		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
+		    d.reliability_avg = ( (1*d.reliability[5]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
 
 			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < reliability.length; i++) { 
@@ -3722,10 +3732,12 @@ updateBubbles();
 			// severity median
 			var s = 0;
 			var s_median = 0;
+			var t = 0;
+
 			severity.every(function(d,i){
 				s += severity[i];
 				  if (s > s_total / 2){
-					s_median = i+1;
+					s_median = i;
 					return false;	
 				  } else { 
 				  	return true;
@@ -3738,24 +3750,24 @@ updateBubbles();
 			reliability.every(function(d,i){
 				r += reliability[i];
 				  if (r > r_total / 2){
-					r_median = i+1;
+					r_median = i;
 					return false;	
 				  } else { 
 				  	return true;
 				  }
 			});
 
-			// var severityAverage = ( (1*severity[0]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
-			// d3.select('#severity_value').text(metadata.severity_units[(Math.round(severityAverage)-1)] + ' ('+ severityAverage.toFixed(1) +')' )
-			d3.select('#severity_value').text(metadata.severity_units[s_median-1].name )
+			var severityAverage = ( (1*severity[5]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
+			d3.select('#severity_value').text(metadata.severity_units[(Math.round(severityAverage))] + ' ('+ severityAverage.toFixed(1) +')' )
+			d3.select('#severity_value').text(metadata.severity_units[s_median].name )
 
 			d3.select('#severityAvg').attr('x',function(d){
 				return scale.severity.x(s_median);
 			});
 
-			// var reliabilityAverage = ( (1*reliability[0]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
-			// d3.select('#reliability_value').text(metadata.reliability_units[(Math.round(reliabilityAverage)-1)] + ' ('+ reliabilityAverage.toFixed(1) +')' )
-			d3.select('#reliability_value').text(metadata.reliability_units[r_median-1].name )
+			var reliabilityAverage = ( (1*reliability[5]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
+			d3.select('#reliability_value').text(metadata.reliability_units[(Math.round(reliabilityAverage))] + ' ('+ reliabilityAverage.toFixed(1) +')' )
+			d3.select('#reliability_value').text(metadata.reliability_units[r_median].name )
 
 			d3.select('#reliabiltiyAvg').attr('x',function(d){
 				return scale.severity.x(r_median);
@@ -3847,9 +3859,9 @@ updateBubbles();
 				.attr('data-value', dd.value)
 				.style('fill', function(){
 					if(filters.toggle == 'severity'){
-						return colorPrimary[s-1];
+						return colorPrimary[s];
 					} else {
-						return colorSecondary[s-1];
+						return colorSecondary[s];
 					}
 				});
 
@@ -3869,7 +3881,7 @@ updateBubbles();
 					onShow(instance) {
 				        // instance.popper.hidden = instance.reference.dataset.tippy ? false : true;
 				        var v = d3.select('#'+id).attr('data-value');
-				        if(s>0)
+				        if(s>=0)
 				      	instance.setContent(setBarName(s, v));
 					}
 				});
@@ -3880,13 +3892,13 @@ updateBubbles();
 	}
 
 	var setBarName = function(s,v){
-		if(s==0) return false;
+		// if(s==0) return false;
 		if(filters.toggle == 'severity'){
-			var color = colorPrimary[s-1];
-			var text = metadata.severity_units[s-1].name;
+			var color = colorPrimary[s];
+			var text = metadata.severity_units[s].name;
 		} else {
-			var color = colorSecondary[s-1];
-			var text = metadata.reliability_units[s-1].name;
+			var color = colorSecondary[s];
+			var text = metadata.reliability_units[s].name;
 		}
 		return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + v + ' entries</div>';
 	}
@@ -3975,7 +3987,7 @@ updateBubbles();
 					}
 				}
 				// set cell colour
-				d3.select('#'+id +'rect').style('fill', cellColorScale(v));
+				d3.select('#'+id +'rect').style('fill', function(d){ if(v==0) {return colorLightgrey[1]; } else { return cellColorScale(v); } });
 				// set the text for all cells
 				d3.select('#'+id +'text').text(v).style('visibility', 'hidden')
 				.style('fill', function(){
