@@ -3987,7 +3987,7 @@ updateBubbles();
 					}
 				}
 				// set cell colour
-				d3.select('#'+id +'rect').style('fill', function(d){ if(v==0) {return colorLightgrey[1]; } else { return cellColorScale(v); } });
+				d3.select('#'+id +'rect').style('fill', function(d){ if(v==0) {return colorNeutral[0]; } else { return cellColorScale(v); } });
 				// set the text for all cells
 				d3.select('#'+id +'text').text(v).style('visibility', 'hidden')
 				.style('fill', function(){
