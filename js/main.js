@@ -124,9 +124,6 @@ var Deepviz = new Deepviz(sources, function(data){
 		dateBrush: true,
 		dataValues: 'total_entries',
 		dataKey: 'key',
-		// sliderUpdate: function(a,b){
-		// 	sliderUpdate(a,b);
-		// },
 		frame: [1]
 	});
 

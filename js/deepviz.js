@@ -42,7 +42,6 @@ var Deepviz = function(sources, callback){
 	var maxContextValue;
 	var tp_severity = [];
 	var tp_reliability = [];
-
 	// timechart variables
 	var timechartInit = 0;
 	var timechartyAxis;
@@ -58,20 +57,18 @@ var Deepviz = function(sources, callback){
 	var barWidth;
 	var numContextualRows;
 	var frameworkToggleImg;
-
 	// trendline
 	var trendlinePoints;
 	var avgSliderBrushing = false; // brush state
 	var pathData = {};
 	var clickTimer = 0;
 	var smoothingVal = 10;
-
 	var curvedLine = d3.line()
-		    .x(function(d,i){
-		    	return scale.timechart.x(dataByDate[i].date);
-		    })
-		    .y(d => (d))
-		    .curve(d3.curveLinear);
+	.x(function(d,i){
+		return scale.timechart.x(dataByDate[i].date);
+	})
+	.y(d => (d))
+	.curve(d3.curveLinear);
 
 	// map
 	var maxMapBubbleValue;
@@ -101,9 +98,8 @@ var Deepviz = function(sources, callback){
 	var colorSecondary = ['#A1E6DB','#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
 
 	var maxCellSize = 4;
-
 	var cellColorScale = d3.scaleSequential().domain([1,maxCellSize])
-	  .interpolator(d3.interpolateReds);
+	.interpolator(d3.interpolateReds);
 
 	// stacked bar charts (sector, affected groups, special needs groups)
 	var stackedBarHeight = 480;
@@ -117,19 +113,15 @@ var Deepviz = function(sources, callback){
 	// load each data source
 	var promises = [];
 	files.forEach(function(url) {
-
 		if(url.endsWith('json')){
 			promises.push(d3.json(url));			
 		};
-
 		if(url.endsWith('csv')){
 			promises.push(d3.csv(url));			
 		};
-
 		if(url.endsWith('svg')){
 			promises.push(d3.xml(url));			
 		};
-
 	});
 
 	// after all data has been loaded
@@ -304,12 +296,14 @@ var Deepviz = function(sources, callback){
 		});
 
 		// TEMPORARY for testing - filter data before minDate
-		data = data.filter(function(d){return (d.date) >= (minDate);});
+		// data = data.filter(function(d){return (d.date) >= (minDate);});
+
 		// set the data again for reset purposes
 		originalData = data;
 
 		// num contextual rows
 		numContextualRows = metadata.context_array.length;
+
 		//**************************
 		// find maximum and minimum values in the data to define scales
 		//**************************
@@ -356,7 +350,7 @@ var Deepviz = function(sources, callback){
 		.entries(data);
 
 	    // define timechart X scale
-		dateIndex = data.map(function(d) { return d['date']; });
+	    dateIndex = data.map(function(d) { return d['date']; });
 
 	    scale.timechart.x = d3.scaleTime()
 	    .domain([minDate, maxDate])
@@ -425,7 +419,6 @@ var Deepviz = function(sources, callback){
 		dataByFramework = [];
 		dataByAffectedGroups = [];
 		dataBySpecificNeeds = [];
-
 		var dataByLocationArray = [];
 		var dataByContextArray = [];
 
@@ -454,7 +447,6 @@ var Deepviz = function(sources, callback){
 			});
 
 		});
-
 
 		dataByLocation = d3.nest()
 		.key(function(d) { return d.date;})
@@ -506,16 +498,8 @@ var Deepviz = function(sources, callback){
 		});
 
 		scale.eventdrop = d3.scaleLinear()
-			.range([0,12])
-			.domain([0,maxContextValue]);// 
-
-		// dataByAffectedGroups = d3.nest()
-		// .key(function(d) { return d.date;})
-		// .key(function(d) { return d.d; })
-		// .key(function(d) { return d.s; })
-		// .rollup(function(leaves) { return leaves.length; })
-		// .entries(dataByAffectedGroupsArray);
-
+		.range([0,12])
+		.domain([0,maxContextValue]);
 
 		trendlinePoints = [];
 		tp = [];
@@ -544,6 +528,7 @@ var Deepviz = function(sources, callback){
 			// set up empty context array for data loop
 			var contextArr = [];
 			var numContextRows = metadata.context_array.length;
+
 			for(b=0; b<=numContextRows-1; b++){
 				contextArr[b] = 0;
 			}
@@ -555,28 +540,28 @@ var Deepviz = function(sources, callback){
 				contextArr[k] = dx.value
 			});
 
-		    d.context = contextArr;
+			d.context = contextArr;
 
 		    // geo array
-			var geoArr = [];
+		    var geoArr = [];
 
-			dataByLocation[i].values.forEach(function(dx, ii){
-				var k = dx.key-1;
-				geoArr[k] = dx.value;
-			});
+		    dataByLocation[i].values.forEach(function(dx, ii){
+		    	var k = dx.key-1;
+		    	geoArr[k] = dx.value;
+		    });
 
 		    d.geo = geoArr;
 
-			d.total_entries = count;
+		    d.total_entries = count;
 
 		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
 		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
 
 		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
 
-			dataByDate[i].barValues = d[filters.toggle];
+		    dataByDate[i].barValues = d[filters.toggle];
 
-			delete d.values;
+		    delete d.values;
 		});
 
 		dataByDate.sort(function(x,y){
@@ -618,7 +603,6 @@ var Deepviz = function(sources, callback){
 
 		div = '#'+rid;
 		$(div).css('margin', 'auto');
-
 		$(div).addClass('vizlibResponsiveDiv');
 		$(div).attr('data-aspectRatio', aspectRatio);
 		$(div).css('overflow','hidden');
@@ -644,7 +628,6 @@ var Deepviz = function(sources, callback){
 		return this.svg;
 	};
 
-
 	//**************************
 	// create map
 	//**************************
@@ -655,8 +638,8 @@ var Deepviz = function(sources, callback){
 
 		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 
-	    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
- 
+		mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
+
 		var bounds = new mapboxgl.LngLatBounds([d3.min(geoBounds.lat),d3.min(geoBounds.lon)], [d3.max(geoBounds.lat),d3.max(geoBounds.lon)] );
 
 	    //Setup mapbox-gl map
@@ -672,13 +655,11 @@ var Deepviz = function(sources, callback){
 	    });
 
 	    mapbox = map;
-	    
 	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 	    map.scrollZoom.disable();
-
-		map.fitBounds(bounds, {
-		padding: 20
-		});
+	    map.fitBounds(bounds, {
+	    	padding: 20
+	    });
 
 	    var container = map.getCanvasContainer()
 
@@ -688,40 +669,37 @@ var Deepviz = function(sources, callback){
 	    .style('width', '100%')
 	    .style('height', '100%');
 
-	    // // add dropshadow
-	    // mapsvg.append('defs');
+	    var transform = d3.geoTransform({point: projectPoint});
+	    var path = d3.geoPath().projection(transform);
 
-		var transform = d3.geoTransform({point: projectPoint});
-		var path = d3.geoPath().projection(transform);
+	    var gd = dataByDate.filter(function(d){
+	    	return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
+	    });
 
-		var gd = dataByDate.filter(function(d){
-			return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
-		});
+	    var dataByLocationSum = [];
 
-		var dataByLocationSum = [];
+	    for(var g=0; g < metadata.geo_array.length; g++) {
+	    	dataByLocationSum[g] = 0;
+	    }
 
-		for(var g=0; g < metadata.geo_array.length; g++) {
-			dataByLocationSum[g] = 0;
-		}
+	    gd.forEach(function(d,i){
+	    	for(var g=0; g < metadata.geo_array.length; g++) {
+	    		if(d.geo[g]>0){
+	    			var t = (dataByLocationSum[g]) + (d.geo[g]);
+	    			dataByLocationSum[g] = t;
+	    		}
+	    	}
+	    });
 
-		gd.forEach(function(d,i){
-			for(var g=0; g < metadata.geo_array.length; g++) {
-				if(d.geo[g]>0){
-					var t = (dataByLocationSum[g]) + (d.geo[g]);
-					dataByLocationSum[g] = t;
-				}
-	   		}
-		});
-
-		maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
-			return d;
-		});
+	    maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
+	    	return d;
+	    });
 
 	    scale.map = d3.scaleLinear()
-			.range([0.2,1])
+	    .range([0.2,1])
 			.domain([0,maxMapBubbleValue]);// 
 
-	 	var featureElement = mapsvg.selectAll("g")
+			var featureElement = mapsvg.selectAll("g")
 			.data(dataByLocationSum)
 			.enter()
 			.append('g')
@@ -757,7 +735,7 @@ var Deepviz = function(sources, callback){
 				animation: 'shift-away',
 				arrow: true,
 				size: 'small'
-			 });
+			});
 
 			var featureElementG = featureElement
 			.append('g')
@@ -775,76 +753,75 @@ var Deepviz = function(sources, callback){
 			})
 
 			featureElementG
-	        .append("circle")
-	        .attr('class',  'outerCircle')
-	        .attr("stroke", colorNeutral[3])
-	        .attr("fill", "#FFF")
-	        .attr('cx', 0)
-	        .attr('cy', 0)
-	        .attr('r' , 30)
-	        .attr("stroke-width", 2);
+			.append("circle")
+			.attr('class',  'outerCircle')
+			.attr("stroke", colorNeutral[3])
+			.attr("fill", "#FFF")
+			.attr('cx', 0)
+			.attr('cy', 0)
+			.attr('r' , 30)
+			.attr("stroke-width", 2);
 
 			featureElementG
-	        .append("circle")
-	        .attr('class',  'innerCircle')
-	        .attr("fill", colorNeutral[3])
-	        .attr('cx', 0)
-	        .attr('cy', 0)
-	        .attr('r' , 26)
-	        .attr("stroke-width", 0);
+			.append("circle")
+			.attr('class',  'innerCircle')
+			.attr("fill", colorNeutral[3])
+			.attr('cx', 0)
+			.attr('cy', 0)
+			.attr('r' , 26)
+			.attr("stroke-width", 0);
 
-	        featureElementG
-	        .append('text')
-	        .attr('text-anchor', 'middle')
-	        .attr('class', 'map-bubble-value')
-	        .text(function(d,i){
-	        	return dataByLocationSum[i];
-	        })
-	        .attr('y', 8)
-	        .style('font-weight', 'normal')
-	        .style('font-size', '24px')
-	        .style('fill', '#FFF')
+			featureElementG
+			.append('text')
+			.attr('text-anchor', 'middle')
+			.attr('class', 'map-bubble-value')
+			.text(function(d,i){
+				return dataByLocationSum[i];
+			})
+			.attr('y', 8)
+			.style('font-weight', 'normal')
+			.style('font-size', '24px')
+			.style('fill', '#FFF')
 
-	    function update() {
-		 	featureElement.attr('transform', function(d,i){
-				p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
-				return 'translate('+p.x+','+p.y+')';
-			});  
-	    }
-	    
-	    map.on("viewreset", update)
+			function update() {
+				featureElement.attr('transform', function(d,i){
+					p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
+					return 'translate('+p.x+','+p.y+')';
+				});  
+			}
 
-	    map.on("movestart", function(){
-			mapsvg.classed("hidden", true);
-		});	
-		map.on("move", function(){
-			update();
-		});
-	    map.on("rotate", function(){
-			mapsvg.classed("hidden", true);
-		});	
-	    map.on("moveend", function(){
-			update()
-			mapsvg.classed("hidden", false);
-		});
-	    
-		function projectPoint(lon, lat) {
-	        var point = map.project(new mapboxgl.LngLat(lon, lat));
-			return point;
+			map.on("viewreset", update)
+
+			map.on("movestart", function(){
+				mapsvg.classed("hidden", true);
+			});	
+			map.on("move", function(){
+				update();
+			});
+			map.on("rotate", function(){
+				mapsvg.classed("hidden", true);
+			});	
+			map.on("moveend", function(){
+				update()
+				mapsvg.classed("hidden", false);
+			});
+
+			function projectPoint(lon, lat) {
+				var point = map.project(new mapboxgl.LngLat(lon, lat));
+				return point;
+			}
+
+			d3.selectAll('#geoRemoveFilter').on('click', function(){
+				d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
+				return filter('geo', 'clear'); 
+			});
 		}
-
-		d3.selectAll('#geoRemoveFilter').on('click', function(){
-			d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
-			return filter('geo', 'clear'); 
-		});
-	}
 
 	//**************************
 	// create timechart
 	//**************************
 	this.timeChart = function(options){
 
-		// filter();
 		var chartdata = refreshData();
 
 		// container g, and
@@ -909,25 +886,25 @@ var Deepviz = function(sources, callback){
 			var thisYear = today.getFullYear();
 
 			$('#dateRange').daterangepicker({
-			    "locale": {
-			        "format": "DD MMM YYYY",
-			    },
-			    showDropdowns: true,
-			    showCustomRangeLabel: false,
-			    alwaysShowCalendars: true,
-			    ranges: {
-			        'Today': [moment(), moment()],
-			        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-			        'This Year': [new Date(today.getFullYear(), 0, 1), moment(maxDate).subtract(1,'days')],
-			        'Last Year': [new Date(dateRange[0].getFullYear()-1, 0, 1), new Date(dateRange[0].getFullYear()-1, 12, 0)],
-			        'Last 30 Days': [moment(new Date()).subtract(29, 'days'), moment()],
-			        'This Month': [new Date(today.getFullYear(), today.getMonth(), 1), new Date(today.getFullYear(), today.getMonth()+1, 0)],
-			        'Last Month': [new Date(today.getFullYear(), today.getMonth()-1, 0), new Date(today.getFullYear(), today.getMonth(), 0)]
-			    },
-			    maxYear: maxDate.getFullYear(),
-			    minYear: minDate.getFullYear(),
-			    minDate: minDate,
-			    maxDate: maxDate
+				"locale": {
+					"format": "DD MMM YYYY",
+				},
+				showDropdowns: true,
+				showCustomRangeLabel: false,
+				alwaysShowCalendars: true,
+				ranges: {
+					'Today': [moment(), moment()],
+					'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+					'This Year': [new Date(today.getFullYear(), 0, 1), moment(maxDate).subtract(1,'days')],
+					'Last Year': [new Date(dateRange[0].getFullYear()-1, 0, 1), new Date(dateRange[0].getFullYear()-1, 12, 0)],
+					'Last 30 Days': [moment(new Date()).subtract(29, 'days'), moment()],
+					'This Month': [new Date(today.getFullYear(), today.getMonth(), 1), new Date(today.getFullYear(), today.getMonth()+1, 0)],
+					'Last Month': [new Date(today.getFullYear(), today.getMonth()-1, 0), new Date(today.getFullYear(), today.getMonth(), 0)]
+				},
+				maxYear: maxDate.getFullYear(),
+				minYear: minDate.getFullYear(),
+				minDate: minDate,
+				maxDate: maxDate
 			});		
 
 			d3.select('#dateRange').style('cursor', 'pointer');
@@ -1040,33 +1017,33 @@ var Deepviz = function(sources, callback){
 		.attr('height', 10)
 		.style('fill', colorNeutral[3]);
 
-	    var xAxis = d3.axisBottom()
-	    .scale(scale.timechart.x)
-	    .tickSize(0)
-	    .tickPadding(10)
-	    .ticks(d3.timeMonth.every(1))
+		var xAxis = d3.axisBottom()
+		.scale(scale.timechart.x)
+		.tickSize(0)
+		.tickPadding(10)
+		.ticks(d3.timeMonth.every(1))
 
-    	if(filters.time=='y'){
-    		xAxis.ticks(d3.timeYear.every(1))
-		    .tickFormat(d3.timeFormat("%Y"));
+		if(filters.time=='y'){
+			xAxis.ticks(d3.timeYear.every(1))
+			.tickFormat(d3.timeFormat("%Y"));
 
-    	} else {
-    		xAxis.ticks(d3.timeMonth.every(1))
-		    .tickFormat(d3.timeFormat("%b %Y"));
-    	}
+		} else {
+			xAxis.ticks(d3.timeMonth.every(1))
+			.tickFormat(d3.timeFormat("%b %Y"));
+		}
 
 	    //**************************
 	    // Y AXIS left
 	    //**************************
-		scale.timechart.y1 = d3.scaleLinear()
-		.range([timechartHeight2, 0])
-		.domain([0, rounder(maxValue)]);
+	    scale.timechart.y1 = d3.scaleLinear()
+	    .range([timechartHeight2, 0])
+	    .domain([0, rounder(maxValue)]);
 
-		timechartyAxis = d3.axisLeft()
-		.scale(scale.timechart.y1)
-		.ticks(4)
-		.tickSize(0)
-		.tickPadding(8);
+	    timechartyAxis = d3.axisLeft()
+	    .scale(scale.timechart.y1)
+	    .ticks(4)
+	    .tickSize(0)
+	    .tickPadding(8);
 
 		// y-axis
 		var yAxisText = svgBg.append("g")
@@ -1109,9 +1086,9 @@ var Deepviz = function(sources, callback){
 
 		// add the Y gridline
 		timechartyGrid = d3.axisLeft(scale.timechart.y1)
-			.ticks(4)
-			.tickSize(-width)
-			.tickFormat("")
+		.ticks(4)
+		.tickSize(-width)
+		.tickFormat("")
 
 		gridlines.append("g")			
 		.attr("class", "grid")
@@ -1260,7 +1237,6 @@ var Deepviz = function(sources, callback){
 				w=w*0.4
 			}
 			return w-1;
-			// return scale.timechart.x(d.key)
 		})
 		.attr("y", function(d,i) { 
 			if(i>0){
@@ -1284,23 +1260,23 @@ var Deepviz = function(sources, callback){
 		// draw trendline
 		//**************************
 		var trendline = d3.select('#svgchartbg')
-			.append('g')
-			.attr('class', 'trendline')
-			.attr('transform', 'translate('+(barWidth/2) + ', 0)' )
-			.append('path')
-			.attr('id', 'avg-line')
-			.style('opacity', 0)
-			.style('stroke', function(){
-				if(filters.toggle=='severity'){
-					d3.select('#rightAxisLabel').text('Avg. Severity');
-					d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
-					return colorPrimary[3];
-				} else {
-					d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
-					d3.select('#rightAxisLabel').text('Avg. Reliability');
-					return colorSecondary[3];
-				}
-			});
+		.append('g')
+		.attr('class', 'trendline')
+		.attr('transform', 'translate('+(barWidth/2) + ', 0)' )
+		.append('path')
+		.attr('id', 'avg-line')
+		.style('opacity', 0)
+		.style('stroke', function(){
+			if(filters.toggle=='severity'){
+				d3.select('#rightAxisLabel').text('Avg. Severity');
+				d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
+				return colorPrimary[3];
+			} else {
+				d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
+				d3.select('#rightAxisLabel').text('Avg. Reliability');
+				return colorSecondary[3];
+			}
+		});
 
 		// *************************
 		// draw contextual rows
@@ -1310,88 +1286,87 @@ var Deepviz = function(sources, callback){
 		var yPadding = 20;
 
 		var contextualRows = svgChartBg.append('g')
-			.attr('id', 'contextualRows')
-			.attr('transform', 'translate(0,'+ (timechartHeightOriginal + yPadding ) + ')');
+		.attr('id', 'contextualRows')
+		.attr('transform', 'translate(0,'+ (timechartHeightOriginal + yPadding ) + ')');
 
 		var contextualRowsHeight = timechartSvgHeight - timechartHeightOriginal - yPadding - 36;
 
 		contextualRows.append('rect')
-			.attr('height', contextualRowsHeight)
-			.attr('width', 1240)
-			.attr('x', 0)
-			.attr('y',0)
-			.style('fill', '#FFF')
-			.style('fill-opacity',0);
+		.attr('height', contextualRowsHeight)
+		.attr('width', 1240)
+		.attr('x', 0)
+		.attr('y',0)
+		.style('fill', '#FFF')
+		.style('fill-opacity',0);
 
 		contextualRows.append('rect')
-			.attr('height', contextualRowsHeight+45)
-			.attr('width', 10)
-			.attr('x', -5)
-			.attr('y',-30)
-			.style('fill', '#FFF')
-			.style('fill-opacity',1);
+		.attr('height', contextualRowsHeight+45)
+		.attr('width', 10)
+		.attr('x', -5)
+		.attr('y',-30)
+		.style('fill', '#FFF')
+		.style('fill-opacity',1);
 
 		svg.append('rect')
-			.attr('height', contextualRowsHeight+38)
-			.attr('width', 35)
-			.attr('x', 1287)
-			.attr('y',timechartHeightOriginal+2)
-			.style('fill', '#FFF')
-			.style('fill-opacity',1);
+		.attr('height', contextualRowsHeight+38)
+		.attr('width', 35)
+		.attr('x', 1287)
+		.attr('y',timechartHeightOriginal+2)
+		.style('fill', '#FFF')
+		.style('fill-opacity',1);
 
 		var contextualRowHeight = contextualRowsHeight/numContextualRows;
 
 		var rows = contextualRows.selectAll('.contextualRow')
-			.data(metadata.context_array)
-			.enter()
-			.append('g')
-			.attr('class', 'contextualRow')
-			.attr('transform', function(d,i){
-				return 'translate(0,'+(i*(contextualRowHeight)) + ' )' ;
-			});
+		.data(metadata.context_array)
+		.enter()
+		.append('g')
+		.attr('class', 'contextualRow')
+		.attr('transform', function(d,i){
+			return 'translate(0,'+(i*(contextualRowHeight)) + ' )' ;
+		});
 
-			rows
-			.append('line')
-			.attr('class', 'contextualRowLine')
-			.attr('x1',0)
-			.attr('x2',1250)
-			.attr('y1', 0)
-			.attr('y2', 0);
+		rows
+		.append('line')
+		.attr('class', 'contextualRowLine')
+		.attr('x1',0)
+		.attr('x2',1250)
+		.attr('y1', 0)
+		.attr('y2', 0);
 
-			contextualRows
-			.append('line')
-			.attr('class', 'contextualRowLine')
-			.attr('x1',0)
-			.attr('x2',1250)
-			.attr('y1', contextualRowsHeight)
-			.attr('y2', contextualRowsHeight);
+		contextualRows
+		.append('line')
+		.attr('class', 'contextualRowLine')
+		.attr('x1',0)
+		.attr('x2',1250)
+		.attr('y1', contextualRowsHeight)
+		.attr('y2', contextualRowsHeight);
 
-			// row title
-			rows.append('text').text(function(d,i){
-				return d.name.toUpperCase();
-			})
-			.attr('class', 'label')
-			.attr('y',21)
-			.attr('x',4)
-			.style('font-weight', 'bold')
-			.style('font-size', '16px');
+		// row title
+		rows.append('text').text(function(d,i){
+			return d.name.toUpperCase();
+		})
+		.attr('class', 'label')
+		.attr('y',21)
+		.attr('x',4)
+		.style('font-weight', 'bold')
+		.style('font-size', '16px');
 
-			// row total value
-			rows.append('text')
-			.text('0')
-			.attr('class', 'total-label')
-			.attr('id', function(d,i){
-				return 'total-label'+i;
-			})
-			.attr('x', function(d,i){
-				var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
-				return xoffset + 10;
-			})
-			.attr('y',21)
-			.style('font-size', '16px')
-
-			.style('font-weight', 'bold')
-			.style('fill', colorNeutral[4]);
+		// row total value
+		rows.append('text')
+		.text('0')
+		.attr('class', 'total-label')
+		.attr('id', function(d,i){
+			return 'total-label'+i;
+		})
+		.attr('x', function(d,i){
+			var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
+			return xoffset + 10;
+		})
+		.attr('y',21)
+		.style('font-size', '16px')
+		.style('font-weight', 'bold')
+		.style('fill', colorNeutral[4]);
 
 		//**************************
 		// date buttons Y M D
@@ -1401,7 +1376,7 @@ var Deepviz = function(sources, callback){
 			var id = d3.select(this).attr('id');
 			var v = id.substr(-1);
 			if(filters.time!=v)
-			d3.select(this).select('rect').style('fill', colorGrey[3]);
+				d3.select(this).select('rect').style('fill', colorGrey[3]);
 		})
 		.on('mouseout', function(d,i){
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
@@ -1418,6 +1393,7 @@ var Deepviz = function(sources, callback){
 		})
 
 		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+
 		//**************************
 		// event drops
 		//**************************
@@ -1430,7 +1406,7 @@ var Deepviz = function(sources, callback){
 		});
 
 		scale.eventdrop = d3.scaleLinear()
-			.range([0,12])
+		.range([0,12])
 			.domain([0,maxContextValue]);// 
 
 		// event mask groups (to be used for event drop grey brush mask)
@@ -1438,83 +1414,72 @@ var Deepviz = function(sources, callback){
 		.attr("class", "eventDropGroup");
 
 		var eventDrops = eventDropGroup.selectAll('.eventDrop')
-			.data(function(d,i){ return d.context;})
-			.enter()
-			.append('circle')
-			.attr('class', 'eventDrop')
-			.attr('r', function(d){
-				return scale.eventdrop(d);
-			})
-			.attr('cx', function(d,i){
+		.data(function(d,i){ return d.context;})
+		.enter()
+		.append('circle')
+		.attr('class', 'eventDrop')
+		.attr('r', function(d){
+			return scale.eventdrop(d);
+		})
+		.attr('cx', function(d,i){
 				// return barWidth/2;
 				var w = d3.select(this.parentNode.parentNode).attr('data-width');
 				return (w/2);
 			})
-			.attr('cy', function(d,i){
-				return timechartHeight2 + (contextualRowHeight*(i+1))+7;
-			})
-			.style('fill', colorNeutral[3]);
+		.attr('cy', function(d,i){
+			return timechartHeight2 + (contextualRowHeight*(i+1))+7;
+		})
+		.style('fill', colorNeutral[3]);
 
 		//**************************
 		// date slider brushes
 		//**************************
 	    // initialise the brush
 	    brush = d3.brushX()
-		    .extent([[0, -margin.top], [width_new, timechartSvgHeight-(margin.top+margin.bottom)]])
-	        .on("brush", dragging)
-	        .on("start", dragged);
+	    .extent([[0, -margin.top], [width_new, timechartSvgHeight-(margin.top+margin.bottom)]])
+	    .on("brush", dragging)
+	    .on("start", dragged);
 
 	    // add the selectors
 	    gBrush = svgChart.append("g")
-	    	.attr('id', 'gBrush')
-		    .attr("class", "brush")
-		    .attr('transform', 'translate('+(2)+',0)')
-		    .call(brush);
+	    .attr('id', 'gBrush')
+	    .attr("class", "brush")
+	    .attr('transform', 'translate('+(2)+',0)')
+	    .call(brush);
 
-		// hover effect on overlay
-		d3.select('.selection')
-		.on('mouseover', function(){
-			// d3.select('.selection').style('fill-opacity',0.1).style('fill', colorNeutral[2]);
-		})
-		.on('mouseout', function(){
-			// d3.select(this).style('fill-opacity',0.03);
-			// d3.select('.selection').style('fill','#FFF');
-		})
-
-	    d3.selectAll('.handle rect').attr('fill-opacity', '1').style('visibility', 'visible').attr('width', 2).attr('fill', '#000').style('stroke-opacity', 0);
+		d3.selectAll('.handle rect').attr('fill-opacity', '1').style('visibility', 'visible').attr('width', 2).attr('fill', '#000').style('stroke-opacity', 0);
 
 	    // add the triangle handles (top)
 	    var handleTop = gBrush.selectAll(".handle--custom-top")
-		    .data([{type: "w"}, {type: "e"}])
-		    .enter().append("g")
-		    .attr('class', 'handleG')
+	    .data([{type: "w"}, {type: "e"}])
+	    .enter().append("g")
+	    .attr('class', 'handleG')
 
-		handleTop.append('path')
-		    .attr("class", "handle--custom-top")
-		    .attr("stroke", "#000")
-		    .attr('stroke-width', 3)
-		    .attr('fill', '#000')
-		    .attr("cursor", "ew-resize")
-		    .attr("d", 'M -9,0 -1,11 8,0 z');
+	    handleTop.append('path')
+	    .attr("class", "handle--custom-top")
+	    .attr("stroke", "#000")
+	    .attr('stroke-width', 3)
+	    .attr('fill', '#000')
+	    .attr("cursor", "ew-resize")
+	    .attr("d", 'M -9,0 -1,11 8,0 z');
 
-		handleTop.append('rect')
-	    	.attr('x',-5)
-	    	.attr('width', 10)
-	    	.attr('height', timechartSvgHeight)
-	    	.attr('y', 0)
-	    	// .style('fill', 'blue')
-	    	.style('cursor', 'ew-resize');
+	    handleTop.append('rect')
+	    .attr('x',-5)
+	    .attr('width', 10)
+	    .attr('height', timechartSvgHeight)
+	    .attr('y', 0)
+    	.style('cursor', 'ew-resize');
 
 	    // add the triangle handles (bottom)
 	    var handleBottom = gBrush.selectAll(".handle--custom-bottom")
-		    .data([{type: "w"}, {type: "e"}])
-		    .enter().append('g').attr('class', 'handleG').append("path")
-		    .attr("class", "handle--custom-bottom")
-		    .attr("stroke", "#000")
-		    .attr('stroke-width', 3)
-		    .attr('fill', '#000')
-		    .attr("cursor", "ew-resize")
-		    .attr("d", 'M -9,0 -1,-11 8,0 z');
+	    .data([{type: "w"}, {type: "e"}])
+	    .enter().append('g').attr('class', 'handleG').append("path")
+	    .attr("class", "handle--custom-bottom")
+	    .attr("stroke", "#000")
+	    .attr('stroke-width', 3)
+	    .attr('fill', '#000')
+	    .attr("cursor", "ew-resize")
+	    .attr("d", 'M -9,0 -1,-11 8,0 z');
 
 	    handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -" + margin.top + ")"; });
 	    handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
@@ -1528,30 +1493,29 @@ var Deepviz = function(sources, callback){
 	    	d3.selectAll('.handle--custom-top, .handle--custom-bottom').style('fill', '#000');
 	    })
 
-		$('#dateRange').on('apply.daterangepicker', function(ev, picker) {
-			dateRange[0] = new Date(picker.startDate._d);
-			dateRange[0].setHours(0,0,0,0);
+	    $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+	    	dateRange[0] = new Date(picker.startDate._d);
+	    	dateRange[0].setHours(0,0,0,0);
 
-			dateRange[1] = new Date(picker.endDate._d);
-			dateRange[1].setHours(0,0,0,0);
-			dateRange[1] = moment(dateRange[1].setDate(dateRange[1].getDate())).add(1, 'day');
-			gBrush.call(brush.move, dateRange.map(scale.timechart.x));
+	    	dateRange[1] = new Date(picker.endDate._d);
+	    	dateRange[1].setHours(0,0,0,0);
+	    	dateRange[1] = moment(dateRange[1].setDate(dateRange[1].getDate())).add(1, 'day');
+	    	gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 
-			colorBars();
-			updateDate();
-			updateSeverityReliability('brush', 500);
-			updateBubbles();
-			updateFramework();
-			updateStackedBars('ag', dataByAffectedGroups);
-			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataByFramework);
+	    	colorBars();
+	    	updateDate();
+	    	updateSeverityReliability('brush', 500);
+	    	updateBubbles();
+	    	updateFramework();
+	    	updateStackedBars('ag', dataByAffectedGroups);
+	    	updateStackedBars('sn', dataBySpecificNeeds);
+	    	updateStackedBars('sc', dataByFramework);
 
-			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
-			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
+	    	handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
+	    	handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
-			updateTotals();
-
-		});
+	    	updateTotals();
+	    });
 
 	    // programattically set date range
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
@@ -1560,21 +1524,17 @@ var Deepviz = function(sources, callback){
 	    function dragging() {
 
 	    	if($('#dateRange').data('daterangepicker'))
-			$('#dateRange').data('daterangepicker').hide();
+	    		$('#dateRange').data('daterangepicker').hide();
 	    	// if not right event then break out of function
-			if(!d3.event.sourceEvent) return;
-			if(d3.event.sourceEvent.type === "start") return;
-			if(d3.event.sourceEvent.type === "click") return;
-			if(d3.event.sourceEvent.type === "brush") return;
+	    	if(!d3.event.sourceEvent) return;
+	    	if(d3.event.sourceEvent.type === "start") return;
+	    	if(d3.event.sourceEvent.type === "click") return;
+	    	if(d3.event.sourceEvent.type === "brush") return;
 
-			var d0 = d3.event.selection.map(scale.timechart.x.invert);
+	    	var d0 = d3.event.selection.map(scale.timechart.x.invert);
 
-			// d1[0] = d3.timeDay.floor(d1[0]);
-			// d1[1] = d3.timeDay.ceil(d1[1]);
 			if(filters.time=='d'){
 				var d1 = d0.map(d3.timeDay.round);
-				// d1[0] = d3.timeDay.floor(d0[0]);
-				// d1[1] = d3.timeDay.floor(d0[1]);
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeDay.floor(d0[0]);
 					d1[1] = d3.timeDay.ceil(d0[0]);
@@ -1592,8 +1552,6 @@ var Deepviz = function(sources, callback){
 					d1[0] = d3.timeMonth.floor(d0[0]);
 					d1[1] = d3.timeMonth.offset(d1[0]);
 				} 
-				// d1[0] = d3.timeMonth.floor(d0[0]);
-				// d1[1] = d3.timeMonth.ceil(d0[1]);
 			}
 			if(filters.time=='y'){
 				var d1 = d0.map(d3.timeYear.round);
@@ -1621,7 +1579,6 @@ var Deepviz = function(sources, callback){
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
 			updateTotals();
-			
 		}
 
 		function dragged() {
@@ -1635,8 +1592,6 @@ var Deepviz = function(sources, callback){
 			}
 			if(filters.time=='m'){
 				var d1 = d0.map(d3.timeMonth.round);
-				// d1[0] = d3.timeMonth.floor(d0[0]);
-				// d1[1] = d3.timeMonth.ceil(d0[1]);
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeMonth(d0[0]);
 					d1[1] = d3.timeMonth.ceil(d0[0]);
@@ -1675,7 +1630,6 @@ var Deepviz = function(sources, callback){
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
-
 			updateTotals();
 		}
 
@@ -1686,18 +1640,12 @@ var Deepviz = function(sources, callback){
 		updateDate();
 		updateTrendline();
 		updateSeverityReliability('init', 500);
-
-
-
-updateBubbles();
+		updateBubbles();
 		updateFramework();
 		updateTotals();
 		updateStackedBars('ag', dataByAffectedGroups);
 		updateStackedBars('sn', dataBySpecificNeeds);
 		updateStackedBars('sc', dataByFramework);
-
-
-
 		return bars;
 	}
 
@@ -1850,15 +1798,6 @@ updateBubbles();
 		.attr('y', -11)
 		.attr('x', 2);
 
-		// columnHeadersBg
-		// .append('line')
-		// .attr('x1', 0)
-		// .attr('x2', 0)
-		// .attr('y1', 10)
-		// .attr('y2', frameworkHeight)
-		// .style('stroke', '#FFF')
-		// .style('width', '1px');
-
 		columnHeaders
 		.attr('transform', function(d,i){
 			var t = d3.select(this).node().getBBox();
@@ -1868,10 +1807,8 @@ updateBubbles();
 
 		columnHeadersBg.on('mouseover', function(d,i){
 			d3.select(this).select('.col-header-bg').style('opacity', 0.05);
-			// d3.select(this).select('.sector-icon').style('opacity', 1);
 		}).on('mouseout', function(d,i){
 			d3.select(this).select('.col-header-bg').style('opacity', 0);
-			// d3.select(this).select('.sector-icon').style('opacity', 0.3);
 		}).on('click', function(d,i){
 			// toggle 
 			filter('sector',i+1);
@@ -1879,11 +1816,11 @@ updateBubbles();
 
 		d3.selectAll('#frameworkRemoveFilter, #scRemoveFilter').on('click', function(d,i){
 			filter('sector', 'clear');
-				d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
-				d3.selectAll('.col-header-text').style('opacity', 1);	
-				d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
-				d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
-				d3.selectAll('.sector-icon').style('opacity', 0.3);
+			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
+			d3.selectAll('.col-header-text').style('opacity', 1);	
+			d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.selectAll('.sector-icon').style('opacity', 0.3);
 		});
 		
 		var rows = layer1.selectAll('.frameworkRow')
@@ -1925,12 +1862,6 @@ updateBubbles();
 			if(cat!=cat_name){
 				cat = cat_name;
 				cat1++;
-				// d3.select(this.parentNode).append('text').text(d.context_id-1)
-				// .attr('x', cat_name.length*7.5)
-				// .style('font-weight','bold')
-				// .style('fill', colorPrimary[4])
-				// .attr('id','context'+(d.context_id-1))
-				// .style('text-anchor', 'left');
 				return cat_name;
 			}
 			cat = cat_name;
@@ -1959,7 +1890,6 @@ updateBubbles();
 		})
 
 		var dataLabels = secondCol.append('text')
-		// .attr('x', cat_name.length*7.5)
 		.text('00')
 		.style('font-weight','bold')
 		.style('fill', colorPrimary[4])
@@ -1970,8 +1900,6 @@ updateBubbles();
 		.attr('class', 'f-val')
 		.style('text-anchor', 'middle')
 		.attr('x', function(d,i){
-			// var bbox = d3.select(this.parentNode).select('.frameworkCol2').node().getBBox();
-			// return 220+bbox.width+6;
 			return leftSpacing-19;
 		})
 		.attr('y', -2);
@@ -1989,7 +1917,7 @@ updateBubbles();
 		.attr('id', function(d,i){
 			var c = d3.select(this.parentNode).attr('class').split(' ')[1];
 			return c+'s'+i;
-		})
+		});
 
 		cells
 		.append('rect')
@@ -1998,17 +1926,17 @@ updateBubbles();
 		.attr('height', rowHeight)
 		.attr('id', function(d,i){
 			return d3.select(this.parentNode).attr('id') + 'rect';
-		})
+		});
 
 		cells
 		.append('rect')
 		.attr('width', colWidth-2)
 		.attr('height', rowHeight-2)
 		.attr('x', 1)
-			.attr('y', 1)
+		.attr('y', 1)
 		.style('stroke', '#FFF')
 		.style('stroke-width', 3)
-		.style('fill', 'transparent')
+		.style('fill', 'transparent');
 
 		cells
 		.append('text')
@@ -2056,13 +1984,6 @@ updateBubbles();
 		.attr('y1', frameworkHeight+5)
 		.attr('y2', frameworkHeight+5)
 		.style('stroke-width', '2px');
-
-		// hSel.append('rect')
-		// .attr('x', 214)
-		// .attr('y', -1)
-		// .attr('width', 6)
-		// .attr('height', rowHeight+2)
-		// .style('fill', '#FAFAFA');
 
 		var cells2 = rows2.selectAll('g')
 		.data(metadata.sector_array)
@@ -2121,17 +2042,17 @@ updateBubbles();
 			vSel.attr('x', (colWidth*(d.id-1))+leftSpacing);
 			d3.selectAll('.framework-text').style('visibility', 'hidden');
 			var val = d3.select('#'+this.id+'text').text();
-				if(filters.frameworkToggle=='entries'){
+			if(filters.frameworkToggle=='entries'){
+				d3.select('#'+this.id+'text').style('visibility', 'visible');
+				d3.selectAll('.selector').style('opacity', 1);
+			} else {
+				if(val>0){
 					d3.select('#'+this.id+'text').style('visibility', 'visible');
 					d3.selectAll('.selector').style('opacity', 1);
 				} else {
-					if(val>0){
-						d3.select('#'+this.id+'text').style('visibility', 'visible');
-						d3.selectAll('.selector').style('opacity', 1);
-					} else {
-						d3.selectAll('.selector').style('opacity', 0);
-					}					
-				}
+					d3.selectAll('.selector').style('opacity', 0);
+				}					
+			}
 		});
 
 		rows2.on('mouseover', function(d,i){
@@ -2150,7 +2071,6 @@ updateBubbles();
 		});
 
 		// framework toggle switch
-
 		d3.select('#framework-toggle-switch').on('mouseover', function(d,i){
 			d3.selectAll('#framework-toggle').style('opacity', .9)
 		}).on('mouseout', function(d,i){
@@ -2191,8 +2111,8 @@ updateBubbles();
 		});
 
 		var height = stackedBarHeight - padding.top;
-
 		var rowHeight = height/a.rows.length;
+
 		// add title
 		var title = svg.append('g')
 		.attr('transform', 'translate(0,0)');
@@ -2260,7 +2180,6 @@ updateBubbles();
 		var width = a.width - labelWidth - padding.right; 
 
 		// adjust title and filter button spacing
-		// d3.select('#'+a.classname+'Title').style('margin-right', 100-((labelWidth-35)/700)*100+'%').style('text-align', 'left').style('display', 'inline');
 		d3.select('#'+a.classname+'Title').style('text-align', 'left').style('display', 'inline');
 
 		var rowBg = rows.append('rect')
@@ -2300,28 +2219,28 @@ updateBubbles();
 		for(var s=5; s >= 0; s--) {
 			var val = s;
 			var bar = rows.append('rect')
-				.attr('id', function(d,i){
-					return a.classname+d.id+'s'+(s);
-				})
-				.attr('class', a.classname+'-bar s'+(s))
-				.attr('x', function(d,i){
-					return scale[a.classname].x(s);
-				})
-				.attr('width', width/5)
-				.attr('data-width', width)
-				.attr('data-id', s)
-				.attr('data-percent', 0)
-				.attr('y', padding.bar.y)
-				.attr('height', rowHeight-(padding.bar.y*2))
-				.style('fill', colorPrimary[s])
-				.on('click', function(d,i){
-					var val = parseInt(d3.select(this).attr('data-id'));
-					if(filters.toggle=='severity'){
-						filter('severity',val);
-					} else {
-						filter('reliability',val);
-					}
-				})
+			.attr('id', function(d,i){
+				return a.classname+d.id+'s'+(s);
+			})
+			.attr('class', a.classname+'-bar s'+(s))
+			.attr('x', function(d,i){
+				return scale[a.classname].x(s);
+			})
+			.attr('width', width/5)
+			.attr('data-width', width)
+			.attr('data-id', s)
+			.attr('data-percent', 0)
+			.attr('y', padding.bar.y)
+			.attr('height', rowHeight-(padding.bar.y*2))
+			.style('fill', colorPrimary[s])
+			.on('click', function(d,i){
+				var val = parseInt(d3.select(this).attr('data-id'));
+				if(filters.toggle=='severity'){
+					filter('severity',val);
+				} else {
+					filter('reliability',val);
+				}
+			})
 		}
 
 		var dataLabel = rows.append('text')
@@ -2478,59 +2397,12 @@ updateBubbles();
 		.text('00');
 
 		severityBars.on('mouseover', function(d,i){
-
 			d3.select(this).select('.bar-percent').style('opacity',0);
 			d3.select(this).select('.bar-value').style('opacity',1);
-
-			// d3.select('#tooltip')
-			// .transition('tooltip')
-			// .delay(1000)
-			// .duration(600)
-   //          .style("opacity", 1);
-
-   //          d3.select('#tooltip')		
-   //          .style("left", (d3.event.pageX+35) + "px")		
-   //          .style("top", (d3.event.pageY - 0) + "px")
-   //          .text(d);
-
-			// if(clickTimer == 0 ){
-
-			// 	if((filters.severity.length>0)&&(!filters.severity.includes(i+1))){
-			// 		return false;
-			// 	}
-			// 	d3.selectAll('.severityBar').style('stroke-opacity',0)
-			// 	// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
-
-			// 	d3.select('.severityBar.severity'+(i+1))
-			// 	.style('stroke', '#0E523B')
-			// 	.style('stroke-width', 3)
-			// 	.transition().duration(500)
-			// 	.style('stroke-opacity', 0.6);
-
-			// 	if(filters.toggle=='severity'){
-			// 		d3.selectAll('.bar:not(.severity'+(i+1)+')')
-			// 		.transition("mouseoutSeverity").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
-			// 		d3.selectAll('#timeline .severity'+(i+1))
-			// 		.transition("mouseoutSeverity").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
-			// 	}
-			// }
 		}).on('mouseout', function(d,i){
-
-			// if((d3.event.target.tagName!='text')&&(1!=2)){
-			// 	d3.select('#tooltip')
-	  //           .style("opacity", 0);
-
-	            // d3.select('#tooltip')		
-	            // .style("left", "-100px")		
-	            // .style("top", "-100px");
-
-				d3.select(this).select('.bar-percent').style('opacity',1);
-				d3.select(this).select('.bar-value').style('opacity',0);
-			// }
-			// d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
-			// d3.selectAll('.bar').transition("mouseoutSeverity").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+	            d3.select(this).select('.bar-percent').style('opacity',1);
+	            d3.select(this).select('.bar-value').style('opacity',0);
 		}).on('click', function(d,i){
-			// d3.selectAll('.severityBar').style('stroke-width', 0).style('stroke-opacity',0)
 			d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1);	
 			clickTimer = 1;
 			filter('severity',i);
@@ -2557,8 +2429,6 @@ updateBubbles();
 		});
 
 		updateSeverityReliability('init', 500);
-
-
 	}
 
 	//**************************
@@ -2651,45 +2521,10 @@ updateBubbles();
 		reliabilityBars.on('mouseover', function(d,i){
 			d3.select(this).select('.bar-percent').style('opacity',0);
 			d3.select(this).select('.bar-value').style('opacity',1);
-
-			// if(clickTimer == 0 ){
-			// 	if((filters.reliability.length>0)&&(!filters.reliability.includes(i+1))) return false;
-
-			// 	d3.selectAll('.reliabilityBar').style('stroke-opacity',0)
-			// 	// d3.selectAll('.bar').transition().duration(0).style('opacity', 1).style('stroke-opacity', 0);
-
-			// 	d3.select('.reliabilityBar .severity'+(i+1))
-			// 	.style('stroke', '#0E523B')
-			// 	.style('stroke-width', 3)
-			// 	.transition().duration(500)
-			// 	.style('stroke-opacity', 0.6);
-
-			// 	if(filters.toggle=='reliability'){
-			// 		d3.selectAll('.bar:not(.severity'+(i+1)+')')
-			// 		.transition("mouseoutReliability").delay(1000).duration(1000).style('opacity', 0.33).style('stroke-opacity', 0);
-			// 		d3.selectAll('#timeline .severity'+(i+1))
-			// 		.transition("mouseoutReliability").delay(1000).duration(500).style('stroke-opacity', 0.4).style('opacity', 1);
-			// 	}
-			// }
 		}).on('mouseout', function(d,i){
-
-			// d3.select('#tooltip')
-			// .transition('tooltip')
-			// .duration(0)
-   //          .style("opacity", 0);
-
-   //          d3.select('#tooltip')		
-   //          .style("left", "-100px")		
-   //          .style("top", "-100px");
-
-			d3.select(this).select('.bar-percent').style('opacity',1);
-			d3.select(this).select('.bar-value').style('opacity',0);
-
-			// d3.selectAll('.severityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0)
-			// d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1).style('stroke-opacity', 0);
+		   d3.select(this).select('.bar-percent').style('opacity',1);
+		   d3.select(this).select('.bar-value').style('opacity',0);
 		}).on('click', function(d,i){
-			// d3.selectAll('.reliabilityBar').style('stroke-width', 0).transition().duration(500).style('stroke-opacity',0);
-			// d3.selectAll('.bar').transition("mouseoutReliability").duration(500).style('opacity', 1);
 			clickTimer = 1;
 			filter('reliability',i);
 			setTimeout(function(){ clickTimer = 0 }, 2000);
@@ -2716,12 +2551,9 @@ updateBubbles();
 
 		updateSeverityReliability('init', 500);
 
-
 		//**************************
 		// trendline smoothing slider
 		//**************************
-
-		// create slider
 
 		// create average svg
 		var avgSliderSvg = this.createSvg({
@@ -2751,8 +2583,6 @@ updateBubbles();
 		.attr('height', '19px')
 		.attr('width', '19px');
 
-		// xlink:href="firefox.jpg" x="0" y="0" height="50px" width="50px"
-
 		avgSliderSvg.on('mouseover', function(){
 			d3.select('#avg-line')
 			.style('stroke-width',2)
@@ -2775,13 +2605,13 @@ updateBubbles();
 		var sliderPadding = 60;
 
 		var xt = d3.scaleLinear()
-		    .domain([0, (dataByDate.length/2)])
-		    .range([0, 190-sliderPadding])
-		    .clamp(true);
+		.domain([0, (dataByDate.length/2)])
+		.range([0, 190-sliderPadding])
+		.clamp(true);
 
 		var slider = avgSliderSvg.append("g")
-		    .attr("class", "slider")
-		    .attr("transform", "translate("+139+",20)");
+		.attr("class", "slider")
+		.attr("transform", "translate("+139+",20)");
 
 		avgSliderSvg.append("text")
 		.attr('class', 'avgSliderLabel')
@@ -2796,55 +2626,53 @@ updateBubbles();
 		.attr('x', 180)
 
 		slider.append("line")
-		    .attr("class", "track")
-		    .attr("x1", xt.range()[0])
-		    .attr("x2", xt.range()[1])
-		  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-		    .attr("class", "track-inset")
-		  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-		    .attr("class", "track-overlay")
-		    .call(d3.drag()
-		        .on("start.interrupt", function() { slider.interrupt(); })
-		        .on('end', function(){
-		        	avgSliderBrushing = false;
+		.attr("class", "track")
+		.attr("x1", xt.range()[0])
+		.attr("x2", xt.range()[1])
+		.select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+		.attr("class", "track-inset")
+		.select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+		.attr("class", "track-overlay")
+		.call(d3.drag()
+			.on("start.interrupt", function() { slider.interrupt(); })
+			.on('end', function(){
+				avgSliderBrushing = false;
 
-		        		d3.selectAll('#avg-line')
-					.style('stroke-width',1)
-					.transition().duration(750)
-					.style('stroke-opacity',0.4);	
+				d3.selectAll('#avg-line')
+				.style('stroke-width',1)
+				.transition().duration(750)
+				.style('stroke-opacity',0.4);	
 
-					d3.select('#chartarea').transition().duration(500).style('opacity', 1);
-		        })
-	        .on("start drag", function() { 
-	        	avgSliderBrushing = true;
-	        	var h = xt.invert(d3.event.x)
-				// handle.attr("cx", xt(h));
+				d3.select('#chartarea').transition().duration(500).style('opacity', 1);
+			})
+			.on("start drag", function() { 
+				avgSliderBrushing = true;
+				var h = xt.invert(d3.event.x)
 				handle.attr('transform', 'translate('+xt(h)+',-10)')
-	        	smoothAverage(h); }));
+				smoothAverage(h); }));
 
 		slider.insert("g", ".track-overlay")
-		    .attr("class", "ticks")
-		    .attr("transform", "translate(0," + sliderPadding/2 + ")");
+		.attr("class", "ticks")
+		.attr("transform", "translate(0," + sliderPadding/2 + ")");
 
 		slider.insert("g", ".track-overlay")
-		    .attr("class", "ticks")
-		    .attr("transform", "translate(0," + sliderPadding/2 + ")");
+		.attr("class", "ticks")
+		.attr("transform", "translate(0," + sliderPadding/2 + ")");
 
-		    // slider init
-		var handle = slider.insert('g', '.track-overlay')
-			.attr('transform', 'translate('+xt(smoothingVal)+',-10)')
-			.attr("class", "handle");
+	    // slider init
+	    var handle = slider.insert('g', '.track-overlay')
+	    .attr('transform', 'translate('+xt(smoothingVal)+',-10)')
+	    .attr("class", "handle");
 
-		handle
-			.append('path')
-		    .attr("stroke", "#000")
-		    .attr('stroke-width', 0)
-		    .attr('fill', '#000')
-		    .attr("cursor", "ew-resize")
-		    .attr("d", 'M -7,0 -1,9 6,0 z');
+	    handle
+	    .append('path')
+	    .attr("stroke", "#000")
+	    .attr('stroke-width', 0)
+	    .attr('fill', '#000')
+	    .attr("cursor", "ew-resize")
+	    .attr("d", 'M -7,0 -1,9 6,0 z');
 
-		}
-
+	}
 
 	//**************************
 	// filtering (push values to filter array)
@@ -2997,14 +2825,10 @@ updateBubbles();
 			filters.specificNeeds.forEach(function(d,i){
 				d3.selectAll('.sn-'+(d-1)).style('opacity', 1);
 			});
-
 			d3.select('#snRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-
 		}
 		updateTimeline(filterClass);
 		d3.select('#globalRemoveFilter').on('click', function(){ filter('clear', 'clear'); });
-
-
 	}
 
 	//**************************
@@ -3018,101 +2842,100 @@ updateBubbles();
 			d3.select('#timeline .vizlibResponsiveDiv').remove();
 			d3.select('#timechart-legend .vizlibResponsiveDiv').remove();		
 
-		// create svg
-		var timelineSvg = Deepviz.createSvg({
-			id: 'timeline_viz',
-			viewBoxWidth: 1300,
-			viewBoxHeight: 900,
-			div: '#timeline'
-		});
+			// create svg
+			var timelineSvg = Deepviz.createSvg({
+				id: 'timeline_viz',
+				viewBoxWidth: 1300,
+				viewBoxHeight: 900,
+				div: '#timeline'
+			});
 
-		var timeChart = Deepviz.timeChart({
-			appendTo: timelineSvg,
-			id: 'timeChart',
-			opacity: 1,
-			gutter: 0.5,
-			width: 1300,
-			color: ['#0033A0'],
-			maxValue: 'round', // integerValue (force define the maximum), 'auto' (find the maximum value in the data), 'round' (pretty rounding based on maximum value in the data)
-			paddingLeft: 0,
-			paddingTop: 0,
-			offsetX: 1,
-			offsetY: 0,
+			var timeChart = Deepviz.timeChart({
+				appendTo: timelineSvg,
+				id: 'timeChart',
+				opacity: 1,
+				gutter: 0.5,
+				width: 1300,
+				color: ['#0033A0'],
+				maxValue: 'round', // integerValue (force define the maximum), 'auto' (find the maximum value in the data), 'round' (pretty rounding based on maximum value in the data)
+				paddingLeft: 0,
+				paddingTop: 0,
+				offsetX: 1,
+				offsetY: 0,
 
-			yAxis: {
-				enabled: true,
-				label: '',
-				gridlines: {
+				yAxis: {
 					enabled: true,
-					stroke: '#A7A7A7',
-					strokeWidth: 1,
-					opacity: 1,
-					dotted: true
+					label: '',
+					gridlines: {
+						enabled: true,
+						stroke: '#A7A7A7',
+						strokeWidth: 1,
+						opacity: 1,
+						dotted: true
+					},
+					font: {
+						values: {
+							size: '15px',
+							weight: 'bold',
+							padding: 0
+						},
+						label: {
+							size: '14px',
+							weight: 'bold',
+							padding: 10
+						}
+					}
+				},
+				xAxis: {
+					enabled: true,
+					label: 'Date',
+					gridlines: {
+						enabled: true,
+						stroke: 'grey',
+						strokeWidth: 1,
+						opacity: 1
+					},
+					font: {
+						values: {
+							size: '14px',
+							weight: 'bold',
+						},
+						label: {
+							size: '14px',
+							weight: 'bold',
+						}
+					}
 				},
 				font: {
-					values: {
-						size: '15px',
-						weight: 'bold',
-						padding: 0
+					title: {
+						size: '20px',
+						weight: 'bold'
 					},
-					label: {
-						size: '14px',
-						weight: 'bold',
-						padding: 10
-					}
-				}
-			},
-			xAxis: {
-				enabled: true,
-				label: 'Date',
-				gridlines: {
-					enabled: true,
-					stroke: 'grey',
-					strokeWidth: 1,
-					opacity: 1
-				},
-				font: {
-					values: {
-						size: '14px',
-						weight: 'bold',
+					subtitle: {
+						size: '12px',
+						weight: 'normal'
 					},
-					label: {
-						size: '14px',
-						weight: 'bold',
-					}
-				}
-			},
-			font: {
-				title: {
-					size: '20px',
-					weight: 'bold'
 				},
-				subtitle: {
-					size: '12px',
-					weight: 'normal'
+				legend: {
+					enabled: false,
+					position: 'top'
 				},
-			},
-			legend: {
-				enabled: false,
-				position: 'top'
-			},
-			dateBrush: true,
-			dataValues: 'total_entries',
-			dataKey: 'key',
-			// sliderUpdate: function(a,b){
-			// 	sliderUpdate(a,b);
-			// },
-			frame: [1]
+				dateBrush: true,
+				dataValues: 'total_entries',
+				dataKey: 'key',
+				// sliderUpdate: function(a,b){
+				// 	sliderUpdate(a,b);
+				// },
+				frame: [1]
+			});
+
+			updateBubbles();
+			updateFramework();
+			updateTotals();
+			updateStackedBars('ag', dataByAffectedGroups);
+			updateStackedBars('sn', dataBySpecificNeeds);
+			updateStackedBars('sc', dataByFramework);
 		});
-
-		updateBubbles();
-		updateFramework();
-		updateTotals();
-		updateStackedBars('ag', dataByAffectedGroups);
-		updateStackedBars('sn', dataBySpecificNeeds);
-		updateStackedBars('sc', dataByFramework);
-
-	});
 	}
 
 	//**************************
@@ -3129,7 +2952,6 @@ updateBubbles();
 		//**************************
 		// Bar/event drop groups (by date)
 		//**************************
-		// bar groups
 		var barGroup = d3.select('#chart-bar-group');
 
 		var bars = barGroup.selectAll(".barGroup")
@@ -3169,7 +2991,6 @@ updateBubbles();
 		bars = d3.select('#chart-bar-group').selectAll(".barGroup");
 
 		var yArray = [];
-		// individual bars
 
 		var individualBars = bars.selectAll('.bar')
 		.data(function(d,i){ return d.barValues;})
@@ -3199,7 +3020,6 @@ updateBubbles();
 				w=w*0.4
 			}
 			return w-1;
-			// return scale.timechart.x(d.key)
 		})
 		.on('mouseover', function(){
 			d3.select(this).style('fill-opacity', 1 - 0.05)
@@ -3230,39 +3050,32 @@ updateBubbles();
 		.tickSize(0)
 		.tickPadding(8);
 
-		// .style('font-size', options.yAxis.font.values.size);
-
 		d3.select("#timechartyAxis")
 		.transition()
 		.call(timechartyAxis);
 
 		timechartyGrid = d3.axisLeft(scale.timechart.y1)
-			.tickSize(-width)
-			.ticks(4)
-			.tickFormat("")
+		.tickSize(-width)
+		.ticks(4)
+		.tickFormat("")
 
 		d3.select('#timechartyGrid')
 		.transition()
 		.call(timechartyGrid);
 
 		// update bars
-		// bar groups
 
 		bars = d3.select('#chart-bar-group').selectAll(".barGroup");
-
 		bars.each(function(d,i){
 
 			var timeid = this.id;
-
 			var dD = dataByDate.filter(obj => {
 				return 'date'+obj.date.getTime() == timeid;
 			})[0];
-
 			var group = d3.select(this);
 			var eventDrops = group.selectAll('.eventDrop' );
 
 			if(dD){
-
 				var yArray = [];
 				var iBars = group.selectAll('.bar' )
 				.style('fill', function(d,i){
@@ -3288,28 +3101,22 @@ updateBubbles();
 					}
 					return scale.timechart.y1(yArray[i]); 
 				});
-
 				eventDrops.transition().duration(500)
 				.attr('r', function(d,i){
 					var dx = dD['context'][i]
 					return scale.eventdrop(dx);
 				})
-
 			} else {
-
 				group.selectAll('.bar').transition("h").duration(0).attr('height',0);
 				group.selectAll('.bar').transition().duration(500).attr('y',timechartHeight2).attr('height',0);
 				eventDrops.transition().duration(750)
 				.attr('r', 0)
 			}
-
 		});
-
 		updateSeverityReliability(target, 500);
 		updateTrendline();
 		updateBubbles();
 		colorBars();
-
 	}
 
 	//**************************
@@ -3336,48 +3143,45 @@ updateBubbles();
 					var t = (dataByLocationSum[g]) + (d.geo[g]);
 					dataByLocationSum[g] = t;
 				}
-	   		}
+			}
 		});
 
 		maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
 			return d;
 		});
 
-	    scale.map = d3.scaleLinear()
-			.range([0.2,1])
-			.domain([0,maxMapBubbleValue]);// 
+		scale.map = d3.scaleLinear()
+		.range([0.2,1])
+		.domain([0,maxMapBubbleValue]);
 
 		var bubbles = d3.selectAll('.map-bubble')
-			.attr('transform', function(d,i){
-				var size = scale.map(dataByLocationSum[i]);
-				return 'scale('+size+')';
-			})
-			.style('opacity', function(d,i){
-				d3.select(this).select('.outerCircle').style('stroke', function(){
-					var id = metadata.geo_array[i].id;
-					if(filters.geo.includes(id)){
-				    	return 'cyan';
-					}
-			    });
-
-				if(dataByLocationSum[i]>0){
-					return 1;
-				} else {
-					return 0;
+		.attr('transform', function(d,i){
+			var size = scale.map(dataByLocationSum[i]);
+			return 'scale('+size+')';
+		})
+		.style('opacity', function(d,i){
+			d3.select(this).select('.outerCircle').style('stroke', function(){
+				var id = metadata.geo_array[i].id;
+				if(filters.geo.includes(id)){
+					return 'cyan';
 				}
 			});
 
-			bubbles.select('.map-bubble-value')
-	        .text(function(d,i){
-	        	return dataByLocationSum[i];
-	        });
+			if(dataByLocationSum[i]>0){
+				return 1;
+			} else {
+				return 0;
+			}
+		});
 
-	    
+		bubbles.select('.map-bubble-value')
+		.text(function(d,i){
+			return dataByLocationSum[i];
+		});
+
 		bubbles.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-
 		var map = document.getElementById("map");
 		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
-
 	}
 
 	//**************************
@@ -3420,7 +3224,6 @@ updateBubbles();
 	function updateTotals(){
 
 		var dc = data.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
-
 		var context = [];
 
 		dc.forEach(function(d,i){
@@ -3471,36 +3274,32 @@ updateBubbles();
 		});
 
 		movingAvg = function (adata, neighbors) {
-		  return adata.map((val, idx, arr) => {
-		    let start = Math.max(0, idx - neighbors), end = idx + neighbors
-		    let subset = arr.slice(start, end + 1)
-		    let sum = subset.reduce((a,b) => a + b)
-		    return sum / subset.length
-		  })
+			return adata.map((val, idx, arr) => {
+				let start = Math.max(0, idx - neighbors), end = idx + neighbors
+				let subset = arr.slice(start, end + 1)
+				let sum = subset.reduce((a,b) => a + b)
+				return sum / subset.length
+			})
 		}
 
 		var dataAvg = movingAvg(tp, smoothingVal);
 		
 		d3.select('#avg-line')
-			.datum(dataAvg)
-			.attr('d', curvedLine)
+		.datum(dataAvg)
+		.attr('d', curvedLine)
 
 	}
 
 	function smoothAverage(v = 4){
-
 		smoothingVal = Math.ceil(v);
 		var dataAvg = movingAvg(tp, v);
-		
 		d3.select('#avg-line')
-			.datum(dataAvg)
-			.attr('d', curvedLine)
+		.datum(dataAvg)
+		.attr('d', curvedLine)
 		.style('stroke-width',2)
 		.style('stroke-opacity',1);
-
 		d3.select('#chartarea').style('opacity', 0.2);
 		d3.select('#n-days').text('( n days = '+(Math.round(v))+' )');
-
 	}
 
 	//**************************
@@ -3534,7 +3333,7 @@ updateBubbles();
 				animation: 'shift-away',
 				arrow: true,
 				size: 'small'
-			 });
+			});
 			return colorPrimary[i];
 		});
 
@@ -3550,7 +3349,7 @@ updateBubbles();
 				animation: 'shift-away',
 				arrow: true,
 				size: 'small'
-			 });
+			});
 			return colorSecondary[i];
 		});
 
@@ -3589,9 +3388,7 @@ updateBubbles();
 			});
 
 			d.total_entries = count;
-
-
-		    d.severity_avg = ( (1*d.severity[5]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
+			d.severity_avg = ( (1*d.severity[5]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
 
 			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < severity.length; i++) { 
@@ -3618,8 +3415,7 @@ updateBubbles();
 			});
 
 			d.total_entries = count;
-
-		    d.reliability_avg = ( (1*d.reliability[5]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
+			d.reliability_avg = ( (1*d.reliability[5]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
 
 			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < reliability.length; i++) { 
@@ -3634,7 +3430,7 @@ updateBubbles();
 
 			for (i = 0; i < severity.length; i++) { 
 				if(filters.severity.includes(i+1)){}
-				severityCount += severity[i];
+					severityCount += severity[i];
 				severityRolling[i] = severityCount;
 				reliabilityCount += reliability[i];
 				reliabilityRolling[i] = reliabilityCount;
@@ -3690,7 +3486,6 @@ updateBubbles();
 			};
 
 			if((target=='severity')||(target=='init')||(target=='geo')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
-
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', 1)
 				.transition()
@@ -3710,8 +3505,8 @@ updateBubbles();
 					.style('opacity', function(){
 					// hide show percent label
 
-						if(w<=20){ return  0 } else { return 1};
-					});
+					if(w<=20){ return  0 } else { return 1};
+				});
 
 					d3.select('.r'+(i+1)+'-percent')
 					.text(function(){
@@ -3737,12 +3532,12 @@ updateBubbles();
 
 			severity.every(function(d,i){
 				s += severity[i];
-				  if (s > s_total / 2){
+				if (s > s_total / 2){
 					s_median = i;
 					return false;	
-				  } else { 
-				  	return true;
-				  }
+				} else { 
+					return true;
+				}
 			});
 
 			// reliability median
@@ -3750,18 +3545,17 @@ updateBubbles();
 			var r_median = 0;
 			reliability.every(function(d,i){
 				r += reliability[i];
-				  if (r > r_total / 2){
+				if (r > r_total / 2){
 					r_median = i;
 					return false;	
-				  } else { 
-				  	return true;
-				  }
+				} else { 
+					return true;
+				}
 			});
 
 			var severityAverage = ( (1*severity[5]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
 			d3.select('#severity_value').text(metadata.severity_units[(Math.round(severityAverage))] + ' ('+ severityAverage.toFixed(1) +')' )
 			d3.select('#severity_value').text(metadata.severity_units[s_median].name )
-
 			d3.select('#severityAvg').attr('x',function(d){
 				return scale.severity.x(s_median);
 			});
@@ -3769,7 +3563,6 @@ updateBubbles();
 			var reliabilityAverage = ( (1*reliability[5]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
 			d3.select('#reliability_value').text(metadata.reliability_units[(Math.round(reliabilityAverage))] + ' ('+ reliabilityAverage.toFixed(1) +')' )
 			d3.select('#reliability_value').text(metadata.reliability_units[r_median].name )
-
 			d3.select('#reliabiltiyAvg').attr('x',function(d){
 				return scale.severity.x(r_median);
 			});
@@ -3781,17 +3574,10 @@ updateBubbles();
 
 			d3.select('#severitySvg').style('visibility', 'hidden');
 			d3.select('#reliabilitySvg').style('visibility', 'hidden');
-
 			d3.select('#severity_value').text('');
 			d3.select('#reliability_value').text('');
-
-			d3.selectAll('.severityBar')
-			.attr('fill', '#CDCDCD');
-			d3.selectAll('.reliabilityBar')
-			.attr('fill', '#CDCDCD');
-
-			// d3.select('#reliabiltiyAvg').attr('x',-100);
-			// d3.select('#severityAvg').attr('x',-100);
+			d3.selectAll('.severityBar').attr('fill', '#CDCDCD');
+			d3.selectAll('.reliabilityBar').attr('fill', '#CDCDCD');
 		}
 	}
 
@@ -3813,23 +3599,22 @@ updateBubbles();
 		.entries(dat);	
 
 		var labels = d3.nest().key(function(d) {
-	        return d[group];
-	      }).sortKeys(d3.ascending)
-	      .rollup(function(leaves) {
-	        return d3.sum(leaves, function(d) {
-	          return 1;
-	        });
-	      }).entries(dat);
+			return d[group];
+		}).sortKeys(d3.ascending)
+		.rollup(function(leaves) {
+			return d3.sum(leaves, function(d) {
+				return 1;
+			});
+		}).entries(dat);
 
-	      var rowMax = d3.max(labels, function(d,i){
-	      	return d.value
-	      });
+		var rowMax = d3.max(labels, function(d,i){
+			return d.value
+		});
 
 		scale[group].x.domain([0, rowMax]);// severity/reliability x xcale
 
 	    // reset all bars to zero width
-		d3.selectAll('.'+group+'-bar').attr('width', 0);
-
+	    d3.selectAll('.'+group+'-bar').attr('width', 0);
 		// reset all text labels to zero and hide
 		d3.selectAll('.'+group+'-label').text(0).style('opacity', 0);
 
@@ -3846,7 +3631,6 @@ updateBubbles();
 		});
 
 		d.forEach(function(d,i){
-
 			var key = d.key;
 			var wcount = scale[group].paddingLeft;
 			var xcount = scale[group].paddingLeft;
@@ -3865,10 +3649,7 @@ updateBubbles();
 						return colorSecondary[s];
 					}
 				});
-
 				var rect = document.querySelector('#'+id)
-				// var instance = tippy(rect);
-
 				tippy(rect, { 
 					content: setBarName(s),
 					theme: 'light-border',
@@ -3883,10 +3664,9 @@ updateBubbles();
 				        // instance.popper.hidden = instance.reference.dataset.tippy ? false : true;
 				        var v = d3.select('#'+id).attr('data-value');
 				        if(s>=0)
-				      	instance.setContent(setBarName(s, v));
-					}
+				        	instance.setContent(setBarName(s, v));
+				    }
 				});
-
 				xcount = xcount + w;
 			});
 		});
@@ -3907,7 +3687,6 @@ updateBubbles();
 	// update framework
 	//**************************
 	var updateFramework = function(){
-
 		var d = dataByFramework.filter(function(d){
 			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 		});
@@ -3925,54 +3704,37 @@ updateBubbles();
 		.entries(d);	
 
 		if(filters.frameworkToggle == 'entries'){
-
 			maxCellSize = d3.max(d, function(dd){
 				return d3.max(dd.values, function(ddd){
 					return ddd.value.total;
 				});
 			})
-
 			var cellColorScale = d3.scaleLinear().domain([1,maxCellSize])
-				.range([colorNeutral[0], colorNeutral[4]])
-		        .interpolate(d3.interpolateHcl);
-
+			.range([colorNeutral[0], colorNeutral[4]])
+			.interpolate(d3.interpolateHcl);
 			d3.selectAll('.f-val').text('').style('fill', colorNeutral[4]);
-	
 		} else {
-
 			if(filters.toggle == 'severity'){
-
 				maxCellSize = 5;
-
 				d3.select('#toggle1').style('fill', colorPrimary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
-				  .interpolator(d3.interpolateOrRd);
+				.interpolator(d3.interpolateOrRd);
 				// d3.selectAll('.f-val').text('').style('fill', colorPrimary[4]);
 			} else {
-
 				maxCellSize = 5;
-
 				d3.select('#toggle1').style('fill', colorSecondary[3]);
 				var cellColorScale = d3.scaleSequential().domain([0.2,maxCellSize+1])
-				  .interpolator(d3.interpolatePuBu);
-				// d3.selectAll('.f-val').text('').style('fill', colorSecondary[4]);
+				.interpolator(d3.interpolatePuBu);
 			}
 		}
 
-		d3.selectAll('.cell')
-		.style('fill', '#FFF');
-
+		d3.selectAll('.cell').style('fill', '#FFF');
 		d3.selectAll('.framework-text').text(0).style('visibility', 'hidden').style('fill', '#000');
-
 		d3.selectAll('.f-val').text('');
 
 		d.forEach(function(d,i){
-			// if(filters.frameworkToggle=='entries'){
 			var sum = d3.sum(d.values, function(d){ return d.value.total});
 			d3.select('#f'+d.key+'-val').text(sum);
-			// } else {
-
-			// }
 			var f = d.key;
 			d.values.forEach(function(dd,ii){
 				var s = dd.key;
@@ -4006,84 +3768,59 @@ updateBubbles();
 	// toggle between severity and reliability
 	//**************************
 	var toggle = function(d){
-
 		d3.select('#framework-toggle').style('fill', colorNeutral[3]);
-
 		if(d != 'severity'){
 			// switch to Reliability
 			d3.select('#reliabilityToggle').style('opacity', 1);
 			d3.select('#severityToggle').style('opacity', 0);
 			filters.toggle = 'reliability';
-
 			d3.select('#total_entries').style('color',colorNeutral[3]);
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
-
 			d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
-
 			d3.select('#rightAxisLabel').text('Avg. Reliability');
 			d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
 			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
 			d3.select('.selection').style('fill', colorNeutral[3]);
-
 			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
 			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-
 			if(filters.frameworkToggle == 'average'){
 				d3.select('#framework-toggle').style('fill', colorSecondary[3])
 			}
 			// update colors of contextual row total values
 			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
-
 			d3.select('#dateRange').style('color', colorNeutral[4]);
-
 			d3.select('#avg-line').style('stroke', colorSecondary[3]);
-
 			d3.select('#framework-toggle-text tspan').text('median reliability');
-
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
 			d3.select('#severityToggle').style('opacity', 1);	
 			filters.toggle = 'severity';
-
 			d3.select('#total_entries').style('color',colorNeutral[3]);
-
 			if(filters.frameworkToggle == 'average'){
 				d3.select('#framework-toggle').style('fill', colorPrimary[3]);
 			}
-
 			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY SEVERITY');
 			d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
 			d3.select('#rightAxisLabel').text('Avg. Severity');
 			d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
 			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
 			d3.select('.selection').style('fill', colorNeutral[3]);
-
 			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
 			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-
 			// update colors of contextual row total values
 			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
-
 			d3.select('#dateRange').style('color', colorNeutral[4]);
-
 			d3.select('#avg-line').style('stroke', colorPrimary[3]);
-
 			d3.select('#framework-toggle-text tspan').text('median severity');
-
 		}
-
 		updateTimeline();
 	}
 
-
 	function colorBars(){
-
 		d3.selectAll('.barGroup').each(function(d,i){
 			var idate = parseInt(d3.select(this).attr('id').slice(4));
-
 			if(((new Date(idate)) >= (dateRange[0]))&&((new Date(idate))< (dateRange[1]))){
-		
 				d3.select(this).selectAll('.bar').style('fill', function(d,i){
 					if(filters.toggle == 'severity'){
 						return colorPrimary[i];
@@ -4099,17 +3836,13 @@ updateBubbles();
 						return colorNeutral[3];
 					}
 				});
-
-
 			} else {
-
 				d3.select(this).selectAll('.bar').style('fill', function(d,i){
 					return colorLightgrey[i];
 				}).style('fill-opacity', 1);
 				d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
 					return colorLightgrey[1];
 				});
-
 			}
 		});
 	}
@@ -4117,69 +3850,48 @@ updateBubbles();
 	//**************************
 	// resizing
 	//**************************
-
 	var scrollable = false;
-
 	window.onresize = function(){
 		setTimeout(resizeDevice, 50);
-
 	}
-
 	var resizeDevice = function() {
-
 		// set map height
 		var map = document.getElementById("map");
 		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
-
 		$('.vizlibResponsiveDiv').each(function(){
 			var rDiv = this;
 			if($(rDiv).hasClass('vizlibResponsiveDiv')){
-
 				$(rDiv).width('100%');
 				var ar = $(rDiv).attr('data-aspectRatio');
-
 				var cWidth = $(rDiv).width();
 				var cHeight = $(rDiv).height();
-
 				$(rDiv).height(cWidth/ar);
-
 				if(scrollable == false){
-
 					$(rDiv).height('100%');
 					cWidth = $(rDiv).width();
 					cHeight = $(rDiv).height();
-
 					if((cWidth/ar)>cHeight){
 						$(rDiv).width($(rDiv).height()*ar);
 					} else {
 						$(rDiv).width('100%');
 						$(rDiv).height($(rDiv).width()/ar);
 					}
-
 				} else {
 					$(rDiv).width('100%');
 					var cWidth = $(rDiv).width();
 					var cHeight = $(rDiv).height();
-
 					if((cWidth/ar)>cHeight){
 						$(rDiv).height($(rDiv).width()/ar);
 					} 
 				}
-
 			} 
 		});
-
 		mapbox.resize();
-	} // .resize
-
-	//**************************
-	// useful functions
-	//**************************
+	}
 
 	// rounding function
 	var rounder = function(value){
 		var v = Math.abs(value);
-
 		if(v<100){
 			return Math.ceil(value/10)*10;
 		};
@@ -4209,7 +3921,6 @@ updateBubbles();
 	// add or remove values from an array if exists
 	function addOrRemove(array, value) {
 		var index = array.indexOf(value);
-
 		if (index === -1) {
 			array.push(value);
 		} else {
@@ -4224,9 +3935,4 @@ updateBubbles();
 			index = array.indexOf(elem);
 		}
 	}
-
-
-
-
-
 }
