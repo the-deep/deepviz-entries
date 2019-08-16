@@ -22,6 +22,7 @@ var Deepviz = function(sources, callback){
 		'reliability': {x: '', y: ''}
 	};
 
+	var mapbox;
 	// data related
 	var metadata;
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
@@ -668,7 +669,9 @@ var Deepviz = function(sources, callback){
 	        pitchWithRotate: false,
 	        doubleClickZoom: false,
 	        dragRotate: false
-	    })
+	    });
+
+	    mapbox = map;
 	    
 	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 	    map.scrollZoom.disable();
@@ -1734,7 +1737,6 @@ updateBubbles();
 		.attr('x', 0)
 		.attr('y', 20)
 		.style('font-weight', 'bold')
-		.style('font-size', '17px')
 		.text('SECTORAL FRAMEWORK');
 
 		// add filter icon
@@ -1770,14 +1772,14 @@ updateBubbles();
 		toggleswitch.append('text')
 		.attr('x', 12)
 		.attr('y', 32)
-		.style('font-size', '24px')
+		// .style('font-size', '24px')
 		.text('# of entries');
 
 		toggleswitch.append('text')
 		.attr('x', 230)
 		.attr('y', 32)
 		.attr('id', 'framework-toggle-text')
-		.style('font-size', '24px')
+		// .style('font-size', '24px')
 		.text('median severity');
 
 		var columnHeadersBg = frameworkSvg.append('g')
@@ -2200,7 +2202,6 @@ updateBubbles();
 		.attr('x', 0)
 		.attr('y', 20)
 		.style('font-weight', 'bold')
-		.style('font-size', '23px')
 		.text(a.title);
 
 		// add filter icon
@@ -4120,7 +4121,8 @@ updateBubbles();
 	var scrollable = false;
 
 	window.onresize = function(){
-		setTimeout(resizeDevice, 10);
+		setTimeout(resizeDevice, 50);
+
 	}
 
 	var resizeDevice = function() {
@@ -4166,6 +4168,8 @@ updateBubbles();
 
 			} 
 		});
+
+		mapbox.resize();
 	} // .resize
 
 	//**************************
