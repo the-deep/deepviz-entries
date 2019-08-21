@@ -747,13 +747,13 @@ var Deepviz = function(sources, callback){
 				var size = scale.map(dataByLocationSum[i]);
 				return 'scale('+size+')';
 			})
-			.style('opacity', function(d,i){
+			.style('display', function(d,i){
 				if(dataByLocationSum[i]>0){
-					return 1;
+					return 'inline';
 				} else {
-					return 0;
+					return 'none';
 				}
-			})
+			});
 
 			featureElementG
 			.append("circle")
@@ -1352,7 +1352,7 @@ var Deepviz = function(sources, callback){
 		.attr('class', 'label')
 		.attr('y',21)
 		.attr('x',4)
-		.style('font-weight', 'bold')
+		// .style('font-weight', 'bold')
 		.style('font-size', '16px');
 
 		// row total value
