@@ -1427,7 +1427,7 @@ var Deepviz = function(sources, callback){
 				return (w/2);
 			})
 		.attr('cy', function(d,i){
-			return timechartHeight2 + (contextualRowHeight*(i+1))+7;
+			return timechartHeight2 + (contextualRowHeight*(i+1))+16;
 		})
 		.style('fill', colorNeutral[3]);
 
