@@ -262,19 +262,22 @@ var Deepviz = function(sources, callback){
 				if(d._severity==ddd._id){
 					d.severity = ddd.id;
 				}
-				// nuyll severity values
+				// parse null values
 				if(d._severity===null){
 					d.severity = 0;
 				}
-				if(d._reliability===null){
-					d.reliability = 0;
-				}
+
+
 			});
 			// parse reliability id
 			d._reliability = d.reliability;
 			metadata.reliability_units.forEach(function(ddd,ii){
 				if(d._reliability==ddd._id){
 					d.reliability = ddd.id;
+				}
+				// parse null values
+				if(d._reliability===null){
+					d.reliability = 0;
 				}
 			});
 			// parse geo id
