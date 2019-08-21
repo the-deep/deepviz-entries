@@ -548,10 +548,12 @@ var Deepviz = function(sources, callback){
 		    // geo array
 		    var geoArr = [];
 
-		    dataByLocation[i].values.forEach(function(dx, ii){
-		    	var k = dx.key-1;
-		    	geoArr[k] = dx.value;
-		    });
+		    if(dataByLocation[i] !== undefined){
+			    dataByLocation[i].values.forEach(function(dx, ii){
+			    	var k = dx.key-1;
+			    	geoArr[k] = dx.value;
+			    });
+			}
 
 		    d.geo = geoArr;
 
