@@ -2169,8 +2169,8 @@ var Deepviz = function(sources, callback){
 			.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
 			.attr('height', 23)
 			.attr('width', 23)
-			.attr('y', 7)
-			.attr('x', labelWidth-26);
+			.attr('y', rowHeight/2 - 12)
+			.attr('x', labelWidth-30);
 
 			labelWidth = labelWidth + 30;
 		}
