@@ -102,7 +102,7 @@ var Deepviz = function(sources, callback){
 	.interpolator(d3.interpolateReds);
 
 	// stacked bar charts (sector, affected groups, special needs groups)
-	var stackedBarHeight = 480;
+	var stackedBarHeight = 550;
 	//**************************
 	// load data
 	//**************************
