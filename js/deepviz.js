@@ -73,7 +73,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.32;
+	var mapAspectRatio = 1.35;
 	var geoBounds = {'lat': [], 'lon': []};
 
 	// filters
@@ -303,6 +303,7 @@ var Deepviz = function(sources, callback){
 		// TEMPORARY for testing - filter data before minDate
 		// data = data.filter(function(d){return (d.date) >= (minDate);});
 
+		
 		// set the data again for reset purposes
 		originalData = data;
 
