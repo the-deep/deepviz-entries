@@ -56,6 +56,7 @@ var Deepviz = function(sources, callback){
 	var gBrush; 
 	var barWidth;
 	var numContextualRows;
+	var numCategories;
 	var frameworkToggleImg;
 	// trendline
 	var trendlinePoints;
@@ -82,6 +83,7 @@ var Deepviz = function(sources, callback){
 		reliability: [],
 		affectedGroups: [],
 		specificNeeds: [],
+		context: [],
 		geo: [],
 		toggle: 'severity',
 		frameworkToggle: 'entries',
@@ -1829,7 +1831,16 @@ var Deepviz = function(sources, callback){
 			filter('sector',i+1);
 		});
 
-		d3.selectAll('#frameworkRemoveFilter, #scRemoveFilter').on('click', function(d,i){
+		d3.select('#frameworkRemoveFilter').on('click', function(d,i){
+			filter('sector', 'clearFramework');
+			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
+			d3.selectAll('.col-header-text').style('opacity', 1);	
+			d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.selectAll('.sector-icon').style('opacity', 0.3);
+		});
+
+		d3.select('#scRemoveFilter').on('click', function(d,i){
 			filter('sector', 'clear');
 			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 			d3.selectAll('.col-header-text').style('opacity', 1);	
@@ -1837,7 +1848,7 @@ var Deepviz = function(sources, callback){
 			d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
 			d3.selectAll('.sector-icon').style('opacity', 0.3);
 		});
-		
+
 		// rows
 		var rows = layer1.selectAll('.frameworkRow')
 		.data(metadata.framework_groups_array)
@@ -1870,7 +1881,7 @@ var Deepviz = function(sources, callback){
 
 		// left headers
 
-		// category name vars (e.g. scope and scale)
+		// context name vars (e.g. scope and scale)
 		var cat = '';
 		var cat0 = 0,
 		cat1 = 0;
@@ -1889,7 +1900,7 @@ var Deepviz = function(sources, callback){
 		})
 		.attr('x',7)
 		.attr('class', function(d,i){
-			return 'category-name'
+			return 'context-name'
 		})
 		.style('font-weight', 'bold');
 
@@ -1933,13 +1944,17 @@ var Deepviz = function(sources, callback){
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(metadata.framework_groups_array);
 
+		numCategories = categories.length;
+
 		var rollingH = 0;
-		var catFilters = layer3.selectAll('.catFilter')
+		var contextFilters = layer3.selectAll('.catFilter')
 		.data(categories)
 		.enter()
 		.append('rect')
 		.attr('x',0)
 		.attr('width', leftColWidth)
+		.attr('class', 'context-filter')
+		.attr('id', function(d,i){ return 'context-filter'+d.key })
 		.attr('height', function(d,i){
 			return d.value * rowHeight;
 		})
@@ -1952,14 +1967,28 @@ var Deepviz = function(sources, callback){
 				return rollingH;
 			}
 		})
-		.style('cursor', 'pointer')
-		.style('fill', colorLightgrey[3])
-		.style('opacity', 0)
-		.on('mouseover', function(){
-			d3.select(this).style('opacity', 0.14);
+		.style('cursor', function(d,i){
+
 		})
-		.on('mouseout', function(){
-			d3.select(this).style('opacity', 0);
+		.style('fill', colorLightgrey[3])
+		.style('cursor', 'pointer')
+		.style('opacity', 0)
+		.on('mouseover', function(d,i){
+			if(!filters['context'].includes(parseInt(d.key))){
+				return d3.select(this).style('fill', colorGrey[2]).style('opacity', 0.05);
+			}
+		})
+		.on('mouseout', function(d,i){
+			if(!filters['context'].includes(parseInt(d.key))){
+				return d3.select(this).style('opacity', 0);
+			} else {
+				// selected state
+				return d3.select(this).style('fill', colorGrey[1]).style('opacity', 0.1);
+
+			}
+		})
+		.on('click', function(d,i){
+			filter('context', parseInt(d.key));
 		});
 
 		// grid
@@ -2741,6 +2770,7 @@ var Deepviz = function(sources, callback){
 		if(filterClass=='clear'){
 			filters.sector = [];
 			filters.severity = [];
+			filters.context = [];
 			filters.reliability = [];
 			filters.affectedGroups = [];
 			filters.specificNeeds = [];
@@ -2764,11 +2794,15 @@ var Deepviz = function(sources, callback){
 
 		if(value=='clear'){
 			filters[filterClass] = [];
+		} else if(value == 'clearFramework'){
+			filters['sector'] = [];
+			filters['context'] = [];
 		} else {
-			addOrRemove(filters[filterClass], value);		
+		  addOrRemove(filters[filterClass], value);		
 		}
 
-		if((filters['severity'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specificNeeds'].length>0)||(filters['affectedGroups'].length>0)){
+
+		if((filters['severity'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specificNeeds'].length>0)||(filters['affectedGroups'].length>0)){
 			d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		} else { 
 			d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
@@ -2836,7 +2870,24 @@ var Deepviz = function(sources, callback){
 			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
-		if(filters['sector'].length>10)filters['sector'] = [];
+		if(filters['context'].length>=numCategories)filters['context'] = [];
+
+		d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0);
+
+		if(filters['context'].length>0){
+			// filter data
+			data = data.filter(function(d){
+				return d['context'].some(r=> filters['context'].indexOf(parseInt(r)) >= 0);
+				// return filters['sector'].includes(d['sector'][2]);
+			});
+			// bar/text shading
+			filters.context.forEach(function(d,i){
+				d3.selectAll('#context-filter'+(d)).style('fill', colorGrey[1]).style('opacity', 0.1);
+			});
+			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+		}
+
+		if(filters['sector'].length>=metadata.sector_array.length)filters['sector'] = [];
 
 		if(filters['sector'].length>0){
 			// filter data
@@ -3495,7 +3546,7 @@ var Deepviz = function(sources, callback){
 				reliabilityRolling[i] = reliabilityCount;
 			}
 
-			if((target=='reliability')||(target=='init')||(target=='geo')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
+			if((target=='reliability')||(target=='init')||(target=='context')||(target=='geo')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
 				d3.selectAll('.severityBar')
 				.transition()
 				.duration(duration)
@@ -3544,7 +3595,7 @@ var Deepviz = function(sources, callback){
 				});				
 			};
 
-			if((target=='severity')||(target=='init')||(target=='geo')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
+			if((target=='severity')||(target=='init')||(target=='geo')||(target=='context')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', 1)
 				.transition()
