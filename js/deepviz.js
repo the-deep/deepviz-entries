@@ -1660,10 +1660,20 @@ var Deepviz = function(sources, callback){
 	//**************************	
 	this.createFrameworkChart = function(options){
 
-		var frameworkHeight = 472;
+		var frameworkRowHeight = 28;
+		var frameworkHeight = metadata.framework_groups_array.length * frameworkRowHeight;
+
 		var numFrameworkRows = metadata.framework_groups_array.length;
 		var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2};
-		var leftSpacing = 470;
+
+		if(metadata.sector_array.length>10){
+			var leftSpacing = 460; 
+		} else {
+			var leftSpacing = 575; 
+		}
+
+		var leftColWidth = 220;
+		
 		var frameworkWidth = 1600;
 		var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
 		var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom))/numFrameworkRows;
@@ -1677,9 +1687,9 @@ var Deepviz = function(sources, callback){
 			width: '100%'
 		});
 
-		var layer1 = frameworkSvg.append('g');
+		var layer1 = frameworkSvg.append('g').attr('id', 'framework-layer1')
 		var layer2 = frameworkSvg.append('g').attr('id', 'framework-layer2');
-		var layer3 = frameworkSvg.append('g');
+		var layer3 = frameworkSvg.append('g').attr('id', 'framework-layer3')
 
 		// title
 		var title = frameworkSvg.append('g')
@@ -1828,6 +1838,7 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.sector-icon').style('opacity', 0.3);
 		});
 		
+		// rows
 		var rows = layer1.selectAll('.frameworkRow')
 		.data(metadata.framework_groups_array)
 		.enter()
@@ -1836,7 +1847,7 @@ var Deepviz = function(sources, callback){
 			return 'frameworkRow f'+i
 		})
 		.attr('transform', function(d,i){
-			return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight )+')';
+			return 'translate(0,'+ (frameworkMargins.top + (i+1) * rowHeight)+')';
 		});
 
 		var rows2 = layer2.selectAll('.frameworkRow')
@@ -1853,14 +1864,18 @@ var Deepviz = function(sources, callback){
 		rows.append('rect')
 		.attr('x', 0)
 		.attr('y', -20)
-		.attr('width', 220)
-		.attr('height', 28)
+		.attr('width', leftColWidth)
+		.attr('height', frameworkRowHeight)
 		.style('fill', '#FAFAFA');
 
+		// left headers
+
+		// category name vars (e.g. scope and scale)
 		var cat = '';
 		var cat0 = 0,
 		cat1 = 0;
 
+		var leftColArray = [];
 		rows.append('text')
 		.text(function(d,i){
 			var cat_name = metadata.context_array[d.context_id-1].name;
@@ -1877,6 +1892,8 @@ var Deepviz = function(sources, callback){
 			return 'category-name'
 		})
 		.style('font-weight', 'bold');
+
+		// second left headers
 
 		var secondCol = rows.append('g');
 
@@ -1909,6 +1926,43 @@ var Deepviz = function(sources, callback){
 		})
 		.attr('y', -2);
 
+		// row filters
+
+		var categories = d3.nest()
+		.key(function(d) { return d.context_id;})
+		.rollup(function(leaves) { return leaves.length; })
+		.entries(metadata.framework_groups_array);
+
+		var rollingH = 0;
+		var catFilters = layer3.selectAll('.catFilter')
+		.data(categories)
+		.enter()
+		.append('rect')
+		.attr('x',0)
+		.attr('width', leftColWidth)
+		.attr('height', function(d,i){
+			return d.value * rowHeight;
+		})
+		.attr('y', function(d,i){
+			if(i==0){
+				rollingH += rowHeight;
+				return rowHeight;
+			} else { 
+				rollingH += (categories[i-1].value) * rowHeight;
+				return rollingH;
+			}
+		})
+		.style('cursor', 'pointer')
+		.style('fill', colorLightgrey[3])
+		.style('opacity', 0)
+		.on('mouseover', function(){
+			d3.select(this).style('opacity', 0.14);
+		})
+		.on('mouseout', function(){
+			d3.select(this).style('opacity', 0);
+		});
+
+		// grid
 		var cells = rows.selectAll('.frameworkCol')
 		.data(metadata.sector_array)
 		.enter()
