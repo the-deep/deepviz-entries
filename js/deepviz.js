@@ -562,8 +562,8 @@ var Deepviz = function(sources, callback){
 
 		    d.total_entries = count;
 
-		    d.severity_avg = ( (1*d.severity[0]) + (2*d.severity[1]) + (3*d.severity[2]) + (4*d.severity[3]) + (5*d.severity[4]) ) / count;
-		    d.reliability_avg = ( (1*d.reliability[0]) + (2*d.reliability[1]) + (3*d.reliability[2]) + (4*d.reliability[3]) + (5*d.reliability[4]) ) / count;
+		    d.severity_avg = ( (1*d.severity[1]) + (2*d.severity[2]) + (3*d.severity[3]) + (4*d.severity[4]) + (5*d.severity[5]) ) / count;
+		    d.reliability_avg = ( (1*d.reliability[1]) + (2*d.reliability[2]) + (3*d.reliability[3]) + (4*d.reliability[4]) + (5*d.reliability[5]) ) / count;
 
 		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
 
@@ -1068,7 +1068,7 @@ var Deepviz = function(sources, callback){
 		// define y-axis secondary
 		scale.trendline.y = d3.scaleLinear()
 		.range([(timechartHeight2), 0])
-		.domain([1, 5]);
+		.domain([0, 5]);
 
 		var yAxis2 = d3.axisRight()
 		.scale(scale.trendline.y)
@@ -2428,7 +2428,7 @@ var Deepviz = function(sources, callback){
 		// define x scale
 		scale.severity.x = d3.scaleLinear()
 		.range([0, 995])
-		.domain([0, 5]);// severity/reliability x xcale
+		.domain([0,5]);// severity/reliability x xcale
 
 		var severityBars = severitySvg.selectAll('.severityBar')
 		.data(metadata.severity_units)
@@ -3389,6 +3389,8 @@ var Deepviz = function(sources, callback){
 		trendlinePoints.sort(function(x,y){
 			return d3.ascending(x.date, y.date);
 		})
+
+		console.log(trendlinePoints);
 
 		trendlinePoints.forEach(function(d,i){
 			d.y_severity = scale.trendline.y(d.severity_avg);
