@@ -4,7 +4,7 @@ var Deepviz = function(sources, callback){
 	// define variables
 	//**************************
 	var dateRange  = [new Date(2019, 4, 15), new Date(2019, 7, 31)]; // selected dateRange on load
-	// var minDate = new Date('2018-10-15');
+	// var minDate = new Date('2019-08-05');
 
 	// use url parameters
 	var url = new URL(window.location.href);
@@ -428,6 +428,7 @@ var Deepviz = function(sources, callback){
 		var dataByLocationArray = [];
 		var dataByContextArray = [];
 
+
 		data.forEach(function(d,i){
 
 			d.sector.forEach(function(dd,ii){
@@ -453,6 +454,9 @@ var Deepviz = function(sources, callback){
 			});
 
 		});
+	    // dataByLocationArray = dataByLocationArray.filter(function(d){
+	    // 	return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
+	    // });
 
 		dataByLocation = d3.nest()
 		.key(function(d) { return d.date;})
@@ -510,6 +514,12 @@ var Deepviz = function(sources, callback){
 		trendlinePoints = [];
 		tp = [];
 
+		dataByLocation.forEach(function(d,i){
+			var dt = new Date(d.key);
+			dt.setHours(0,0,0,0);
+			d.date = d.key;
+		});
+
 		dataByDate.forEach(function(d,i){
 			var dt = new Date(d.key);
 			dt.setHours(0,0,0,0);
@@ -551,12 +561,14 @@ var Deepviz = function(sources, callback){
 		    // geo array
 		    var geoArr = [];
 
-		    if(dataByLocation[i] !== undefined){
-			    dataByLocation[i].values.forEach(function(dx, ii){
-			    	var k = dx.key-1;
-			    	geoArr[k] = dx.value;
-			    });
-			}
+	    	dataByLocation.forEach(function(dl,ii){
+	    		if(dl.key==d.key){
+				    dl.values.forEach(function(dx, ii){
+				    	var k = dx.key-1;
+				    	geoArr[k] = dx.value;
+				    });
+	    		}
+	    	})
 
 		    d.geo = geoArr;
 
@@ -576,9 +588,16 @@ var Deepviz = function(sources, callback){
 			return d3.ascending(x.date, y.date);
 		})
 
+		dataByLocation.sort(function(x,y){
+			return d3.ascending(x.date, y.date);
+		})
+
 		maxValue = d3.max(dataByDate, function(d) {
 			return d.total_entries;
 		});
+
+		// console.log(dataByDate);
+		// console.log(dataByLocation);
 
 		updateFramework();
 		updateTotals();
@@ -694,7 +713,12 @@ var Deepviz = function(sources, callback){
 	    	for(var g=0; g < metadata.geo_array.length; g++) {
 	    		if(d.geo[g]>0){
 	    			var t = (dataByLocationSum[g]) + (d.geo[g]);
-	    			dataByLocationSum[g] = t;
+	    			if(metadata.geo_array[g].admin_level!=0){
+		    			dataByLocationSum[g] = t;
+
+	    			} else {
+		    			dataByLocationSum[g] = 0;
+	    			}
 	    		}
 	    	}
 	    });
@@ -1988,7 +2012,6 @@ var Deepviz = function(sources, callback){
 		.on('mouseout', function(d,i){
 			if(!filters['context'].includes(parseInt(d.key))){
 				if(filters['context'].length>0){
-					console.log('t');
 					return d3.select(this).style('fill', '#FFF').style('opacity', 0.6);	
 				} else {
 
@@ -3264,18 +3287,24 @@ var Deepviz = function(sources, callback){
 			dataByLocationSum[g] = 0;
 		}
 
-		gd.forEach(function(d,i){
-			for(var g=0; g < metadata.geo_array.length; g++) {
-				if(d.geo[g]>0){
-					var t = (dataByLocationSum[g]) + (d.geo[g]);
-					dataByLocationSum[g] = t;
-				}
-			}
-		});
 
-		maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
-			return d;
-		});
+	    gd.forEach(function(d,i){
+	    	for(var g=0; g < metadata.geo_array.length; g++) {
+	    		if(d.geo[g]>0){
+	    			var t = (dataByLocationSum[g]) + (d.geo[g]);
+	    			if(metadata.geo_array[g].admin_level!=0){
+		    			dataByLocationSum[g] = t;
+
+	    			} else {
+		    			dataByLocationSum[g] = 0;
+	    			}
+	    		}
+	    	}
+	    });
+
+	    maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
+	    	return d;
+	    });
 
 		scale.map = d3.scaleLinear()
 		.range([0.2,1])
@@ -3389,8 +3418,6 @@ var Deepviz = function(sources, callback){
 		trendlinePoints.sort(function(x,y){
 			return d3.ascending(x.date, y.date);
 		})
-
-		console.log(trendlinePoints);
 
 		trendlinePoints.forEach(function(d,i){
 			d.y_severity = scale.trendline.y(d.severity_avg);
