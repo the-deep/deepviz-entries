@@ -1974,16 +1974,28 @@ var Deepviz = function(sources, callback){
 		.style('cursor', 'pointer')
 		.style('opacity', 0)
 		.on('mouseover', function(d,i){
-			if(!filters['context'].includes(parseInt(d.key))){
-				return d3.select(this).style('fill', colorGrey[2]).style('opacity', 0.05);
+			if(filters['context'].includes(parseInt(d.key))){
+				// return d3.select(this).style('fill', '#FFF').style('opacity',0.5);
+			} else {
+				if(filters['context'].length>0){
+					return d3.select(this).style('fill', '#FFF').style('opacity', 0.1);	
+				} else {
+					return d3.select(this).style('fill', colorGrey[2]).style('opacity', 0.05);	
+				}
 			}
 		})
 		.on('mouseout', function(d,i){
 			if(!filters['context'].includes(parseInt(d.key))){
-				return d3.select(this).style('opacity', 0);
+				if(filters['context'].length>0){
+					console.log('t');
+					return d3.select(this).style('fill', '#FFF').style('opacity', 0.6);	
+				} else {
+
+					return d3.select(this).style('opacity', 0);
+				}
 			} else {
 				// selected state
-				return d3.select(this).style('fill', colorGrey[1]).style('opacity', 0.1);
+				return d3.select(this).style('opacity', 0.1);
 
 			}
 		})
@@ -2872,9 +2884,10 @@ var Deepviz = function(sources, callback){
 
 		if(filters['context'].length>=numCategories)filters['context'] = [];
 
-		d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0);
 
 		if(filters['context'].length>0){
+			d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0.6);
+
 			// filter data
 			data = data.filter(function(d){
 				return d['context'].some(r=> filters['context'].indexOf(parseInt(r)) >= 0);
@@ -2882,9 +2895,12 @@ var Deepviz = function(sources, callback){
 			});
 			// bar/text shading
 			filters.context.forEach(function(d,i){
+				// selected state
 				d3.selectAll('#context-filter'+(d)).style('fill', colorGrey[1]).style('opacity', 0.1);
 			});
 			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+		} else {
+			d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0);
 		}
 
 		if(filters['sector'].length>=metadata.sector_array.length)filters['sector'] = [];
