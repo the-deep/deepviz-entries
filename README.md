@@ -1,2 +1,2 @@
-## THE DEEP 
-Entries Dataviz
+## DEEPVIZ-ENTRIES
+Entries data visualisation for The Deep
