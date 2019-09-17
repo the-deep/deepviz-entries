@@ -1,2 +1,1 @@
-deepviz
-Dataviz for The Deep
+THE DEEP Entries Dataviz
