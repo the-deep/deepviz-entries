@@ -115,13 +115,17 @@ var Deepviz = function(sources, callback){
 	// load each data source
 	var promises = [];
 	files.forEach(function(url) {
-		if(url.endsWith('json')){
+        // Error handle for invalid URL
+        parsed_url = new URL(url);
+        pathname = parsed_url.pathname
+
+		if(pathname.endsWith('json')){
 			promises.push(d3.json(url));			
 		};
-		if(url.endsWith('csv')){
+		if(pathname.endsWith('csv')){
 			promises.push(d3.csv(url));			
 		};
-		if(url.endsWith('svg')){
+		if(pathname.endsWith('svg')){
 			promises.push(d3.xml(url));			
 		};
 	});
@@ -551,7 +555,7 @@ var Deepviz = function(sources, callback){
 
 			d.context = contextArr;
 
-			dataByContext[i].values.forEach(function(dx, ii){
+			dataByContext[i] && dataByContext[i].values.forEach(function(dx, ii){
 				var k = dx.key-1;
 				contextArr[k] = dx.value
 			});

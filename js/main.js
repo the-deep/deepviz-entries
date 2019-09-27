@@ -1,4 +1,5 @@
-var sources = [ 'data/data.json'];
+const urlQueryParams = new URLSearchParams(window.location.search);
+var sources = [urlQueryParams.get('dataUrl')];
 
 var Deepviz = new Deepviz(sources, function(data){
 
