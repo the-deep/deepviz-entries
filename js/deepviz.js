@@ -1846,7 +1846,9 @@ var Deepviz = function(sources, callback){
 		.attr('class', function(d,i){
 			return 'sector-icon sector-icon-'+d.id;
 		})
-		.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
+		.attr('xlink:href', function(d,i){
+			return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
+		})
 		.attr('height', 14)
 		.attr('width', 14)
 		.attr('y', -11)
@@ -2299,7 +2301,9 @@ var Deepviz = function(sources, callback){
 			.attr('class', function(d,i){
 				return 'sector-icon sector-icon-'+d.id;
 			})
-			.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
+			.attr('xlink:href', function(d,i){
+				return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
+			})
 			.attr('height', 23)
 			.attr('width', 23)
 			.attr('y', rowHeight/2 - 12)
