@@ -1071,7 +1071,8 @@ var Deepviz = function(sources, callback){
 		.scale(scale.timechart.x)
 		.tickSize(0)
 		.tickPadding(10)
-		.ticks(d3.timeMonth.every(1))
+		.ticks(12)
+		// .ticks(d3.timeMonth.every(1))
 
 		if(filters.time=='y'){
 			xAxis.ticks(d3.timeYear.every(1))
@@ -1168,7 +1169,7 @@ var Deepviz = function(sources, callback){
 		.style('stroke-width', 1);
 
 		xAxisObj.selectAll(".tick line, text")
-		.attr("transform", "translate(" + 40 + ", 3)")
+		.attr("transform", "translate(" + 38 + ", 3)")
 		.append('line')
 		.attr('class', 'xAxisHorizontalLine')
 		.attr('x1', 0)
