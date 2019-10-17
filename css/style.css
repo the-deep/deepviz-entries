@@ -21,7 +21,6 @@ body {
 	-khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
 	-webkit-user-select: none; /* Chrome, Safari, and Opera */
 	-webkit-touch-callout: none; /* Disable Android and iOS callouts*/
-	padding: 0px 10px 10px 10px;
 }
 
 input { cursor: pointer; }
@@ -841,7 +840,7 @@ font-size: 15px;
 
 #framework-chart {
 	width: 100%;
-	padding-top: 20px;
+	padding-top: 10px;
 }
 
 #framework-chart .title {

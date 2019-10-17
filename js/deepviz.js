@@ -117,7 +117,7 @@ var Deepviz = function(sources, callback){
 	files.forEach(function(url) {
         // Error handle for invalid URL
         parsed_url = new URL(url);
-        pathname = parsed_url.pathname
+        pathname = parsed_url.pathname;
 
 		if(pathname.endsWith('json')){
 			promises.push(d3.json(url));			
@@ -141,7 +141,7 @@ var Deepviz = function(sources, callback){
 		metadata = values[0].meta;
 		frameworkToggleImg = values[1];
 
-		// parse meta data, create integer id column from string ids
+		// parse meta data, create integer id column from string ids and programattically attempt to shorten label names
 		metadata.context_array.forEach(function(d,i){
 			d._id = d.id;
 			d.id = i+1;
@@ -150,6 +150,10 @@ var Deepviz = function(sources, callback){
 			d._id = d.id;
 			d.id = i+1;
 			d._context_id = d.context_id;
+			// programattically shorten a long framework label
+			if(d.name== "Status of essential infrastructure, systems, markets and networks"){
+				d.name = "Infrastructure, systems, markets and networks";
+			}
 			metadata.context_array.forEach(function(ddd,ii){
 				if(d._context_id==ddd._id){
 					d.context_id = ddd.id;
@@ -171,6 +175,8 @@ var Deepviz = function(sources, callback){
 		metadata.severity_units.forEach(function(d,i){
 			d._id = d.id;
 			d.id = i+1;
+			// shorten label by cutting text after the first full-stop
+			d.name = d.name.split('.')[0];
 		});
 		metadata.reliability_units.forEach(function(d,i){
 			d._id = d.id;
@@ -580,8 +586,18 @@ var Deepviz = function(sources, callback){
 
 		    d.severity_avg = ( (1*d.severity[1]) + (2*d.severity[2]) + (3*d.severity[3]) + (4*d.severity[4]) + (5*d.severity[5]) ) / count;
 		    d.reliability_avg = ( (1*d.reliability[1]) + (2*d.reliability[2]) + (3*d.reliability[3]) + (4*d.reliability[4]) + (5*d.reliability[5]) ) / count;
+		    // without null
+		    d.trendline_severity_avg = ( (1*d.severity[1]) + (2*d.severity[2]) + (3*d.severity[3]) + (4*d.severity[4]) + (5*d.severity[5]) ) / (count- parseInt(d.severity[0]))   ;
+		    d.trendline_reliability_avg = ( (1*d.reliability[1]) + (2*d.reliability[2]) + (3*d.reliability[3]) + (4*d.reliability[4]) + (5*d.reliability[5]) ) / (count- parseInt(d.reliability[0])) ;
 
-		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
+		    if((count-parseInt(d.severity[0]))==0){
+		    	d.trendline_severity_avg = null;
+		    }
+		    if((count-parseInt(d.reliability[0]))==0){
+		    	d.trendline_reliability_avg = null;
+		    }
+
+		    trendlinePoints.push({date: d.date, "severity_avg": d.trendline_severity_avg, "reliability_avg": d.trendline_reliability_avg });
 
 		    dataByDate[i].barValues = d[filters.toggle];
 
@@ -1064,7 +1080,8 @@ var Deepviz = function(sources, callback){
 			.tickFormat(d3.timeFormat("%Y"));
 
 		} else {
-			xAxis.ticks(d3.timeMonth.every(1))
+			// xAxis.ticks(d3.timeMonth.every(1))
+			xAxis.ticks(12)
 			.tickFormat(d3.timeFormat("%b %Y"));
 		}
 
@@ -1098,21 +1115,14 @@ var Deepviz = function(sources, callback){
 		.range([(timechartHeight2), 0])
 		.domain([0, 5]);
 
-		var yAxis2 = d3.axisRight()
-		.scale(scale.trendline.y)
-		.ticks(1)
-		.tickSize(5)
-		.tickPadding(4);
-
 		var yAxisText2 = svgBg.append("g")
 		.attr("class", "yAxis axis")
 		.attr('transform', 'translate('+(width_new + margin.left-1)+','+margin.top+')')
-		.call(yAxis2)
 		.style('font-size', options.yAxis.font.values.size);
 
 		yAxisText2
 		.append("text")
-		.attr('class','axisLabel0')
+		.attr('class','axisLabel1')
 		.attr("y", timechartHeight2+4)
 		.attr("x", 8)
 		.style('font-weight','normal')
@@ -1120,10 +1130,20 @@ var Deepviz = function(sources, callback){
 		.style('fill', '#000')
 		.text('1')
 
+		yAxisText2
+		.append("text")
+		.attr('class','axisLabel1')
+		.attr("y", 4)
+		.attr("x", 8)
+		.style('font-weight','normal')
+		.style('font-size', '15px')
+		.style('fill', '#000')
+		.text('5');
+
 		// add the Y gridline
 		timechartyGrid = d3.axisLeft(scale.timechart.y1)
 		.ticks(4)
-		.tickSize(-width)
+		.tickSize(-width+52)
 		.tickFormat("")
 
 		gridlines.append("g")			
@@ -1272,7 +1292,7 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='y'){
 				w=w*0.4
 			}
-			return w-1;
+			return w;
 		})
 		.attr("y", function(d,i) { 
 			if(i>0){
@@ -1346,8 +1366,8 @@ var Deepviz = function(sources, callback){
 		svg.append('rect')
 		.attr('height', contextualRowsHeight+38)
 		.attr('width', 35)
-		.attr('x', 1287)
-		.attr('y',timechartHeightOriginal+2)
+		.attr('x', 1284)
+		.attr('y',timechartHeightOriginal+6)
 		.style('fill', '#FFF')
 		.style('fill-opacity',1);
 
@@ -1838,7 +1858,9 @@ var Deepviz = function(sources, callback){
 		.attr('class', function(d,i){
 			return 'sector-icon sector-icon-'+d.id;
 		})
-		.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
+		.attr('xlink:href', function(d,i){
+			return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
+		})
 		.attr('height', 14)
 		.attr('width', 14)
 		.attr('y', -11)
@@ -2291,7 +2313,9 @@ var Deepviz = function(sources, callback){
 			.attr('class', function(d,i){
 				return 'sector-icon sector-icon-'+d.id;
 			})
-			.attr('xlink:href', function(d,i){return 'images/sector-icons/'+(i+1)+'.svg'; })
+			.attr('xlink:href', function(d,i){
+				return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
+			})
 			.attr('height', 23)
 			.attr('width', 23)
 			.attr('y', rowHeight/2 - 12)
@@ -3209,7 +3233,7 @@ var Deepviz = function(sources, callback){
 		.call(timechartyAxis);
 
 		timechartyGrid = d3.axisLeft(scale.timechart.y1)
-		.tickSize(-width)
+		.tickSize(-width+52)
 		.ticks(4)
 		.tickFormat("")
 
@@ -3427,9 +3451,9 @@ var Deepviz = function(sources, callback){
 			d.y_severity = scale.trendline.y(d.severity_avg);
 			d.y_reliability = scale.trendline.y(d.reliability_avg);
 			if(filters.toggle=='severity'){
-				tp.push(d.y_severity );
+				if(d.severity_avg) tp.push(d.y_severity );
 			} else {
-				tp.push(d.y_reliability );			
+				if(d.reliability_avg) tp.push(d.y_reliability );			
 			}
 		});
 
