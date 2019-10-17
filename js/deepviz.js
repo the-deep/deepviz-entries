@@ -601,7 +601,6 @@ var Deepviz = function(sources, callback){
 		    }
 
 		    trendlinePoints.push({date: d.date, "severity_avg": d.trendline_severity_avg, "reliability_avg": d.trendline_reliability_avg });
-
 		    dataByDate[i].barValues = d[filters.toggle];
 
 		    delete d.values;
@@ -3451,15 +3450,34 @@ var Deepviz = function(sources, callback){
 			return d3.ascending(x.date, y.date);
 		})
 
+		if(filters.toggle=='severity'){
+			trendlinePoints = trendlinePoints.filter(function(d){
+				return d.severity_avg !== null;
+			})
+		}
+
+		if(filters.toggle=='reliability'){
+			trendlinePoints = trendlinePoints.filter(function(d){
+				return d.reliability_avg !== null;
+			})
+		}
+
 		trendlinePoints.forEach(function(d,i){
 			d.y_severity = scale.trendline.y(d.severity_avg);
 			d.y_reliability = scale.trendline.y(d.reliability_avg);
 			if(filters.toggle=='severity'){
-				if(d.severity_avg) tp.push(d.y_severity );
+				if(d.severity_avg) tp.push(d.y_severity);
 			} else {
 				if(d.reliability_avg) tp.push(d.y_reliability );			
 			}
 		});
+
+		curvedLine = d3.line()
+		.x(function(d,i){
+			return scale.timechart.x(trendlinePoints[i].date);
+		})
+		.y(d => (d))
+		.curve(d3.curveLinear);
 
 		movingAvg = function (adata, neighbors) {
 			return adata.map((val, idx, arr) => {
@@ -3471,7 +3489,7 @@ var Deepviz = function(sources, callback){
 		}
 
 		var dataAvg = movingAvg(tp, smoothingVal);
-		
+
 		d3.select('#avg-line')
 		.datum(dataAvg)
 		.attr('d', curvedLine)
