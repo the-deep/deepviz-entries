@@ -117,7 +117,8 @@ var Deepviz = function(sources, callback){
 	files.forEach(function(url) {
         // Error handle for invalid URL
         parsed_url = new URL(url);
-        pathname = parsed_url.pathname
+        pathname = parsed_url.pathname;
+        console.log(url);
 
 		if(pathname.endsWith('json')){
 			promises.push(d3.json(url));			
@@ -1064,7 +1065,8 @@ var Deepviz = function(sources, callback){
 			.tickFormat(d3.timeFormat("%Y"));
 
 		} else {
-			xAxis.ticks(d3.timeMonth.every(1))
+			// xAxis.ticks(d3.timeMonth.every(1))
+			xAxis.ticks(12)
 			.tickFormat(d3.timeFormat("%b %Y"));
 		}
 
