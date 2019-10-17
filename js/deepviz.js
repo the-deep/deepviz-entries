@@ -138,6 +138,7 @@ var Deepviz = function(sources, callback){
 
 		// return the data
 		data = values[0].data;
+
 		metadata = values[0].meta;
 		frameworkToggleImg = values[1];
 
@@ -182,6 +183,8 @@ var Deepviz = function(sources, callback){
 			d._id = d.id;
 			d.id = i+1;
 		});
+
+
 		metadata.geo_array.forEach(function(d,i){
 			d._id = d.id;
 			d.id = i+1;
@@ -616,9 +619,6 @@ var Deepviz = function(sources, callback){
 			return d.total_entries;
 		});
 
-		// console.log(dataByDate);
-		// console.log(dataByLocation);
-
 		updateFramework();
 		updateTotals();
 		updateStackedBars('ag', dataByAffectedGroups);
@@ -735,7 +735,6 @@ var Deepviz = function(sources, callback){
 	    			var t = (dataByLocationSum[g]) + (d.geo[g]);
 	    			if(metadata.geo_array[g].admin_level!=0){
 		    			dataByLocationSum[g] = t;
-
 	    			} else {
 		    			dataByLocationSum[g] = 0;
 	    			}
@@ -3315,14 +3314,12 @@ var Deepviz = function(sources, callback){
 			dataByLocationSum[g] = 0;
 		}
 
-
 	    gd.forEach(function(d,i){
 	    	for(var g=0; g < metadata.geo_array.length; g++) {
 	    		if(d.geo[g]>0){
 	    			var t = (dataByLocationSum[g]) + (d.geo[g]);
 	    			if(metadata.geo_array[g].admin_level!=0){
 		    			dataByLocationSum[g] = t;
-
 	    			} else {
 		    			dataByLocationSum[g] = 0;
 	    			}
@@ -3355,6 +3352,13 @@ var Deepviz = function(sources, callback){
 				return 1;
 			} else {
 				return 0;
+			}
+		})
+		.style('display', function(d,i){
+			if(dataByLocationSum[i]>0){
+				return 'block';
+			} else {
+				return 'none';
 			}
 		});
 
