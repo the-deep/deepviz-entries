@@ -1106,21 +1106,14 @@ var Deepviz = function(sources, callback){
 		.range([(timechartHeight2), 0])
 		.domain([0, 5]);
 
-		var yAxis2 = d3.axisRight()
-		.scale(scale.trendline.y)
-		.ticks(1)
-		.tickSize(5)
-		.tickPadding(4);
-
 		var yAxisText2 = svgBg.append("g")
 		.attr("class", "yAxis axis")
 		.attr('transform', 'translate('+(width_new + margin.left-1)+','+margin.top+')')
-		.call(yAxis2)
 		.style('font-size', options.yAxis.font.values.size);
 
 		yAxisText2
 		.append("text")
-		.attr('class','axisLabel0')
+		.attr('class','axisLabel1')
 		.attr("y", timechartHeight2+4)
 		.attr("x", 8)
 		.style('font-weight','normal')
@@ -1128,10 +1121,20 @@ var Deepviz = function(sources, callback){
 		.style('fill', '#000')
 		.text('1')
 
+		yAxisText2
+		.append("text")
+		.attr('class','axisLabel1')
+		.attr("y", 4)
+		.attr("x", 8)
+		.style('font-weight','normal')
+		.style('font-size', '15px')
+		.style('fill', '#000')
+		.text('5');
+
 		// add the Y gridline
 		timechartyGrid = d3.axisLeft(scale.timechart.y1)
 		.ticks(4)
-		.tickSize(-width)
+		.tickSize(-width+52)
 		.tickFormat("")
 
 		gridlines.append("g")			
@@ -1354,8 +1357,8 @@ var Deepviz = function(sources, callback){
 		svg.append('rect')
 		.attr('height', contextualRowsHeight+38)
 		.attr('width', 35)
-		.attr('x', 1287)
-		.attr('y',timechartHeightOriginal+2)
+		.attr('x', 1284)
+		.attr('y',timechartHeightOriginal+6)
 		.style('fill', '#FFF')
 		.style('fill-opacity',1);
 
@@ -3221,7 +3224,7 @@ var Deepviz = function(sources, callback){
 		.call(timechartyAxis);
 
 		timechartyGrid = d3.axisLeft(scale.timechart.y1)
-		.tickSize(-width)
+		.tickSize(-width+52)
 		.ticks(4)
 		.tickFormat("")
 
