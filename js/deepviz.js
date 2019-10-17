@@ -118,7 +118,6 @@ var Deepviz = function(sources, callback){
         // Error handle for invalid URL
         parsed_url = new URL(url);
         pathname = parsed_url.pathname;
-        console.log(url);
 
 		if(pathname.endsWith('json')){
 			promises.push(d3.json(url));			
@@ -587,8 +586,18 @@ var Deepviz = function(sources, callback){
 
 		    d.severity_avg = ( (1*d.severity[1]) + (2*d.severity[2]) + (3*d.severity[3]) + (4*d.severity[4]) + (5*d.severity[5]) ) / count;
 		    d.reliability_avg = ( (1*d.reliability[1]) + (2*d.reliability[2]) + (3*d.reliability[3]) + (4*d.reliability[4]) + (5*d.reliability[5]) ) / count;
+		    // without null
+		    d.trendline_severity_avg = ( (1*d.severity[1]) + (2*d.severity[2]) + (3*d.severity[3]) + (4*d.severity[4]) + (5*d.severity[5]) ) / (count- parseInt(d.severity[0]))   ;
+		    d.trendline_reliability_avg = ( (1*d.reliability[1]) + (2*d.reliability[2]) + (3*d.reliability[3]) + (4*d.reliability[4]) + (5*d.reliability[5]) ) / (count- parseInt(d.reliability[0])) ;
 
-		    trendlinePoints.push({date: d.date, "severity_avg": d.severity_avg, "reliability_avg": d.reliability_avg });
+		    if((count-parseInt(d.severity[0]))==0){
+		    	d.trendline_severity_avg = null;
+		    }
+		    if((count-parseInt(d.reliability[0]))==0){
+		    	d.trendline_reliability_avg = null;
+		    }
+
+		    trendlinePoints.push({date: d.date, "severity_avg": d.trendline_severity_avg, "reliability_avg": d.trendline_reliability_avg });
 
 		    dataByDate[i].barValues = d[filters.toggle];
 
@@ -3442,9 +3451,9 @@ var Deepviz = function(sources, callback){
 			d.y_severity = scale.trendline.y(d.severity_avg);
 			d.y_reliability = scale.trendline.y(d.reliability_avg);
 			if(filters.toggle=='severity'){
-				tp.push(d.y_severity );
+				if(d.severity_avg) tp.push(d.y_severity );
 			} else {
-				tp.push(d.y_reliability );			
+				if(d.reliability_avg) tp.push(d.y_reliability );			
 			}
 		});
 
