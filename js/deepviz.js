@@ -1280,7 +1280,7 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='y'){
 				w=w*0.4
 			}
-			return w-1;
+			return w;
 		})
 		.attr("y", function(d,i) { 
 			if(i>0){
