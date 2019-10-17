@@ -142,7 +142,7 @@ var Deepviz = function(sources, callback){
 		metadata = values[0].meta;
 		frameworkToggleImg = values[1];
 
-		// parse meta data, create integer id column from string ids
+		// parse meta data, create integer id column from string ids and programattically attempt to shorten label names
 		metadata.context_array.forEach(function(d,i){
 			d._id = d.id;
 			d.id = i+1;
@@ -151,6 +151,10 @@ var Deepviz = function(sources, callback){
 			d._id = d.id;
 			d.id = i+1;
 			d._context_id = d.context_id;
+			// programattically shorten a long framework label
+			if(d.name== "Status of essential infrastructure, systems, markets and networks"){
+				d.name = "Infrastructure, systems, markets and networks";
+			}
 			metadata.context_array.forEach(function(ddd,ii){
 				if(d._context_id==ddd._id){
 					d.context_id = ddd.id;
@@ -172,6 +176,8 @@ var Deepviz = function(sources, callback){
 		metadata.severity_units.forEach(function(d,i){
 			d._id = d.id;
 			d.id = i+1;
+			// shorten label by cutting text after the first full-stop
+			d.name = d.name.split('.')[0];
 		});
 		metadata.reliability_units.forEach(function(d,i){
 			d._id = d.id;
