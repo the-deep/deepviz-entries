@@ -686,6 +686,9 @@ var Deepviz = function(sources, callback){
 
 		mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
 
+		// no data fallback
+		if(data.length==0) return false; 
+
 		var bounds = new mapboxgl.LngLatBounds([d3.min(geoBounds.lat),d3.min(geoBounds.lon)], [d3.max(geoBounds.lat),d3.max(geoBounds.lon)] );
 
 	    //Setup mapbox-gl map
@@ -1070,18 +1073,19 @@ var Deepviz = function(sources, callback){
 		var xAxis = d3.axisBottom()
 		.scale(scale.timechart.x)
 		.tickSize(0)
-		.tickPadding(10)
-		.ticks(12)
-		// .ticks(d3.timeMonth.every(1))
+		.tickPadding(10);
 
 		if(filters.time=='y'){
 			xAxis.ticks(d3.timeYear.every(1))
 			.tickFormat(d3.timeFormat("%Y"));
 
 		} else {
-			// xAxis.ticks(d3.timeMonth.every(1))
-			xAxis.ticks(12)
-			.tickFormat(d3.timeFormat("%b %Y"));
+			var months = monthDiff(minDate, maxDate);
+			if(months<=5){
+				xAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b %Y"));
+			} else {
+				xAxis.ticks(10).tickFormat(d3.timeFormat("%b %Y"));
+			}
 		}
 
 	    //**************************
@@ -1535,6 +1539,9 @@ var Deepviz = function(sources, callback){
 	    .attr('fill', '#000')
 	    .attr("cursor", "ew-resize")
 	    .attr("d", 'M -9,0 -1,-11 8,0 z');
+
+	    // no data fallback
+		if(data.length==0) return false; 
 
 	    handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -" + margin.top + ")"; });
 	    handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
@@ -4141,5 +4148,10 @@ var Deepviz = function(sources, callback){
 			array.splice(index, 1);
 			index = array.indexOf(elem);
 		}
+	}
+
+	function monthDiff(dateFrom, dateTo) {
+		return dateTo.getMonth() - dateFrom.getMonth() + 
+		(12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
 	}
 }
