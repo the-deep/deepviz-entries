@@ -902,7 +902,6 @@ var Deepviz = function(sources, callback){
 		this.createSearch();
 	}
 
-
 	//**************************
 	// create select2 location search
 	//**************************
@@ -919,12 +918,14 @@ var Deepviz = function(sources, callback){
 		    $('#location-search').select2({
 		    	data: locations,
 		    	placeholder: 'LOCATIONS',
+		    	scrollAfterSelect: true,
+		    	shouldFocusInput: function() {
+					return false;
+				},
 		    	templateResult: function(data) {
-		    		var $state = $(
-    '<span>' + data.text + ' </span><div class="search-adm-id">ADM '+ data.admin_level + '</div>'
-				  );
-				    return $state;
-			  }
+					var $state = $('<span>' + data.text + ' </span><div class="search-adm-id">ADM '+ data.admin_level + '</div>');
+					return $state;
+				}
 		    });
 
 		    $('#location-search').on('select2:select', function (e) {
@@ -932,10 +933,13 @@ var Deepviz = function(sources, callback){
 			});
 
 			$('#location-search').on('select2:unselect', function (e) {
-			  filter('geo', parseInt(e.params.data.id));
+				filter('geo', parseInt(e.params.data.id));
+				if(!e.params.originalEvent) {
+					return;
+				}
+				e.params.originalEvent.stopPropagation();
 			});
 		});
-
 	}
 
 	//**************************
