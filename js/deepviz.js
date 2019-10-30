@@ -73,7 +73,7 @@ var Deepviz = function(sources, callback){
 
 	// map
 	var maxMapBubbleValue;
-	var mapAspectRatio = 1.35;
+	var mapAspectRatio = 1.283;
 	var geoBounds = {'lat': [], 'lon': []};
 
 	// filters
@@ -142,6 +142,25 @@ var Deepviz = function(sources, callback){
 		metadata = values[0].meta;
 		frameworkToggleImg = values[1];
 
+		// remove unsed locations
+		var locationArray = [];
+		data.forEach(function(d,i){
+			d.geo.forEach(function(dd,ii){
+				if(!locationArray.includes(parseInt(dd))){
+					locationArray.push(parseInt(dd));
+				}
+			})
+		});
+
+		var newGeoArray = [];
+		metadata.geo_array.forEach(function(d,i,obj){
+			if(locationArray.includes(parseInt(d.id))){
+				newGeoArray.push(d);
+			}	
+		})
+
+		metadata.geo_array = newGeoArray;
+
 		// parse meta data, create integer id column from string ids and programattically attempt to shorten label names
 		metadata.context_array.forEach(function(d,i){
 			d._id = d.id;
@@ -184,6 +203,9 @@ var Deepviz = function(sources, callback){
 			d.id = i+1;
 		});
 
+		metadata.geo_array.sort(function(x, y){
+		   return d3.ascending(x.name, y.name);
+		});
 
 		metadata.geo_array.forEach(function(d,i){
 			d._id = d.id;
@@ -202,6 +224,13 @@ var Deepviz = function(sources, callback){
 			"name": "Null",
 			"_id": null,
 		})
+
+		// console.log(locationArray);
+		// console.log(metadata.geo_array);
+
+
+
+
 
 		// convert date strings into js date objects
 		data.forEach(function(d,i){
@@ -313,10 +342,8 @@ var Deepviz = function(sources, callback){
 
 		});
 
-		// TEMPORARY for testing - filter data before minDate
-		// data = data.filter(function(d){return (d.date) >= (minDate);});
 
-		
+
 		// set the data again for reset purposes
 		originalData = data;
 
@@ -441,7 +468,6 @@ var Deepviz = function(sources, callback){
 		var dataByLocationArray = [];
 		var dataByContextArray = [];
 
-
 		data.forEach(function(d,i){
 
 			d.sector.forEach(function(dd,ii){
@@ -451,7 +477,7 @@ var Deepviz = function(sources, callback){
 			});
 
 			d.geo.forEach(function(dd,ii){
-				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd})
+				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd});
 			});
 
 			d.context.forEach(function(dd,ii){
@@ -686,6 +712,9 @@ var Deepviz = function(sources, callback){
 
 		mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
 
+		// no data fallback
+		if(data.length==0) return false; 
+
 		var bounds = new mapboxgl.LngLatBounds([d3.min(geoBounds.lat),d3.min(geoBounds.lon)], [d3.max(geoBounds.lat),d3.max(geoBounds.lon)] );
 
 	    //Setup mapbox-gl map
@@ -747,125 +776,171 @@ var Deepviz = function(sources, callback){
 
 	    scale.map = d3.scaleLinear()
 	    .range([0.2,1])
-			.domain([0,maxMapBubbleValue]);// 
+		.domain([0,maxMapBubbleValue]);
 
-			var featureElement = mapsvg.selectAll("g")
-			.data(dataByLocationSum)
-			.enter()
-			.append('g')
-			.attr('class','bubble')
-			.style('outline', 'none')
-			.attr('data-tippy-content',function(d,i){
-				return metadata.geo_array[i].name;
-			})
-			.attr('id', function(d,i){
-				return 'bubble'+i
-			})
-			.attr('transform', function(d,i){
+		var featureElement = mapsvg.selectAll("g")
+		.data(dataByLocationSum)
+		.enter()
+		.append('g')
+		.attr('class','bubble')
+		.style('outline', 'none')
+		.attr('data-tippy-content',function(d,i){
+			return metadata.geo_array[i].name;
+		})
+		.attr('id', function(d,i){
+			return 'bubble'+i
+		})
+		.attr('transform', function(d,i){
+			p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
+			return 'translate('+p.x+','+p.y+')';
+		})
+		.style('opacity', 1)
+		.on('mouseover', function(){
+			d3.select(this).style('opacity', 0.85);
+		}).on('mouseout', function(){
+			d3.select(this).style('opacity', 1);
+		}).on('click', function(d,i){
+			var geo = metadata.geo_array[i];
+			filter('geo',geo.id);
+			updateSeverityReliability('map', 500);
+		});
+
+		tippy('.bubble', { 
+			theme: 'light-border',
+			delay: [250,100],
+			inertia: false,
+			distance: 8,
+			allowHTML: true,
+			animation: 'shift-away',
+			arrow: true,
+			size: 'small'
+		});
+
+		var featureElementG = featureElement
+		.append('g')
+		.attr('class', 'map-bubble')
+		.attr('transform', function(d,i){
+			var size = scale.map(dataByLocationSum[i]);
+			return 'scale('+size+')';
+		})
+		.style('display', function(d,i){
+			if(dataByLocationSum[i]>0){
+				return 'inline';
+			} else {
+				return 'none';
+			}
+		});
+
+		featureElementG
+		.append("circle")
+		.attr('class',  'outerCircle')
+		.attr("stroke", colorNeutral[3])
+		.attr("fill", "#FFF")
+		.attr('cx', 0)
+		.attr('cy', 0)
+		.attr('r' , 30)
+		.attr("stroke-width", 2);
+
+		featureElementG
+		.append("circle")
+		.attr('class',  'innerCircle')
+		.attr("fill", colorNeutral[3])
+		.attr('cx', 0)
+		.attr('cy', 0)
+		.attr('r' , 26)
+		.attr("stroke-width", 0);
+
+		featureElementG
+		.append('text')
+		.attr('text-anchor', 'middle')
+		.attr('class', 'map-bubble-value')
+		.text(function(d,i){
+			return dataByLocationSum[i];
+		})
+		.attr('y', 8)
+		.style('font-weight', 'normal')
+		.style('font-size', '24px')
+		.style('fill', '#FFF')
+
+		function update() {
+			featureElement.attr('transform', function(d,i){
 				p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
 				return 'translate('+p.x+','+p.y+')';
-			})
-			.style('opacity', 1)
-			.on('mouseover', function(){
-				d3.select(this).style('opacity', 0.85);
-			}).on('mouseout', function(){
-				d3.select(this).style('opacity', 1);
-			}).on('click', function(d,i){
-				var geo = metadata.geo_array[i];
-				filter('geo',geo.id);
-				updateSeverityReliability('map', 500);
-			});
-
-			tippy('.bubble', { 
-				theme: 'light-border',
-				delay: [250,100],
-				inertia: false,
-				distance: 8,
-				allowHTML: true,
-				animation: 'shift-away',
-				arrow: true,
-				size: 'small'
-			});
-
-			var featureElementG = featureElement
-			.append('g')
-			.attr('class', 'map-bubble')
-			.attr('transform', function(d,i){
-				var size = scale.map(dataByLocationSum[i]);
-				return 'scale('+size+')';
-			})
-			.style('display', function(d,i){
-				if(dataByLocationSum[i]>0){
-					return 'inline';
-				} else {
-					return 'none';
-				}
-			});
-
-			featureElementG
-			.append("circle")
-			.attr('class',  'outerCircle')
-			.attr("stroke", colorNeutral[3])
-			.attr("fill", "#FFF")
-			.attr('cx', 0)
-			.attr('cy', 0)
-			.attr('r' , 30)
-			.attr("stroke-width", 2);
-
-			featureElementG
-			.append("circle")
-			.attr('class',  'innerCircle')
-			.attr("fill", colorNeutral[3])
-			.attr('cx', 0)
-			.attr('cy', 0)
-			.attr('r' , 26)
-			.attr("stroke-width", 0);
-
-			featureElementG
-			.append('text')
-			.attr('text-anchor', 'middle')
-			.attr('class', 'map-bubble-value')
-			.text(function(d,i){
-				return dataByLocationSum[i];
-			})
-			.attr('y', 8)
-			.style('font-weight', 'normal')
-			.style('font-size', '24px')
-			.style('fill', '#FFF')
-
-			function update() {
-				featureElement.attr('transform', function(d,i){
-					p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
-					return 'translate('+p.x+','+p.y+')';
-				});  
-			}
-
-			map.on("viewreset", update)
-
-			map.on("movestart", function(){
-				mapsvg.classed("hidden", true);
-			});	
-			map.on("move", function(){
-				update();
-			});
-			map.on("rotate", function(){
-				mapsvg.classed("hidden", true);
-			});	
-			map.on("moveend", function(){
-				update()
-				mapsvg.classed("hidden", false);
-			});
-
-			function projectPoint(lon, lat) {
-				var point = map.project(new mapboxgl.LngLat(lon, lat));
-				return point;
-			}
-
-			d3.selectAll('#geoRemoveFilter').on('click', function(){
-				d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
-				return filter('geo', 'clear'); 
-			});
+			});  
 		}
+
+		map.on("viewreset", update)
+
+		map.on("movestart", function(){
+			mapsvg.classed("hidden", true);
+		});	
+		map.on("move", function(){
+			update();
+		});
+		map.on("rotate", function(){
+			mapsvg.classed("hidden", true);
+		});	
+		map.on("moveend", function(){
+			update()
+			mapsvg.classed("hidden", false);
+		});
+
+		function projectPoint(lon, lat) {
+			var point = map.project(new mapboxgl.LngLat(lon, lat));
+			return point;
+		}
+
+		d3.selectAll('#geoRemoveFilter').on('click', function(){
+			d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
+			
+			$('#location-search').val(); 
+			$('#location-search').trigger('change.select2');
+
+			return filter('geo', 'clear'); 
+		});
+
+		this.createSearch();
+	}
+
+	//**************************
+	// create select2 location search
+	//**************************
+	this.createSearch = function(){
+
+		var locations = metadata.geo_array;
+
+		locations = $.map(locations, function (obj) {
+		  obj.text = obj.text || obj.name; // replace name with the property used for the text
+		  return obj;
+		});
+
+		$(document).ready(function() {
+		    $('#location-search').select2({
+		    	data: locations,
+		    	placeholder: 'LOCATIONS',
+		    	scrollAfterSelect: true,
+		    	shouldFocusInput: function() {
+					return false;
+				},
+		    	templateResult: function(data) {
+					var $state = $('<span>' + data.text + ' </span><div class="search-adm-id">ADM '+ data.admin_level + '</div>');
+					return $state;
+				}
+		    });
+
+		    $('#location-search').on('select2:select', function (e) {
+			  filter('geo', parseInt(e.params.data.id));
+			});
+
+			$('#location-search').on('select2:unselect', function (e) {
+				filter('geo', parseInt(e.params.data.id));
+				if(!e.params.originalEvent) {
+					return;
+				}
+				e.params.originalEvent.stopPropagation();
+			});
+		});
+	}
 
 	//**************************
 	// create timechart
@@ -1070,18 +1145,19 @@ var Deepviz = function(sources, callback){
 		var xAxis = d3.axisBottom()
 		.scale(scale.timechart.x)
 		.tickSize(0)
-		.tickPadding(10)
-		.ticks(12)
-		// .ticks(d3.timeMonth.every(1))
+		.tickPadding(10);
 
 		if(filters.time=='y'){
 			xAxis.ticks(d3.timeYear.every(1))
 			.tickFormat(d3.timeFormat("%Y"));
 
 		} else {
-			// xAxis.ticks(d3.timeMonth.every(1))
-			xAxis.ticks(12)
-			.tickFormat(d3.timeFormat("%b %Y"));
+			var months = monthDiff(minDate, maxDate);
+			if(months<=5){
+				xAxis.ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat("%b %Y"));
+			} else {
+				xAxis.ticks(10).tickFormat(d3.timeFormat("%b %Y"));
+			}
 		}
 
 	    //**************************
@@ -1536,6 +1612,9 @@ var Deepviz = function(sources, callback){
 	    .attr("cursor", "ew-resize")
 	    .attr("d", 'M -9,0 -1,-11 8,0 z');
 
+	    // no data fallback
+		if(data.length==0) return false; 
+
 	    handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -" + margin.top + ")"; });
 	    handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
@@ -1633,6 +1712,8 @@ var Deepviz = function(sources, callback){
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
+			$('#location-search').select2('close');
+
 			updateTotals();
 		}
 
@@ -1685,8 +1766,11 @@ var Deepviz = function(sources, callback){
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
+			$('#location-search').select2('close');
+
 			updateTotals();
 		}
+
 
 		d3.select('#chartarea').transition().duration(1000).style('opacity', 1);
 		d3.select('#avg-line').transition().duration(500).style('opacity', 1);
@@ -2864,7 +2948,6 @@ var Deepviz = function(sources, callback){
 		  addOrRemove(filters[filterClass], value);		
 		}
 
-
 		if((filters['severity'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specificNeeds'].length>0)||(filters['affectedGroups'].length>0)){
 			d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		} else { 
@@ -2931,6 +3014,11 @@ var Deepviz = function(sources, callback){
 				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
 			});
 			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			$('#location-search').val(filters['geo']); 
+			$('#location-search').trigger('change.select2');
+		} else {
+			$('#location-search').val(filters['geo']); 
+			$('#location-search').trigger('change.select2');
 		}
 
 		if(filters['context'].length>=numCategories)filters['context'] = [];
@@ -4141,5 +4229,10 @@ var Deepviz = function(sources, callback){
 			array.splice(index, 1);
 			index = array.indexOf(elem);
 		}
+	}
+
+	function monthDiff(dateFrom, dateTo) {
+		return dateTo.getMonth() - dateFrom.getMonth() + 
+		(12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
 	}
 }
