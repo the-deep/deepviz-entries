@@ -33,8 +33,10 @@ var Deepviz = function(sources, callback){
 	var dataByLocation;
 	var dataByLocationSum;
 	var dataByContext;
-	var dataByFramework;
 	var dataBySector;
+	var dataByFramework;
+	var dataByFrameworkSector;
+	var	databyFrameworkContext;
 	var dataBySpecificNeeds;
 	var dataByAffectedGroups;
 	var total = 0;
@@ -223,14 +225,7 @@ var Deepviz = function(sources, callback){
 			"color": "grey",
 			"name": "Null",
 			"_id": null,
-		})
-
-		// console.log(locationArray);
-		// console.log(metadata.geo_array);
-
-
-
-
+		});
 
 		// convert date strings into js date objects
 		data.forEach(function(d,i){
@@ -363,6 +358,11 @@ var Deepviz = function(sources, callback){
 		maxDate.setHours(0);
 		maxDate.setMinutes(0);
 
+		var today = new Date();
+		if(maxDate<today){
+			maxDate = today;
+		};
+
 		dateRange[1] = maxDate;
 		
 		// define minimum date 
@@ -462,18 +462,45 @@ var Deepviz = function(sources, callback){
 			.entries(data);
 		}
 
+		dataByFrameworkSector = [];
+		dataBySector = [];
 		dataByFramework = [];
 		dataByAffectedGroups = [];
 		dataBySpecificNeeds = [];
 		var dataByLocationArray = [];
 		var dataByContextArray = [];
+		dataByFrameworkContext = [];
 
 		data.forEach(function(d,i){
 
+			var frameworks = [];
+			var contexts = [];
+			var sectors = [];
+
 			d.sector.forEach(function(dd,ii){
+				var c = dd[0];
 				var f = dd[1];
 				var s = dd[2];
-				dataByFramework.push({"date": d.date, "framework": f, "sc": s, 's': d.severity, 'r': d.reliability});
+				// data by sector (non-unique) for framework cells
+				dataByFrameworkSector.push({"date": d.date, "context": c, "framework": f, "sc": s, 's': d.severity, 'r': d.reliability});
+				// unique entries by framework
+				var frameworkRow = {"date": d.date, "context": c, "framework": f, 's': d.severity, 'r': d.reliability};
+				if(!frameworks.includes(f)){
+					dataByFramework.push(frameworkRow);
+					frameworks.push(f);
+				}
+				// unique entries by context
+				var contextRow = {"date": d.date, "context": c, 's': d.severity, 'r': d.reliability};
+				if(!contexts.includes(c)){
+					dataByFrameworkContext.push(contextRow);
+					contexts.push(c);
+				}
+				// unique entries by sector
+				var sectorRow = {"date": d.date, "sc": s, 's': d.severity, 'r': d.reliability};
+				if(!sectors.includes(s)){
+					dataBySector.push(sectorRow);
+					sectors.push(s);
+				}
 			});
 
 			d.geo.forEach(function(dd,ii){
@@ -493,9 +520,6 @@ var Deepviz = function(sources, callback){
 			});
 
 		});
-	    // dataByLocationArray = dataByLocationArray.filter(function(d){
-	    // 	return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
-	    // });
 
 		dataByLocation = d3.nest()
 		.key(function(d) { return d.date;})
@@ -648,7 +672,7 @@ var Deepviz = function(sources, callback){
 		updateTotals();
 		updateStackedBars('ag', dataByAffectedGroups);
 		updateStackedBars('sn', dataBySpecificNeeds);
-		updateStackedBars('sc', dataByFramework);
+		updateStackedBars('sc', dataBySector);
 		return dataByDate;
 
 	}
@@ -974,6 +998,11 @@ var Deepviz = function(sources, callback){
 			return d.date;
 		}));
 
+		var today = new Date();
+		if(maxDate<today){
+			maxDate = today;
+		};
+
 		maxDate.setHours(0);
 		maxDate.setMinutes(0);
 		
@@ -1008,6 +1037,7 @@ var Deepviz = function(sources, callback){
 		if(filters.time=='d'){
 
 			var today = new Date();
+			today.setHours(0,0,0,1);
 			var thisYear = today.getFullYear();
 
 			$('#dateRange').daterangepicker({
@@ -1024,7 +1054,9 @@ var Deepviz = function(sources, callback){
 					'Last Year': [new Date(dateRange[0].getFullYear()-1, 0, 1), new Date(dateRange[0].getFullYear()-1, 12, 0)],
 					'Last 30 Days': [moment(new Date()).subtract(29, 'days'), moment()],
 					'This Month': [new Date(today.getFullYear(), today.getMonth(), 1), new Date(today.getFullYear(), today.getMonth()+1, 0)],
-					'Last Month': [new Date(today.getFullYear(), today.getMonth()-1, 0), new Date(today.getFullYear(), today.getMonth(), 0)]
+					'Last Month': [new Date(today.getFullYear(), today.getMonth()-1, 1), new Date(today.getFullYear(), today.getMonth(), 0)],
+					'Last 3 Months': [new Date(today.getFullYear(), today.getMonth()-2, 1), new Date(today.getFullYear(), today.getMonth()+1, 0)],
+					'Last 6 Months': [new Date(today.getFullYear(), today.getMonth()-5, 1), new Date(today.getFullYear(), today.getMonth()+1, 0)]
 				},
 				maxYear: maxDate.getFullYear(),
 				minYear: minDate.getFullYear(),
@@ -1235,8 +1267,9 @@ var Deepviz = function(sources, callback){
 		.attr("class", "xAxis axis")
 		.attr("transform", "translate(" + margin.left + "," + (timechartHeight2 + margin.top +0) + ")")
 		.call(xAxis)
-		.style('font-size', '16px')
-		.style('font-weight', options.xAxis.font.values.weight)
+		.style('font-weight', 'normal')
+		.style('fill', 'green');
+
 
 		xAxisObj
 		.selectAll('path, line')
@@ -1251,7 +1284,7 @@ var Deepviz = function(sources, callback){
 		.attr('x1', 0)
 		.attr('x2', 0)
 		.attr('y1', 0)
-		.attr('y2', timechartHeight2+margin.top+1)
+		.attr('y2', timechartHeight2+margin.top+1);
 
 		xAxisObj.selectAll(".tick")
 		.append('line')
@@ -1478,7 +1511,7 @@ var Deepviz = function(sources, callback){
 			return d.name.toUpperCase();
 		})
 		.attr('class', 'label')
-		.attr('y',21)
+		.attr('y',18)
 		.attr('x',4)
 		// .style('font-weight', 'bold')
 		.style('font-size', '16px');
@@ -1494,7 +1527,7 @@ var Deepviz = function(sources, callback){
 			var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
 			return xoffset + 10;
 		})
-		.attr('y',21)
+		.attr('y',18)
 		.style('font-size', '16px')
 		.style('font-weight', 'bold')
 		.style('fill', colorNeutral[4]);
@@ -1643,7 +1676,7 @@ var Deepviz = function(sources, callback){
 	    	updateFramework();
 	    	updateStackedBars('ag', dataByAffectedGroups);
 	    	updateStackedBars('sn', dataBySpecificNeeds);
-	    	updateStackedBars('sc', dataByFramework);
+	    	updateStackedBars('sc', dataBySector);
 
 	    	handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 	    	handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
@@ -1668,20 +1701,18 @@ var Deepviz = function(sources, callback){
 	    	var d0 = d3.event.selection.map(scale.timechart.x.invert);
 
 			if(filters.time=='d'){
-				var d1 = d0.map(d3.timeDay.round);
-				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeDay.floor(d0[0]);
-					d1[1] = d3.timeDay.ceil(d0[0]);
-				} 
+				var d1 = [];
+				d1[0] = new Date(d3.timeDay.round(d0[0]).setHours(0,0,0,0));
+				d1[1] = new Date(d3.timeDay.round(d0[1]).setHours(0,0,0,0));
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeDay.floor(d0[0]);
 					d1[1] = d3.timeDay.offset(d1[0]);
 				}
 			}
 			if(filters.time=='m'){
-				var d1 = d0.map(d3.timeDay.round);
-				d1[0] = d3.timeMonth.floor(d1[0]);
-				d1[1] = d3.timeMonth.ceil(d1[1]);
+				var d1 = [];
+				d1[0] = d3.timeMonth.round(d0[0]);
+				d1[1] = d3.timeMonth.round(d0[1]);
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeMonth.floor(d0[0]);
 					d1[1] = d3.timeMonth.offset(d1[0]);
@@ -1706,7 +1737,7 @@ var Deepviz = function(sources, callback){
 			updateFramework();
 			updateStackedBars('ag', dataByAffectedGroups);
 			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataByFramework);
+			updateStackedBars('sc', dataBySector);
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
@@ -1760,7 +1791,7 @@ var Deepviz = function(sources, callback){
 			updateFramework();
 			updateStackedBars('ag', dataByAffectedGroups);
 			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataByFramework);
+			updateStackedBars('sc', dataBySector);
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
@@ -1784,7 +1815,7 @@ var Deepviz = function(sources, callback){
 		updateTotals();
 		updateStackedBars('ag', dataByAffectedGroups);
 		updateStackedBars('sn', dataBySpecificNeeds);
-		updateStackedBars('sc', dataByFramework);
+		updateStackedBars('sc', dataBySector);
 		return bars;
 	}
 
@@ -2021,25 +2052,45 @@ var Deepviz = function(sources, callback){
 		cat1 = 0;
 
 		var leftColArray = [];
-		rows.append('text')
+
+		var contextRow = rows.append('g');
+
+		var labelName = contextRow.append('text')
 		.text(function(d,i){
 			var cat_name = metadata.context_array[d.context_id-1].name;
 			if(cat!=cat_name){
 				cat = cat_name;
 				cat1++;
+				d.contextRow = 1;
 				return cat_name;
+			} else {
+				d.contextRow = 0;
 			}
 			cat = cat_name;
 			cat1++;
 		})
 		.attr('x',7)
-		.attr('class', function(d,i){
-			return 'context-name'
+		.attr('id', function(d,i){
+			return 'context-name-'+d.context_id;
 		})
 		.style('font-weight', 'bold');
 
-		// second left headers
+		labelName.attr('class', function(d,i){
+			if(d.contextRow == 1){
+				var b = d3.select(this.parentNode).node().getBBox();
+				d3.select(this.parentNode).append('text')
+				.text('')
+				.attr('class', 'context-val')
+				.attr('id', 'context-val-'+d.context_id)
+				.style('text-anchor', 'left')
+				.style('font-weight', 'bold')
+				.style('fill', 'rgb(0, 137, 116)')
+				.attr('x', b.width + 12)
+			}
+			return 'context-name';
+		});
 
+		// second left headers
 		var secondCol = rows.append('g');
 
 		var labels = secondCol.append('text')
@@ -3199,7 +3250,7 @@ var Deepviz = function(sources, callback){
 			updateTotals();
 			updateStackedBars('ag', dataByAffectedGroups);
 			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataByFramework);
+			updateStackedBars('sc', dataBySector);
 		});
 	}
 
@@ -3525,7 +3576,7 @@ var Deepviz = function(sources, callback){
 				return d.total_entries;
 		});
 
-		d3.select('#total_entries').text(total);
+		d3.select('#total_entries').text(addCommas(total));
 	}
 
 	//**************************
@@ -3911,7 +3962,7 @@ var Deepviz = function(sources, callback){
 	    // reset all bars to zero width
 	    d3.selectAll('.'+group+'-bar').attr('width', 0);
 		// reset all text labels to zero and hide
-		d3.selectAll('.'+group+'-label').text(0).style('opacity', 0);
+		d3.selectAll('.'+group+'-label').text('').style('opacity', 0);
 
 		labels.forEach(function(dd,ii){
 			d3.select('#'+group+dd.key+'label').text(dd.value).style('opacity', 1)
@@ -3982,11 +4033,13 @@ var Deepviz = function(sources, callback){
 	// update framework
 	//**************************
 	var updateFramework = function(){
-		var d = dataByFramework.filter(function(d){
+
+		// entries by framework sector (non-unique to populate framework cells)
+		var entries = dataByFrameworkSector.filter(function(d){
 			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 		});
 
-		d = d3.nest()
+		var d = d3.nest()
 		.key(function(d) { return d.framework; })
 		.key(function(d) { return d.sc; })
 		.rollup(function(leaves) { 
@@ -3996,7 +4049,35 @@ var Deepviz = function(sources, callback){
 				'total': leaves.length, 
 			}
 		})		
-		.entries(d);	
+		.entries(entries);	
+
+		// unique entries by framework
+		var frameworkEntries = dataByFramework.filter(function(d){
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+		});
+
+		var f = d3.nest()
+		.key(function(d) { return d.framework; })
+		.rollup(function(leaves) { 
+			return { 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(frameworkEntries);	
+
+		// unique entries by context
+		var contextEntries = dataByFrameworkContext.filter(function(d){
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+		});
+
+		var c = d3.nest()
+		.key(function(d) { return d.context; })
+		.rollup(function(leaves) { 
+			return { 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(contextEntries);	
 
 		if(filters.frameworkToggle == 'entries'){
 			maxCellSize = d3.max(d, function(dd){
@@ -4024,12 +4105,27 @@ var Deepviz = function(sources, callback){
 		}
 
 		d3.selectAll('.cell').style('fill', '#FFF');
-		d3.selectAll('.framework-text').text(0).style('visibility', 'hidden').style('fill', '#000');
+		d3.selectAll('.framework-text').text('').style('visibility', 'hidden').style('fill', '#000');
+
+		// framework labels
 		d3.selectAll('.f-val').text('');
+		f.forEach(function(d,i){
+			d3.select('#f'+d.key+'-val').text(function(dd,ii){
+				return d.value.total;
+			})
+		});
+
+		// context labels
+		d3.selectAll('.context-val').text('');
+		c.forEach(function(d,i){
+			d3.select('#context-val-'+d.key).text(function(dd,ii){
+				return d.value.total;
+			})
+		})
 
 		d.forEach(function(d,i){
 			var sum = d3.sum(d.values, function(d){ return d.value.total});
-			d3.select('#f'+d.key+'-val').text(sum);
+			d.total = sum;
 			var f = d.key;
 			d.values.forEach(function(dd,ii){
 				var s = dd.key;
@@ -4234,5 +4330,18 @@ var Deepviz = function(sources, callback){
 	function monthDiff(dateFrom, dateTo) {
 		return dateTo.getMonth() - dateFrom.getMonth() + 
 		(12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
+	}
+
+
+	function addCommas(nStr){
+		nStr += '';
+		x = nStr.split('.');
+		x1 = x[0];
+		x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
 	}
 }
