@@ -23,6 +23,7 @@ var Deepviz = function(sources, callback){
 	};
 
 	var mapbox;
+	var lassoActive = false;
 	// data related
 	var metadata;
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
@@ -820,10 +821,19 @@ var Deepviz = function(sources, callback){
 		})
 		.style('opacity', 1)
 		.on('mouseover', function(){
+			d3.select(this).style('cursor', function(){
+				if(lassoActive) {
+					return 'crosshair ';
+				} else {
+					return 'pointer';
+				}
+			})
+			if(lassoActive) return false;
 			d3.select(this).style('opacity', 0.85);
 		}).on('mouseout', function(){
 			d3.select(this).style('opacity', 1);
 		}).on('click', function(d,i){
+			if(lassoActive) return false;
 			var geo = metadata.geo_array[i];
 			filter('geo',geo.id);
 			updateSeverityReliability('map', 500);
@@ -914,16 +924,140 @@ var Deepviz = function(sources, callback){
 			return point;
 		}
 
+		function unprojectPoint(x, y) {
+			var point = map.unproject([x,y]);
+			return point;
+		}
+
 		d3.selectAll('#geoRemoveFilter').on('click', function(){
 			d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
-			
 			$('#location-search').val(); 
 			$('#location-search').trigger('change.select2');
-
 			return filter('geo', 'clear'); 
 		});
 
 		this.createSearch();
+
+		// map lasso
+		lassoActive = false;
+
+		var lasso = d3.select('#lasso');
+		lasso.on('mouseover', function(){
+			if(!lassoActive){
+				$('#lasso-default').hide();
+				$('#lasso-hover').show();
+			}
+		}).on('mouseout', function(){
+			if(!lassoActive){
+				$('#lasso-default').show();
+				$('#lasso-hover').hide();
+			}	
+		}).on('click', function(){
+			if(!lassoActive){
+				lassoActive = true;
+				$('#lasso-default').hide();
+				$('#lasso-hover').hide();
+				$('#lasso-selected').show();
+				// disable panning
+				map.dragPan.disable();
+			    map.boxZoom.disable();
+				// change cursor
+				d3.select('#map-bubble-svg').style('cursor', 'crosshair');
+
+			} else {
+				lassoActive = false;
+				$('#lasso-selected').hide();
+				$('#lasso-default').show();
+				$('#lasso-hover').hide();
+				// enable map panning
+				map.dragPan.enable();
+			    map.boxZoom.enable();
+				// change cursor
+				d3.select('#map-bubble-svg').style('cursor', 'inherit');
+				d3.select('#select-box').attr("visibility", "hidden");
+			}
+		})
+
+		function rect(x, y, w, h) {
+		  return "M"+[x,y]+" l"+[w,0]+" l"+[0,h]+" l"+[-w,0]+"z";
+		}
+
+		var selection = mapsvg.append("path")
+		  .attr("id", "select-box")
+		  .attr("class", "selection")
+		  .attr("visibility", "hidden");
+
+		var startSelection = function(start) {
+		    selection.attr("d", rect(start[0], start[0], 0, 0))
+		      .attr("visibility", "visible");
+		};
+
+		var moveSelection = function(start, moved) {
+		    selection.attr("d", rect(start[0], start[1], moved[0]-start[0], moved[1]-start[1]));
+		};
+
+		var endSelection = function(start, end) {
+			selection.attr("visibility", "hidden");
+			var bbox = selection.node().getBBox();
+			var bounds = [];
+			bounds[0] = unprojectPoint(bbox.x, bbox.y);
+			bounds[1] = unprojectPoint((bbox.x+bbox.width), (bbox.y+bbox.height));
+			if(d3.event.shiftKey){
+				var geoArray = filters.geo;
+			} else {
+				var geoArray = [];
+			}
+
+			metadata.geo_array.forEach(function(d,i){
+				if ((d.centroid[0] > bounds[0].lng) && (d.centroid[0] < bounds[1].lng) && (d.centroid[1] < bounds[0].lat) && (d.centroid[1] > bounds[1].lat)){
+					if(!geoArray.includes(d.id)){
+						geoArray.push(d.id);
+					}
+				}
+			});
+
+			if(bbox.width==0){
+				filter('geo', 'clear');
+			} else {
+				filters.geo = geoArray;
+				filter('geo', 0);
+			}
+		};
+
+		mapsvg.on("mousedown", function(e) {
+			if(!lassoActive) return false;
+		  	var subject = d3.select(window), parent = this.parentNode,
+		    start = d3.mouse(parent);
+		    startSelection(start);
+		    subject
+		      .on("mousemove.selection", function() {
+		        moveSelection(start, d3.mouse(parent));
+		      }).on("mouseup.selection", function() {
+		        endSelection(start, d3.mouse(parent), d3.event);
+		        subject.on("mousemove.selection", null).on("mouseup.selection", null);
+		      });
+		});
+
+		mapsvg.on("touchstart", function() {
+			if(!lassoActive) return false;
+			var subject = d3.select(this), parent = this.parentNode,
+		    id = d3.event.changedTouches[0].identifier,
+		    start = d3.touch(parent, id), pos;
+		    startSelection(start);
+		    subject
+		      .on("touchmove."+id, function() {
+		        if (pos = d3.touch(parent, id)) {
+		          moveSelection(start, pos);
+		        }
+		      }).on("touchend."+id, function() {
+		        if (pos = d3.touch(parent, id)) {
+		        	console.log(e);
+		          endSelection(start, pos, d3.event);
+		          subject.on("touchmove."+id, null).on("touchend."+id, null);
+		        }
+		      });
+		});
+
 	}
 
 	//**************************
@@ -953,8 +1087,9 @@ var Deepviz = function(sources, callback){
 		    });
 
 		    $('#location-search').on('select2:select', function (e) {
-			  filter('geo', parseInt(e.params.data.id));
+		    	filter('geo', parseInt(e.params.data.id));
 			});
+
 
 			$('#location-search').on('select2:unselect', function (e) {
 				filter('geo', parseInt(e.params.data.id));
@@ -965,6 +1100,7 @@ var Deepviz = function(sources, callback){
 			});
 		});
 	}
+
 
 	//**************************
 	// create timechart
@@ -3067,13 +3203,22 @@ var Deepviz = function(sources, callback){
 			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 			$('#location-search').val(filters['geo']); 
 			$('#location-search').trigger('change.select2');
+			// select2 many location results override default behavior and show number of locations selected in placeholder
+			var values = $('#location-search').select2('data');
+			var select2Height = $('.select2').height();
+			if(select2Height>30){
+				$('.select2-selection__choice').hide();
+				$('.select2-search__field').attr('placeholder', values.length+' LOCATIONS SELECTED' ).css('width', '100%')
+			} else {
+				$('.select2-search__field').attr('placeholder', '' );
+				$('.select2-selection__choice').show();
+			}
 		} else {
 			$('#location-search').val(filters['geo']); 
 			$('#location-search').trigger('change.select2');
 		}
 
 		if(filters['context'].length>=numCategories)filters['context'] = [];
-
 
 		if(filters['context'].length>0){
 			d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0.6);
@@ -4332,7 +4477,6 @@ var Deepviz = function(sources, callback){
 		(12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
 	}
 
-
 	function addCommas(nStr){
 		nStr += '';
 		x = nStr.split('.');
@@ -4344,4 +4488,5 @@ var Deepviz = function(sources, callback){
 		}
 		return x1 + x2;
 	}
+
 }

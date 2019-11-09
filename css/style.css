@@ -701,10 +701,6 @@ font-size: 15px;
 	outline: none;
 }
 
-.bubble {
-	cursor: pointer !important;
-}
-
 #reliability {
 	width: 49%;
 	display: inline-block;
@@ -967,4 +963,25 @@ font-size: 15px;
 
 .top-bar text {
 	cursor: pointer;
+}
+
+#lasso {
+	position: absolute;
+    top: 5px;
+    display: inline;
+    right: 5px;
+    z-index: 3;
+    cursor: pointer;
+}
+
+#lasso-default {
+	
+}
+
+#lasso-hover {
+	display: none;
+}
+
+#lasso-selected {
+	display: none;
 }

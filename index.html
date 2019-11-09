@@ -85,45 +85,39 @@
 		</div>
 
 	</div>
+
 	<div id="main-content">
 
 		<div class="leftcol">
-
-				<div class="title">
-					ENTRIES BY LOCATION
-				</div>
-				<img id="geoRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+			<div class="title">
+				ENTRIES BY LOCATION
+			</div>
+			<img id="geoRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
 
 			<div id="mapcontainer">
-				<select id="location-search" class="js-example-responsive" style="width: 100%; height: 26px" name="states[]" multiple="multiple">
-					
-				</select>
-
-				<div id="map"></div>
+				<select id="location-search" class="js-example-responsive" style="width: 100%; height: 26px" name="states[]" multiple="multiple"></select>
+				<div id="map">
+					<div id="lasso">
+						<img id="lasso-default" height="26px" src="images/lasso-default.svg"/>
+						<img id="lasso-selected" height="26px" src="images/lasso-selected.svg"/>
+						<img id="lasso-hover" height="26px" src="images/lasso-hover.svg"/>
+					</div>
+				</div>
 			</div>
 		</div><!-- /.leftcol -->
 
-
 		<div id="timechart-container" class="rightcol">
 			<div class="header-row">
-
-
 				<div id="avg_slider">
 				</div>
 			</div>
 
-		<div class="secondRow row">
-
-
-		</div>
-
+			<div class="secondRow row">
+				
+			</div>
 
 			<div class="header">
 				<div id="timechartTitle" class="title">ENTRIES BY DATE AND BY SEVERITY</div>
-
-	<!-- 			<div class="subtitle">
-					Drag the sliders to select a date range
-				</div> -->
 
 				<div id="timechart-legend"></div>
 
