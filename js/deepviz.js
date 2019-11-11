@@ -33,6 +33,7 @@ var Deepviz = function(sources, callback){
 	var dataByYear;
 	var dataByLocation;
 	var dataByLocationSum;
+	var dataByLocationArray;
 	var dataByContext;
 	var dataBySector;
 	var dataByFramework;
@@ -50,7 +51,7 @@ var Deepviz = function(sources, callback){
 	var timechartyAxis;
 	var timechartyGrids;
 	var width = 1300;
-	var margin = {top: 18, right: 17, bottom: 0, left: 37};
+	var margin = {top: 18, right: 17, bottom: 0, left: 45};
 	var timechartHeight = 370;
 	var timechartHeight2 = timechartHeight;
 	var timechartHeightOriginal = timechartHeight;
@@ -401,12 +402,12 @@ var Deepviz = function(sources, callback){
 
 	    scale.timechart.x = d3.scaleTime()
 	    .domain([minDate, maxDate])
-	    .range([0, (width - (margin.right + margin.left)) +barWidth])
-	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
+	    .range([0, (width - (margin.right + margin.left))])
+	    .nice();
 
 	    scale.trendline.x = d3.scaleTime()
 	    .domain([0, dataByDate.length-1])
-	    .range([0, (width - (margin.right + margin.left)) +barWidth])
+	    .range([0, (width - (margin.right + margin.left))])
 	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
 
 		// override colors
@@ -468,7 +469,7 @@ var Deepviz = function(sources, callback){
 		dataByFramework = [];
 		dataByAffectedGroups = [];
 		dataBySpecificNeeds = [];
-		var dataByLocationArray = [];
+		dataByLocationArray = [];
 		var dataByContextArray = [];
 		dataByFrameworkContext = [];
 
@@ -505,7 +506,7 @@ var Deepviz = function(sources, callback){
 			});
 
 			d.geo.forEach(function(dd,ii){
-				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd});
+				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd, 's': d.severity, 'r': d.reliability });
 			});
 
 			d.context.forEach(function(dd,ii){
@@ -1051,12 +1052,13 @@ var Deepviz = function(sources, callback){
 		        }
 		      }).on("touchend."+id, function() {
 		        if (pos = d3.touch(parent, id)) {
-		        	console.log(e);
 		          endSelection(start, pos, d3.event);
 		          subject.on("touchmove."+id, null).on("touchend."+id, null);
 		        }
 		      });
 		});
+
+		updateBubbles();
 
 	}
 
@@ -1098,9 +1100,11 @@ var Deepviz = function(sources, callback){
 				}
 				e.params.originalEvent.stopPropagation();
 			});
+
+			d3.select('#main-content').transition().duration(1500).style('opacity', 1);
+
 		});
 	}
-
 
 	//**************************
 	// create timechart
@@ -1143,7 +1147,7 @@ var Deepviz = function(sources, callback){
 		maxDate.setMinutes(0);
 		
 		// define minimum date 
-		minDate = new Date(d3.min(data, function(d){
+		minDate = new Date(d3.min(originalData, function(d){
 			return d.date;
 		}));
 
@@ -1239,9 +1243,9 @@ var Deepviz = function(sources, callback){
 			dateRange[1] = new Date(d2.getFullYear()+1, 0, -1);
 		}
 
-		scale.timechart.x.domain([minDate, maxDate]);
-
-		barWidth = (width_new/1)*.9;
+		scale.timechart.x = d3.scaleTime()
+	    .domain([minDate, maxDate])
+	    .range([0, (width - (margin.right + margin.left))])
 
 		var svgBg = svg.append('g');
 
@@ -1406,7 +1410,6 @@ var Deepviz = function(sources, callback){
 		.style('font-weight', 'normal')
 		.style('fill', 'green');
 
-
 		xAxisObj
 		.selectAll('path, line')
 		.style('opacity', 1 )
@@ -1485,19 +1488,19 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='y'){
 				var date = new Date(d[options.dataKey]);
 				var endYear = new Date(date.getFullYear(), 11, 31);
-				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   		
+				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   
 			}
 
 			if(filters.time=='m'){
 				var date = new Date(d[options.dataKey]);
 				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
-				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);   		
+				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);
 			}
 
 			if(filters.time=='d'){
 				var date = new Date(d[options.dataKey]);
 				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
-				return scale.timechart.x(endDate) - scale.timechart.x(d.key);   		
+				return scale.timechart.x(endDate) - scale.timechart.x(d.key);
 			}	
 
 		})
@@ -1722,12 +1725,11 @@ var Deepviz = function(sources, callback){
 			return scale.eventdrop(d);
 		})
 		.attr('cx', function(d,i){
-				// return barWidth/2;
 				var w = d3.select(this.parentNode.parentNode).attr('data-width');
 				return (w/2);
 			})
 		.attr('cy', function(d,i){
-			return timechartHeight2 + (contextualRowHeight*(i+1))+16;
+			return timechartHeight2 + (contextualRowHeight*(i+1))+17;
 		})
 		.style('fill', colorNeutral[3]);
 
@@ -1736,7 +1738,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 	    // initialise the brush
 	    brush = d3.brushX()
-	    .extent([[0, -margin.top], [width_new, timechartSvgHeight-(margin.top+margin.bottom)]])
+	    .extent([[scale.timechart.x(minDate), -margin.top], [scale.timechart.x(maxDate), timechartSvgHeight-(margin.top+margin.bottom)]])
 	    .on("brush", dragging)
 	    .on("start", dragged);
 
@@ -1761,7 +1763,7 @@ var Deepviz = function(sources, callback){
 	    .attr('stroke-width', 3)
 	    .attr('fill', '#000')
 	    .attr("cursor", "ew-resize")
-	    .attr("d", 'M -9,0 -1,11 8,0 z');
+	    .attr("d", 'M -8,0 -1,11 6,0 z');
 
 	    handleTop.append('rect')
 	    .attr('x',-5)
@@ -1779,7 +1781,7 @@ var Deepviz = function(sources, callback){
 	    .attr('stroke-width', 3)
 	    .attr('fill', '#000')
 	    .attr("cursor", "ew-resize")
-	    .attr("d", 'M -9,0 -1,-11 8,0 z');
+	    .attr("d", 'M -8,0 -1,-11 6,0 z');
 
 	    // no data fallback
 		if(data.length==0) return false; 
@@ -1822,12 +1824,11 @@ var Deepviz = function(sources, callback){
 
 	    // programattically set date range
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
-
 	    // function to handle the changes during slider dragging
 	    function dragging() {
 
 	    	if($('#dateRange').data('daterangepicker'))
-	    		$('#dateRange').data('daterangepicker').hide();
+	    	$('#dateRange').data('daterangepicker').hide();
 	    	// if not right event then break out of function
 	    	if(!d3.event.sourceEvent) return;
 	    	if(d3.event.sourceEvent.type === "start") return;
@@ -1835,29 +1836,47 @@ var Deepviz = function(sources, callback){
 	    	if(d3.event.sourceEvent.type === "brush") return;
 
 	    	var d0 = d3.event.selection.map(scale.timechart.x.invert);
+			var d1 = [];
+
+
 
 			if(filters.time=='d'){
-				var d1 = [];
-				d1[0] = new Date(d3.timeDay.round(d0[0]).setHours(0,0,0,0));
-				d1[1] = new Date(d3.timeDay.round(d0[1]).setHours(0,0,0,0));
-				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeDay.floor(d0[0]);
-					d1[1] = d3.timeDay.offset(d1[0]);
-				}
+				var a = d3.timeDay.floor(d0[1]).getTime() - d3.timeDay.floor(d0[0]).getTime(); 
+		    	var days = Math.round(a / (1000 * 3600 * 24) );
+		    	if(days==0) days=1;
+				d0[0] = d3.timeDay.floor(d0[0]);
+				d0[1] = d3.timeDay.offset(d0[0], days);
+
+				d1[0] = d0[0];
+				d1[1] = d0[1];
 			}
 			if(filters.time=='m'){
-				var d1 = [];
+				d0[0] = d3.timeDay.floor(d0[0]);
+
+				var a = d3.timeDay.floor(d0[1]).getTime() - d3.timeDay.floor(d0[0]).getTime(); 
+		    	var days = Math.round(a / (1000 * 3600 * 24) );
+
+				var diff = Math.abs(d0[1].getTime() - d0[0].getTime()) / 1000;
+				diff /= (60 * 60 * 24 * 7 * 4)
+				var months = Math.abs(Math.round(diff));
+
+		    	var months = d0[1].getMonth() - d0[0].getMonth() + (12 * (d0[1].getFullYear() - d0[0].getFullYear()));
+
+		    	if(months<1)months=1;
+
 				d1[0] = d3.timeMonth.round(d0[0]);
-				d1[1] = d3.timeMonth.round(d0[1]);
-				if (d1[0] >= d1[1]) {
+				d1[1] = d3.timeMonth.round(d3.timeDay.offset(d1[0], days));
+
+				if(d1[0]>=d1[1]){
 					d1[0] = d3.timeMonth.floor(d0[0]);
-					d1[1] = d3.timeMonth.offset(d1[0]);
-				} 
+
+					d1[1] = d3.timeMonth.offset(d1[0],1);
+				}
 			}
 			if(filters.time=='y'){
 				var d1 = d0.map(d3.timeYear.round);
-				d1[0] = d3.timeYear.floor(d0[0]);
-				d1[1] = d3.timeYear.ceil(d0[1]);
+				// d1[0] = d3.timeYear.round(d0[0]);
+				// d1[1] = d3.timeYear.round(d0[1]);
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeYear(d0[0]);
 					d1[1] = d3.timeYear.ceil(d0[0]);
@@ -1952,6 +1971,7 @@ var Deepviz = function(sources, callback){
 		updateStackedBars('ag', dataByAffectedGroups);
 		updateStackedBars('sn', dataBySpecificNeeds);
 		updateStackedBars('sc', dataBySector);
+
 		return bars;
 	}
 
@@ -1973,7 +1993,7 @@ var Deepviz = function(sources, callback){
 			var leftSpacing = 575; 
 		}
 
-		var leftColWidth = 220;
+		var leftColWidth = 232;
 		
 		var frameworkWidth = 1600;
 		var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
@@ -2254,7 +2274,7 @@ var Deepviz = function(sources, callback){
 		.attr('class', 'f-val')
 		.style('text-anchor', 'middle')
 		.attr('x', function(d,i){
-			return leftSpacing-19;
+			return leftSpacing-17;
 		})
 		.attr('y', -2);
 
@@ -3038,14 +3058,15 @@ var Deepviz = function(sources, callback){
 		avgSliderSvg.append("text")
 		.attr('class', 'avgSliderLabel')
 		.text('Moving avg. interpolation')
-		.attr('y', 23)
+		.attr('y', 22)
+		.attr('x', 6);
 
-		var nDays = avgSliderSvg.append("text")
-		.attr('class', 'avgSliderLabel')
-		.attr('id', 'n-days')
-		.text('( n days = 10 )')
-		.attr('y', 36)
-		.attr('x', 180)
+		// var nDays = avgSliderSvg.append("text")
+		// .attr('class', 'avgSliderLabel')
+		// .attr('id', 'n-days')
+		// .text('( n days = 10 )')
+		// .attr('y', 36)
+		// .attr('x', 180)
 
 		slider.append("line")
 		.attr("class", "track")
@@ -3123,8 +3144,8 @@ var Deepviz = function(sources, callback){
 		d3.select('#snRemoveFilter').style('display', 'none').style('cursor', 'default');
 		d3.select('#agRemoveFilter').style('display', 'none').style('cursor', 'default');
 
-		d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
-		d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
+		// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
+		// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
 
 		if(value=='clear'){
 			filters[filterClass] = [];
@@ -3307,7 +3328,7 @@ var Deepviz = function(sources, callback){
 			var timelineSvg = Deepviz.createSvg({
 				id: 'timeline_viz',
 				viewBoxWidth: 1300,
-				viewBoxHeight: 900,
+				viewBoxHeight: 870,
 				div: '#timeline'
 			});
 
@@ -3623,7 +3644,46 @@ var Deepviz = function(sources, callback){
 		.attr('transform', function(d,i){
 			var size = scale.map(dataByLocationSum[i]);
 			return 'scale('+size+')';
+		});
+
+		bubbles.select('.map-bubble-value')
+		.text(function(d,i){
+			return dataByLocationSum[i];
+		});
+
+		bubbles.selectAll('.innerCircle').style('fill', colorNeutral[2]);
+
+		// color bubbles accoring to severity/reliability
+		var locationBySeverityReliability = dataByLocationArray.filter(function(d){
+			if(filters.toggle=='severity'){
+				return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.s>0));
+			} else {
+				return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.r>0));
+			}
+		});
+
+		var sev = d3.nest()
+		.key(function(d) {  return d.geo;})
+		.rollup(function(v) { return Math.round(d3.median(v, function(d) { 
+			if(filters.toggle=='severity'){
+				return d.s; 
+			} else {
+				return d.r;
+			}
+		}))})
+		.entries(locationBySeverityReliability);
+
+		sev.forEach(function(d,i){
+			if(filters.toggle=='severity'){
+				d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorPrimary[d.value]);
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorPrimary[d.value]);
+			} else {
+				d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorSecondary[d.value]);
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorSecondary[d.value]);
+			}
 		})
+
+		bubbles
 		.style('opacity', function(d,i){
 			d3.select(this).select('.outerCircle').style('stroke', function(){
 				var id = metadata.geo_array[i].id;
@@ -3646,12 +3706,6 @@ var Deepviz = function(sources, callback){
 			}
 		});
 
-		bubbles.select('.map-bubble-value')
-		.text(function(d,i){
-			return dataByLocationSum[i];
-		});
-
-		bubbles.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 		var map = document.getElementById("map");
 		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 	}
@@ -4016,11 +4070,13 @@ var Deepviz = function(sources, callback){
 				});
 			}
 
+			
+
 			// severity median
+			s_total += -severity[0];
+			severity[0] = 0;
 			var s = 0;
 			var s_median = 0;
-			var t = 0;
-
 			severity.every(function(d,i){
 				s += severity[i];
 				if (s > s_total / 2){
@@ -4032,6 +4088,8 @@ var Deepviz = function(sources, callback){
 			});
 
 			// reliability median
+			r_total += -reliability[0];
+			reliability[0] = 0;
 			var r = 0;
 			var r_median = 0;
 			reliability.every(function(d,i){
@@ -4046,14 +4104,14 @@ var Deepviz = function(sources, callback){
 
 			var severityAverage = ( (1*severity[5]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
 			d3.select('#severity_value').text(metadata.severity_units[(Math.round(severityAverage))] + ' ('+ severityAverage.toFixed(1) +')' )
-			d3.select('#severity_value').text(metadata.severity_units[s_median].name )
+			d3.select('#severity_value').text(metadata.severity_units[s_median].name ).style('color', colorPrimary[s_median]);
 			d3.select('#severityAvg').attr('x',function(d){
 				return scale.severity.x(s_median);
 			});
 
 			var reliabilityAverage = ( (1*reliability[5]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
 			d3.select('#reliability_value').text(metadata.reliability_units[(Math.round(reliabilityAverage))] + ' ('+ reliabilityAverage.toFixed(1) +')' )
-			d3.select('#reliability_value').text(metadata.reliability_units[r_median].name )
+			d3.select('#reliability_value').text(metadata.reliability_units[r_median].name ).style('color', colorSecondary[r_median]);
 			d3.select('#reliabiltiyAvg').attr('x',function(d){
 				return scale.severity.x(r_median);
 			});
@@ -4178,11 +4236,27 @@ var Deepviz = function(sources, callback){
 	// update framework
 	//**************************
 	var updateFramework = function(){
-
 		// entries by framework sector (non-unique to populate framework cells)
 		var entries = dataByFrameworkSector.filter(function(d){
-			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]))
 		});
+
+		if(filters.frameworkToggle=='average'){
+			var nullEntries = entries.filter(function(d){
+				if(filters.toggle=='severity'){
+					return d.s==0;
+				} else {
+					return d.r==0
+				}
+			});
+			entries = entries.filter(function(d){
+				if(filters.toggle=='severity'){
+					return d.s>0;
+				} else {
+					return d.r>0;
+				}
+			});
+		} 
 
 		var d = d3.nest()
 		.key(function(d) { return d.framework; })
@@ -4234,7 +4308,7 @@ var Deepviz = function(sources, callback){
 			.range([colorNeutral[0], colorNeutral[4]])
 			.interpolate(d3.interpolateHcl);
 			d3.selectAll('.f-val').text('').style('fill', colorNeutral[4]);
-		} else {
+		} else { // median
 			if(filters.toggle == 'severity'){
 				maxCellSize = 5;
 				d3.select('#toggle1').style('fill', colorPrimary[3]);
@@ -4264,9 +4338,17 @@ var Deepviz = function(sources, callback){
 		d3.selectAll('.context-val').text('');
 		c.forEach(function(d,i){
 			d3.select('#context-val-'+d.key).text(function(dd,ii){
-				return d.value.total;
+				return addCommas(d.value.total);
 			})
-		})
+		});
+
+		// color null cells without median
+		if(nullEntries){
+			nullEntries.forEach(function(d,i){
+				var id = 'f'+(d.framework-1)+'s'+(d.sc-1);
+				d3.select('#'+id +'rect').style('fill', function(d){ return colorNeutral[0]; }).style('opacity', 1);
+			});			
+		}
 
 		d.forEach(function(d,i){
 			var sum = d3.sum(d.values, function(d){ return d.value.total});
@@ -4280,9 +4362,9 @@ var Deepviz = function(sources, callback){
 					var v = dd.value.total;
 				} else {
 					if(filters.toggle=='severity'){
-						var v = dd.value.median_s.toFixed(1);
+						var v = dd.value.median_s.toFixed(0);
 					} else {
-						var v = dd.value.median_r.toFixed(1);
+						var v = dd.value.median_r.toFixed(0);
 					}
 				}
 				// set cell colour
@@ -4317,8 +4399,8 @@ var Deepviz = function(sources, callback){
 			d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
 			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
 			d3.select('.selection').style('fill', colorNeutral[3]);
-			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
-			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+			// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+			// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 			if(filters.frameworkToggle == 'average'){
 				d3.select('#framework-toggle').style('fill', colorSecondary[3])
 			}
@@ -4326,7 +4408,7 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
 			d3.select('#dateRange').style('color', colorNeutral[4]);
 			d3.select('#avg-line').style('stroke', colorSecondary[3]);
-			d3.select('#framework-toggle-text tspan').text('median reliability');
+			d3.select('#framework-toggle-text').text('median reliability');
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
@@ -4342,13 +4424,13 @@ var Deepviz = function(sources, callback){
 			d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
 			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
 			d3.select('.selection').style('fill', colorNeutral[3]);
-			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
-			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+			// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+			// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 			// update colors of contextual row total values
 			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
 			d3.select('#dateRange').style('color', colorNeutral[4]);
 			d3.select('#avg-line').style('stroke', colorPrimary[3]);
-			d3.select('#framework-toggle-text tspan').text('median severity');
+			d3.select('#framework-toggle-text').text('median severity');
 		}
 		updateTimeline();
 	}

@@ -1,6 +1,5 @@
 html {
-	background-color: #f6f6f6;
-	color: #4c4c4c;
+
 }
 
 text {
@@ -41,6 +40,8 @@ svg text {
 #main-content {
 	padding-top: 73px;
 	padding-bottom: 0px;
+	min-height: 500px;
+	opacity: 0;
 }
 
 
@@ -65,10 +66,7 @@ svg text {
 #container {
 	padding: 0px 15px 0px 15px;
 	margin: 0px auto;
-	border: 1px solid #00000033;
-	border-top: 1px solid #FFF;
 	background-color: #FFF;
-
 }
 
 .leftcol {
@@ -140,8 +138,8 @@ svg text {
 	padding-right: 2px;
 }
 #map-bubble-svg {
-	-webkit-filter: drop-shadow(1px 1px 4px rgba(0,0,0,0.2));      
-	filter: drop-shadow(1px 1px 4px rgba(0,0,0,0.2)); 
+	-webkit-filter: drop-shadow(1px 1px 4px rgba(0,0,0,0.3));      
+	filter: drop-shadow(1px 1px 4px rgba(0,0,0,0.3)); 
 }
 
 .mapboxgl-control-container {
@@ -546,7 +544,7 @@ svg text {
 #timechart-legend {
     position: absolute;
     top: 6px;
-    left: 300px;
+    left: 282px;
 }
 
 #avg_slider .ticks {
@@ -563,7 +561,7 @@ font-size: 15px;
 }
 
 .avgSliderLabel {
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 100;
 }
 
@@ -584,7 +582,7 @@ font-size: 15px;
 
 #avg_slider .track-overlay {
 	pointer-events: stroke;
-	stroke-width: 50px;
+	stroke-width: 32px;
 	stroke: transparent;
 	cursor: ew-resize;
 }
@@ -817,7 +815,7 @@ font-size: 15px;
 
 .handle {
 	fill: #000;
-	width: 2;
+	width: 2px;
 }
 
 .selection {
@@ -970,7 +968,7 @@ font-size: 15px;
     top: 5px;
     display: inline;
     right: 5px;
-    z-index: 3;
+    z-index: 2;
     cursor: pointer;
 }
 
