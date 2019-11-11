@@ -751,7 +751,7 @@ var Deepviz = function(sources, callback){
 	        zoom: 4,  
 	        trackResize: true,
 	        pitchWithRotate: false,
-	        doubleClickZoom: false,
+	        doubleClickZoom: true,
 	        dragRotate: false
 	    });
 
