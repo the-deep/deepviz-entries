@@ -23,6 +23,7 @@ var Deepviz = function(sources, callback){
 	};
 
 	var mapbox;
+	var lassoActive = false;
 	// data related
 	var metadata;
 	var originalData; // full original dataset without filters (used to refresh/clear filters)
@@ -32,9 +33,12 @@ var Deepviz = function(sources, callback){
 	var dataByYear;
 	var dataByLocation;
 	var dataByLocationSum;
+	var dataByLocationArray;
 	var dataByContext;
-	var dataByFramework;
 	var dataBySector;
+	var dataByFramework;
+	var dataByFrameworkSector;
+	var	databyFrameworkContext;
 	var dataBySpecificNeeds;
 	var dataByAffectedGroups;
 	var total = 0;
@@ -47,7 +51,7 @@ var Deepviz = function(sources, callback){
 	var timechartyAxis;
 	var timechartyGrids;
 	var width = 1300;
-	var margin = {top: 18, right: 17, bottom: 0, left: 37};
+	var margin = {top: 18, right: 17, bottom: 0, left: 45};
 	var timechartHeight = 370;
 	var timechartHeight2 = timechartHeight;
 	var timechartHeightOriginal = timechartHeight;
@@ -223,14 +227,7 @@ var Deepviz = function(sources, callback){
 			"color": "grey",
 			"name": "Null",
 			"_id": null,
-		})
-
-		// console.log(locationArray);
-		// console.log(metadata.geo_array);
-
-
-
-
+		});
 
 		// convert date strings into js date objects
 		data.forEach(function(d,i){
@@ -363,6 +360,11 @@ var Deepviz = function(sources, callback){
 		maxDate.setHours(0);
 		maxDate.setMinutes(0);
 
+		var today = new Date();
+		if(maxDate<today){
+			maxDate = today;
+		};
+
 		dateRange[1] = maxDate;
 		
 		// define minimum date 
@@ -400,12 +402,12 @@ var Deepviz = function(sources, callback){
 
 	    scale.timechart.x = d3.scaleTime()
 	    .domain([minDate, maxDate])
-	    .range([0, (width - (margin.right + margin.left)) +barWidth])
-	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
+	    .range([0, (width - (margin.right + margin.left))])
+	    .nice();
 
 	    scale.trendline.x = d3.scaleTime()
 	    .domain([0, dataByDate.length-1])
-	    .range([0, (width - (margin.right + margin.left)) +barWidth])
+	    .range([0, (width - (margin.right + margin.left))])
 	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
 
 		// override colors
@@ -462,22 +464,49 @@ var Deepviz = function(sources, callback){
 			.entries(data);
 		}
 
+		dataByFrameworkSector = [];
+		dataBySector = [];
 		dataByFramework = [];
 		dataByAffectedGroups = [];
 		dataBySpecificNeeds = [];
-		var dataByLocationArray = [];
+		dataByLocationArray = [];
 		var dataByContextArray = [];
+		dataByFrameworkContext = [];
 
 		data.forEach(function(d,i){
 
+			var frameworks = [];
+			var contexts = [];
+			var sectors = [];
+
 			d.sector.forEach(function(dd,ii){
+				var c = dd[0];
 				var f = dd[1];
 				var s = dd[2];
-				dataByFramework.push({"date": d.date, "framework": f, "sc": s, 's': d.severity, 'r': d.reliability});
+				// data by sector (non-unique) for framework cells
+				dataByFrameworkSector.push({"date": d.date, "context": c, "framework": f, "sc": s, 's': d.severity, 'r': d.reliability});
+				// unique entries by framework
+				var frameworkRow = {"date": d.date, "context": c, "framework": f, 's': d.severity, 'r': d.reliability};
+				if(!frameworks.includes(f)){
+					dataByFramework.push(frameworkRow);
+					frameworks.push(f);
+				}
+				// unique entries by context
+				var contextRow = {"date": d.date, "context": c, 's': d.severity, 'r': d.reliability};
+				if(!contexts.includes(c)){
+					dataByFrameworkContext.push(contextRow);
+					contexts.push(c);
+				}
+				// unique entries by sector
+				var sectorRow = {"date": d.date, "sc": s, 's': d.severity, 'r': d.reliability};
+				if(!sectors.includes(s)){
+					dataBySector.push(sectorRow);
+					sectors.push(s);
+				}
 			});
 
 			d.geo.forEach(function(dd,ii){
-				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd});
+				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd, 's': d.severity, 'r': d.reliability });
 			});
 
 			d.context.forEach(function(dd,ii){
@@ -493,9 +522,6 @@ var Deepviz = function(sources, callback){
 			});
 
 		});
-	    // dataByLocationArray = dataByLocationArray.filter(function(d){
-	    // 	return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
-	    // });
 
 		dataByLocation = d3.nest()
 		.key(function(d) { return d.date;})
@@ -648,7 +674,7 @@ var Deepviz = function(sources, callback){
 		updateTotals();
 		updateStackedBars('ag', dataByAffectedGroups);
 		updateStackedBars('sn', dataBySpecificNeeds);
-		updateStackedBars('sc', dataByFramework);
+		updateStackedBars('sc', dataBySector);
 		return dataByDate;
 
 	}
@@ -725,7 +751,7 @@ var Deepviz = function(sources, callback){
 	        zoom: 4,  
 	        trackResize: true,
 	        pitchWithRotate: false,
-	        doubleClickZoom: false,
+	        doubleClickZoom: true,
 	        dragRotate: false
 	    });
 
@@ -796,10 +822,19 @@ var Deepviz = function(sources, callback){
 		})
 		.style('opacity', 1)
 		.on('mouseover', function(){
+			d3.select(this).style('cursor', function(){
+				if(lassoActive) {
+					return 'crosshair ';
+				} else {
+					return 'pointer';
+				}
+			})
+			if(lassoActive) return false;
 			d3.select(this).style('opacity', 0.85);
 		}).on('mouseout', function(){
 			d3.select(this).style('opacity', 1);
 		}).on('click', function(d,i){
+			if(lassoActive) return false;
 			var geo = metadata.geo_array[i];
 			filter('geo',geo.id);
 			updateSeverityReliability('map', 500);
@@ -890,16 +925,141 @@ var Deepviz = function(sources, callback){
 			return point;
 		}
 
+		function unprojectPoint(x, y) {
+			var point = map.unproject([x,y]);
+			return point;
+		}
+
 		d3.selectAll('#geoRemoveFilter').on('click', function(){
 			d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
-			
 			$('#location-search').val(); 
 			$('#location-search').trigger('change.select2');
-
 			return filter('geo', 'clear'); 
 		});
 
 		this.createSearch();
+
+		// map lasso
+		lassoActive = false;
+
+		var lasso = d3.select('#lasso');
+		lasso.on('mouseover', function(){
+			if(!lassoActive){
+				$('#lasso-default').hide();
+				$('#lasso-hover').show();
+			}
+		}).on('mouseout', function(){
+			if(!lassoActive){
+				$('#lasso-default').show();
+				$('#lasso-hover').hide();
+			}	
+		}).on('click', function(){
+			if(!lassoActive){
+				lassoActive = true;
+				$('#lasso-default').hide();
+				$('#lasso-hover').hide();
+				$('#lasso-selected').show();
+				// disable panning
+				map.dragPan.disable();
+			    map.boxZoom.disable();
+				// change cursor
+				d3.select('#map-bubble-svg').style('cursor', 'crosshair');
+
+			} else {
+				lassoActive = false;
+				$('#lasso-selected').hide();
+				$('#lasso-default').show();
+				$('#lasso-hover').hide();
+				// enable map panning
+				map.dragPan.enable();
+			    map.boxZoom.enable();
+				// change cursor
+				d3.select('#map-bubble-svg').style('cursor', 'inherit');
+				d3.select('#select-box').attr("visibility", "hidden");
+			}
+		})
+
+		function rect(x, y, w, h) {
+		  return "M"+[x,y]+" l"+[w,0]+" l"+[0,h]+" l"+[-w,0]+"z";
+		}
+
+		var selection = mapsvg.append("path")
+		  .attr("id", "select-box")
+		  .attr("class", "selection")
+		  .attr("visibility", "hidden");
+
+		var startSelection = function(start) {
+		    selection.attr("d", rect(start[0], start[0], 0, 0))
+		      .attr("visibility", "visible");
+		};
+
+		var moveSelection = function(start, moved) {
+		    selection.attr("d", rect(start[0], start[1], moved[0]-start[0], moved[1]-start[1]));
+		};
+
+		var endSelection = function(start, end) {
+			selection.attr("visibility", "hidden");
+			var bbox = selection.node().getBBox();
+			var bounds = [];
+			bounds[0] = unprojectPoint(bbox.x, bbox.y);
+			bounds[1] = unprojectPoint((bbox.x+bbox.width), (bbox.y+bbox.height));
+			if(d3.event.shiftKey){
+				var geoArray = filters.geo;
+			} else {
+				var geoArray = [];
+			}
+
+			metadata.geo_array.forEach(function(d,i){
+				if ((d.centroid[0] > bounds[0].lng) && (d.centroid[0] < bounds[1].lng) && (d.centroid[1] < bounds[0].lat) && (d.centroid[1] > bounds[1].lat)){
+					if(!geoArray.includes(d.id)){
+						geoArray.push(d.id);
+					}
+				}
+			});
+
+			if(bbox.width==0){
+				filter('geo', 'clear');
+			} else {
+				filters.geo = geoArray;
+				filter('geo', 0);
+			}
+		};
+
+		mapsvg.on("mousedown", function(e) {
+			if(!lassoActive) return false;
+		  	var subject = d3.select(window), parent = this.parentNode,
+		    start = d3.mouse(parent);
+		    startSelection(start);
+		    subject
+		      .on("mousemove.selection", function() {
+		        moveSelection(start, d3.mouse(parent));
+		      }).on("mouseup.selection", function() {
+		        endSelection(start, d3.mouse(parent), d3.event);
+		        subject.on("mousemove.selection", null).on("mouseup.selection", null);
+		      });
+		});
+
+		mapsvg.on("touchstart", function() {
+			if(!lassoActive) return false;
+			var subject = d3.select(this), parent = this.parentNode,
+		    id = d3.event.changedTouches[0].identifier,
+		    start = d3.touch(parent, id), pos;
+		    startSelection(start);
+		    subject
+		      .on("touchmove."+id, function() {
+		        if (pos = d3.touch(parent, id)) {
+		          moveSelection(start, pos);
+		        }
+		      }).on("touchend."+id, function() {
+		        if (pos = d3.touch(parent, id)) {
+		          endSelection(start, pos, d3.event);
+		          subject.on("touchmove."+id, null).on("touchend."+id, null);
+		        }
+		      });
+		});
+
+		updateBubbles();
+
 	}
 
 	//**************************
@@ -929,8 +1089,9 @@ var Deepviz = function(sources, callback){
 		    });
 
 		    $('#location-search').on('select2:select', function (e) {
-			  filter('geo', parseInt(e.params.data.id));
+		    	filter('geo', parseInt(e.params.data.id));
 			});
+
 
 			$('#location-search').on('select2:unselect', function (e) {
 				filter('geo', parseInt(e.params.data.id));
@@ -939,6 +1100,9 @@ var Deepviz = function(sources, callback){
 				}
 				e.params.originalEvent.stopPropagation();
 			});
+
+			d3.select('#main-content').transition().duration(1500).style('opacity', 1);
+
 		});
 	}
 
@@ -974,11 +1138,16 @@ var Deepviz = function(sources, callback){
 			return d.date;
 		}));
 
+		var today = new Date();
+		if(maxDate<today){
+			maxDate = today;
+		};
+
 		maxDate.setHours(0);
 		maxDate.setMinutes(0);
 		
 		// define minimum date 
-		minDate = new Date(d3.min(data, function(d){
+		minDate = new Date(d3.min(originalData, function(d){
 			return d.date;
 		}));
 
@@ -1008,6 +1177,7 @@ var Deepviz = function(sources, callback){
 		if(filters.time=='d'){
 
 			var today = new Date();
+			today.setHours(0,0,0,1);
 			var thisYear = today.getFullYear();
 
 			$('#dateRange').daterangepicker({
@@ -1024,7 +1194,9 @@ var Deepviz = function(sources, callback){
 					'Last Year': [new Date(dateRange[0].getFullYear()-1, 0, 1), new Date(dateRange[0].getFullYear()-1, 12, 0)],
 					'Last 30 Days': [moment(new Date()).subtract(29, 'days'), moment()],
 					'This Month': [new Date(today.getFullYear(), today.getMonth(), 1), new Date(today.getFullYear(), today.getMonth()+1, 0)],
-					'Last Month': [new Date(today.getFullYear(), today.getMonth()-1, 0), new Date(today.getFullYear(), today.getMonth(), 0)]
+					'Last Month': [new Date(today.getFullYear(), today.getMonth()-1, 1), new Date(today.getFullYear(), today.getMonth(), 0)],
+					'Last 3 Months': [new Date(today.getFullYear(), today.getMonth()-2, 1), new Date(today.getFullYear(), today.getMonth()+1, 0)],
+					'Last 6 Months': [new Date(today.getFullYear(), today.getMonth()-5, 1), new Date(today.getFullYear(), today.getMonth()+1, 0)]
 				},
 				maxYear: maxDate.getFullYear(),
 				minYear: minDate.getFullYear(),
@@ -1071,9 +1243,9 @@ var Deepviz = function(sources, callback){
 			dateRange[1] = new Date(d2.getFullYear()+1, 0, -1);
 		}
 
-		scale.timechart.x.domain([minDate, maxDate]);
-
-		barWidth = (width_new/1)*.9;
+		scale.timechart.x = d3.scaleTime()
+	    .domain([minDate, maxDate])
+	    .range([0, (width - (margin.right + margin.left))])
 
 		var svgBg = svg.append('g');
 
@@ -1235,8 +1407,8 @@ var Deepviz = function(sources, callback){
 		.attr("class", "xAxis axis")
 		.attr("transform", "translate(" + margin.left + "," + (timechartHeight2 + margin.top +0) + ")")
 		.call(xAxis)
-		.style('font-size', '16px')
-		.style('font-weight', options.xAxis.font.values.weight)
+		.style('font-weight', 'normal')
+		.style('fill', 'green');
 
 		xAxisObj
 		.selectAll('path, line')
@@ -1251,7 +1423,7 @@ var Deepviz = function(sources, callback){
 		.attr('x1', 0)
 		.attr('x2', 0)
 		.attr('y1', 0)
-		.attr('y2', timechartHeight2+margin.top+1)
+		.attr('y2', timechartHeight2+margin.top+1);
 
 		xAxisObj.selectAll(".tick")
 		.append('line')
@@ -1316,19 +1488,19 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='y'){
 				var date = new Date(d[options.dataKey]);
 				var endYear = new Date(date.getFullYear(), 11, 31);
-				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   		
+				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   
 			}
 
 			if(filters.time=='m'){
 				var date = new Date(d[options.dataKey]);
 				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
-				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);   		
+				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);
 			}
 
 			if(filters.time=='d'){
 				var date = new Date(d[options.dataKey]);
 				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
-				return scale.timechart.x(endDate) - scale.timechart.x(d.key);   		
+				return scale.timechart.x(endDate) - scale.timechart.x(d.key);
 			}	
 
 		})
@@ -1478,7 +1650,7 @@ var Deepviz = function(sources, callback){
 			return d.name.toUpperCase();
 		})
 		.attr('class', 'label')
-		.attr('y',21)
+		.attr('y',18)
 		.attr('x',4)
 		// .style('font-weight', 'bold')
 		.style('font-size', '16px');
@@ -1494,7 +1666,7 @@ var Deepviz = function(sources, callback){
 			var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
 			return xoffset + 10;
 		})
-		.attr('y',21)
+		.attr('y',18)
 		.style('font-size', '16px')
 		.style('font-weight', 'bold')
 		.style('fill', colorNeutral[4]);
@@ -1553,12 +1725,11 @@ var Deepviz = function(sources, callback){
 			return scale.eventdrop(d);
 		})
 		.attr('cx', function(d,i){
-				// return barWidth/2;
 				var w = d3.select(this.parentNode.parentNode).attr('data-width');
 				return (w/2);
 			})
 		.attr('cy', function(d,i){
-			return timechartHeight2 + (contextualRowHeight*(i+1))+16;
+			return timechartHeight2 + (contextualRowHeight*(i+1))+17;
 		})
 		.style('fill', colorNeutral[3]);
 
@@ -1567,7 +1738,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 	    // initialise the brush
 	    brush = d3.brushX()
-	    .extent([[0, -margin.top], [width_new, timechartSvgHeight-(margin.top+margin.bottom)]])
+	    .extent([[scale.timechart.x(minDate), -margin.top], [scale.timechart.x(maxDate), timechartSvgHeight-(margin.top+margin.bottom)]])
 	    .on("brush", dragging)
 	    .on("start", dragged);
 
@@ -1592,7 +1763,7 @@ var Deepviz = function(sources, callback){
 	    .attr('stroke-width', 3)
 	    .attr('fill', '#000')
 	    .attr("cursor", "ew-resize")
-	    .attr("d", 'M -9,0 -1,11 8,0 z');
+	    .attr("d", 'M -8,0 -1,11 6,0 z');
 
 	    handleTop.append('rect')
 	    .attr('x',-5)
@@ -1610,7 +1781,7 @@ var Deepviz = function(sources, callback){
 	    .attr('stroke-width', 3)
 	    .attr('fill', '#000')
 	    .attr("cursor", "ew-resize")
-	    .attr("d", 'M -9,0 -1,-11 8,0 z');
+	    .attr("d", 'M -8,0 -1,-11 6,0 z');
 
 	    // no data fallback
 		if(data.length==0) return false; 
@@ -1643,7 +1814,7 @@ var Deepviz = function(sources, callback){
 	    	updateFramework();
 	    	updateStackedBars('ag', dataByAffectedGroups);
 	    	updateStackedBars('sn', dataBySpecificNeeds);
-	    	updateStackedBars('sc', dataByFramework);
+	    	updateStackedBars('sc', dataBySector);
 
 	    	handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 	    	handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
@@ -1653,12 +1824,11 @@ var Deepviz = function(sources, callback){
 
 	    // programattically set date range
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
-
 	    // function to handle the changes during slider dragging
 	    function dragging() {
 
 	    	if($('#dateRange').data('daterangepicker'))
-	    		$('#dateRange').data('daterangepicker').hide();
+	    	$('#dateRange').data('daterangepicker').hide();
 	    	// if not right event then break out of function
 	    	if(!d3.event.sourceEvent) return;
 	    	if(d3.event.sourceEvent.type === "start") return;
@@ -1666,31 +1836,47 @@ var Deepviz = function(sources, callback){
 	    	if(d3.event.sourceEvent.type === "brush") return;
 
 	    	var d0 = d3.event.selection.map(scale.timechart.x.invert);
+			var d1 = [];
+
+
 
 			if(filters.time=='d'){
-				var d1 = d0.map(d3.timeDay.round);
-				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeDay.floor(d0[0]);
-					d1[1] = d3.timeDay.ceil(d0[0]);
-				} 
-				if (d1[0] >= d1[1]) {
-					d1[0] = d3.timeDay.floor(d0[0]);
-					d1[1] = d3.timeDay.offset(d1[0]);
-				}
+				var a = d3.timeDay.floor(d0[1]).getTime() - d3.timeDay.floor(d0[0]).getTime(); 
+		    	var days = Math.round(a / (1000 * 3600 * 24) );
+		    	if(days==0) days=1;
+				d0[0] = d3.timeDay.floor(d0[0]);
+				d0[1] = d3.timeDay.offset(d0[0], days);
+
+				d1[0] = d0[0];
+				d1[1] = d0[1];
 			}
 			if(filters.time=='m'){
-				var d1 = d0.map(d3.timeDay.round);
-				d1[0] = d3.timeMonth.floor(d1[0]);
-				d1[1] = d3.timeMonth.ceil(d1[1]);
-				if (d1[0] >= d1[1]) {
+				d0[0] = d3.timeDay.floor(d0[0]);
+
+				var a = d3.timeDay.floor(d0[1]).getTime() - d3.timeDay.floor(d0[0]).getTime(); 
+		    	var days = Math.round(a / (1000 * 3600 * 24) );
+
+				var diff = Math.abs(d0[1].getTime() - d0[0].getTime()) / 1000;
+				diff /= (60 * 60 * 24 * 7 * 4)
+				var months = Math.abs(Math.round(diff));
+
+		    	var months = d0[1].getMonth() - d0[0].getMonth() + (12 * (d0[1].getFullYear() - d0[0].getFullYear()));
+
+		    	if(months<1)months=1;
+
+				d1[0] = d3.timeMonth.round(d0[0]);
+				d1[1] = d3.timeMonth.round(d3.timeDay.offset(d1[0], days));
+
+				if(d1[0]>=d1[1]){
 					d1[0] = d3.timeMonth.floor(d0[0]);
-					d1[1] = d3.timeMonth.offset(d1[0]);
-				} 
+
+					d1[1] = d3.timeMonth.offset(d1[0],1);
+				}
 			}
 			if(filters.time=='y'){
 				var d1 = d0.map(d3.timeYear.round);
-				d1[0] = d3.timeYear.floor(d0[0]);
-				d1[1] = d3.timeYear.ceil(d0[1]);
+				// d1[0] = d3.timeYear.round(d0[0]);
+				// d1[1] = d3.timeYear.round(d0[1]);
 				if (d1[0] >= d1[1]) {
 					d1[0] = d3.timeYear(d0[0]);
 					d1[1] = d3.timeYear.ceil(d0[0]);
@@ -1706,7 +1892,7 @@ var Deepviz = function(sources, callback){
 			updateFramework();
 			updateStackedBars('ag', dataByAffectedGroups);
 			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataByFramework);
+			updateStackedBars('sc', dataBySector);
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
@@ -1760,7 +1946,7 @@ var Deepviz = function(sources, callback){
 			updateFramework();
 			updateStackedBars('ag', dataByAffectedGroups);
 			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataByFramework);
+			updateStackedBars('sc', dataBySector);
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
@@ -1784,7 +1970,8 @@ var Deepviz = function(sources, callback){
 		updateTotals();
 		updateStackedBars('ag', dataByAffectedGroups);
 		updateStackedBars('sn', dataBySpecificNeeds);
-		updateStackedBars('sc', dataByFramework);
+		updateStackedBars('sc', dataBySector);
+
 		return bars;
 	}
 
@@ -1806,7 +1993,7 @@ var Deepviz = function(sources, callback){
 			var leftSpacing = 575; 
 		}
 
-		var leftColWidth = 220;
+		var leftColWidth = 232;
 		
 		var frameworkWidth = 1600;
 		var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
@@ -2021,25 +2208,45 @@ var Deepviz = function(sources, callback){
 		cat1 = 0;
 
 		var leftColArray = [];
-		rows.append('text')
+
+		var contextRow = rows.append('g');
+
+		var labelName = contextRow.append('text')
 		.text(function(d,i){
 			var cat_name = metadata.context_array[d.context_id-1].name;
 			if(cat!=cat_name){
 				cat = cat_name;
 				cat1++;
+				d.contextRow = 1;
 				return cat_name;
+			} else {
+				d.contextRow = 0;
 			}
 			cat = cat_name;
 			cat1++;
 		})
 		.attr('x',7)
-		.attr('class', function(d,i){
-			return 'context-name'
+		.attr('id', function(d,i){
+			return 'context-name-'+d.context_id;
 		})
 		.style('font-weight', 'bold');
 
-		// second left headers
+		labelName.attr('class', function(d,i){
+			if(d.contextRow == 1){
+				var b = d3.select(this.parentNode).node().getBBox();
+				d3.select(this.parentNode).append('text')
+				.text('')
+				.attr('class', 'context-val')
+				.attr('id', 'context-val-'+d.context_id)
+				.style('text-anchor', 'left')
+				.style('font-weight', 'bold')
+				.style('fill', 'rgb(0, 137, 116)')
+				.attr('x', b.width + 12)
+			}
+			return 'context-name';
+		});
 
+		// second left headers
 		var secondCol = rows.append('g');
 
 		var labels = secondCol.append('text')
@@ -2067,7 +2274,7 @@ var Deepviz = function(sources, callback){
 		.attr('class', 'f-val')
 		.style('text-anchor', 'middle')
 		.attr('x', function(d,i){
-			return leftSpacing-19;
+			return leftSpacing-17;
 		})
 		.attr('y', -2);
 
@@ -2851,14 +3058,15 @@ var Deepviz = function(sources, callback){
 		avgSliderSvg.append("text")
 		.attr('class', 'avgSliderLabel')
 		.text('Moving avg. interpolation')
-		.attr('y', 23)
+		.attr('y', 22)
+		.attr('x', 6);
 
-		var nDays = avgSliderSvg.append("text")
-		.attr('class', 'avgSliderLabel')
-		.attr('id', 'n-days')
-		.text('( n days = 10 )')
-		.attr('y', 36)
-		.attr('x', 180)
+		// var nDays = avgSliderSvg.append("text")
+		// .attr('class', 'avgSliderLabel')
+		// .attr('id', 'n-days')
+		// .text('( n days = 10 )')
+		// .attr('y', 36)
+		// .attr('x', 180)
 
 		slider.append("line")
 		.attr("class", "track")
@@ -2936,8 +3144,8 @@ var Deepviz = function(sources, callback){
 		d3.select('#snRemoveFilter').style('display', 'none').style('cursor', 'default');
 		d3.select('#agRemoveFilter').style('display', 'none').style('cursor', 'default');
 
-		d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
-		d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
+		// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
+		// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
 
 		if(value=='clear'){
 			filters[filterClass] = [];
@@ -3016,13 +3224,22 @@ var Deepviz = function(sources, callback){
 			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 			$('#location-search').val(filters['geo']); 
 			$('#location-search').trigger('change.select2');
+			// select2 many location results override default behavior and show number of locations selected in placeholder
+			var values = $('#location-search').select2('data');
+			var select2Height = $('.select2').height();
+			if(select2Height>30){
+				$('.select2-selection__choice').hide();
+				$('.select2-search__field').attr('placeholder', values.length+' LOCATIONS SELECTED' ).css('width', '100%')
+			} else {
+				$('.select2-search__field').attr('placeholder', '' );
+				$('.select2-selection__choice').show();
+			}
 		} else {
 			$('#location-search').val(filters['geo']); 
 			$('#location-search').trigger('change.select2');
 		}
 
 		if(filters['context'].length>=numCategories)filters['context'] = [];
-
 
 		if(filters['context'].length>0){
 			d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0.6);
@@ -3111,7 +3328,7 @@ var Deepviz = function(sources, callback){
 			var timelineSvg = Deepviz.createSvg({
 				id: 'timeline_viz',
 				viewBoxWidth: 1300,
-				viewBoxHeight: 900,
+				viewBoxHeight: 870,
 				div: '#timeline'
 			});
 
@@ -3199,7 +3416,7 @@ var Deepviz = function(sources, callback){
 			updateTotals();
 			updateStackedBars('ag', dataByAffectedGroups);
 			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataByFramework);
+			updateStackedBars('sc', dataBySector);
 		});
 	}
 
@@ -3427,7 +3644,46 @@ var Deepviz = function(sources, callback){
 		.attr('transform', function(d,i){
 			var size = scale.map(dataByLocationSum[i]);
 			return 'scale('+size+')';
+		});
+
+		bubbles.select('.map-bubble-value')
+		.text(function(d,i){
+			return dataByLocationSum[i];
+		});
+
+		bubbles.selectAll('.innerCircle').style('fill', colorNeutral[2]);
+
+		// color bubbles accoring to severity/reliability
+		var locationBySeverityReliability = dataByLocationArray.filter(function(d){
+			if(filters.toggle=='severity'){
+				return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.s>0));
+			} else {
+				return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.r>0));
+			}
+		});
+
+		var sev = d3.nest()
+		.key(function(d) {  return d.geo;})
+		.rollup(function(v) { return Math.round(d3.median(v, function(d) { 
+			if(filters.toggle=='severity'){
+				return d.s; 
+			} else {
+				return d.r;
+			}
+		}))})
+		.entries(locationBySeverityReliability);
+
+		sev.forEach(function(d,i){
+			if(filters.toggle=='severity'){
+				d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorPrimary[d.value]);
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorPrimary[d.value]);
+			} else {
+				d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorSecondary[d.value]);
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorSecondary[d.value]);
+			}
 		})
+
+		bubbles
 		.style('opacity', function(d,i){
 			d3.select(this).select('.outerCircle').style('stroke', function(){
 				var id = metadata.geo_array[i].id;
@@ -3450,12 +3706,6 @@ var Deepviz = function(sources, callback){
 			}
 		});
 
-		bubbles.select('.map-bubble-value')
-		.text(function(d,i){
-			return dataByLocationSum[i];
-		});
-
-		bubbles.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 		var map = document.getElementById("map");
 		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 	}
@@ -3525,7 +3775,7 @@ var Deepviz = function(sources, callback){
 				return d.total_entries;
 		});
 
-		d3.select('#total_entries').text(total);
+		d3.select('#total_entries').text(addCommas(total));
 	}
 
 	//**************************
@@ -3820,11 +4070,13 @@ var Deepviz = function(sources, callback){
 				});
 			}
 
+			
+
 			// severity median
+			s_total += -severity[0];
+			severity[0] = 0;
 			var s = 0;
 			var s_median = 0;
-			var t = 0;
-
 			severity.every(function(d,i){
 				s += severity[i];
 				if (s > s_total / 2){
@@ -3836,6 +4088,8 @@ var Deepviz = function(sources, callback){
 			});
 
 			// reliability median
+			r_total += -reliability[0];
+			reliability[0] = 0;
 			var r = 0;
 			var r_median = 0;
 			reliability.every(function(d,i){
@@ -3850,14 +4104,14 @@ var Deepviz = function(sources, callback){
 
 			var severityAverage = ( (1*severity[5]) + (2*severity[1]) + (3*severity[2]) + (4*severity[3]) + (5*severity[4]) ) / s_total;
 			d3.select('#severity_value').text(metadata.severity_units[(Math.round(severityAverage))] + ' ('+ severityAverage.toFixed(1) +')' )
-			d3.select('#severity_value').text(metadata.severity_units[s_median].name )
+			d3.select('#severity_value').text(metadata.severity_units[s_median].name ).style('color', colorPrimary[s_median]);
 			d3.select('#severityAvg').attr('x',function(d){
 				return scale.severity.x(s_median);
 			});
 
 			var reliabilityAverage = ( (1*reliability[5]) + (2*reliability[1]) + (3*reliability[2]) + (4*reliability[3]) + (5*reliability[4]) ) / r_total;
 			d3.select('#reliability_value').text(metadata.reliability_units[(Math.round(reliabilityAverage))] + ' ('+ reliabilityAverage.toFixed(1) +')' )
-			d3.select('#reliability_value').text(metadata.reliability_units[r_median].name )
+			d3.select('#reliability_value').text(metadata.reliability_units[r_median].name ).style('color', colorSecondary[r_median]);
 			d3.select('#reliabiltiyAvg').attr('x',function(d){
 				return scale.severity.x(r_median);
 			});
@@ -3911,7 +4165,7 @@ var Deepviz = function(sources, callback){
 	    // reset all bars to zero width
 	    d3.selectAll('.'+group+'-bar').attr('width', 0);
 		// reset all text labels to zero and hide
-		d3.selectAll('.'+group+'-label').text(0).style('opacity', 0);
+		d3.selectAll('.'+group+'-label').text('').style('opacity', 0);
 
 		labels.forEach(function(dd,ii){
 			d3.select('#'+group+dd.key+'label').text(dd.value).style('opacity', 1)
@@ -3982,11 +4236,29 @@ var Deepviz = function(sources, callback){
 	// update framework
 	//**************************
 	var updateFramework = function(){
-		var d = dataByFramework.filter(function(d){
-			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+		// entries by framework sector (non-unique to populate framework cells)
+		var entries = dataByFrameworkSector.filter(function(d){
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]))
 		});
 
-		d = d3.nest()
+		if(filters.frameworkToggle=='average'){
+			var nullEntries = entries.filter(function(d){
+				if(filters.toggle=='severity'){
+					return d.s==0;
+				} else {
+					return d.r==0
+				}
+			});
+			entries = entries.filter(function(d){
+				if(filters.toggle=='severity'){
+					return d.s>0;
+				} else {
+					return d.r>0;
+				}
+			});
+		} 
+
+		var d = d3.nest()
 		.key(function(d) { return d.framework; })
 		.key(function(d) { return d.sc; })
 		.rollup(function(leaves) { 
@@ -3996,7 +4268,35 @@ var Deepviz = function(sources, callback){
 				'total': leaves.length, 
 			}
 		})		
-		.entries(d);	
+		.entries(entries);	
+
+		// unique entries by framework
+		var frameworkEntries = dataByFramework.filter(function(d){
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+		});
+
+		var f = d3.nest()
+		.key(function(d) { return d.framework; })
+		.rollup(function(leaves) { 
+			return { 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(frameworkEntries);	
+
+		// unique entries by context
+		var contextEntries = dataByFrameworkContext.filter(function(d){
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+		});
+
+		var c = d3.nest()
+		.key(function(d) { return d.context; })
+		.rollup(function(leaves) { 
+			return { 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(contextEntries);	
 
 		if(filters.frameworkToggle == 'entries'){
 			maxCellSize = d3.max(d, function(dd){
@@ -4008,7 +4308,7 @@ var Deepviz = function(sources, callback){
 			.range([colorNeutral[0], colorNeutral[4]])
 			.interpolate(d3.interpolateHcl);
 			d3.selectAll('.f-val').text('').style('fill', colorNeutral[4]);
-		} else {
+		} else { // median
 			if(filters.toggle == 'severity'){
 				maxCellSize = 5;
 				d3.select('#toggle1').style('fill', colorPrimary[3]);
@@ -4024,12 +4324,35 @@ var Deepviz = function(sources, callback){
 		}
 
 		d3.selectAll('.cell').style('fill', '#FFF');
-		d3.selectAll('.framework-text').text(0).style('visibility', 'hidden').style('fill', '#000');
+		d3.selectAll('.framework-text').text('').style('visibility', 'hidden').style('fill', '#000');
+
+		// framework labels
 		d3.selectAll('.f-val').text('');
+		f.forEach(function(d,i){
+			d3.select('#f'+d.key+'-val').text(function(dd,ii){
+				return d.value.total;
+			})
+		});
+
+		// context labels
+		d3.selectAll('.context-val').text('');
+		c.forEach(function(d,i){
+			d3.select('#context-val-'+d.key).text(function(dd,ii){
+				return addCommas(d.value.total);
+			})
+		});
+
+		// color null cells without median
+		if(nullEntries){
+			nullEntries.forEach(function(d,i){
+				var id = 'f'+(d.framework-1)+'s'+(d.sc-1);
+				d3.select('#'+id +'rect').style('fill', function(d){ return colorNeutral[0]; }).style('opacity', 1);
+			});			
+		}
 
 		d.forEach(function(d,i){
 			var sum = d3.sum(d.values, function(d){ return d.value.total});
-			d3.select('#f'+d.key+'-val').text(sum);
+			d.total = sum;
 			var f = d.key;
 			d.values.forEach(function(dd,ii){
 				var s = dd.key;
@@ -4039,9 +4362,9 @@ var Deepviz = function(sources, callback){
 					var v = dd.value.total;
 				} else {
 					if(filters.toggle=='severity'){
-						var v = dd.value.median_s.toFixed(1);
+						var v = dd.value.median_s.toFixed(0);
 					} else {
-						var v = dd.value.median_r.toFixed(1);
+						var v = dd.value.median_r.toFixed(0);
 					}
 				}
 				// set cell colour
@@ -4076,8 +4399,8 @@ var Deepviz = function(sources, callback){
 			d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
 			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
 			d3.select('.selection').style('fill', colorNeutral[3]);
-			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
-			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+			// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+			// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 			if(filters.frameworkToggle == 'average'){
 				d3.select('#framework-toggle').style('fill', colorSecondary[3])
 			}
@@ -4085,7 +4408,7 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
 			d3.select('#dateRange').style('color', colorNeutral[4]);
 			d3.select('#avg-line').style('stroke', colorSecondary[3]);
-			d3.select('#framework-toggle-text tspan').text('median reliability');
+			d3.select('#framework-toggle-text').text('median reliability');
 		} else {
 			// switch to Severity
 			d3.select('#reliabilityToggle').style('opacity', 0);
@@ -4101,13 +4424,13 @@ var Deepviz = function(sources, callback){
 			d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
 			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
 			d3.select('.selection').style('fill', colorNeutral[3]);
-			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
-			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+			// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+			// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 			// update colors of contextual row total values
 			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
 			d3.select('#dateRange').style('color', colorNeutral[4]);
 			d3.select('#avg-line').style('stroke', colorPrimary[3]);
-			d3.select('#framework-toggle-text tspan').text('median severity');
+			d3.select('#framework-toggle-text').text('median severity');
 		}
 		updateTimeline();
 	}
@@ -4235,4 +4558,17 @@ var Deepviz = function(sources, callback){
 		return dateTo.getMonth() - dateFrom.getMonth() + 
 		(12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
 	}
+
+	function addCommas(nStr){
+		nStr += '';
+		x = nStr.split('.');
+		x1 = x[0];
+		x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
+	}
+
 }
