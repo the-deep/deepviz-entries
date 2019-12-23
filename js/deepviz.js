@@ -22,6 +22,8 @@ var Deepviz = function(sources, callback){
 		'reliability': {x: '', y: ''}
 	};
 
+	var labelCharLimit = 60;
+
 	var mapbox;
 	var lassoActive = false;
 	// data related
@@ -85,8 +87,8 @@ var Deepviz = function(sources, callback){
 		sector: [],
 		severity: [],
 		reliability: [],
-		affectedGroups: [],
-		specificNeeds: [],
+		affected_groups: [],
+		specific_needs: [],
 		context: [],
 		geo: [],
 		toggle: 'severity',
@@ -120,9 +122,12 @@ var Deepviz = function(sources, callback){
 	var promises = [];
 	files.forEach(function(url) {
         // Error handle for invalid URL
-        parsed_url = new URL(url);
-        pathname = parsed_url.pathname;
-
+        if(url.startsWith('http')){
+			parsed_url = new URL(url);
+	        pathname = parsed_url.pathname;
+        } else {
+        	pathname = url;
+        }
 		if(pathname.endsWith('json')){
 			promises.push(d3.json(url));			
 		};
@@ -307,9 +312,8 @@ var Deepviz = function(sources, callback){
 				if(d._severity===null){
 					d.severity = 0;
 				}
-
-
 			});
+			
 			// parse reliability id
 			d._reliability = d.reliability;
 			metadata.reliability_units.forEach(function(ddd,ii){
@@ -484,7 +488,7 @@ var Deepviz = function(sources, callback){
 				var f = dd[1];
 				var s = dd[2];
 				// data by sector (non-unique) for framework cells
-				dataByFrameworkSector.push({"date": d.date, "context": c, "framework": f, "sc": s, 's': d.severity, 'r': d.reliability});
+				dataByFrameworkSector.push({"date": d.date, "context": c, "framework": f, "sector": s, 's': d.severity, 'r': d.reliability});
 				// unique entries by framework
 				var frameworkRow = {"date": d.date, "context": c, "framework": f, 's': d.severity, 'r': d.reliability};
 				if(!frameworks.includes(f)){
@@ -498,7 +502,7 @@ var Deepviz = function(sources, callback){
 					contexts.push(c);
 				}
 				// unique entries by sector
-				var sectorRow = {"date": d.date, "sc": s, 's': d.severity, 'r': d.reliability};
+				var sectorRow = {"date": d.date, "sector": s, 's': d.severity, 'r': d.reliability};
 				if(!sectors.includes(s)){
 					dataBySector.push(sectorRow);
 					sectors.push(s);
@@ -514,11 +518,11 @@ var Deepviz = function(sources, callback){
 			});
 
 			d.special_needs.forEach(function(dd,ii){
-				dataBySpecificNeeds.push({"date": d.date, "sn": dd, 's': d.severity, 'r': d.reliability})
+				dataBySpecificNeeds.push({"date": d.date, "specific_needs": dd, 's': d.severity, 'r': d.reliability})
 			});
 
 			d.affected_groups.forEach(function(dd,ii){
-				dataByAffectedGroups.push({"date": d.date, "ag": dd, 's': d.severity, 'r': d.reliability})
+				dataByAffectedGroups.push({"date": d.date, "affected_groups": dd, 's': d.severity, 'r': d.reliability})
 			});
 
 		});
@@ -672,9 +676,9 @@ var Deepviz = function(sources, callback){
 
 		updateFramework();
 		updateTotals();
-		updateStackedBars('ag', dataByAffectedGroups);
-		updateStackedBars('sn', dataBySpecificNeeds);
-		updateStackedBars('sc', dataBySector);
+		updateStackedBars('affected_groups', dataByAffectedGroups);
+		updateStackedBars('specific_needs', dataBySpecificNeeds);
+		updateStackedBars('sector', dataBySector);
 		return dataByDate;
 
 	}
@@ -1138,6 +1142,8 @@ var Deepviz = function(sources, callback){
 			return d.date;
 		}));
 
+		var maxEntriesDate = maxDate;
+
 		var today = new Date();
 		if(maxDate<today){
 			maxDate = today;
@@ -1158,7 +1164,7 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='d'){
 				maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 				minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-				dateRange[0] = new Date(maxDate.getFullYear(), maxDate.getMonth()-1, 1);
+				dateRange[0] = new Date(maxEntriesDate.getFullYear(), maxEntriesDate.getMonth()-1, 1);
 				dateRange[1] = maxDate;
 			}	
 			timechartInit=1;
@@ -1594,6 +1600,15 @@ var Deepviz = function(sources, callback){
 
 		var contextualRowsHeight = timechartSvgHeight - timechartHeightOriginal - yPadding - 36;
 
+		var title = contextualRows.append('text')
+		.text('CONTEXT')
+		.attr('transform', 'rotate(270)')
+		.attr('x', -contextualRowsHeight/2 - 20)
+		.attr('y', -20)
+		.style('font-size', '23px')
+		.style('font-weight', '300')
+		.style('fill', '#CCCCCC');
+
 		contextualRows.append('rect')
 		.attr('height', contextualRowsHeight)
 		.attr('width', 1240)
@@ -1807,20 +1822,117 @@ var Deepviz = function(sources, callback){
 	    	dateRange[1] = moment(dateRange[1].setDate(dateRange[1].getDate())).add(1, 'day');
 	    	gBrush.call(brush.move, dateRange.map(scale.timechart.x));
 
+		    update();
+
+		});
+
+		 // keyboard pagination
+		var k = 0;
+		document.body.onkeyup = function(e){
+
+			var unit = 'day';
+			if(filters.time=='m') unit = 'month';
+			if(filters.time=='y') unit = 'year';
+
+		     if(e.keyCode == 37){ // arrow left
+	        	if(dateRange[0]>minDate){
+	        		if(e.shiftKey){
+	        			var d = new Date(moment(dateRange[1]).subtract(1, unit));
+	        			if(d>dateRange[0]){
+				        	dateRange[1] = d;
+				        }
+			        } else {
+			        	dateRange[0] = new Date(moment(dateRange[0]).subtract(1, unit));
+			        	dateRange[1] = new Date(moment(dateRange[1]).subtract(1, unit));
+			        }
+			    	gBrush.call(brush.move, dateRange.map(scale.timechart.x));	
+			    	update();	        		
+	        	}
+		    }
+
+		    if(e.keyCode == 39){ // arrow right
+	        	if(dateRange[1]<maxDate){
+	        		if(e.shiftKey){
+			        	dateRange[1] = new Date(moment(dateRange[1]).add(1, unit));
+	        		} else {
+	        			dateRange[0] = new Date(moment(dateRange[0]).add(1, unit));
+			        	dateRange[1] = new Date(moment(dateRange[1]).add(1, unit));
+	        		}
+			    	gBrush.call(brush.move, dateRange.map(scale.timechart.x));	
+			    	update();	
+	        	}
+		    }
+
+		    if(e.keyCode == 77){ // M
+		    	dateKey('m');
+		    }
+
+		    if(e.keyCode == 68){ // D
+		    	dateKey('d');
+		    }
+
+		    if(e.keyCode == 89){ // Y
+		    	dateKey('y');
+		    }
+
+		    if(e.keyCode == 67){ // C
+		    	filter('clear', 'clear');
+		    }
+
+		    if(e.keyCode == 8){ // BACKSPACE
+		    	filter('clear', 'clear');
+		    }
+
+		    if(e.keyCode == 27){ // ESC
+		    	filter('clear', 'clear');
+		    }
+
+		    if(e.keyCode == 49){ // 1
+		    	filter(filters.toggle, 1);
+		    }
+
+		    if(e.keyCode == 50){ // 2
+		    	filter(filters.toggle, 2);
+		    }
+
+		    if(e.keyCode == 51){ // 3
+		    	filter(filters.toggle, 3);
+		    }
+
+		    if(e.keyCode == 52){ // 4
+		    	filter(filters.toggle, 4);
+		    }
+
+		    if(e.keyCode == 53){ // 5
+		    	filter(filters.toggle, 5);
+		    }
+
+		    function dateKey(v){
+				if(v!=filters.time){
+					filters.time = v;
+					redrawTimeline();
+				}
+				d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
+				d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+		    }
+
+		}
+
+	    function update(){
 	    	colorBars();
 	    	updateDate();
 	    	updateSeverityReliability('brush', 500);
 	    	updateBubbles();
 	    	updateFramework();
-	    	updateStackedBars('ag', dataByAffectedGroups);
-	    	updateStackedBars('sn', dataBySpecificNeeds);
-	    	updateStackedBars('sc', dataBySector);
+	    	updateStackedBars('affected_groups', dataByAffectedGroups);
+	    	updateStackedBars('specific_needs', dataBySpecificNeeds);
+	    	updateStackedBars('sector', dataBySector);
 
 	    	handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 	    	handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + (timechartSvgHeight - margin.top) + ")"; });
 
 	    	updateTotals();
-	    });
+	    }
 
 	    // programattically set date range
 	    gBrush.call(brush.move, dateRange.map(scale.timechart.x));
@@ -1890,9 +2002,9 @@ var Deepviz = function(sources, callback){
 			updateSeverityReliability('brush');
 			updateBubbles();
 			updateFramework();
-			updateStackedBars('ag', dataByAffectedGroups);
-			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataBySector);
+			updateStackedBars('affected_groups', dataByAffectedGroups);
+			updateStackedBars('specific_needs', dataBySpecificNeeds);
+			updateStackedBars('sector', dataBySector);
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
@@ -1944,9 +2056,9 @@ var Deepviz = function(sources, callback){
 			updateSeverityReliability('brush',500);
 			updateBubbles();
 			updateFramework();
-			updateStackedBars('ag', dataByAffectedGroups);
-			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataBySector);
+			updateStackedBars('affected_groups', dataByAffectedGroups);
+			updateStackedBars('specific_needs', dataBySpecificNeeds);
+			updateStackedBars('sector', dataBySector);
 
 			d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
@@ -1968,9 +2080,9 @@ var Deepviz = function(sources, callback){
 		updateBubbles();
 		updateFramework();
 		updateTotals();
-		updateStackedBars('ag', dataByAffectedGroups);
-		updateStackedBars('sn', dataBySpecificNeeds);
-		updateStackedBars('sc', dataBySector);
+		updateStackedBars('affected_groups', dataByAffectedGroups);
+		updateStackedBars('specific_needs', dataBySpecificNeeds);
+		updateStackedBars('sector', dataBySector);
 
 		return bars;
 	}
@@ -2157,16 +2269,16 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 			d3.selectAll('.col-header-text').style('opacity', 1);	
 			d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
-			d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#sectorRemoveFilter').style('display', 'none').style('cursor', 'default');
 			d3.selectAll('.sector-icon').style('opacity', 0.3);
 		});
 
-		d3.select('#scRemoveFilter').on('click', function(d,i){
+		d3.select('#sectorRemoveFilter').on('click', function(d,i){
 			filter('sector', 'clear');
 			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 			d3.selectAll('.col-header-text').style('opacity', 1);	
 			d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
-			d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#sectorRemoveFilter').style('display', 'none').style('cursor', 'default');
 			d3.selectAll('.sector-icon').style('opacity', 0.3);
 		});
 
@@ -2545,12 +2657,18 @@ var Deepviz = function(sources, callback){
 		var svg = this.createSvg({
 			id: a.div+'-svg',
 			viewBoxWidth: a.width,
-			viewBoxHeight: stackedBarHeight,
+			viewBoxHeight: a.height,
 			div: '#'+a.div,
 			width: '100%'
 		});
 
-		var height = stackedBarHeight - padding.top;
+		a.rows = metadata[a.rows];
+
+		if(a.classname=='organisation'){
+			a.rows = a.rows.splice(0,10);
+		}
+
+		var height = a.height - padding.top;
 		var rowHeight = height/a.rows.length;
 
 		// add title
@@ -2581,7 +2699,7 @@ var Deepviz = function(sources, callback){
 		.data(a.rows)
 		.enter()
 		.append('g')
-		.attr('class', 'stacked-bar-row')
+		.attr('class', 'stacked-bar-row '+a.classname+'-row')
 		.attr('transform', function(d,i){
 			return 'translate(0,' + ((i*rowHeight) + padding.top) + ')';
 		});
@@ -2591,14 +2709,16 @@ var Deepviz = function(sources, callback){
 		.attr('class', function(d,i){ return a.classname + ' ' + a.classname+'-'+i })
 		.style('alignment-baseline', 'middle')
 		.text(function(d,i){
-			return d.name;
+			var name = d.name.substr(0,labelCharLimit-7);
+			if(name.length==labelCharLimit-7) name += '.';
+			return name;
 		}).style('text-anchor', 'end');
 
 		var labelWidth = chartarea.node().getBBox().width + padding.left;
 		label.attr('x', labelWidth-20);
 		labelWidth = labelWidth + 16;
 
-		if(a.classname == 'sc'){
+		if(a.classname == 'sector'){
 			var icon = rows.append('image')
 			.attr('class', function(d,i){
 				return 'sector-icon sector-icon-'+d.id;
@@ -2613,11 +2733,6 @@ var Deepviz = function(sources, callback){
 
 			labelWidth = labelWidth + 30;
 		}
-
-		title.attr('transform', function(d,i){
-			var offset = d3.select(this).node().getBBox().width +35;
-			return 'translate('+(labelWidth-offset)+',0)';
-		})
 
 		var width = a.width - labelWidth - padding.right; 
 
@@ -2639,14 +2754,8 @@ var Deepviz = function(sources, callback){
 			d3.select(this).style('opacity', 0)
 		})
 		.on('click', function(d,i){
-			if(a.classname=='sc'){
+			if(a.classname=='sector'){
 				return filter('sector',i+1);
-			}
-			if(a.classname=='ag'){
-				return filter ('affectedGroups', i+1);
-			}
-			if(a.classname=='sn'){
-				return filter ('specificNeeds', i+1);
 			}
 		});
 
@@ -2672,6 +2781,7 @@ var Deepviz = function(sources, callback){
 			.attr('data-width', width)
 			.attr('data-id', s)
 			.attr('data-percent', 0)
+			.style('outline', 'none')
 			.attr('y', padding.bar.y)
 			.attr('height', rowHeight-(padding.bar.y*2))
 			.style('fill', colorPrimary[s])
@@ -2699,6 +2809,8 @@ var Deepviz = function(sources, callback){
 		.style('font-weight', 'bold')
 		.style('font-size', '16px');
 
+		d3.select('#'+a.classname+'RemoveFilter').on('click', function(){ filter(a.filter, 'clear'); });
+
 	}
 
 	//**************************
@@ -2708,9 +2820,11 @@ var Deepviz = function(sources, callback){
 
 		var sectorChart = this.createStackedBarChart({
 			title: 'SECTOR',
-			rows: metadata.sector_array,
+			rows: 'sector_array',
 			width: 700,
-			classname: 'sc',
+			height: 420,
+			filter: 'sector',
+			classname: 'sector',
 			div: 'sector-svg'
 		});
 
@@ -2723,12 +2837,14 @@ var Deepviz = function(sources, callback){
 
 		var specificNeedsChart = this.createStackedBarChart({
 			title: 'SPECIFIC NEEDS GROUPS',
-			rows: metadata.specific_needs_groups_array,
-			classname: 'sn',
+			rows: 'specific_needs_groups_array',
+			classname: 'specific_needs',
 			width: 700,
+			height: 420,
+			filter: 'specific_needs',
 			div: 'specific-needs-svg'
 		});
-		d3.select('#snRemoveFilter').on('click', function(){ filter('specificNeeds', 'clear'); });
+		d3.select('#specific_needsRemoveFilter').on('click', function(){ filter('specific_needs', 'clear'); });
 
 	}
 
@@ -2739,12 +2855,14 @@ var Deepviz = function(sources, callback){
 
 		var affectedGroupsChart = this.createStackedBarChart({
 			title: 'AFFECTED GROUPS',
-			rows: metadata.affected_groups_array,
-			classname: 'ag',
+			rows: 'affected_groups_array',
+			classname: 'affected_groups',
 			width: 700,
+			height: 420,
+			filter: 'affected_groups',
 			div: 'affected-groups-svg'
 		});
-		d3.select('#agRemoveFilter').on('click', function(){ filter('affectedGroups', 'clear'); });
+		d3.select('#affected_groupsRemoveFilter').on('click', function(){ filter('affected_groups', 'clear'); });
 	}
 
 	//**************************
@@ -3127,22 +3245,22 @@ var Deepviz = function(sources, callback){
 			filters.severity = [];
 			filters.context = [];
 			filters.reliability = [];
-			filters.affectedGroups = [];
-			filters.specificNeeds = [];
+			filters.affected_groups = [];
+			filters.specific_needs = [];
 			filters.geo = [];
 		}
 
 		d3.selectAll('.sector-icon').style('opacity', 0.3);
-		d3.selectAll('.sc').style('opacity', 1);
+		d3.selectAll('.sector').style('opacity', 1);
 		d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 		d3.selectAll('.col-header-text').style('opacity', 1);	
 		d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
-		d3.select('#scRemoveFilter').style('display', 'none').style('cursor', 'default');
+		d3.select('#sectorRemoveFilter').style('display', 'none').style('cursor', 'default');
 
-		d3.selectAll('.sn').style('opacity', 1);
-		d3.selectAll('.ag').style('opacity', 1);
-		d3.select('#snRemoveFilter').style('display', 'none').style('cursor', 'default');
-		d3.select('#agRemoveFilter').style('display', 'none').style('cursor', 'default');
+		d3.selectAll('.specifc_needs').style('opacity', 1);
+		d3.selectAll('.affected_groups').style('opacity', 1);
+		d3.select('#specific_needsRemoveFilter').style('display', 'none').style('cursor', 'default');
+		d3.select('#affected_groupsRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 		// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
 		// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
@@ -3156,7 +3274,7 @@ var Deepviz = function(sources, callback){
 		  addOrRemove(filters[filterClass], value);		
 		}
 
-		if((filters['severity'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specificNeeds'].length>0)||(filters['affectedGroups'].length>0)){
+		if((filters['severity'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specific_needs'].length>0)||(filters['affected_groups'].length>0)){
 			d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		} else { 
 			d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
@@ -3268,46 +3386,46 @@ var Deepviz = function(sources, callback){
 				// return filters['sector'].includes(d['sector'][2]);
 			});
 			// bar/text shading
-			d3.selectAll('.sc').style('opacity', 0.2);
-			d3.selectAll('.sc-bg').style('opacity', 0);
+			d3.selectAll('.sector').style('opacity', 0.2);
+			d3.selectAll('.sector-bg').style('opacity', 0);
 			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
 			d3.selectAll('.col-header-text').style('opacity', 0.3);	
 			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-			d3.select('#scRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			d3.select('#sectorRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 			filters.sector.forEach(function(d,i){
-				d3.selectAll('.sc-'+(d-1)).style('opacity', 1);
-				d3.selectAll('.sc-bg-'+(d-1)).style('opacity', 0);
+				d3.selectAll('.sector-'+(d-1)).style('opacity', 1);
+				d3.selectAll('.sector-bg-'+(d-1)).style('opacity', 0);
 				d3.select('#col-header-bg-'+(d)).style('opacity', .1)
 				d3.selectAll('.sector-icon-'+(d)).style('opacity', 1)
 				d3.select('#col-header-'+(d) + ' .col-header-text' ).style('opacity', 1)
 			});
 		} 
 
-		if(filters['affectedGroups'].length>0){
+		if(filters['affected_groups'].length>0){
 			data = data.filter(function(d){
-				return d['affected_groups'].some(r=> filters['affectedGroups'].indexOf(r) >= 0);
+				return d['affected_groups'].some(r=> filters['affected_groups'].indexOf(r) >= 0);
 			});
 			// bar/text shading
-			d3.selectAll('.ag').style('opacity', 0.2);
-			d3.selectAll('.ag-bg').style('opacity', 0);
-			filters.affectedGroups.forEach(function(d,i){
-				d3.selectAll('.ag-'+(d-1)).style('opacity', 1);
+			d3.selectAll('.affected_groups').style('opacity', 0.2);
+			d3.selectAll('.affected_groups-bg').style('opacity', 0);
+			filters.affected_groups.forEach(function(d,i){
+				d3.selectAll('.affected_groups-'+(d-1)).style('opacity', 1);
 			});
 
-			d3.select('#agRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			d3.select('#affected_groupsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
-		if(filters['specificNeeds'].length>0){
+		if(filters['specific_needs'].length>0){
 			data = data.filter(function(d){
-				return d['special_needs'].some(r=> filters['specificNeeds'].indexOf(r) >= 0);
+				return d['special_needs'].some(r=> filters['specific_needs'].indexOf(r) >= 0);
 			});
 			// bar/text shading
-			d3.selectAll('.sn').style('opacity', 0.2);
-			d3.selectAll('.sn-bg').style('opacity', 0);
-			filters.specificNeeds.forEach(function(d,i){
-				d3.selectAll('.sn-'+(d-1)).style('opacity', 1);
+			d3.selectAll('.specifc_needs').style('opacity', 0.2);
+			d3.selectAll('.specifc_needs-bg').style('opacity', 0);
+			filters.specific_needs.forEach(function(d,i){
+				d3.selectAll('.specifc_needs-'+(d-1)).style('opacity', 1);
 			});
-			d3.select('#snRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			d3.select('#specific_needsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 		updateTimeline(filterClass);
 		d3.select('#globalRemoveFilter').on('click', function(){ filter('clear', 'clear'); });
@@ -3414,9 +3532,9 @@ var Deepviz = function(sources, callback){
 			updateBubbles();
 			updateFramework();
 			updateTotals();
-			updateStackedBars('ag', dataByAffectedGroups);
-			updateStackedBars('sn', dataBySpecificNeeds);
-			updateStackedBars('sc', dataBySector);
+			updateStackedBars('affected_groups', dataByAffectedGroups);
+			updateStackedBars('specific_needs', dataBySpecificNeeds);
+			updateStackedBars('sector', dataBySector);
 		});
 	}
 
@@ -3981,7 +4099,7 @@ var Deepviz = function(sources, callback){
 				reliabilityRolling[i] = reliabilityCount;
 			}
 
-			if((target=='reliability')||(target=='init')||(target=='context')||(target=='geo')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
+			if((target=='reliability')||(target=='init')||(target=='context')||(target=='geo')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
 				d3.selectAll('.severityBar')
 				.transition()
 				.duration(duration)
@@ -4030,7 +4148,7 @@ var Deepviz = function(sources, callback){
 				});				
 			};
 
-			if((target=='severity')||(target=='init')||(target=='geo')||(target=='context')||(target=='specificNeeds')||(target=='affectedGroups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
+			if((target=='severity')||(target=='init')||(target=='geo')||(target=='context')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', 1)
 				.transition()
@@ -4135,28 +4253,72 @@ var Deepviz = function(sources, callback){
 	//**************************
 	var updateStackedBars = function(group, dataset, duration = 0){
 
+		var sort = true;
+
+		var data_group = group;
+		if(data_group=='organisation') data_group = 'organization';
+		if(data_group=='sector') data_group = 'sector_array';
+		if(data_group=='affected_groups') data_group = 'affected_groups_array';
+		if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
+		if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
+		if(data_group=='unit_of_analysis') data_group = 'type_of_unit_of_analysis';
+
 		// affected groups
 		var dat = dataset.filter(function(d){
 			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 		});
 
-		var d = d3.nest()
+		var nest = d3.nest()
 		.key(function(d) { return d[group]; })
-		// .rollup(function(leaves) { return leaves.length; })		
 		.key(function(d) { if(filters.toggle == 'severity'){ return d.s; } else { return d.r } }).sortKeys(d3.ascending)
 		.rollup(function(leaves) { return leaves.length; })		
 		.entries(dat);	
 
-		var labels = d3.nest().key(function(d) {
-			return d[group];
-		}).sortKeys(d3.ascending)
-		.rollup(function(leaves) {
-			return d3.sum(leaves, function(d) {
-				return 1;
-			});
-		}).entries(dat);
+		nest.forEach(function(d,i){
+			d.value = d3.sum(d.values, function(d){
+				return d.value;
+			})
+		});
 
-		var rowMax = d3.max(labels, function(d,i){
+		if(sort==true){
+			nest = nest.sort(function(x,y){
+				return d3.ascending(y.value, x.value);
+			});
+		}
+
+		if(group=='organisation'){
+			nest = nest.splice(0,10);
+		}
+
+		var d = [];
+
+		metadata[data_group].forEach(function(mt,ii){
+			var name = mt.name.substr(0,labelCharLimit-7);
+			if(name.length==labelCharLimit-7) name += '.';
+			var key = mt.id;
+			var value = 0;
+			var values = [];
+			nest.forEach(function(dd,ii){
+
+				if(mt.id==dd.key){
+					value = dd.value;
+					values = dd.values;
+				}
+			});
+			d.push({'key': key, 'value': value, 'values': values, 'name': name});
+		});
+
+		if(sort==true){
+			d = d.sort(function(x,y){
+				return d3.ascending(y.value, x.value);
+			});
+		}
+
+		if(group=='organisation'){
+			d = d.splice(0,10);
+		}
+
+		var rowMax = d3.max(d, function(d,i){
 			return d.value
 		});
 
@@ -4164,28 +4326,59 @@ var Deepviz = function(sources, callback){
 
 	    // reset all bars to zero width
 	    d3.selectAll('.'+group+'-bar').attr('width', 0);
-		// reset all text labels to zero and hide
-		d3.selectAll('.'+group+'-label').text('').style('opacity', 0);
 
-		labels.forEach(function(dd,ii){
-			d3.select('#'+group+dd.key+'label').text(dd.value).style('opacity', 1)
-			.style('fill', function(){
-				if(filters.toggle == 'severity'){
-					return colorNeutral[4];
-				} else {
-					return colorNeutral[4];
-				}
-			});
-			var row = dd.key;
+		var rows = d3.selectAll('.'+group+'-row')
+		.data(d)
+		.attr('class', function(d,i){
+			return 'bar-row '+group+'-row '+group+'-bar-row'+d.key;
+		});
+
+		var labels =d3.selectAll('text.'+group)
+		.data(d)
+		.text(function(d,ii){
+			return d.name;
+		})
+		.attr('class', function(d,i){
+			return group + ' ' +group +'-'+d.key;``
+		})
+		.style('opacity', 1);
+
+		d3.selectAll('.'+group+'-bg')
+		.data(d)
+		.attr('class', function(d,i) { 
+			return group+'-bg ' + group + '-bg-'+d.key;
+		}).on('click', function(d,i){
+			return filter (group, d.key);
 		});
 
 		d.forEach(function(d,i){
 			var key = d.key;
 			var wcount = scale[group].paddingLeft;
 			var xcount = scale[group].paddingLeft;
+			var value = d.value; 
+			var name = d.name;
+
+			d3.select('#'+group+(i+1)+'label').text(function(d,i){
+				if(value>0){ return value; } else { return ''};
+			});
+
+			if(group=='sector'){
+				d3.select('.'+group+'-icon-'+(i+1))
+				.attr('href', function(d,i){
+					return 'images/sector-icons/'+name.toLowerCase()+'.svg'
+				})
+				.style('opacity', function(d,i){
+					if(filters['sector'].includes(key)){
+						return 1;
+					} else {
+						return 0.2;
+					}
+				})				
+			}
+
 			d.values.forEach(function(dd,ii){
 				var s = dd.key;
-				var id = group+(key)+'s'+(s);
+				var id = group+(i+1)+'s'+(s);
 				var w = scale[group].x(dd.value)-wcount;
 				d3.select('#'+id )
 				.attr('x', xcount)
@@ -4218,6 +4411,14 @@ var Deepviz = function(sources, callback){
 				});
 				xcount = xcount + w;
 			});
+		});
+
+		if(filters[group].length>0){
+			d3.selectAll('.'+group).style('opacity', 0.2);
+			d3.selectAll('.'+group+'-bg').style('opacity', 0);
+		}
+		filters[group].forEach(function(d,i){
+			d3.selectAll('.'+group+'-'+(d)).style('opacity', 1);
 		});
 	}
 
@@ -4260,7 +4461,7 @@ var Deepviz = function(sources, callback){
 
 		var d = d3.nest()
 		.key(function(d) { return d.framework; })
-		.key(function(d) { return d.sc; })
+		.key(function(d) { return d.sector; })
 		.rollup(function(leaves) { 
 			return { 
 				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
@@ -4345,7 +4546,7 @@ var Deepviz = function(sources, callback){
 		// color null cells without median
 		if(nullEntries){
 			nullEntries.forEach(function(d,i){
-				var id = 'f'+(d.framework-1)+'s'+(d.sc-1);
+				var id = 'f'+(d.framework-1)+'s'+(d.sector-1);
 				d3.select('#'+id +'rect').style('fill', function(d){ return colorNeutral[0]; }).style('opacity', 1);
 			});			
 		}

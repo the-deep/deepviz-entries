@@ -965,9 +965,9 @@ font-size: 15px;
 
 #lasso {
 	position: absolute;
-    top: 5px;
+    top: 73px;
     display: inline;
-    right: 5px;
+    left: 5px;
     z-index: 2;
     cursor: pointer;
 }
