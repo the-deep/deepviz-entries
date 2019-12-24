@@ -686,6 +686,11 @@ font-size: 15px;
 	outline: none;
 }
 
+.polygon {
+	cursor: pointer;
+	outline: none;
+}
+
 .reliabilityBar,
 .top-bar {
 	cursor: pointer;
@@ -981,5 +986,37 @@ font-size: 15px;
 }
 
 #lasso-selected {
+	display: none;
+}
+
+#adm-toggle {
+	position: absolute;
+    top: 7px;
+    display: inline;
+    right: 5px;
+    z-index: 2;
+    zoom: 0.6;
+}
+
+#adm-toggle g {
+	cursor: pointer;
+}
+
+#adm1,
+#adm2,
+#adm3 {
+    cursor: pointer;
+}
+
+#map-toggle {
+	position: absolute;
+    top: 99px;
+    display: inline;
+    left: 5px;
+    z-index: 2;
+    cursor: pointer;
+}
+
+#map-toggle-choropleth {
 	display: none;
 }

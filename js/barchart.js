@@ -290,12 +290,15 @@ BarChart.createStackedBarChart = function(a){
 		.attr('data-id', s)
 		.attr('data-percent', 0)
 		.style('outline', 'none')
+		.style('cursor', 'pointer')
 		.attr('y', padding.bar.y)
 		.attr('height', rowHeight-(padding.bar.y*2))
 		.style('fill', colorPrimary[s])
 		.on('click', function(d,i){
 			var val = parseInt(d3.select(this).attr('data-id'));
-			if((filters.toggle=='severity')||(filters.toggle=='finalScore')){
+			if(filters.toggle=='finalScore'){
+				Deepviz.filter('finalScore',val);
+			} else if(filters.toggle=='severity'){
 				Deepviz.filter('severity',val);
 			} else {
 				Deepviz.filter('reliability',val);
@@ -694,5 +697,5 @@ var setBarName = function(s,v){
 		var color = colorSecondary[s];
 		var text = metadata.reliability_units[s].name;
 	}
-	return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + v + ' entries</div>';
+	return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + v + ' '+textLabel+'</div>';
 }

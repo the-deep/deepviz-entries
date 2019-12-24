@@ -21,9 +21,12 @@ var scale = {
 };
 
 var labelCharLimit = 60;
+var textLabel = 'Entries';
 
 var mapbox;
+var mapboxToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA';
 var lassoActive = false;
+var mapToggle = 'bubbles';
 // data related
 var originalData; // full original dataset without filters (used to refresh/clear filters)
 var data; // active dataset after filters applied
@@ -77,6 +80,7 @@ var curvedLine = d3.line()
 
 // map
 var maxMapBubbleValue;
+var maxMapPolygonValue;
 var mapAspectRatio = 1.283;
 var geoBounds = {'lat': [], 'lon': []};
 
@@ -90,6 +94,7 @@ var filters = {
 	context: [],
 	geo: [],
 	toggle: 'severity',
+	admin_level: 1,
 	frameworkToggle: 'entries',
 	time: 'd'
 };
@@ -217,10 +222,31 @@ var Deepviz = function(sources, callback){
 		   return d3.ascending(x.name, y.name);
 		});
 
+		metadata.geo_json = {"type": "FeatureCollection", "features": []};
+
 		metadata.geo_array.forEach(function(d,i){
 			d._id = d.id;
 			d.id = i+1;
+			var polygons = d.polygons;
+			polygons.coordinates = polygons.coordinates;
+			var feature = {'type':'Feature', 'properties':{'name': d.name, 'id': d.id, 'admin_level': d.admin_level}, 'geometry': polygons }
+			metadata.geo_json.features[i] = feature;
 		});
+
+		metadata.geo_json.features.forEach(function(feature) {
+		   if(feature.geometry.type == "MultiPolygon") {
+		     feature.geometry.coordinates.forEach(function(polygon) {
+		       polygon.forEach(function(ring) {
+		         ring.reverse();
+		       })
+		     })
+		   }
+		   else if (feature.geometry.type == "Polygon") {
+		     feature.geometry.coordinates.forEach(function(ring) {
+		       ring.reverse();
+		     })  
+		   }
+		 });
 
 		metadata.severity_units.unshift({
 			"id": 6,
@@ -732,386 +758,6 @@ var Deepviz = function(sources, callback){
 	};
 
 	//**************************
-	// create map
-	//**************************
-	this.createMap = function(){
-
-		// set map height
-		var map = document.getElementById("map");
-
-		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
-
-		mapboxgl.accessToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA'
-
-		// no data fallback
-		if(data.length==0) return false; 
-
-		var bounds = new mapboxgl.LngLatBounds([d3.min(geoBounds.lat),d3.min(geoBounds.lon)], [d3.max(geoBounds.lat),d3.max(geoBounds.lon)] );
-
-	    //Setup mapbox-gl map
-	    var map = new mapboxgl.Map({
-	        container: 'map', // container id
-	        style: 'mapbox://styles/mapbox/light-v9',
-	        center: [d3.mean(geoBounds.lat), d3.mean(geoBounds.lon)],
-	        zoom: 4,  
-	        trackResize: true,
-	        pitchWithRotate: false,
-	        doubleClickZoom: true,
-	        dragRotate: false
-	    });
-
-	    mapbox = map;
-	    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
-	    map.scrollZoom.disable();
-	    map.fitBounds(bounds, {
-	    	padding: 20
-	    });
-
-	    var container = map.getCanvasContainer()
-
-	    var mapsvg = d3.select(container).append("svg")
-	    .attr('id','map-bubble-svg')
-	    .style('position', 'absolute')
-	    .style('width', '100%')
-	    .style('height', '100%');
-
-	    var transform = d3.geoTransform({point: projectPoint});
-	    var path = d3.geoPath().projection(transform);
-
-	    var gd = dataByDate.filter(function(d){
-	    	return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
-	    });
-
-	    var dataByLocationSum = [];
-
-	    for(var g=0; g < metadata.geo_array.length; g++) {
-	    	dataByLocationSum[g] = 0;
-	    }
-
-	    gd.forEach(function(d,i){
-	    	for(var g=0; g < metadata.geo_array.length; g++) {
-	    		if(d.geo[g]>0){
-	    			var t = (dataByLocationSum[g]) + (d.geo[g]);
-	    			if(metadata.geo_array[g].admin_level!=0){
-		    			dataByLocationSum[g] = t;
-	    			} else {
-		    			dataByLocationSum[g] = 0;
-	    			}
-	    		}
-	    	}
-	    });
-
-	    maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
-	    	return d;
-	    });
-
-	    scale.map = d3.scaleLinear()
-	    .range([0.2,1])
-		.domain([0,maxMapBubbleValue]);
-
-		var featureElement = mapsvg.selectAll("g")
-		.data(dataByLocationSum)
-		.enter()
-		.append('g')
-		.attr('class','bubble')
-		.style('outline', 'none')
-		.attr('data-tippy-content',function(d,i){
-			return metadata.geo_array[i].name;
-		})
-		.attr('id', function(d,i){
-			return 'bubble'+i
-		})
-		.attr('transform', function(d,i){
-			p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
-			return 'translate('+p.x+','+p.y+')';
-		})
-		.style('opacity', 1)
-		.on('mouseover', function(){
-			d3.select(this).style('cursor', function(){
-				if(lassoActive) {
-					return 'crosshair ';
-				} else {
-					return 'pointer';
-				}
-			})
-			if(lassoActive) return false;
-			d3.select(this).style('opacity', 0.85);
-		}).on('mouseout', function(){
-			d3.select(this).style('opacity', 1);
-		}).on('click', function(d,i){
-			if(lassoActive) return false;
-			var geo = metadata.geo_array[i];
-			Deepviz.filter('geo',geo.id);
-			updateSeverityReliability('map', 500);
-		});
-
-		tippy('.bubble', { 
-			theme: 'light-border',
-			delay: [250,100],
-			inertia: false,
-			distance: 8,
-			allowHTML: true,
-			animation: 'shift-away',
-			arrow: true,
-			size: 'small'
-		});
-
-		var featureElementG = featureElement
-		.append('g')
-		.attr('class', 'map-bubble')
-		.attr('transform', function(d,i){
-			var size = scale.map(dataByLocationSum[i]);
-			return 'scale('+size+')';
-		})
-		.style('display', function(d,i){
-			if(dataByLocationSum[i]>0){
-				return 'inline';
-			} else {
-				return 'none';
-			}
-		});
-
-		featureElementG
-		.append("circle")
-		.attr('class',  'outerCircle')
-		.attr("stroke", colorNeutral[3])
-		.attr("fill", "#FFF")
-		.attr('cx', 0)
-		.attr('cy', 0)
-		.attr('r' , 30)
-		.attr("stroke-width", 2);
-
-		featureElementG
-		.append("circle")
-		.attr('class',  'innerCircle')
-		.attr("fill", colorNeutral[3])
-		.attr('cx', 0)
-		.attr('cy', 0)
-		.attr('r' , 26)
-		.attr("stroke-width", 0);
-
-		featureElementG
-		.append('text')
-		.attr('text-anchor', 'middle')
-		.attr('class', 'map-bubble-value')
-		.text(function(d,i){
-			return dataByLocationSum[i];
-		})
-		.attr('y', 8)
-		.style('font-weight', 'normal')
-		.style('font-size', '24px')
-		.style('fill', '#FFF')
-
-		function update() {
-			featureElement.attr('transform', function(d,i){
-				p = projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
-				return 'translate('+p.x+','+p.y+')';
-			});  
-		}
-
-		map.on("viewreset", update)
-
-		map.on("movestart", function(){
-			mapsvg.classed("hidden", true);
-		});	
-		map.on("move", function(){
-			update();
-		});
-		map.on("rotate", function(){
-			mapsvg.classed("hidden", true);
-		});	
-		map.on("moveend", function(){
-			update()
-			mapsvg.classed("hidden", false);
-		});
-
-		function projectPoint(lon, lat) {
-			var point = map.project(new mapboxgl.LngLat(lon, lat));
-			return point;
-		}
-
-		function unprojectPoint(x, y) {
-			var point = map.unproject([x,y]);
-			return point;
-		}
-
-		d3.selectAll('#geoRemoveFilter').on('click', function(){
-			d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
-			$('#location-search').val(); 
-			$('#location-search').trigger('change.select2');
-			return Deepviz.filter('geo', 'clear'); 
-		});
-
-		this.createSearch();
-
-		// map lasso
-		lassoActive = false;
-
-		var lasso = d3.select('#lasso');
-		lasso.on('mouseover', function(){
-			if(!lassoActive){
-				$('#lasso-default').hide();
-				$('#lasso-hover').show();
-			}
-		}).on('mouseout', function(){
-			if(!lassoActive){
-				$('#lasso-default').show();
-				$('#lasso-hover').hide();
-			}	
-		}).on('click', function(){
-			if(!lassoActive){
-				lassoActive = true;
-				$('#lasso-default').hide();
-				$('#lasso-hover').hide();
-				$('#lasso-selected').show();
-				// disable panning
-				map.dragPan.disable();
-			    map.boxZoom.disable();
-				// change cursor
-				d3.select('#map-bubble-svg').style('cursor', 'crosshair');
-
-			} else {
-				lassoActive = false;
-				$('#lasso-selected').hide();
-				$('#lasso-default').show();
-				$('#lasso-hover').hide();
-				// enable map panning
-				map.dragPan.enable();
-			    map.boxZoom.enable();
-				// change cursor
-				d3.select('#map-bubble-svg').style('cursor', 'inherit');
-				d3.select('#select-box').attr("visibility", "hidden");
-			}
-		})
-
-		function rect(x, y, w, h) {
-		  return "M"+[x,y]+" l"+[w,0]+" l"+[0,h]+" l"+[-w,0]+"z";
-		}
-
-		var selection = mapsvg.append("path")
-		  .attr("id", "select-box")
-		  .attr("class", "selection")
-		  .attr("visibility", "hidden");
-
-		var startSelection = function(start) {
-		    selection.attr("d", rect(start[0], start[0], 0, 0))
-		      .attr("visibility", "visible");
-		};
-
-		var moveSelection = function(start, moved) {
-		    selection.attr("d", rect(start[0], start[1], moved[0]-start[0], moved[1]-start[1]));
-		};
-
-		var endSelection = function(start, end) {
-			selection.attr("visibility", "hidden");
-			var bbox = selection.node().getBBox();
-			var bounds = [];
-			bounds[0] = unprojectPoint(bbox.x, bbox.y);
-			bounds[1] = unprojectPoint((bbox.x+bbox.width), (bbox.y+bbox.height));
-			if(d3.event.shiftKey){
-				var geoArray = filters.geo;
-			} else {
-				var geoArray = [];
-			}
-
-			metadata.geo_array.forEach(function(d,i){
-				if ((d.centroid[0] > bounds[0].lng) && (d.centroid[0] < bounds[1].lng) && (d.centroid[1] < bounds[0].lat) && (d.centroid[1] > bounds[1].lat)){
-					if(!geoArray.includes(d.id)){
-						geoArray.push(d.id);
-					}
-				}
-			});
-
-			if(bbox.width==0){
-				Deepviz.filter('geo', 'clear');
-			} else {
-				filters.geo = geoArray;
-				Deepviz.filter('geo', 0);
-			}
-		};
-
-		mapsvg.on("mousedown", function(e) {
-			if(!lassoActive) return false;
-		  	var subject = d3.select(window), parent = this.parentNode,
-		    start = d3.mouse(parent);
-		    startSelection(start);
-		    subject
-		      .on("mousemove.selection", function() {
-		        moveSelection(start, d3.mouse(parent));
-		      }).on("mouseup.selection", function() {
-		        endSelection(start, d3.mouse(parent), d3.event);
-		        subject.on("mousemove.selection", null).on("mouseup.selection", null);
-		      });
-		});
-
-		mapsvg.on("touchstart", function() {
-			if(!lassoActive) return false;
-			var subject = d3.select(this), parent = this.parentNode,
-		    id = d3.event.changedTouches[0].identifier,
-		    start = d3.touch(parent, id), pos;
-		    startSelection(start);
-		    subject
-		      .on("touchmove."+id, function() {
-		        if (pos = d3.touch(parent, id)) {
-		          moveSelection(start, pos);
-		        }
-		      }).on("touchend."+id, function() {
-		        if (pos = d3.touch(parent, id)) {
-		          endSelection(start, pos, d3.event);
-		          subject.on("touchmove."+id, null).on("touchend."+id, null);
-		        }
-		      });
-		});
-
-		updateBubbles();
-
-	}
-
-	//**************************
-	// create select2 location search
-	//**************************
-	this.createSearch = function(){
-
-		var locations = metadata.geo_array;
-
-		locations = $.map(locations, function (obj) {
-		  obj.text = obj.text || obj.name; // replace name with the property used for the text
-		  return obj;
-		});
-
-		$(document).ready(function() {
-		    $('#location-search').select2({
-		    	data: locations,
-		    	placeholder: 'LOCATIONS',
-		    	scrollAfterSelect: true,
-		    	shouldFocusInput: function() {
-					return false;
-				},
-		    	templateResult: function(data) {
-					var $state = $('<span>' + data.text + ' </span><div class="search-adm-id">ADM '+ data.admin_level + '</div>');
-					return $state;
-				}
-		    });
-
-		    $('#location-search').on('select2:select', function (e) {
-		    	Deepviz.filter('geo', parseInt(e.params.data.id));
-			});
-
-
-			$('#location-search').on('select2:unselect', function (e) {
-				Deepviz.filter('geo', parseInt(e.params.data.id));
-				if(!e.params.originalEvent) {
-					return;
-				}
-				e.params.originalEvent.stopPropagation();
-			});
-
-			d3.select('#main-content').transition().duration(1500).style('opacity', 1);
-
-		});
-	}
-
-	//**************************
 	// create timechart
 	//**************************
 	this.timeChart = function(options){
@@ -1310,7 +956,7 @@ var Deepviz = function(sources, callback){
 		.attr("x", 22)
 		.style('font-weight','lighter')
 		.style('font-size', '15px')
-		.text('Total Entries')
+		.text('Total '+textLabel)
 
 		timechartLegend
 		.append("rect")
@@ -1924,7 +1570,7 @@ var Deepviz = function(sources, callback){
 	    	updateDate();
 	    	updateTotals();
 	    	updateSeverityReliability('brush', 500);
-	    	updateBubbles();
+			Map.update();
 	    	updateFramework();
 	    	BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 	    	BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -2001,7 +1647,7 @@ var Deepviz = function(sources, callback){
 			updateDate();
 			updateTotals();
 			updateSeverityReliability('brush');
-			updateBubbles();
+			Map.update();
 			updateFramework();
 			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 			BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -2054,7 +1700,7 @@ var Deepviz = function(sources, callback){
 			updateDate();
 			updateTotals();
 			updateSeverityReliability('brush',500);
-			updateBubbles();
+			Map.update();
 			updateFramework();
 			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 			BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -2077,7 +1723,6 @@ var Deepviz = function(sources, callback){
 		updateTotals();
 		updateTrendline();
 		updateSeverityReliability('init', 500);
-		updateBubbles();
 		updateFramework();
 		BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 		BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -2168,7 +1813,7 @@ var Deepviz = function(sources, callback){
 		.attr('x', 12)
 		.attr('y', 32)
 		// .style('font-size', '24px')
-		.text('# of entries');
+		.text('# of '+textLabel);
 
 		toggleswitch.append('text')
 		.attr('x', 230)
@@ -3361,7 +3006,7 @@ var Deepviz = function(sources, callback){
 				frame: [1]
 			});
 			updateTotals();
-			updateBubbles();
+			Map.update();
 			updateFramework();
 			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 			BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -3546,117 +3191,8 @@ var Deepviz = function(sources, callback){
 		});
 		updateSeverityReliability(target, 500);
 		updateTrendline();
-		updateBubbles();
+		Map.update();
 		colorBars();
-	}
-
-	//**************************
-	// update map bubbles
-	//**************************
-	function updateBubbles(){
-
-		d3.selectAll('.map-bubble')
-		.style('opacity', 0);
-
-		var gd = dataByDate.filter(function(d){
-			return ((new Date(d.key)>=dateRange[0])&&(new Date(d.key)<dateRange[1]));
-		});
-
-		var dataByLocationSum = [];
-
-		for(var g=0; g < metadata.geo_array.length; g++) {
-			dataByLocationSum[g] = 0;
-		}
-
-	    gd.forEach(function(d,i){
-	    	for(var g=0; g < metadata.geo_array.length; g++) {
-	    		if(d.geo[g]>0){
-	    			var t = (dataByLocationSum[g]) + (d.geo[g]);
-	    			if(metadata.geo_array[g].admin_level!=0){
-		    			dataByLocationSum[g] = t;
-	    			} else {
-		    			dataByLocationSum[g] = 0;
-	    			}
-	    		}
-	    	}
-	    });
-
-	    maxMapBubbleValue = d3.max(dataByLocationSum, function(d) {
-	    	return d;
-	    });
-
-		scale.map = d3.scaleLinear()
-		.range([0.2,1])
-		.domain([0,maxMapBubbleValue]);
-
-		var bubbles = d3.selectAll('.map-bubble')
-		.attr('transform', function(d,i){
-			var size = scale.map(dataByLocationSum[i]);
-			return 'scale('+size+')';
-		});
-
-		bubbles.select('.map-bubble-value')
-		.text(function(d,i){
-			return dataByLocationSum[i];
-		});
-
-		bubbles.selectAll('.innerCircle').style('fill', colorNeutral[2]);
-
-		// color bubbles accoring to severity/reliability
-		var locationBySeverityReliability = dataByLocationArray.filter(function(d){
-			if(filters.toggle=='severity'){
-				return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.s>0));
-			} else {
-				return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.r>0));
-			}
-		});
-
-		var sev = d3.nest()
-		.key(function(d) {  return d.geo;})
-		.rollup(function(v) { return Math.round(d3.median(v, function(d) { 
-			if(filters.toggle=='severity'){
-				return d.s; 
-			} else {
-				return d.r;
-			}
-		}))})
-		.entries(locationBySeverityReliability);
-
-		sev.forEach(function(d,i){
-			if(filters.toggle=='severity'){
-				d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorPrimary[d.value]);
-				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorPrimary[d.value]);
-			} else {
-				d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorSecondary[d.value]);
-				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorSecondary[d.value]);
-			}
-		})
-
-		bubbles
-		.style('opacity', function(d,i){
-			d3.select(this).select('.outerCircle').style('stroke', function(){
-				var id = metadata.geo_array[i].id;
-				if(filters.geo.includes(id)){
-					return 'cyan';
-				}
-			});
-
-			if(dataByLocationSum[i]>0){
-				return 1;
-			} else {
-				return 0;
-			}
-		})
-		.style('display', function(d,i){
-			if(dataByLocationSum[i]>0){
-				return 'block';
-			} else {
-				return 'none';
-			}
-		});
-
-		var map = document.getElementById("map");
-		map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 	}
 
 	//**************************
@@ -4417,5 +3953,14 @@ var Deepviz = function(sources, callback){
 		}
 		return x1 + x2;
 	}
+
+	function makePolyCCW(points) {
+	  var sum = 0;
+	  for (var i = 0; i < (points.length - 1); i++) {
+	    sum += (points[i+1][0] - points[i][0])*(points[i+1][1] + points[i][1]);
+	  }
+	  return sum > 0 ? points.slice().reverse() : points;
+	}
+
 
 }
