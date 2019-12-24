@@ -995,13 +995,13 @@ font-size: 15px;
     display: inline;
     right: 5px;
     z-index: 2;
+    cursor: pointer !important;
     zoom: 0.6;
 }
 
 #adm-toggle g {
 	cursor: pointer;
 }
-
 #adm1,
 #adm2,
 #adm3 {
