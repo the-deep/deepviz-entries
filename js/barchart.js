@@ -250,7 +250,7 @@ BarChart.createStackedBarChart = function(a){
 	var rowBg = rows.append('rect')
 	.attr('y', 1)
 	.attr('x', 0)
-	.attr('width', labelWidth-30)
+	.attr('width', labelWidth+0)
 	.attr('height', rowHeight-2)
 	.style('opacity', 0)
 	.style('cursor', 'pointer')
@@ -303,7 +303,7 @@ BarChart.createStackedBarChart = function(a){
 			} else {
 				Deepviz.filter('reliability',val);
 			}
-		})
+		});
 	}
 
 	var dataLabel = rows.append('text')
@@ -424,6 +424,28 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 
 	rows.select('.'+group+'-bar')
 	.attr('width', function(d,i){
+			var id = d3.select(this).attr('id');
+			var rect = document.querySelector('#'+id);
+			var s = {'name': 'hello'};
+			tippy(rect, { 
+				// content: setBarName(s),
+				theme: 'light-border',
+				delay: [250,100],
+				inertia: false,
+				distance: 8,
+				allowHTML: true,
+				animation: 'shift-away',
+				arrow: true,
+				size: 'small',
+				onShow(instance) {
+			        var v = d3.select('#'+id).attr('data-value');
+			        var p = (v/total)*100;
+					p = Math.round(p)+'%';
+					var html = '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorPrimary[2] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;<div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' entries</b>&nbsp;&nbsp;('+p+')</div>';
+		        	instance.setContent(html);
+				}
+			});
+
 		if(d.value>0){
 			return scale[group].x(d.value)-scale[group].paddingLeft;
 		} else {
@@ -438,14 +460,16 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		return d.value;
 	});
 
+
+
 	rows.select('.'+group+'-label').text(function(d,i){
 		if(d.value>0){ return d.value; } else { return ''}
 	});
 
 	rows.select('.'+group+'-percentlabel').text(function(d,i){
-		var p = (d.value/total)*1000;
-		p = Math.round(p)/10;
-		if(d.value>0){ return p+'%'; } else { return ''};
+		var p = (d.value/total)*100;
+		p = Math.round(p);
+		if(d.value>0){ return '('+p+'%)'; } else { return ''};
 	});
 
 	if(filters[group].length>0){
@@ -620,9 +644,9 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 		});
 
 		d3.select('#'+group+(i+1)+'percentlabel').text(function(d,i){
-			var p = (value/total)*1000;
-			p = Math.round(p)/10;
-			if(value>0){ return p+'%'; } else { return ''};
+			var p = (value/total)*100;
+			p = Math.round(p);
+			if(value>0){ return '('+p+'%)'; } else { return ''};
 		});
 
 		if(group=='sector'){
@@ -666,11 +690,10 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 				arrow: true,
 				size: 'small',
 				onShow(instance) {
-			        // instance.popper.hidden = instance.reference.dataset.tippy ? false : true;
 			        var v = d3.select('#'+id).attr('data-value');
 			        if(s>=0)
 			        	instance.setContent(setBarName(s, v));
-			    }
+				    }
 			});
 			xcount = xcount + w;
 		});
@@ -697,5 +720,8 @@ var setBarName = function(s,v){
 		var color = colorSecondary[s];
 		var text = metadata.reliability_units[s].name;
 	}
-	return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + v + ' '+textLabel+'</div>';
+
+	var p = (v/total)*100;
+	p = Math.round(p)+'%';
+	return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b>&nbsp;&nbsp;('+p+')</div>';
 }
