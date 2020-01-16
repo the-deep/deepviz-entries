@@ -994,7 +994,7 @@ font-size: 15px;
     top: 7px;
     display: inline;
     right: 5px;
-    z-index: 2;
+    z-index: 200;
     cursor: pointer !important;
     zoom: 0.6;
 }

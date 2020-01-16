@@ -157,6 +157,50 @@ var Deepviz = function(sources, callback){
 		metadata = values[0].meta;
 		frameworkToggleImg = values[1];
 
+		// parse parent locations up to 4 levels
+		data.forEach(function(d,i){
+			d.geo.forEach(function(dd,ii){
+
+				dd = parseInt(dd);
+				d.geo[ii]=dd;
+
+				var parents = [];
+
+				var parent = getParent(dd);
+				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
+					parents.push(parent);
+				}
+
+				var parent = getParent(parent);
+				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
+					parents.push(parent);
+				}
+
+				var parent = getParent(parent);
+				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
+					parents.push(parent);
+				}
+
+				var parent = getParent(parent);
+				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
+					parents.push(parent);
+				}
+
+				d.geo.push.apply(d.geo,parents);
+			});
+
+		})
+
+		function getParent(geo_id){
+			var parent;
+			metadata.geo_array.forEach(function(d,i){
+				if(geo_id==d.id){
+					parent = d.parent;
+				}
+			})
+			return parseInt(parent);
+		}
+
 		// remove unsed locations
 		var locationArray = [];
 		data.forEach(function(d,i){
@@ -3942,18 +3986,6 @@ var Deepviz = function(sources, callback){
 		(12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
 	}
 
-	function addCommas(nStr){
-		nStr += '';
-		x = nStr.split('.');
-		x1 = x[0];
-		x2 = x.length > 1 ? '.' + x[1] : '';
-		var rgx = /(\d+)(\d{3})/;
-		while (rgx.test(x1)) {
-			x1 = x1.replace(rgx, '$1' + ',' + '$2');
-		}
-		return x1 + x2;
-	}
-
 	function makePolyCCW(points) {
 	  var sum = 0;
 	  for (var i = 0; i < (points.length - 1); i++) {
@@ -3963,4 +3995,16 @@ var Deepviz = function(sources, callback){
 	}
 
 
+}
+
+function addCommas(nStr){
+	nStr += '';
+	x = nStr.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+	var rgx = /(\d+)(\d{3})/;
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	}
+	return x1 + x2;
 }
