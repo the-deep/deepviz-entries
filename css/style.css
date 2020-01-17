@@ -91,7 +91,7 @@ svg text {
 	color: #FFF;
 	background-color: #008974;
 	height: 53px;
-	border-right: 16px solid #008974;
+	border-right: 21px solid #008974;
 }
 
 #total .title {
@@ -317,7 +317,11 @@ svg text {
 	#footerRow {
 	    margin-top: 10px !important;
 	}
-
+	#globalRemoveFilter {
+		height: 12px !important;
+		top: 7px;
+		left: 86px !important;
+	}
 
 }
 
@@ -364,9 +368,9 @@ svg text {
 	}
 
 	#globalRemoveFilter {
-		height: 15px !important;
+		height: 11px !important;
 		top: 7px;
-		left: 90px !important;
+		left: 86px !important;
 	}
 
 	#dateRangeText {
@@ -440,7 +444,7 @@ svg text {
 	}
 
 	#globalRemoveFilter {
-		height: 12px !important;
+		height: 10px !important;
 		left: 73px !important;
 	}
 
@@ -516,7 +520,7 @@ svg text {
 	}
 
 	#globalRemoveFilter {
-		height: 11px !important;
+		height: 9px !important;
 		left: 58px !important;
 	}
 
@@ -666,11 +670,12 @@ font-size: 15px;
 }
 
 #globalRemoveFilter {
-	height: 16px;
+	height: 13px;
 	display: none;
 	position: absolute;
-	top: 7px;
-	left: 94px;
+	top: 4px;
+	left: 91px;
+	filter: invert(100%);
 }
 
 .removeFilterBtn {
@@ -680,9 +685,10 @@ font-size: 15px;
 #reliabilityRemoveFilter,
 #severityRemoveFilter,
 #geoRemoveFilter {
-	height: 14px;
+	height: 13px;
 	padding-left: 3px;
 	display: none;
+	padding-top: 1px;
 	position: absolute;
 }
 
