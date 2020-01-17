@@ -50,17 +50,52 @@ svg text {
 	    float: right;
 	}
 
-#top-row {
-	height: 58px;
-	border-bottom: 2px solid #e8e8e8;
-	margin-bottom: 7px;
-	padding-top: 5px;
+#header-bg {
+	background-color: #008974;
 	position: fixed;
 	top: 0px;
 	z-index: 3;
+	height: 55px;	
+	border-bottom: 2px solid #e8e8e8;
+	width: 100px;
+}
+
+#top-row {
+	height: 55px;
+	border-bottom: 2px solid #e8e8e8;
+	margin-bottom: 7px;
+	position: fixed;
+	top: 0px;
+	z-index: 1000;
 	width: 97.5%;
 	background-color: #FFF;
 	border-right: 1px solid #FFF;
+}
+
+#total_entries {
+	margin-bottom: 0px;
+	font-size: 36px;
+	font-weight: bold;
+	color: #FFF !important;
+	line-height: 0.8;
+	padding-top: 0px;
+}
+
+.header-row {
+	position: relative;
+}
+
+#total { 
+	padding-top: 2px;
+	float: left; 
+	color: #FFF;
+	background-color: #008974;
+	height: 53px;
+	border-right: 16px solid #008974;
+}
+
+#total .title {
+	color: #FFF !important;
 }
 
 #container {
@@ -220,6 +255,15 @@ svg text {
 		height: 48px;
 		width: 97% !important;
 	}
+
+	#header-bg {
+		height: 48px;	
+	}
+
+	#total {
+		height: 46px;	
+	}
+
 	#main-content {
 		padding-top: 60px;
 	}
@@ -342,6 +386,15 @@ svg text {
 	#top-row {
 		height: 40px;
 	}
+
+	#header-bg {
+		height: 40px;	
+	}
+
+	#total {
+		height: 38px;	
+	}
+
 	#main-content {
 		padding-top: 50px;
 	}
@@ -412,6 +465,15 @@ svg text {
 	#top-row {
 		height: 32px;
 	}
+
+	#header-bg {
+		height: 32px;	
+	}
+
+	#total {
+		height: 30px;	
+	}
+
 	#main-content {
 		padding-top: 42px;
 	}
@@ -526,14 +588,6 @@ svg text {
 
 }
 
-.header-row {
-	position: relative;
-}
-#total { 
-	margin-top: 2px;
-	float: left; 
-}
-
 #avg_slider { 
 	margin-top: 0px;
 	position: absolute;
@@ -594,15 +648,6 @@ font-size: 15px;
 	stroke-width: 1.25px;
 }
 
-#total_entries {
-	margin-bottom: 0px;
-	font-size: 40px;
-	font-weight: bold;
-	color: #008974;
-	line-height: 0.8;
-}
-
-
 .toggle, .severitytoggle, .reliabilitytoggle { cursor: pointer; }
 
 #severity img, 
@@ -652,7 +697,7 @@ font-size: 15px;
 	fill: green;
 	padding-right: 2%;
 	position: relative;
-	top: -4px;
+	top: -2px;
 }
 
 #severity svg,
@@ -710,7 +755,7 @@ font-size: 15px;
 	fill: red;
 	float: right;
 	position: relative;
-	top: -4px;
+	top: -2px;
 }
 
 #reliability_bars {
@@ -752,7 +797,8 @@ font-size: 15px;
 	display: inline-block;
 	line-height: 1.4;
 	margin-bottom: 0px;
-	margin-left: 15%;
+    margin-left: 11px;
+    margin-top: 3px;
 }
 
 #dateRangeText {
