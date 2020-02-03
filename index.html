@@ -18,11 +18,12 @@
 	<link href="js/vendor/select2.min.css" rel="stylesheet" />
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=244" rel="stylesheet" type="text/css" media="all">
+	<link href="css/style.css?cache=307" rel="stylesheet" type="text/css" media="all">
 
 </head>
 
 <body>
+	<div id="header-bg"></div>
 
 	<div id="tooltip">Very reliable</div>
 	<div id="container">
@@ -52,34 +53,26 @@
 
 			<div id="severity" class="widget">
 				<div class="title severityToggle">
-					ENTRIES BY SEVERITY&nbsp; 
+					ENTRIES BY SEVERITY&nbsp;<div id="severity_value"></div> 
 					<svg width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
 					    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
 					    <circle id="severityToggle" fill="#008974" cx="24" cy="26" r="13.5"></circle>
 					</svg>
 				</div>
 				<img id="severityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
-				<div id="severity_value"></div>
-
-				<div id="severity_bars">
-
-				</div>
+				<div id="severity_bars"></div>
 			</div>
 
 			<div id="reliability" class="widget">
 				<div class="title reliabilityToggle">
-					ENTRIES BY RELIABILITY&nbsp; 
+					ENTRIES BY RELIABILITY&nbsp;<div id="reliability_value"></div>
 					<svg  width="15px" height="15px" viewBox="0 0 48 48" class="toggle">
 					    <circle stroke="#414141" stroke-width="2" fill="#FFFFFF" cx="24" cy="26" r="21.5"></circle>
 					    <circle id="reliabilityToggle" fill="#a63603" cx="24" cy="26" r="13.5" style="opacity: 0"></circle>
 					</svg>
 				</div>	
 				<img id="reliabilityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
-				<div id="reliability_value"></div>
-
-				<div id="reliability_bars">
-
-				</div>	
+				<div id="reliability_bars"></div>	
 			</div>
 
 		</div>
@@ -98,9 +91,16 @@
 				<select id="location-search" class="js-example-responsive" style="width: 100%; height: 26px" name="states[]" multiple="multiple"></select>
 				<div id="map">
 					<div id="lasso">
-						<img id="lasso-default" height="26px" src="images/lasso-default.svg"/>
-						<img id="lasso-selected" height="26px" src="images/lasso-selected.svg"/>
-						<img id="lasso-hover" height="26px" src="images/lasso-hover.svg"/>
+						<img id="lasso-default" height="24px" src="images/lasso-default.svg"/>
+						<img id="lasso-selected" height="24px" src="images/lasso-selected.svg"/>
+						<img id="lasso-hover" height="24px" src="images/lasso-hover.svg"/>
+					</div>
+					<div id="map-toggle">
+						<img id="map-toggle-bubbles" height="48px" src="images/map-toggle-bubbles.svg"/>
+						<img id="map-toggle-choropleth" height="48px" src="images/map-toggle-choropleth.svg"/>
+					</div>
+					<div id="adm-toggle">
+						<object type="image/svg+xml" data="images/adm.svg" class="adm"></object>
 					</div>
 				</div>
 			</div>
@@ -186,8 +186,11 @@
 	<script src='js/vendor/mapbox-gl.js'></script>
 
 	<!-- load custom JavaScript -->
-	<script type="text/javascript" src="js/deepviz.js?cache=244"></script>
-	<script type="text/javascript" src="js/main.js?cache=244"></script>
+	<script type="text/javascript" src="js/geojson-rewind.js"></script>
+	<script type="text/javascript" src="js/barchart.js?cache=307"></script>
+	<script type="text/javascript" src="js/map.js?cache=307"></script>
+	<script type="text/javascript" src="js/deepviz.js?cache=307"></script>
+	<script type="text/javascript" src="js/main.js?cache=307"></script>
 
 </body>
 </html>

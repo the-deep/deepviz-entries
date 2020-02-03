@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="57px" height="111px" viewBox="0 0 57 111" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>map-toggle-bubbles</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="map-toggle-bubbles">
+            <path d="M1.5,55.5 L55.5,55.5 L55.5,10 C55.5,5.30557963 51.6944204,1.5 47,1.5 L10,1.5 C5.30557963,1.5 1.5,5.30557963 1.5,10 L1.5,55.5 Z" id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#343434"></path>
+            <circle id="Oval" stroke="#FFFFFF" stroke-width="4" fill="#343434" cx="26.5" cy="27.5" r="13.5"></circle>
+            <circle id="Oval" stroke="#FFFFFF" stroke-width="3" fill="#343434" cx="35.5" cy="19.5" r="5.5"></circle>
+            <circle id="Oval" stroke="#FFFFFF" stroke-width="3" fill="#343434" cx="38" cy="38" r="8"></circle>
+            <path d="M1.5,109.5 L55.5,109.5 L55.5,64 C55.5,59.3055796 51.6944204,55.5 47,55.5 L10,55.5 C5.30557963,55.5 1.5,59.3055796 1.5,64 L1.5,109.5 Z" id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" transform="translate(28.500000, 82.500000) rotate(-180.000000) translate(-28.500000, -82.500000) "></path>
+            <polygon id="Path-2" stroke="#333333" stroke-width="3" fill="#343434" points="12 84 12 98.5714286 24 98.5714286 24 90 18 84"></polygon>
+            <polygon id="Path-3" stroke="#333333" stroke-width="3" fill="#333333" points="22 82.1486014 27.3076923 87.0576923 37.9230769 87.0576923 45 82.1486014 45 69.0576923"></polygon>
+            <polygon id="Path-4" stroke="#333333" stroke-width="3" fill="#333333" points="28 91.1165414 28 98.5263158 45 98.5263158 45 87 38.7368421 91.1165414"></polygon>
+            <polygon id="Path-5" stroke="#333333" stroke-width="3" fill="#343434" points="12 80 18.4 80 40 67.2142857 12 67.2142857"></polygon>
+        </g>
+    </g>
+</svg>

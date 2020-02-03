@@ -11,7 +11,7 @@
     </defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="lasso-default">
-            <rect id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" x="1.5" y="1.5" width="54" height="54" rx="10"></rect>
+            <rect id="Rectangle" stroke-opacity="0.351534194" stroke="#838383" stroke-width="3" fill="#FFFFFF" x="1.5" y="1.5" width="54" height="54" rx="10"></rect>
             <use id="Rectangle-2" stroke="#333333" mask="url(#mask-2)" stroke-width="6" stroke-dasharray="7,2" xlink:href="#path-1"></use>
         </g>
     </g>

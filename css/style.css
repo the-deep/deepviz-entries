@@ -50,17 +50,52 @@ svg text {
 	    float: right;
 	}
 
-#top-row {
-	height: 58px;
-	border-bottom: 2px solid #e8e8e8;
-	margin-bottom: 7px;
-	padding-top: 5px;
+#header-bg {
+	background-color: #008974;
 	position: fixed;
 	top: 0px;
 	z-index: 3;
+	height: 55px;	
+	border-bottom: 2px solid #e8e8e8;
+	width: 100px;
+}
+
+#top-row {
+	height: 55px;
+	border-bottom: 2px solid #e8e8e8;
+	margin-bottom: 7px;
+	position: fixed;
+	top: 0px;
+	z-index: 1000;
 	width: 97.5%;
 	background-color: #FFF;
 	border-right: 1px solid #FFF;
+}
+
+#total_entries {
+	margin-bottom: 0px;
+	font-size: 36px;
+	font-weight: bold;
+	color: #FFF !important;
+	line-height: 0.8;
+	padding-top: 0px;
+}
+
+.header-row {
+	position: relative;
+}
+
+#total { 
+	padding-top: 2px;
+	float: left; 
+	color: #FFF;
+	background-color: #008974;
+	height: 53px;
+	border-right: 21px solid #008974;
+}
+
+#total .title {
+	color: #FFF !important;
 }
 
 #container {
@@ -220,6 +255,15 @@ svg text {
 		height: 48px;
 		width: 97% !important;
 	}
+
+	#header-bg {
+		height: 48px;	
+	}
+
+	#total {
+		height: 46px;	
+	}
+
 	#main-content {
 		padding-top: 60px;
 	}
@@ -273,7 +317,11 @@ svg text {
 	#footerRow {
 	    margin-top: 10px !important;
 	}
-
+	#globalRemoveFilter {
+		height: 12px !important;
+		top: 7px;
+		left: 86px !important;
+	}
 
 }
 
@@ -320,9 +368,9 @@ svg text {
 	}
 
 	#globalRemoveFilter {
-		height: 15px !important;
+		height: 11px !important;
 		top: 7px;
-		left: 90px !important;
+		left: 86px !important;
 	}
 
 	#dateRangeText {
@@ -342,6 +390,15 @@ svg text {
 	#top-row {
 		height: 40px;
 	}
+
+	#header-bg {
+		height: 40px;	
+	}
+
+	#total {
+		height: 38px;	
+	}
+
 	#main-content {
 		padding-top: 50px;
 	}
@@ -387,7 +444,7 @@ svg text {
 	}
 
 	#globalRemoveFilter {
-		height: 12px !important;
+		height: 10px !important;
 		left: 73px !important;
 	}
 
@@ -412,6 +469,15 @@ svg text {
 	#top-row {
 		height: 32px;
 	}
+
+	#header-bg {
+		height: 32px;	
+	}
+
+	#total {
+		height: 30px;	
+	}
+
 	#main-content {
 		padding-top: 42px;
 	}
@@ -454,7 +520,7 @@ svg text {
 	}
 
 	#globalRemoveFilter {
-		height: 11px !important;
+		height: 9px !important;
 		left: 58px !important;
 	}
 
@@ -526,14 +592,6 @@ svg text {
 
 }
 
-.header-row {
-	position: relative;
-}
-#total { 
-	margin-top: 2px;
-	float: left; 
-}
-
 #avg_slider { 
 	margin-top: 0px;
 	position: absolute;
@@ -594,15 +652,6 @@ font-size: 15px;
 	stroke-width: 1.25px;
 }
 
-#total_entries {
-	margin-bottom: 0px;
-	font-size: 40px;
-	font-weight: bold;
-	color: #008974;
-	line-height: 0.8;
-}
-
-
 .toggle, .severitytoggle, .reliabilitytoggle { cursor: pointer; }
 
 #severity img, 
@@ -621,11 +670,12 @@ font-size: 15px;
 }
 
 #globalRemoveFilter {
-	height: 16px;
+	height: 13px;
 	display: none;
 	position: absolute;
-	top: 7px;
-	left: 94px;
+	top: 4px;
+	left: 91px;
+	filter: invert(100%);
 }
 
 .removeFilterBtn {
@@ -635,9 +685,10 @@ font-size: 15px;
 #reliabilityRemoveFilter,
 #severityRemoveFilter,
 #geoRemoveFilter {
-	height: 14px;
+	height: 13px;
 	padding-left: 3px;
 	display: none;
+	padding-top: 1px;
 	position: absolute;
 }
 
@@ -652,7 +703,7 @@ font-size: 15px;
 	fill: green;
 	padding-right: 2%;
 	position: relative;
-	top: -4px;
+	top: -2px;
 }
 
 #severity svg,
@@ -686,6 +737,11 @@ font-size: 15px;
 	outline: none;
 }
 
+.polygon {
+	cursor: pointer;
+	outline: none;
+}
+
 .reliabilityBar,
 .top-bar {
 	cursor: pointer;
@@ -705,7 +761,7 @@ font-size: 15px;
 	fill: red;
 	float: right;
 	position: relative;
-	top: -4px;
+	top: -2px;
 }
 
 #reliability_bars {
@@ -747,7 +803,8 @@ font-size: 15px;
 	display: inline-block;
 	line-height: 1.4;
 	margin-bottom: 0px;
-	margin-left: 15%;
+    margin-left: 11px;
+    margin-top: 3px;
 }
 
 #dateRangeText {
@@ -965,9 +1022,9 @@ font-size: 15px;
 
 #lasso {
 	position: absolute;
-    top: 5px;
+    top: 73px;
     display: inline;
-    right: 5px;
+    left: 5px;
     z-index: 2;
     cursor: pointer;
 }
@@ -981,5 +1038,37 @@ font-size: 15px;
 }
 
 #lasso-selected {
+	display: none;
+}
+
+#adm-toggle {
+	position: absolute;
+    top: 7px;
+    display: inline;
+    right: 5px;
+    z-index: 200;
+    cursor: pointer !important;
+    zoom: 0.6;
+}
+
+#adm-toggle g {
+	cursor: pointer;
+}
+#adm1,
+#adm2,
+#adm3 {
+    cursor: pointer;
+}
+
+#map-toggle {
+	position: absolute;
+    top: 99px;
+    display: inline;
+    left: 5px;
+    z-index: 2;
+    cursor: pointer;
+}
+
+#map-toggle-choropleth {
 	display: none;
 }
