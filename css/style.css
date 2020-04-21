@@ -1060,6 +1060,50 @@ font-size: 15px;
     cursor: pointer;
 }
 
+#heatmap-radius-slider-div {
+	position: absolute;
+    bottom: 1px;
+    display: inline;
+    right: 4px;
+    z-index: 200;
+	width: 300px;    
+	display: none;
+}
+
+#heatmap-radius-slider {
+
+}
+
+#heatmap-radius-slider .track {
+	stroke: #000;
+	stroke-opacity: 0.3;
+	stroke-width: 2px;
+}
+
+#heatmap-radius-slider .track-inset {
+	stroke: #000;
+	stroke-width: 1px;
+}
+
+#heatmap-radius-slider .track-overlay {
+	pointer-events: stroke;
+	stroke-width: 32px;
+	stroke: transparent;
+	cursor: ew-resize;
+}
+
+#heatmap-radius-slider .handle {
+	fill: #fff;
+	stroke: #000;
+	stroke-opacity: 0.5;
+	stroke-width: 1.25px;
+}
+
+#heatmap-checkbox {
+	cursor: pointer;
+	display: none;
+}
+
 #map-toggle {
 	position: absolute;
     top: 99px;
@@ -1071,4 +1115,32 @@ font-size: 15px;
 
 #map-toggle-choropleth {
 	display: none;
+}
+
+#map-toggle-heatmap {
+	display: none;
+}
+
+#map-toggle-rect-bubbles {
+	position: absolute;
+	top: 1px;
+	height: 23px;
+	width: 24px;
+	z-index: 5;
+}
+
+#map-toggle-rect-heatmap {
+	position: absolute;
+	top: 25px;
+	height: 21px;
+	width: 24px;
+	z-index: 5;
+}
+
+#map-toggle-rect-choropleth {
+	position: absolute;
+	top: 46px;
+	height: 23px;
+	width: 24px;
+	z-index: 5;
 }

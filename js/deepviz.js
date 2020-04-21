@@ -96,7 +96,8 @@ var filters = {
 	toggle: 'severity',
 	admin_level: 1,
 	frameworkToggle: 'entries',
-	time: 'd'
+	time: 'd',
+	heatmapCheckbox: false
 };
 
 // colors
@@ -189,7 +190,7 @@ var Deepviz = function(sources, callback){
 				d.geo.push.apply(d.geo,parents);
 			});
 
-		})
+		});
 
 		function getParent(geo_id){
 			var parent;
@@ -267,6 +268,7 @@ var Deepviz = function(sources, callback){
 		});
 
 		metadata.geo_json = {"type": "FeatureCollection", "features": []};
+		metadata.geo_json_point = {"type": "FeatureCollection", "features": []};
 
 		metadata.geo_array.forEach(function(d,i){
 			d._id = d.id;
@@ -275,6 +277,9 @@ var Deepviz = function(sources, callback){
 			polygons.coordinates = polygons.coordinates;
 			var feature = {'type':'Feature', 'properties':{'name': d.name, 'id': d.id, 'admin_level': d.admin_level}, 'geometry': polygons }
 			metadata.geo_json.features[i] = feature;
+			var point = { "type": "Point", "coordinates": [ d.centroid[0],d.centroid[1],0.0 ] }
+			var featurePoint = {'type':'Feature', 'properties':{'name': d.name, 'id': d.id, 'admin_level': d.admin_level}, 'geometry': point }
+			metadata.geo_json_point.features[i] = featurePoint;
 		});
 
 		metadata.geo_json.features.forEach(function(feature) {
@@ -403,7 +408,7 @@ var Deepviz = function(sources, callback){
 			d._geo.forEach(function(dd,ii){
 				metadata.geo_array.forEach(function(ddd,ii){
 					if(dd==ddd._id){
-						d.geo.push(ddd.id);
+						if(!d.geo.includes(ddd.id)){d.geo.push(ddd.id);};
 						geoBounds.lat.push(ddd.bounds[0][0]);
 						geoBounds.lat.push(ddd.bounds[1][0]);
 						geoBounds.lon.push(ddd.bounds[0][1]);
@@ -413,8 +418,6 @@ var Deepviz = function(sources, callback){
 			});
 
 		});
-
-
 
 		// set the data again for reset purposes
 		originalData = data;
@@ -2330,6 +2333,7 @@ var Deepviz = function(sources, callback){
 				d3.select('#framework-toggle').transition().duration(200).attr('cx', 164);
 				filters.frameworkToggle = 'entries';				
 			};
+			Map.update();
 			updateFramework();
 		});
 	}
