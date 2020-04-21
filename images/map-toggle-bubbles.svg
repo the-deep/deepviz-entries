@@ -1,20 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="57px" height="111px" viewBox="0 0 57 111" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+<svg width="57px" height="161px" viewBox="0 0 57 161" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
     <title>map-toggle-bubbles</title>
     <desc>Created with Sketch.</desc>
-    <defs></defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="map-toggle-bubbles">
-            <path d="M1.5,55.5 L55.5,55.5 L55.5,10 C55.5,5.30557963 51.6944204,1.5 47,1.5 L10,1.5 C5.30557963,1.5 1.5,5.30557963 1.5,10 L1.5,55.5 Z" id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#343434"></path>
-            <circle id="Oval" stroke="#FFFFFF" stroke-width="4" fill="#343434" cx="26.5" cy="27.5" r="13.5"></circle>
-            <circle id="Oval" stroke="#FFFFFF" stroke-width="3" fill="#343434" cx="35.5" cy="19.5" r="5.5"></circle>
-            <circle id="Oval" stroke="#FFFFFF" stroke-width="3" fill="#343434" cx="38" cy="38" r="8"></circle>
-            <path d="M1.5,109.5 L55.5,109.5 L55.5,64 C55.5,59.3055796 51.6944204,55.5 47,55.5 L10,55.5 C5.30557963,55.5 1.5,59.3055796 1.5,64 L1.5,109.5 Z" id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" transform="translate(28.500000, 82.500000) rotate(-180.000000) translate(-28.500000, -82.500000) "></path>
-            <polygon id="Path-2" stroke="#333333" stroke-width="3" fill="#343434" points="12 84 12 98.5714286 24 98.5714286 24 90 18 84"></polygon>
-            <polygon id="Path-3" stroke="#333333" stroke-width="3" fill="#333333" points="22 82.1486014 27.3076923 87.0576923 37.9230769 87.0576923 45 82.1486014 45 69.0576923"></polygon>
-            <polygon id="Path-4" stroke="#333333" stroke-width="3" fill="#333333" points="28 91.1165414 28 98.5263158 45 98.5263158 45 87 38.7368421 91.1165414"></polygon>
-            <polygon id="Path-5" stroke="#333333" stroke-width="3" fill="#343434" points="12 80 18.4 80 40 67.2142857 12 67.2142857"></polygon>
+            <g id="bubbles" fill="#343434">
+                <path d="M47,1.5 L10,1.5 C7.65278981,1.5 5.52778981,2.45139491 3.98959236,3.98959236 C2.45139491,5.52778981 1.5,7.65278981 1.5,10 L1.5,55.5 L55.5,55.5 L55.5,10 C55.5,7.65278981 54.5486051,5.52778981 53.0104076,3.98959236 C51.4722102,2.45139491 49.3472102,1.5 47,1.5 Z" id="Rectangle" stroke="#B7BEBE" stroke-width="3"></path>
+                <circle id="Oval" stroke="#FFFFFF" stroke-width="4" cx="27.5" cy="27.5" r="13.5"></circle>
+                <circle id="Oval" stroke="#FFFFFF" stroke-width="3" cx="36.5" cy="19.5" r="5.5"></circle>
+                <circle id="Oval" stroke="#FFFFFF" stroke-width="3" cx="39" cy="38" r="8"></circle>
+            </g>
+            <g id="choropleth" transform="translate(0.000000, 104.000000)" stroke-width="3">
+                <path d="M47,1.5 L10,1.5 C7.65278981,1.5 5.52778981,2.45139491 3.98959236,3.98959236 C2.45139491,5.52778981 1.5,7.65278981 1.5,10 L1.5,55.5 L55.5,55.5 L55.5,10 C55.5,7.65278981 54.5486051,5.52778981 53.0104076,3.98959236 C51.4722102,2.45139491 49.3472102,1.5 47,1.5 Z" id="Rectangle" stroke="#B7BEBE" fill="#FFFFFF" transform="translate(28.500000, 28.500000) rotate(-180.000000) translate(-28.500000, -28.500000) "></path>
+                <polygon id="Path-2" stroke="#333333" fill="#343434" points="12 30 12 44.5714286 24 44.5714286 24 36 18 30"></polygon>
+                <polygon id="Path-3" stroke="#333333" fill="#333333" points="22 28.1486014 27.3076923 33.0576923 37.9230769 33.0576923 45 28.1486014 45 15.0576923"></polygon>
+                <polygon id="Path-4" stroke="#333333" fill="#333333" points="28 37.1165414 28 44.5263158 45 44.5263158 45 33 38.7368421 37.1165414"></polygon>
+                <polygon id="Path-5" stroke="#333333" fill="#343434" points="12 26 18.4 26 40 13.2142857 12 13.2142857"></polygon>
+            </g>
+            <g id="heatmap" transform="translate(0.000000, 54.000000)">
+                <rect id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" x="1.5" y="1.5" width="54" height="50"></rect>
+                <g id="Group-2" transform="translate(11.000000, 12.000000)" stroke="#FFFFFF" stroke-width="0.5">
+                    <g id="Group">
+                        <rect id="Rectangle" fill="#D8D8D8" x="0" y="0" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="0" y="5" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#4B4B4B" x="0" y="10" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="0" y="15" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#999999" x="5" y="0" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D8D8D8" x="0" y="20" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#1A1A1A" x="5" y="20" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D8D8D8" x="0" y="25" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#999999" x="5" y="25" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#555555" x="5" y="5" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#4B4B4B" x="5" y="10" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="5" y="15" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D8D8D8" x="10" y="0" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="10" y="5" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#4B4B4B" x="10" y="10" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#5A5A5A" x="10" y="15" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#999999" x="15" y="0" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#393939" x="10" y="20" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#000000" x="15" y="20" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#1A1A1A" x="10" y="25" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#999999" x="15" y="25" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#555555" x="15" y="5" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#4B4B4B" x="15" y="10" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#000000" x="15" y="15" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D8D8D8" x="20" y="0" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="20" y="5" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#1F1F1F" x="20" y="10" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#2F2B2B" x="20" y="15" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#999999" x="25" y="0" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#585858" x="20" y="20" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#999999" x="25" y="20" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D0D0D0" x="20" y="25" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#E9E9E9" x="25" y="25" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#555555" x="25" y="5" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#4B4B4B" x="25" y="10" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="25" y="15" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D8D8D8" x="30" y="0" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="30" y="5" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#4B4B4B" x="30" y="10" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#858585" x="30" y="15" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D8D8D8" x="30" y="20" width="5" height="5"></rect>
+                        <rect id="Rectangle" fill="#D8D8D8" x="30" y="25" width="5" height="5"></rect>
+                    </g>
+                </g>
+            </g>
         </g>
     </g>
 </svg>
