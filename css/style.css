@@ -44,11 +44,15 @@ svg text {
 	opacity: 0;
 }
 
+#avg_slider_svg {
+    width: 100%;
+    float: right;
+}
 
-	#avg_slider_svg {
-	    width: 100%;
-	    float: right;
-	}
+.avg_slider_full_width {
+	right: -74px !important;
+    zoom: 0.7 !important;
+}
 
 #header-bg {
 	background-color: #008974;
@@ -110,7 +114,7 @@ svg text {
 }
 
 .rightcol {
-	width: 66%;
+	width: 65%;
 	float:right;
 	padding-top: 3px;
 }
@@ -186,6 +190,10 @@ svg text {
 	padding-top: 2px;
 }
 
+#mapcol {
+ margin-bottom: 12px;
+}
+
 #timechart-container {
 	position: relative;
 	top: -6px;
@@ -208,7 +216,7 @@ svg text {
 
 	#avg_slider {
 		top: -5px !important;
-		width: 36%;
+		width: 30%;
 	}
 
 	#timechart_legend {
@@ -1041,11 +1049,32 @@ font-size: 15px;
 	display: none;
 }
 
+#expand {
+	position: absolute;
+    top: 4px;
+    display: inline;
+    right: 4px;
+    z-index: 2;
+    cursor: pointer;
+}
+
+#expand-default {
+	
+}
+
+#expand-hover {
+	display: none;
+}
+
+#expand-selected {
+	display: none;
+}
+
 #adm-toggle {
 	position: absolute;
     top: 7px;
     display: inline;
-    right: 5px;
+    right: 52px;
     z-index: 200;
     cursor: pointer !important;
     zoom: 0.6;
