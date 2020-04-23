@@ -81,19 +81,24 @@
 
 	<div id="main-content">
 
-		<div class="leftcol">
+		<div id="mapcol" class="leftcol">
 			<div class="title">
 				ENTRIES BY LOCATION
 			</div>
 			<img id="geoRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
 
-			<div id="mapcontainer">
+			<div id="mapcontainer1">
 				<select id="location-search" class="js-example-responsive" style="width: 100%; height: 26px" name="states[]" multiple="multiple"></select>
 				<div id="map">
 					<div id="lasso">
 						<img id="lasso-default" height="24px" src="images/lasso-default.svg"/>
 						<img id="lasso-selected" height="24px" src="images/lasso-selected.svg"/>
 						<img id="lasso-hover" height="24px" src="images/lasso-hover.svg"/>
+					</div>
+					<div id="expand">
+						<img id="expand-default" height="24px" src="images/expand-default.svg"/>
+						<img id="expand-selected" height="24px" src="images/expand-selected.svg"/>
+						<img id="expand-hover" height="24px" src="images/expand-hover.svg"/>
 					</div>
 					<div id="map-toggle">
 						<div id="map-toggle-rect-bubbles"></div>
@@ -158,8 +163,6 @@
 			</div>
 		</div><!-- / .rightcol -->
 		
-		<br/>
-		<br/>
 		<div id="framework-chart" class="clearfix">
 
 		</div>

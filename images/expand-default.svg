@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="57px" height="57px" viewBox="0 0 57 57" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
+    <title>expand-default</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="expand-default">
+            <rect id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" x="1.5" y="1.5" width="54" height="54" rx="10"></rect>
+            <g id="expand" transform="translate(15.000000, 15.000000)" fill="#343434" fill-rule="nonzero">
+                <polygon id="Path" points="14.625 9.90871479 20.19375 4.34867958 15.8450704 0 27 0 27 11.1549296 22.6513204 6.80625 17.0912852 12.375"></polygon>
+                <polygon id="Path" points="14.625 17.0912852 20.19375 22.6513204 15.8450704 27 27 27 27 15.8450704 22.6513204 20.19375 17.0912852 14.625"></polygon>
+                <polygon id="Path" points="12.375 17.0912852 6.80625 22.6513204 11.1549296 27 0 27 0 15.8450704 4.34867958 20.19375 9.90871479 14.625"></polygon>
+                <polygon id="Path" points="12.375 9.90871479 6.80625 4.34867958 11.1549296 0 0 0 0 11.1549296 4.34867958 6.80625 9.90871479 12.375"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>
