@@ -2,13 +2,12 @@
 // define variables
 //**************************
 var dateRange  = [new Date(2019, 4, 15), new Date(2019, 7, 31)]; // selected dateRange on load
-// var minDate = new Date('2019-08-05');
 
 // use url parameters
 var url = new URL(window.location.href);
-// minDate = new Date(url.searchParams.get("min_date"));
-
+var minDate;
 var maxDate;
+
 var dateIndex;
 var scale = {
 	'timechart': {x: '', y1: '', y2: ''},
@@ -158,6 +157,7 @@ var Deepviz = function(sources, callback){
 		data = values[0].data;
 
 		metadata = values[0].meta;
+
 		frameworkToggleImg = values[1];
 
 		// parse parent locations up to 4 levels
@@ -421,6 +421,22 @@ var Deepviz = function(sources, callback){
 
 		});
 
+		// parse url variable options
+		if(urlQueryParams.get('minDate')){
+			minDate = new Date(urlQueryParams.get('minDate'))
+			data = data.filter(function(d){
+				return d.date >= minDate;
+			})
+		}
+
+		if(urlQueryParams.get('time')){
+			filters.time=urlQueryParams.get('time');
+		}
+
+		if(urlQueryParams.get('admin_level')){
+			filters.admin_level=parseInt(urlQueryParams.get('admin_level'));
+		}
+
 		// set the data again for reset purposes
 		originalData = data;
 
@@ -455,6 +471,8 @@ var Deepviz = function(sources, callback){
 		minDate.setDate(minDate.getDate());
 		minDate.setHours(0);
 		minDate.setMinutes(0);
+
+
 
 		// define maximum value by date
 		dataByDate = d3.nest()
@@ -833,8 +851,6 @@ var Deepviz = function(sources, callback){
 			return d.total_entries;
 		});
 
-		console.log(options.width);
-
 		// define maximum date 
 		maxDate = new Date(d3.max(data, function(d){
 			return d.date;
@@ -846,6 +862,10 @@ var Deepviz = function(sources, callback){
 		if(maxDate<today){
 			maxDate = today;
 		};
+
+		if(urlQueryParams.get('maxDate')){
+			maxDate = new Date(urlQueryParams.get('maxDate'));
+		}	
 
 		maxDate.setHours(0);
 		maxDate.setMinutes(0);

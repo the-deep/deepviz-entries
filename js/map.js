@@ -326,25 +326,16 @@ Map.create = function(){
 	});
 
 	var expandLayout = function() {
-		console.log('expandLayout');
-		console.log('expandActive:'+expandActive);
-
 		d3.select('#timeline .vizlibResponsiveDiv').style('opacity', 0);
-		
 		if(expandActive==true){
 			$('#mapcol, #mapcontainer').removeClass('leftcol');
 			$('#timechart-container').removeClass('rightcol');
-			// $('#avg_slider').addClass('avg_slider_full_width');
 		} else {
 			$('#mapcol, #mapcontainer').addClass('leftcol');
 			$('#timechart-container').addClass('rightcol');
-			// $('#avg_slider').removeClass('avg_slider_full_width');
 		}
 		Deepviz.redrawTimeline();
 		Deepviz.resizeDevice();
-		
-		// d3.select('#timeline').style('opacity', 1);
-		
 	}
 }
 
