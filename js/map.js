@@ -955,7 +955,12 @@ Map.updateBubbles = function(){
 					d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorSecondary[d.value.value]);
 				}
 			}
-		})
+
+			if(filters.geo.includes(geo.id)){
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', 'cyan');
+			}
+
+		});
 
 	// bubbles display number of entries
 	} else {
@@ -999,6 +1004,10 @@ Map.updateBubbles = function(){
 
 			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+
+			if(filters.geo.includes(geo.id)){
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', 'cyan');
+			}
 			
 		})
 
