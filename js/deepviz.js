@@ -604,7 +604,13 @@ var Deepviz = function(sources, callback){
 			});
 
 			d.geo.forEach(function(dd,ii){
-				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd, 's': d.severity, 'r': d.reliability });
+				var adm = null;
+				metadata.geo_array.forEach(function(d,i){
+					if(dd==d.id){
+						adm = d.admin_level;
+					}
+				})
+				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd, "admin_level": adm, 's': d.severity, 'r': d.reliability });
 			});
 
 			d.context.forEach(function(dd,ii){
@@ -1666,8 +1672,6 @@ var Deepviz = function(sources, callback){
 
 	    	var d0 = d3.event.selection.map(scale.timechart.x.invert);
 			var d1 = [];
-
-
 
 			if(filters.time=='d'){
 				var a = d3.timeDay.floor(d0[1]).getTime() - d3.timeDay.floor(d0[0]).getTime(); 

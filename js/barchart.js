@@ -1,4 +1,6 @@
 var BarChart = {};
+var updating = false;
+var updateInterval = 100;
 
 BarChart.createBarChart = function(a){
 
@@ -535,178 +537,184 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 //**************************
 BarChart.updateStackedBars = function(group, dataset, duration = 0){
 
-	var sort = true;
+	if(updating[group]==true) { return false; } else { setTimeout(function(){
 
-	var data_group = group;
-	if(data_group=='organisation') data_group = 'organization';
-	if(data_group=='sector') data_group = 'sector_array';
-	if(data_group=='affected_groups') data_group = 'affected_groups_array';
-	if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
-	if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
-	if(data_group=='unit_of_analysis') data_group = 'type_of_unit_of_analysis';
+		var sort = true;
 
-	// affected groups
-	var dat = dataset.filter(function(d){
-		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
-	});
+		var data_group = group;
+		if(data_group=='organisation') data_group = 'organization';
+		if(data_group=='sector') data_group = 'sector_array';
+		if(data_group=='affected_groups') data_group = 'affected_groups_array';
+		if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
+		if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
+		if(data_group=='unit_of_analysis') data_group = 'type_of_unit_of_analysis';
 
-	var nest = d3.nest()
-	.key(function(d) { return d[group]; })
-	.key(function(d) { if((filters.toggle=='severity')||(filters.toggle=='finalScore')){ return d.s; } else { return d.r } }).sortKeys(d3.ascending)
-	.rollup(function(leaves) { return leaves.length; })		
-	.entries(dat);	
-
-	nest.forEach(function(d,i){
-		d.value = d3.sum(d.values, function(d){
-			return d.value;
-		})
-	});
-
-	if(sort==true){
-		nest = nest.sort(function(x,y){
-			return d3.ascending(y.value, x.value);
-		});
-	}
-
-	if(group=='organisation'){
-		nest = nest.splice(0,10);
-	}
-
-	var d = [];
-
-	metadata[data_group].forEach(function(mt,ii){
-		var name = mt.name.substr(0,labelCharLimit-7);
-		if(name.length==labelCharLimit-7) name += '.';
-		var key = mt.id;
-		var value = 0;
-		var values = [];
-		nest.forEach(function(dd,ii){
-			if(mt.id==dd.key){
-				value = dd.value;
-				values = dd.values;
-			}
-		});
-		d.push({'key': key, 'value': value, 'values': values, 'name': name});
-	});
-
-	if(sort==true){
-		d = d.sort(function(x,y){
-			return d3.ascending(y.value, x.value);
-		});
-	}
-
-	if(group=='organisation'){
-		d = d.splice(0,10);
-	}
-
-	var rowMax = d3.max(d, function(d,i){
-		return d.value
-	});
-
-	scale[group].x.domain([0, rowMax]);// severity/reliability x xcale
-
-    // reset all bars to zero width
-    d3.selectAll('.'+group+'-bar').attr('width', 0);
-
-	var rows = d3.selectAll('.'+group+'-row')
-	.data(d)
-	.attr('class', function(d,i){
-		return 'bar-row '+group+'-row '+group+'-bar-row'+d.key;
-	});
-
-	var labels =d3.selectAll('text.'+group)
-	.data(d)
-	.text(function(d,ii){
-		return d.name;
-	})
-	.attr('class', function(d,i){
-		return group + ' ' +group +'-'+d.key;``
-	})
-	.style('opacity', 1);
-
-	d3.selectAll('.'+group+'-bg')
-	.data(d)
-	.attr('class', function(d,i) { 
-		return group+'-bg ' + group + '-bg-'+d.key;
-	}).on('click', function(d,i){
-		return Deepviz.filter(group, d.key);
-	});
-
-	d.forEach(function(d,i){
-		var key = d.key;
-		var wcount = scale[group].paddingLeft;
-		var xcount = scale[group].paddingLeft;
-		var value = d.value; 
-		var name = d.name;
-
-		d3.select('#'+group+(i+1)+'label').text(function(d,i){
-			if(value>0){ return value; } else { return ''};
+		// affected groups
+		var dat = dataset.filter(function(d){
+			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 		});
 
-		d3.select('#'+group+(i+1)+'percentlabel').text(function(d,i){
-			var p = (value/total)*100;
-			p = Math.round(p);
-			if(value>0){ return '('+p+'%)'; } else { return ''};
-		});
+		var nest = d3.nest()
+		.key(function(d) { return d[group]; })
+		.key(function(d) { if((filters.toggle=='severity')||(filters.toggle=='finalScore')){ return d.s; } else { return d.r } }).sortKeys(d3.ascending)
+		.rollup(function(leaves) { return leaves.length; })		
+		.entries(dat);	
 
-		if(group=='sector'){
-			d3.select('.'+group+'-icon-'+(i+1))
-			.attr('href', function(d,i){
-				return 'images/sector-icons/'+name.toLowerCase()+'.svg'
+		nest.forEach(function(d,i){
+			d.value = d3.sum(d.values, function(d){
+				return d.value;
 			})
-			.style('opacity', function(d,i){
-				if(filters['sector'].includes(key)){
-					return 1;
-				} else {
-					return 0.2;
-				}
-			})				
+		});
+
+		if(sort==true){
+			nest = nest.sort(function(x,y){
+				return d3.ascending(y.value, x.value);
+			});
 		}
 
-		d.values.forEach(function(dd,ii){
-			var s = dd.key;
-			var id = group+(i+1)+'s'+(s);
-			var w = scale[group].x(dd.value)-wcount;
-			d3.select('#'+id )
-			.attr('x', xcount)
-			.attr('width', w)
-			.attr('data-value', dd.value)
-			.style('fill', function(){
-				if((filters.toggle=='severity')||(filters.toggle=='finalScore')){
-					return colorPrimary[s];
-				} else {
-					return colorSecondary[s];
+		if(group=='organisation'){
+			nest = nest.splice(0,10);
+		}
+
+		var d = [];
+
+		metadata[data_group].forEach(function(mt,ii){
+			var name = mt.name.substr(0,labelCharLimit-7);
+			if(name.length==labelCharLimit-7) name += '.';
+			var key = mt.id;
+			var value = 0;
+			var values = [];
+			nest.forEach(function(dd,ii){
+				if(mt.id==dd.key){
+					value = dd.value;
+					values = dd.values;
 				}
 			});
-			var rect = document.querySelector('#'+id)
-			tippy(rect, { 
-				content: setBarName(s),
-				theme: 'light-border',
-				delay: [250,100],
-				inertia: false,
-				distance: 8,
-				allowHTML: true,
-				animation: 'shift-away',
-				arrow: true,
-				size: 'small',
-				onShow(instance) {
-			        var v = d3.select('#'+id).attr('data-value');
-			        if(s>=0)
-			        	instance.setContent(setBarName(s, v));
-				    }
-			});
-			xcount = xcount + w;
+			d.push({'key': key, 'value': value, 'values': values, 'name': name});
 		});
-	});
 
-	if(filters[group].length>0){
-		d3.selectAll('.'+group).style('opacity', 0.2);
-		d3.selectAll('.'+group+'-bg').style('opacity', 0);
-	}
-	filters[group].forEach(function(d,i){
-		d3.selectAll('.'+group+'-'+(d)).style('opacity', 1);
-	});
-}
+		if(sort==true){
+			d = d.sort(function(x,y){
+				return d3.ascending(y.value, x.value);
+			});
+		}
+
+		if(group=='organisation'){
+			d = d.splice(0,10);
+		}
+
+		var rowMax = d3.max(d, function(d,i){
+			return d.value
+		});
+
+		scale[group].x.domain([0, rowMax]);// severity/reliability x xcale
+
+	    // reset all bars to zero width
+	    d3.selectAll('.'+group+'-bar').attr('width', 0);
+
+		var rows = d3.selectAll('.'+group+'-row')
+		.data(d)
+		.attr('class', function(d,i){
+			return 'bar-row '+group+'-row '+group+'-bar-row'+d.key;
+		});
+
+		var labels =d3.selectAll('text.'+group)
+		.data(d)
+		.text(function(d,ii){
+			return d.name;
+		})
+		.attr('class', function(d,i){
+			return group + ' ' +group +'-'+d.key;``
+		})
+		.style('opacity', 1);
+
+		d3.selectAll('.'+group+'-bg')
+		.data(d)
+		.attr('class', function(d,i) { 
+			return group+'-bg ' + group + '-bg-'+d.key;
+		}).on('click', function(d,i){
+			return Deepviz.filter(group, d.key);
+		});
+
+		d.forEach(function(d,i){
+			var key = d.key;
+			var wcount = scale[group].paddingLeft;
+			var xcount = scale[group].paddingLeft;
+			var value = d.value; 
+			var name = d.name;
+
+			d3.select('#'+group+(i+1)+'label').text(function(d,i){
+				if(value>0){ return value; } else { return ''};
+			});
+
+			d3.select('#'+group+(i+1)+'percentlabel').text(function(d,i){
+				var p = (value/total)*100;
+				p = Math.round(p);
+				if(value>0){ return '('+p+'%)'; } else { return ''};
+			});
+
+			if(group=='sector'){
+				d3.select('.'+group+'-icon-'+(i+1))
+				.attr('href', function(d,i){
+					return 'images/sector-icons/'+name.toLowerCase()+'.svg'
+				})
+				.style('opacity', function(d,i){
+					if(filters['sector'].includes(key)){
+						return 1;
+					} else {
+						return 0.2;
+					}
+				})				
+			}
+
+			d.values.forEach(function(dd,ii){
+				var s = dd.key;
+				var id = group+(i+1)+'s'+(s);
+				var w = scale[group].x(dd.value)-wcount;
+				d3.select('#'+id )
+				.attr('x', xcount)
+				.attr('width', w)
+				.attr('data-value', dd.value)
+				.style('fill', function(){
+					if((filters.toggle=='severity')||(filters.toggle=='finalScore')){
+						return colorPrimary[s];
+					} else {
+						return colorSecondary[s];
+					}
+				});
+				var rect = document.querySelector('#'+id)
+				tippy(rect, { 
+					content: setBarName(s),
+					theme: 'light-border',
+					delay: [250,100],
+					inertia: false,
+					distance: 8,
+					allowHTML: true,
+					animation: 'shift-away',
+					arrow: true,
+					size: 'small',
+					onShow(instance) {
+				        var v = d3.select('#'+id).attr('data-value');
+				        if(s>=0)
+				        	instance.setContent(setBarName(s, v));
+					    }
+				});
+				xcount = xcount + w;
+			});
+		});
+
+		if(filters[group].length>0){
+			d3.selectAll('.'+group).style('opacity', 0.2);
+			d3.selectAll('.'+group+'-bg').style('opacity', 0);
+		}
+		filters[group].forEach(function(d,i){
+			d3.selectAll('.'+group+'-'+(d)).style('opacity', 1);
+		});
+
+		updating[group] = false;
+	} ,updateInterval);
+
+}}
 
 var setBarName = function(s,v){
 	// if(s==0) return false;
