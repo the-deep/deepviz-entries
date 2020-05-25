@@ -976,10 +976,22 @@ font-size: 15px;
 	stroke-opacity: 1;
 }
 
-.domain {
-	stroke: #9D9D9D !important;
+.bar { 
+	outline: none; 
+	cursor: pointer;
 }
 
+.cell { 
+	outline: none; 
+}
+
+.domain {
+	stroke: #d5d5d5 !important;
+}
+
+.xAxis2 .domain {
+	stroke: #9d9d9d !important;
+}
 .framework-domain {
 	stroke: #CCCCCC !important;
 }
@@ -1073,7 +1085,7 @@ font-size: 15px;
 	position: absolute;
     top: 7px;
     display: inline;
-    right: 52px;
+    right:190px;
     z-index: 200;
     cursor: pointer !important;
     zoom: 0.6;
@@ -1086,6 +1098,24 @@ font-size: 15px;
 #adm2,
 #adm3 {
     cursor: pointer;
+}
+
+#map-bg-toggle {
+	position: absolute;
+    top: 5px;
+    display: inline;
+    right: 39px;
+    z-index: 200;
+    cursor: pointer !important;
+    zoom: 0.8;
+}
+
+#map-bg-toggle select {
+	height: 30px;
+	width: 100px;
+    border: 2px solid #b7bebe;
+    outline: none;
+    font-weight: normal;
 }
 
 #heatmap-radius-slider-div {

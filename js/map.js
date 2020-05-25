@@ -6,6 +6,7 @@ var transform;
 var transform2;
 var path2;
 var heatmapColor = 'entries';
+var radius = 40; 
 
 var heatmapColorEntries = [
 		'interpolate',
@@ -129,11 +130,41 @@ Map.create = function(){
 	});
 
 	var bounds = new mapboxgl.LngLatBounds([d3.min(geoBounds.lat),d3.min(geoBounds.lon)], [d3.max(geoBounds.lat),d3.max(geoBounds.lon)] );
+ 
+	var mapboxStyle = $('#map-bg-toggle select').val();
+
+	$('#map-bg-toggle select').on('change', function(){
+		mapboxStyle = $('#map-bg-toggle select').val();
+
+		if (map.getLayer('#heatmap')) map.removeLayer('#heatmap');
+		if (map.getSource('heatmap')) map.removeSource('heatmap');
+		// if (map.getLayer("mapbox-custom-bg")) map.removeLayer("mapbox-custom-bg");
+		// if (map.getSource("mapbox-custom-bg")) map.removeSource("mapbox-custom-bg");
+
+		// 	map.addLayer({
+		// 		id: 'mapbox-custom-bg',
+		// 		source: {"type": "raster",  "url": "mapbox://"+mapboxStyle, "tileSize": 256},
+		// 		type: "raster",
+		// 		layout: {"visibility":"visible"}
+		// 	}, '#heatmap');
+
+		map.setStyle('mapbox://styles/mapbox/' + mapboxStyle);
+
+		map.on('style.load', function() {
+		    Map.createHeatmap();
+	    });
+
+	})
+	if (url.searchParams.get('mapboxStyle')) {
+		mapboxStyle = url.searchParams.get('mapboxStyle');
+		$('#map-bg-toggle select').val(mapboxStyle);
+
+	}
 
     //Setup mapbox-gl map
     map = new mapboxgl.Map({
         container: 'map', // container id
-        style: 'mapbox://styles/mapbox/light-v9',
+        style: 'mapbox://styles/mapbox/light-v10',
         center: [d3.mean(geoBounds.lat), d3.mean(geoBounds.lon)],
         zoom: 4,  
         trackResize: true,
@@ -163,7 +194,13 @@ Map.create = function(){
 
     this.createBubbles();
     this.createChoropleth();
-    this.createHeatmap();
+
+    map.on('load', function() {
+	    Map.createHeatmap();
+	})
+
+ //    map.on('load', function() {
+	// })
 
 	d3.selectAll('#geoRemoveFilter').on('click', function(){
 		d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
@@ -659,7 +696,19 @@ Map.createHeatmap = function(){
     	}
     });
 
-	map.on('load', function() {
+	if (map.getLayer('#heatmap')) map.removeLayer('#heatmap');
+	if (map.getSource('heatmap')) map.removeSource('heatmap');
+
+	if(filters.frameworkToggle!='entries'){
+		if(filters.toggle=='severity'){
+			var heatmapColor = heatmapColorSeverity;	
+		} else {
+			var heatmapColor = heatmapColorReliability;	
+		}
+	} else {
+		var heatmapColor = heatmapColorEntries;
+	}
+
 		map.addSource('heatmap', {
 			type: 'geojson',
 			data: metadata.geo_json_point
@@ -674,20 +723,20 @@ Map.createHeatmap = function(){
 			// Increase the heatmap weight based on frequency and property magnitude
 			'heatmap-weight': { property: 'value', type: 'exponential', stops: [[0,0],[1,0.1],[100,1]]},
 			'heatmap-intensity': 1.4,
-			'heatmap-color': heatmapColorEntries,
-			'heatmap-radius': 40,
+			'heatmap-color': heatmapColor,
+			'heatmap-radius': radius,
 			'heatmap-opacity': 0
 			}
 			},
 			'waterway-label'
 			);
-	});
 
 	Map.update();
 
 	//**************************
 	// heatmap radius slider
 	//**************************
+	if(document.getElementById("heatmap-radius-slider")) return;
 
 	// create average svg
 	var heatmapSliderSvg = d3.select('#heatmap-radius-slider-div').append('svg')
@@ -708,7 +757,7 @@ Map.createHeatmap = function(){
 	.attr('height', 22)
 	.style('fill', '#FFF')
 	.style('stroke-width', 3)
-	.style('stroke', '#B7BEBE')
+	.attr('stroke', '#B7BEBE')
 	.attr('rx', 3)
 	.attr('ry', 3);
 
@@ -758,7 +807,7 @@ Map.createHeatmap = function(){
 	.attr('ry', 7)
 	.style('fill', '#FFF')
 	.style('stroke-width', 3)
-	.style('stroke', '#B7BEBE');
+	.attr('stroke', '#B7BEBE');
 
 	heatmapSliderSvg.append('text')
 	.text('Radius')
@@ -800,6 +849,7 @@ Map.createHeatmap = function(){
 			var heatmapScale = heatmapSliderScale(d3.event.x);
 			heatmapSliderHandle.attr('transform', 'translate(' + heatmapScale +',-10)');
 			var heatmapScaleInvert = heatmapSliderScale2.invert(heatmapScale);
+			radius = heatmapScaleInvert;
 			if(mapToggle == 'heatmap'){
 				map.setPaintProperty('#heatmap', 'heatmap-radius', heatmapScaleInvert);
 			}
@@ -819,7 +869,7 @@ Map.createHeatmap = function(){
     .attr("class", "handle");
 
 	if(mapToggle == 'heatmap'){
-		map.setPaintProperty('#heatmap', 'heatmap-radius', 40);
+		map.setPaintProperty('#heatmap', 'heatmap-radius', radius);
 	}
 
     heatmapSliderHandle
@@ -829,8 +879,6 @@ Map.createHeatmap = function(){
     .attr('fill', '#000')
     .attr("cursor", "ew-resize")
     .attr("d", 'M -7,0 -1,9 6,0 z');
-
-
 
 }
 
@@ -885,7 +933,7 @@ Map.update = function(){
 		Map.updateChoropleth();
 	} else if (mapToggle=='heatmap') {
 		Map.updateHeatmap();
-	}
+	}		
 }
 
 //**************************
@@ -910,7 +958,7 @@ Map.updateBubbles = function(){
 			}
 		});
 
-		var sev = d3.nest()
+		var bubbles = d3.nest()
 		.key(function(d) {  return d.geo;})
 		.rollup(function(v) { return {
 			'value': Math.round(d3.median(v, function(d) { if(filters.toggle=='severity'){return d.s;} else { return d.r; } } )), 
@@ -921,7 +969,7 @@ Map.updateBubbles = function(){
 		})
 		.entries(locationBySeverityReliability);
 
-	    maxMapBubbleValue = d3.max(sev, function(d) {
+	    maxMapBubbleValue = d3.max(bubbles, function(d) {
 	    	return d.value.total;
 	    });
 
@@ -929,7 +977,7 @@ Map.updateBubbles = function(){
 		.range([0.1,1])
 		.domain([0,maxMapBubbleValue]);
 
-		sev.forEach(function(d,i){
+		bubbles.forEach(function(d,i){
 
 			var geo = metadata.geo_array[d.key-1];
 			var tot = d.value.total;
@@ -945,19 +993,19 @@ Map.updateBubbles = function(){
 
 			if(filters.frameworkToggle=='entries'){
 				d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-				d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+				d3.selectAll('.outerCircle').attr('stroke', colorNeutral[3]);
 			} else {
 				if(filters.toggle=='severity'){
 					d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorPrimary[d.value.value]);
-					d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorPrimary[d.value.value]);
+					d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorPrimary[d.value.value]);
 				} else {
 					d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorSecondary[d.value.value]);
-					d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', colorSecondary[d.value.value]);
+					d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorSecondary[d.value.value]);
 				}
 			}
 
 			if(filters.geo.includes(geo.id)){
-				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', 'cyan');
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', 'cyan');
 			}
 
 		});
@@ -970,7 +1018,7 @@ Map.updateBubbles = function(){
 			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.admin_level==filters.admin_level));
 		});
 
-		var sev = d3.nest()
+		var bubbles = d3.nest()
 		.key(function(d) {  return d.geo;})
 		.rollup(function(v) { return {
 			'total': d3.sum(v, function(d){
@@ -980,7 +1028,7 @@ Map.updateBubbles = function(){
 		})
 		.entries(locationBySeverityReliability);
 
-	    maxMapBubbleValue = d3.max(sev, function(d) {
+	    maxMapBubbleValue = d3.max(bubbles, function(d) {
 	    	return d.value.total;
 	    });
 
@@ -988,7 +1036,7 @@ Map.updateBubbles = function(){
 		.range([0.1,1])
 		.domain([0,maxMapBubbleValue]);
 
-		sev.forEach(function(d,i){
+		bubbles.forEach(function(d,i){
 
 			var geo = metadata.geo_array[d.key-1];
 			var tot = d.value.total;
@@ -1002,11 +1050,24 @@ Map.updateBubbles = function(){
 			} 
 			d3.selectAll('#bubble'+(d.key-1)+' .map-bubble-value').text(d.value.total);
 
-			d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-			d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+			// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+			// d3.selectAll('.outerCircle').attr('stroke', colorNeutral[3]);
+
+			if(filters.frameworkToggle=='entries'){
+				d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorNeutral[3]);
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorNeutral[3]);
+			} else {
+				if(filters.toggle=='severity'){
+					d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorPrimary[d.value.value]);
+					d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorPrimary[d.value.value]);
+				} else {
+					d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorSecondary[d.value.value]);
+					d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorSecondary[d.value.value]);
+				}
+			}
 
 			if(filters.geo.includes(geo.id)){
-				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').style('stroke', 'cyan');
+				d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', 'cyan');
 			}
 			
 		})
@@ -1096,7 +1157,7 @@ Map.updateChoropleth = function(){
 					return 'none';
 				}
 			})
-			.style('stroke', function(d,i){
+			.attr('stroke', function(d,i){
 				var id = d.properties.id;
 				if(filters.geo.includes(id)){
 					return 'cyan';
@@ -1148,7 +1209,7 @@ Map.updateChoropleth = function(){
 					return 'none';
 				}
 			})
-			.style('stroke', function(d,i){
+			.attr('stroke', function(d,i){
 				var id = d.properties.id;
 				if(filters.geo.includes(id)){
 					return 'cyan';
@@ -1168,6 +1229,8 @@ Map.updateChoropleth = function(){
 // update heatmap
 //**************************
 Map.updateHeatmap = function(){
+
+    if(!map.getSource('heatmap')) return;
 
 	d3.selectAll('.bubble')
 	.style('display', 'none');
@@ -1288,4 +1351,15 @@ Map.updateHeatmap = function(){
 	}
 	map.setPaintProperty('#heatmap', 'heatmap-opacity', 0.6);
 	map.setLayoutProperty('#heatmap', 'visibility', 'visible');		
+}
+
+function check_style_status() {
+  if (map.isStyleLoaded()) {
+    checking_style_status = false;
+    map._container.trigger('map_style_finally_loaded');
+  } else {
+    // If not yet loaded, repeat check after delay:
+    setTimeout(function() {check_style_status();}, 200);
+    return;
+  }
 }
