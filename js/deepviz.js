@@ -1394,6 +1394,8 @@ var Deepviz = function(sources, callback){
 		updateTopAxis = function(){
 
 			var count = (Math.abs(moment(dateRange[1]).diff(moment(dateRange[0]), 'months', true)));
+			var tickFormat = d3.timeFormat("%d %b %Y");
+			var tLength = '6%';
 
 			if((count<=0.4)){
 				if(axisRange=='single day') return; // if already 'single month' then break out of fn
@@ -1423,8 +1425,31 @@ var Deepviz = function(sources, callback){
 				axisRange = 'every 3 months';
 			}
 
+			if(filters.time=='m'){
+
+				var tickFormat = d3.timeFormat("%b %Y");
+				var tLength = '5%';
+
+				if((count<=10)){
+					var ticks = d3.timeMonth.every(1);
+					axisRange = 'single month';
+				}
+
+				if((count>10)){
+					var ticks = d3.timeMonth.every(3);
+					axisRange = 'every 3 months';
+				}
+			}
+
+			if(filters.time=='y'){
+				var tickFormat = d3.timeFormat("%Y");
+				var tLength = '3%';
+				var ticks = d3.timeYear.every(1);
+				axisRange = 'single year';
+			}
+
 			xAxisTop
-			.tickFormat(d3.timeFormat("%d %b %Y"))
+			.tickFormat(tickFormat)
 			.ticks(ticks);
 					
 			d3.select('.xAxis2')
@@ -1444,7 +1469,7 @@ var Deepviz = function(sources, callback){
 			.attr('lengthAdjust', 'spacingAndGlyphs')
 			.attr('text-anchor', 'start')
 			.attr('text-align', 'left')
-			.attr('textLength', '6%')
+			.attr('textLength', tLength)
 			.attr('font-variant', 'small-caps')
 			.attr('x', '0.3%');
 
