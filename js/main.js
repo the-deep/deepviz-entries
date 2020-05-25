@@ -31,7 +31,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// framework chart
 	//**************************
-	var frameworkChart = Deepviz.createFrameworkChart();
+	var frameworkChart = DeepvizFramework.create();
 
 	//**************************
 	// time chart
@@ -41,7 +41,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	var timelineSvg = Deepviz.createSvg({
 		id: 'timeline_viz',
 		viewBoxWidth: 1300,
-		viewBoxHeight: 870,
+		viewBoxHeight: 900,
 		div: '#timeline'
 	});
 
