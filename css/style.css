@@ -64,6 +64,17 @@ svg text {
 	width: 100px;
 }
 
+#loading { 
+	float: right;
+    padding-top: 15px;
+    padding-right: 8px;
+    display: none;
+}
+
+#loading img {
+	height: 20px;
+}
+
 #top-row {
 	height: 55px;
 	border-bottom: 2px solid #e8e8e8;
@@ -922,7 +933,7 @@ font-size: 15px;
 #avg-line {
 	stroke-dasharray: 3 3; 
 	stroke-width: 1;
-	stroke-opacity: 0.4;
+	stroke-opacity: 0.7;
 	fill: none;
 }
 
