@@ -2952,8 +2952,7 @@ var Deepviz = function(sources, callback){
 
 			// filter data
 			data = data.filter(function(d){
-				return d['context'].some(r=> filters['context'].indexOf(parseInt(r)) >= 0);
-				// return filters['sector'].includes(d['sector'][2]);
+				return d['sector'].some(r=> filters['context'].indexOf(parseInt(r[0])) >= 0);
 			});
 			// bar/text shading
 			filters.context.forEach(function(d,i){
