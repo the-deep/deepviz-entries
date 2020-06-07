@@ -367,9 +367,7 @@ DeepvizFramework.create = function(a){
 	});
 
 	// sparkline containers
-
-	var rollingH = 0;
-	
+	rollingH = 0;
 	frameworkSparklineHeight = d3.min(categories, function(d,i){
 		return d.value-1;
 	})*rowHeight-sparklinePadding.bottom;
@@ -379,7 +377,7 @@ DeepvizFramework.create = function(a){
 	    .range([0, (leftColWidth)-(sparklinePadding.left+sparklinePadding.right)])
 	    .rangeRound([0, (leftColWidth)-(sparklinePadding.left+sparklinePadding.right)], 0);
 
-	var sparklineContainers = layer2.selectAll('.sparkline')
+	layer2.selectAll('.sparkline')
 	.data(categories)
 	.enter()
 	.append('g')
@@ -948,10 +946,11 @@ DeepvizFramework.updateSparklines = function(){
 	// });
 
 	var dataByDateSparkline = [...dataByFrameworkContext];
+	var sparklineDates;
 
 	// parse missing dates
 	if(filters.time=='d'){
-		var dates = d3.timeDays(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		sparklineDates = d3.timeDays(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
 		dateIndex = dataByDateSparkline.map(function(d) { return d.date.getTime(); });
 
 		dataByDateSparkline = d3.nest()
@@ -969,7 +968,7 @@ DeepvizFramework.updateSparklines = function(){
 	}
 
 	if(filters.time=='m'){
-		var dates = d3.timeMonths(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		sparklineDates = d3.timeMonths(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
 		dateIndex = dataByDateSparkline.map(function(d) { return d.month.getTime(); });
 
 		dataByDateSparkline = d3.nest()
@@ -986,7 +985,7 @@ DeepvizFramework.updateSparklines = function(){
 	}
 
 	if(filters.time=='y'){
-		var dates = d3.timeYears(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		sparklineDates = d3.timeYears(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
 		dateIndex = dataByDateSparkline.map(function(d) { return d.year.getTime(); });
 
 		dataByDateSparkline = d3.nest()
@@ -1002,7 +1001,7 @@ DeepvizFramework.updateSparklines = function(){
 		.entries(dataByDateSparkline);
 	}
 
-	dates.forEach(function(d,i){
+	sparklineDates.forEach(function(d,i){
 		if(!dateIndex.includes(d.getTime())){
 			dataByDateSparkline.push({
 				'key': d,

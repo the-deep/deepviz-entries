@@ -1925,7 +1925,7 @@ var Deepviz = function(sources, callback){
 		// hover 
 		//**************************
 		
-		var barsBg = dateHover.append('rect')
+		dateHover.append('rect')
 		.attr('height', timechartHeight2)
 		.attr('x', 0)
 		.attr('y', 0)
@@ -2856,9 +2856,7 @@ var Deepviz = function(sources, callback){
 		} else if(value == 'clearFramework'){
 			filters['sector'] = [];
 			filters['context'] = [];
-		} else if(value == 'reset'){
-		  	
-		} else {
+		} else if(value != 'reset'){
 		  addOrRemove(filters[filterClass], value);		
 		}
 
