@@ -34,6 +34,11 @@ var Deepviz = new Deepviz(sources, function(data){
 	var frameworkChart = DeepvizFramework.create();
 
 	//**************************
+	// framework chart sparklines
+	//**************************
+	// var frameworkSparklines = DeepvizFramework.createSparklines();
+
+	//**************************
 	// time chart
 	//**************************
 

@@ -1,4 +1,8 @@
 var DeepvizFramework = {};
+var categories; 
+var sparklinePadding = {'left': 5, 'right': 5, 'bottom': 10 };
+var leftColWidth = 232;
+var pointWidth; 
 
 DeepvizFramework.create = function(a){
 
@@ -14,8 +18,6 @@ DeepvizFramework.create = function(a){
 		var leftSpacing = 575; 
 	}
 
-	var leftColWidth = 232;
-	
 	var frameworkWidth = 1600;
 	var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
 	var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom))/numFrameworkRows;
@@ -301,7 +303,7 @@ DeepvizFramework.create = function(a){
 
 	// row filters
 
-	var categories = d3.nest()
+	categories = d3.nest()
 	.key(function(d) { return d.context_id;})
 	.rollup(function(leaves) { return leaves.length; })
 	.entries(metadata.framework_groups_array);
@@ -363,6 +365,35 @@ DeepvizFramework.create = function(a){
 	.on('click', function(d,i){
 		Deepviz.filter('context', parseInt(d.key));
 	});
+
+	// sparkline containers
+	rollingH = 0;
+	frameworkSparklineHeight = d3.min(categories, function(d,i){
+		return d.value-1;
+	})*rowHeight-sparklinePadding.bottom;
+
+	scale.sparkline.x = d3.scaleTime()
+	    .domain([0, dataByDate.length-1])
+	    .range([0, (leftColWidth)-(sparklinePadding.left+sparklinePadding.right)])
+	    .rangeRound([0, (leftColWidth)-(sparklinePadding.left+sparklinePadding.right)], 0);
+
+	layer2.selectAll('.sparkline')
+	.data(categories)
+	.enter()
+	.append('g')
+	.attr('id', function(d,i){ return 'sparkline-g-'+d.key })
+	.attr('data-width', (leftColWidth)-(sparklinePadding.left+sparklinePadding.right))
+	.attr('data-height', frameworkSparklineHeight)
+	.attr('data-x', sparklinePadding.left)
+	.attr('data-y', function(d,i){
+		if(i==0){
+			rollingH += rowHeight;
+			return rowHeight + rowHeight;
+		} else { 
+			rollingH += (categories[i-1].value) * rowHeight;
+			return rollingH + rowHeight;
+		}
+	})
 
 	// grid
 	var cells = rows.selectAll('.frameworkCol')
@@ -586,6 +617,7 @@ DeepvizFramework.create = function(a){
 		DeepvizFramework.updateFramework();
 		Deepviz.updateTimeline();
 	});	
+
 }
 
 //**************************
@@ -753,4 +785,288 @@ DeepvizFramework.updateFramework = function(){
 			});
 		});
 	});
+}
+
+//**************************
+// create sparklines
+//**************************
+DeepvizFramework.createSparklines = function(){
+	
+	categories.forEach(function(d,i){
+
+		var dimensions = {};
+
+		dimensions.key = d.key;
+
+		var container = d3.select('#sparkline-g-'+d.key)
+		.attr('transform', function(d,i){
+			dimensions.y = parseInt(d3.select(this).attr('data-y'));
+			return 'translate(0,'+ dimensions.y + ')';
+		})
+
+
+		container.append('rect')
+		.attr('class', 'sparkline-bg')
+		.attr('id', function(d,i){ return 'sparkline-bg-'+d.key })
+		.attr('x', function(d,i){
+			return d3.select(this.parentNode).attr('data-x');
+		})
+		.attr('width', function(d,i){
+			return d3.select(this.parentNode).attr('data-width');
+		})
+		.attr('height', function(d,i){
+			return d3.select(this.parentNode).attr('data-height');
+		})
+		.attr('y', 0)
+		.style('cursor', function(d,i){
+
+		})
+		.style('fill', '#E9E9E9');
+
+
+		container.append('rect')
+		.attr('class', 'sparkline-overlay')
+		.attr('id', function(d,i){ return 'sparkline-overlay-'+d.key })
+		.attr('x', function(d,i){
+			dimensions.x = parseInt(d3.select(this.parentNode).attr('data-x'));
+			return dimensions.x;
+		})
+		.attr('width', function(d,i){
+			dimensions.width = parseInt(d3.select(this.parentNode).attr('data-width'));
+			return dimensions.width;
+		})
+		.attr('height', function(d,i){
+			dimensions.height = parseInt(d3.select(this.parentNode).attr('data-height'));
+			return dimensions.height;
+		})
+		.attr('y', 0)
+		.style('cursor', function(d,i){
+
+		})
+		.style('fill', '#FFF');
+
+		container.append('rect')
+		.attr('class', 'sparkline-hover')
+		.attr('id', function(d,i){ return 'sparkline-hover-'+d.key })
+		.attr('x', function(d,i){
+			return dimensions.x + 100;
+		})
+		.attr('width', function(d,i){
+			return 1;
+		})
+		.attr('height', function(d,i){
+			return dimensions.height;
+		})
+		.attr('y', 0)
+		.attr('opacity', 0)
+		.style('cursor', function(d,i){
+
+		})
+		// .style('fill', '#F7F7F7');
+		.style('fill', '#B4B4B4');
+
+		container.append('path')
+		.attr('class', 'sparkline')
+		.attr('id', function(d,i){ return 'sparkline-'+dimensions.key })
+		.attr("stroke", colorNeutral[2])
+		.attr("fill", 'transparent')
+	    .attr("stroke-width", 1.5);
+
+	    d3.select('#context-filter'+dimensions.key)
+	    .on('mouseover', function(d,i){
+			
+	    })
+	    .on('mouseout', function(d,i){
+			d3.select('#dateHoverRect').attr('opacity', 0);
+			d3.select('#eventDropDateHoverRect').attr('opacity', 0);
+			d3.selectAll('.sparkline-hover').attr('opacity', 0);
+	    })
+		.on('mousemove', function(d,i){
+			var pos = d3.mouse(this);
+			var x = pos[0];
+			var y = pos[1];
+			if((x>=dimensions.x)&&(x<=(dimensions.x+dimensions.width))){
+				if((y>=dimensions.y)&&(y<=(dimensions.y+dimensions.height))){
+					var x = scale.sparkline.x.invert(x);
+
+					var w;
+					if(filters.time=='d'){ 
+						var x1 = d3.timeDay.floor(x);
+						w = d3.timeDay.ceil(x);
+						w = scale.timechart.x(w) - scale.timechart.x(x1);
+					}
+					if(filters.time=='m'){ 
+						var x1 = d3.timeMonth.floor(x);
+						w = d3.timeMonth.ceil(x);
+						w = scale.timechart.x(w) - scale.timechart.x(x1);
+					}
+					if(filters.time=='y'){ 
+						var x1 = d3.timeYear.floor(x);
+						w = d3.timeYear.ceil(x);
+						w = scale.timechart.x(w) - scale.timechart.x(x1);				
+					}
+					d3.select('#dateHoverRect').attr('x', scale.timechart.x(x1))
+					.attr('width', w);
+
+					d3.select('#eventDropDateHoverRect').attr('x', scale.timechart.x(x1))
+					.attr('width', w);
+					d3.selectAll('.sparkline-hover').attr('x', scale.sparkline.x(x1)+pointWidth/2);
+
+					d3.select('#dateHoverRect').attr('opacity', 1);
+					d3.select('#eventDropDateHoverRect').attr('opacity', 1);
+					d3.selectAll('.sparkline-hover').attr('opacity', 1);
+				} else {
+					d3.select('#dateHoverRect').attr('opacity', 0);
+					d3.select('#eventDropDateHoverRect').attr('opacity', 0);
+					d3.selectAll('.sparkline-hover').attr('opacity', 0);
+				}
+			}
+		});
+
+	});
+
+	DeepvizFramework.updateSparklines();
+
+}
+
+//**************************
+// update sparklines
+//**************************
+DeepvizFramework.updateSparklines = function(){
+
+	if(frameworkSparklinesCreated===false){
+		frameworkSparklinesCreated = true;
+		return DeepvizFramework.createSparklines();
+	}	
+
+	// var emptyContext = {};
+
+	// metadata.context_array.forEach(function(d,i){
+	// 	emptyContext[i] = {'median_r': null, 'median_s': null, 'total': 0}
+	// });
+
+	var dataByDateSparkline = [...dataByFrameworkContext];
+	var sparklineDates;
+
+	// parse missing dates
+	if(filters.time=='d'){
+		sparklineDates = d3.timeDays(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.date.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.date); })
+		.key(function(d) { return d.context; })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+
+	}
+
+	if(filters.time=='m'){
+		sparklineDates = d3.timeMonths(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.month.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.month); })
+		.key(function(d) { return d.context; })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	if(filters.time=='y'){
+		sparklineDates = d3.timeYears(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.year.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.year); })
+		.key(function(d) { return d.context; })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	sparklineDates.forEach(function(d,i){
+		if(!dateIndex.includes(d.getTime())){
+			dataByDateSparkline.push({
+				'key': d,
+				'values': null
+			})
+		}		
+	})
+
+	dataByDateSparkline.forEach(function(d,i){
+		d.key = new Date(d.key);
+		d.context = [];
+		if(d.values){
+			d.values.forEach(function(dd,ii){
+				d.context[dd.key-1] = dd.value.total;
+			})		
+		}
+
+	})
+	dataByDateSparkline.sort(function(x,y){
+		return d3.ascending(x.key, y.key);
+	});
+
+
+	pointWidth = (leftColWidth - sparklinePadding.left)/dataByDateSparkline.length;
+
+	categories.forEach(function(d,i){
+
+		var contextId = d.key;
+
+		// find maximum value
+		var contextMax = d3.max(dataByDateSparkline, function(d,i){
+			return d.context[contextId-1];
+		});
+
+		// define x scale
+		scale.sparkline.x = scale.timechart.x.copy();
+		scale.sparkline.x.range([sparklinePadding.left, (leftColWidth-sparklinePadding.right)])
+
+		// define y scale
+		scale.sparkline.y = d3.scaleLinear()
+	    .range([frameworkSparklineHeight, 1])
+	    .domain([0, contextMax]);
+
+	    if(contextMax>0){
+			d3.select('#sparkline-'+contextId)
+			.datum(dataByDateSparkline)
+			.attr("d", d3.line()
+		        .x(function(d) { return scale.sparkline.x(d.key)+pointWidth/2 })
+		        .y(function(d) { 
+		        	var v = d.context[contextId-1];
+		        	if(v===undefined)v=0;
+		        	return scale.sparkline.y(v);
+		        })
+	        ).attr('opacity', 1);   	
+	    } else {
+	    	d3.select('#sparkline-'+contextId).attr('opacity', 0);
+	    }
+
+	});
+
+}
+
+DeepvizFramework.updateSparklinesOverlay = function(d1){
+	if(scale.sparkline.x(d1[0])>1000) return;
+	d3.selectAll('.sparkline-overlay')
+	.attr('x', scale.sparkline.x(d1[0]))
+	.attr('width', scale.sparkline.x(d1[1])-scale.sparkline.x(d1[0]))
 }
