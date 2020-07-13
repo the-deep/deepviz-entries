@@ -201,9 +201,6 @@ Map.create = function(){
 	    Map.createHeatmap();
 	});
 
- //    map.on('load', function() {
-	// })
-
 	d3.selectAll('#geoRemoveFilter').on('click', function(){
 		d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
 		$('#location-search').val(); 
@@ -212,6 +209,7 @@ Map.create = function(){
 	});
 
 	this.createSearch();
+	this.createTooltipSparkline();
 
 	// map lasso
 	lassoActive = false;
@@ -417,11 +415,20 @@ Map.createBubbles = function(){
 	.append('g')
 	.attr('class','bubble')
 	.style('outline', 'none')
-	.attr('data-tippy-content',function(d,i){
+	.attr('data-name',function(d,i){
 		return metadata.geo_array[i].name;
 	})
 	.attr('id', function(d,i){
-		return 'bubble'+i
+		return 'bubble'+i;
+	})
+	.attr('data-id', function(d,i){
+		return i+1;
+	})
+	.attr('data-total', function(d,i){
+		return d.value;
+	})
+	.attr('data-median', function(d,i){
+		return d.median;
 	})
 	.attr('transform', function(d,i){
 		p = Map.projectPoint(metadata.geo_array[i].centroid[0], metadata.geo_array[i].centroid[1]);
@@ -442,7 +449,15 @@ Map.createBubbles = function(){
 		allowHTML: true,
 		animation: 'shift-away',
 		arrow: true,
-		size: 'small'
+		size: 'small',
+		onShow(instance){
+			var geoId = d3.select(d3.select(instance.reference).node()).attr('data-id');
+			var geoName = d3.select(d3.select(instance.reference).node()).attr('data-name');
+			var geoTotal = d3.select(d3.select(instance.reference).node()).attr('data-total');
+			var geoMedian = d3.select(d3.select(instance.reference).node()).attr('data-median');
+        	var html = Map.updateTooltipSparkline(geoId, geoName, geoTotal, geoMedian);
+        	(html) ? instance.setContent(html) : instance.setContent(geoName)
+		}
 	});
 
 	var featureElementG = bubbles
@@ -591,7 +606,18 @@ Map.createChoropleth = function(){
     	return 'polygon-'+d.properties.id;
     })
     .attr('class', 'polygon')
-    .attr('data-value', 0)
+	.attr('data-id', function(d,i){
+		return i+1;
+	})
+	.attr('data-name', function(d,i){
+		return metadata.geo_array[i].name;
+	})
+	.attr('data-total', function(d,i){
+		return d.value;
+	})
+	.attr('data-median', function(d,i){
+		return d.median;
+	})
     .attr("stroke", "#FFF")
     .style('display', function(d,i){
     	if(d.properties.admin_level == 1){
@@ -625,23 +651,18 @@ Map.createChoropleth = function(){
 		delay: [250,100],
 		inertia: false,
 		distance: 8,
+		followCursor: 'initial',
 		allowHTML: true,
 		animation: 'shift-away',
 		arrow: true,
 		size: 'small',
 		onShow(instance) {
-			var ref = (instance.reference).__data__;
-			if(filters.frameworkToggle=='entries'){
-				var val = ref.properties.value;				
-			} else {
-				var val = ref.properties.total;
-			}
-
-			var text = ref.properties.name;
-			if(instance.reference.dataset.value>0){
-				text = text + '<div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + addCommas(val) + ' '+textLabel+'</div>';
-			}
-			instance.setContent(text);
+			var geoId = d3.select(d3.select(instance.reference).node()).attr('data-id');
+			var geoName = d3.select(d3.select(instance.reference).node()).attr('data-name');
+			var geoTotal = d3.select(d3.select(instance.reference).node()).attr('data-total');
+			var geoMedian = d3.select(d3.select(instance.reference).node()).attr('data-median');
+        	var html = Map.updateTooltipSparkline(geoId, geoName, geoTotal, geoMedian);
+        	(html) ? instance.setContent(html) : instance.setContent(geoName)
 		}
 	});
 
@@ -975,10 +996,10 @@ Map.updateBubbles = function(){
 		.entries(locationBySeverityReliability);
 
 		metadata.geo_array.forEach(function(d,i){
-			d.value = 0;
+			d.total = 0;
 			bubbleData.forEach(function(dd,ii){
 				if(d.id==parseInt(dd.key)){
-					d.value = dd.value.total;
+					d.total = dd.value.total;
 					d.median = dd.value.median;
 				}
 			})
@@ -994,18 +1015,27 @@ Map.updateBubbles = function(){
 
 		bubbles.data(metadata.geo_array)
 		.style('display','inline')
+		.attr('data-id', function(d,i){
+			return i+1;
+		})
+		.attr('data-total', function(d,i){
+			return d.total;
+		})
+		.attr('data-median', function(d,i){
+			return d.median;
+		})
 		.exit().style('display','none');
 
 		var featureElementG = bubbles
 		.select('.map-bubble')
 		.attr('transform', function(d,i){
-			if(d.value>0) {
-				var size = scale.map(d.value);
+			if(d.total>0) {
+				var size = scale.map(d.total);
 				return 'scale('+size+')';
 			}
 		})
 		.style('display', function(d,i){
-			if(d.value>0){
+			if(d.total>0){
 				return 'inline';
 			} else {
 				return 'none';
@@ -1014,7 +1044,7 @@ Map.updateBubbles = function(){
 
 		featureElementG.select('.map-bubble-value')
 		.text(function(d,i){
-			return d.value;
+			return d.total;
 		});
 
 		if(filters.toggle=='severity'){
@@ -1090,10 +1120,10 @@ Map.updateBubbles = function(){
 		.entries(locationBySeverityReliability);
 
 		metadata.geo_array.forEach(function(d,i){
-			d.value = 0;
+			d.total = 0;
 			bubbleData.forEach(function(dd,ii){
 				if(d.id==parseInt(dd.key)){
-					d.value = dd.value.total;
+					d.total = dd.value.total;
 				}
 			})
 		})
@@ -1108,19 +1138,28 @@ Map.updateBubbles = function(){
 
 		// update bubbles data
 		bubbles.data(metadata.geo_array)
+		.attr('data-id', function(d,i){
+			return i+1;
+		})
+		.attr('data-total', function(d,i){
+			return d.total;
+		})
+		.attr('data-median', function(d,i){
+			return d.median;
+		})
 		.style('display','inline')
 		.exit().style('display','none');
 
 		var featureElementG = bubbles
 		.select('.map-bubble')
 		.attr('transform', function(d,i){
-			if(d.value>0) {
-				var size = scale.map(d.value);
+			if(d.total>0) {
+				var size = scale.map(d.total);
 				return 'scale('+size+')';
 			}
 		})
 		.style('display', function(d,i){
-			if(d.value>0){
+			if(d.total>0){
 				return 'inline';
 			} else {
 				return 'none';
@@ -1129,7 +1168,7 @@ Map.updateBubbles = function(){
 
 		featureElementG.select('.map-bubble-value')
 		.text(function(d,i){
-			return d.value;
+			return d.total;
 		})
 
 		featureElementG.select('.innerCircle').style('fill', colorNeutral[3]);
@@ -1193,7 +1232,7 @@ Map.updateChoropleth = function(){
 
 	d3.selectAll('.polygon')
 	.style('fill', colorLightgrey[1])
-	.attr('data-value', 0);
+	.attr('data-total', 0);
 
 	var dataByLocationSum = [];
 
@@ -1254,7 +1293,8 @@ Map.updateChoropleth = function(){
 					return colorLightgrey[1];
 				}
 			})
-			.attr('data-value', t)
+			.attr('data-total', t)
+			.attr('data-median', v)
 			.style('display', function(dd,ii){
 				if(dd.properties.admin_level==filters.admin_level){
 					return 'block';
@@ -1306,7 +1346,7 @@ Map.updateChoropleth = function(){
 					return colorLightgrey[1];
 				}
 			})
-			.attr('data-value', v)
+			.attr('data-total', v)
 			.style('display', function(dd,ii){
 				if(dd.properties.admin_level==filters.admin_level){
 					return 'block';
@@ -1325,8 +1365,6 @@ Map.updateChoropleth = function(){
 		});
 
 	}
-
-
 
 }
 
@@ -1467,4 +1505,232 @@ function check_style_status() {
     setTimeout(function() {check_style_status();}, 200);
     return;
   }
+}
+
+Map.createTooltipSparkline = function(){
+
+	mapTooltipSvg = d3.select('#map-bubble-svg').append('g')
+	.attr('opacity', 0).append('g');
+
+	mapTooltipSvg.append('rect')
+	.attr('class', 'map-tooltip-sparkline-bg')
+	.attr('id', function(d,i){ return 'map-tooltip-sparkline-bg' })
+	.attr('x', function(d,i){
+		return 0;
+	})
+	.attr('width', function(d,i){
+		return tooltipSparklineWidth;
+	})
+	.attr('height', function(d,i){
+		return tooltipSparklineHeight;
+	})
+	.attr('y', 0)
+	.style('cursor', function(d,i){
+
+	})
+	.style('fill', '#E9E9E9');
+
+
+	mapTooltipSvg.append('rect')
+	.attr('class', 'map-tooltip-sparkline-overlay')
+	.attr('id', function(d,i){ return 'map-tooltip-sparkline-overlay' })
+	.attr('x', function(d,i){
+		return 0;
+	})
+	.attr('width', function(d,i){
+		return tooltipSparklineWidth
+	})
+	.attr('height', function(d,i){
+		return tooltipSparklineHeight;
+	})
+	.attr('y', 0)
+	.style('cursor', function(d,i){
+
+	})
+	.style('fill', '#FFF');
+
+	// tooltip sparkline
+	mapTooltipSvg
+	.append('path')
+	.attr('class', 'sparkline')
+	.attr('id','mapTooltipSparkline')
+	.attr("stroke", colorNeutral[2])
+	.attr("fill", 'transparent')
+    .attr("stroke-width", 1);
+
+	Map.updateSparklinesOverlay(dateRange);
+}
+
+Map.updateTooltipSparkline = function(geoId, geoName, geoTotal, geoMedian){
+
+	var dataByDateSparkline = [...dataByLocationArray];
+
+	dataByDateSparkline = dataByDateSparkline.filter(function(d,i){
+		return parseInt(d.geo) == parseInt(geoId);
+	});
+
+	var sparklineDates;
+
+	// parse missing dates
+	if(filters.time=='d'){
+		sparklineDates = d3.timeDays(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.date.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.date); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+
+	}
+
+	if(filters.time=='m'){
+		sparklineDates = d3.timeMonths(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.month.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.month); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	if(filters.time=='y'){
+		sparklineDates = d3.timeYears(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.year.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.year); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	sparklineDates.forEach(function(d,i){
+		if(!dateIndex.includes(d.getTime())){
+			dataByDateSparkline.push({
+				'key': d,
+				'value': {'median_r': null, 'median_s': null, 'total': null}
+			})
+		}		
+	});
+
+	dataByDateSparkline.forEach(function(d,i){
+		d.key = new Date(d.key);
+	});
+
+	dataByDateSparkline.sort(function(x,y){
+		return d3.ascending(x.key, y.key);
+	});
+
+	pointWidth = (tooltipSparklineWidth)/dataByDateSparkline.length;
+
+	// find maximum value
+	var contextMax = d3.max(dataByDateSparkline, function(d,i){
+		return d.value.total;
+	});
+
+	// define x scale
+	scale.tooltipSparkline.x = scale.timechart.x.copy();
+	scale.tooltipSparkline.x.range([0, tooltipSparklineWidth])
+
+	// define y scale
+	scale.tooltipSparkline.y = d3.scaleLinear()
+    .range([tooltipSparklineHeight, 1])
+    .domain([0, contextMax]);
+
+    Map.updateSparklinesOverlay(dateRange);
+
+	var filteredSparklineData = dataByDateSparkline.filter(function(d){ 
+    	return d.value.total>0; 
+    });
+
+    if(contextMax>0){
+
+    	// gradient line color
+    	d3.select('#linearGradientSparkline').remove();
+		mapsvg
+			.append("linearGradient")
+			.attr("id", 'linearGradientSparkline')
+			.attr("gradientUnits", "userSpaceOnUse")
+			.attr("x1", 0)
+			.attr("x2", tooltipSparklineWidth)
+			.selectAll("stop")
+			.data(filteredSparklineData)
+		    .join("stop")
+			.attr("offset", d => ((scale.tooltipSparkline.x(d.key)+pointWidth/2) / (tooltipSparklineWidth)) )
+			.attr("stop-color", function(d,i){
+				if(filters.frameworkToggle=='entries'){
+			      	var col = colorNeutral[2];
+      			} else {
+			      	var col = colorLightgrey[3];
+      			}
+				if(!d.value.total) return col;
+				if(filters.frameworkToggle=='entries'){
+					col = colorNeutral[2];
+				} else {
+					if(filters.toggle=='severity'){
+						col = colorPrimary[Math.round(d.value.median_s)];
+					} else {
+						col = colorSecondary[Math.round(d.value.median_r)];
+					}
+				}
+				return col;
+			});
+
+    	d3.select('#mapTooltipSparkline')
+		.datum(dataByDateSparkline)
+		.style('stroke', 'url(#linearGradientSparkline)')
+		.attr("d", d3.line()
+	        .x(function(d) { return scale.tooltipSparkline.x(d.key)+pointWidth/2 })
+	        .y(function(d) { 
+	        	var v = d.value.total;
+	        	if(v===undefined)v=0;
+	        	return scale.tooltipSparkline.y(v);
+	        })
+        ).attr('opacity', 1);   
+
+		var html = '<div style="text-align: left; font-weight: bold;">'+geoName+'&nbsp;&nbsp;<span style="font-size: 9px; color: lightgrey;">ADM '+filters.admin_level+'</span></div>';
+		if(filters.frameworkToggle=='entries'){
+			html = html+'<div style="width: 100px; height: 13px; display: inline; margin-bottom: 2px; font-size: 10px; text-align: left; background-color: '+ colorNeutral[2] + '">&nbsp;&nbsp;</div><div style="padding-left: 5px; padding-bottom: 0px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + geoTotal + ' entries</b></div>';
+		} else {
+			if (filters.toggle=='severity'){
+				var color = colorPrimary[geoMedian];
+				var text = metadata.severity_units[geoMedian].name;
+			} else {
+				var color = colorSecondary[geoMedian];
+				var text = metadata.reliability_units[geoMedian].name;
+			}
+			html = html+'<div style="width: 100px; height: 13px; display: inline; margin-bottom: 2px; font-size: 10px; text-align: left; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;<span style="font-size: 10px">'+text+'</span><div style="padding-left: 5px; padding-bottom: 0px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + geoTotal + ' entries</b></div>';
+		}
+        html=html+'<br/><svg style="margin-top: 1px; margin-bottom: 1px" id="tooltipSparkline" width="'+tooltipSparklineWidth+'px" height="'+tooltipSparklineHeight+'px">'+mapTooltipSvg.node().outerHTML+'</svg>';
+
+        return html;
+
+    } else {
+    	return null;
+    }
+}
+
+Map.updateSparklinesOverlay = function(d1){
+	if(scale.tooltipSparkline.x){
+		d3.select('.map-tooltip-sparkline-overlay')
+		.attr('x', scale.tooltipSparkline.x(d1[0]))
+		.attr('width', scale.tooltipSparkline.x(d1[1])-scale.tooltipSparkline.x(d1[0]));		
+	}
 }
