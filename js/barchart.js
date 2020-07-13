@@ -1,6 +1,8 @@
 var BarChart = {};
 var updating = false;
-var updateInterval = 100;
+var updateInterval = 0;
+var tooltipSparklineHeight = 40;
+var tooltipSparklineWidth = 140;
 
 BarChart.createBarChart = function(a){
 
@@ -348,6 +350,8 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 	});
 
+	barTooltipData[group] = dataset;
+
 	var nest = d3.nest()
 	.key(function(d) {  return d[group]; })
 	.rollup(function(leaves) { return leaves.length; })		
@@ -425,10 +429,16 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 	});
 
 	rows.select('.'+group+'-bar')
+	.attr('data-group', group)
+	.attr('data-name', function(d,i){
+		return d.name;
+	})
+	.attr('data-group-id', function(d,i){
+		return d.key;
+	})
 	.attr('width', function(d,i){
 			var id = d3.select(this).attr('id');
 			var rect = document.querySelector('#'+id);
-			var s = {'name': 'hello'};
 			tippy(rect, { 
 				// content: setBarName(s),
 				theme: 'light-border',
@@ -440,12 +450,14 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 				arrow: true,
 				size: 'small',
 				onShow(instance) {
-			        var v = d3.select('#'+id).attr('data-value');
-			        var p = (v/total)*100;
-					p = Math.round(p)+'%';
-					var html = '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorPrimary[2] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;<div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' entries</b>&nbsp;&nbsp;('+p+')</div>';
-		        	instance.setContent(html);
-				}
+					var t = d3.select(instance.reference);
+					var dataGroup = t.attr('data-group');
+					var dataGroupId = t.attr('data-group-id');
+					var dataName = t.attr('data-name');
+					var dataTotal = t.attr('data-value');
+					var html = BarChart.updateTooltipSparkline(null, group, dataGroupId, dataName, dataTotal);
+					instance.setContent(html);
+			    }
 			});
 
 		if(d.value>0){
@@ -535,6 +547,12 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 //**************************
 // update stacked bars
 //**************************
+var barTooltipData = {};
+
+BarChart.getTooltipData = function(group){
+	return barTooltipData[group];
+}
+
 BarChart.updateStackedBars = function(group, dataset, duration = 0){
 
 	if(updating[group]==true) { return false; } else { setTimeout(function(){
@@ -549,7 +567,8 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 		if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
 		if(data_group=='unit_of_analysis') data_group = 'type_of_unit_of_analysis';
 
-		// affected groups
+		barTooltipData[group] = dataset;
+
 		var dat = dataset.filter(function(d){
 			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 		});
@@ -674,6 +693,10 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 				d3.select('#'+id )
 				.attr('x', xcount)
 				.attr('width', w)
+				.attr('data-id', s)
+				.attr('data-group', group)
+				.attr('data-name', name)
+				.attr('data-group-id', key)
 				.attr('data-value', dd.value)
 				.style('fill', function(){
 					if((filters.toggle=='severity')||(filters.toggle=='finalScore')){
@@ -684,7 +707,7 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 				});
 				var rect = document.querySelector('#'+id)
 				tippy(rect, { 
-					content: setBarName(s),
+					// content: setBarName(s),
 					theme: 'light-border',
 					delay: [250,100],
 					inertia: false,
@@ -694,10 +717,15 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 					arrow: true,
 					size: 'small',
 					onShow(instance) {
-				        var v = d3.select('#'+id).attr('data-value');
-				        if(s>=0)
-				        	instance.setContent(setBarName(s, v));
-					    }
+						var t = d3.select(instance.reference);
+						var dataId = t.attr('data-id');
+						var dataGroup = t.attr('data-group');
+						var dataName = t.attr('data-name');
+						var dataGroupId = t.attr('data-group-id');
+						var dataTotal = t.attr('data-value');
+						var html = BarChart.updateTooltipSparkline(dataId, group, dataGroupId, dataName, dataTotal);
+						instance.setContent(html);
+				    }
 				});
 				xcount = xcount + w;
 			});
@@ -716,20 +744,240 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 
 }}
 
-var setBarName = function(s,v){
-	// if(s==0) return false;
-	if(filters.toggle=='finalScore'){
-		var color = colorPrimary[s];
-		var text = metadata.scorepillar_scale[s].name;
-	} else if (filters.toggle=='severity'){
-		var color = colorPrimary[s];
-		var text = metadata.severity_units[s].name;
+var getBarColorName = function(s){
+	if(s){
+		if(filters.toggle=='finalScore'){
+			var color = colorPrimary[s];
+			var text = metadata.scorepillar_scale[s].name;
+		} else if (filters.toggle=='severity'){
+			var color = colorPrimary[s];
+			var text = metadata.severity_units[s].name;
+		} else {
+			var color = colorSecondary[s];
+			var text = metadata.reliability_units[s].name;
+		} 		
 	} else {
-		var color = colorSecondary[s];
-		var text = metadata.reliability_units[s].name;
+		var color = colorNeutral[2];
+		var text = '';
+	}
+	
+	return [color,text];
+}
+
+BarChart.createTooltipSparkline = function(){
+
+	barTooltipSvg = d3.select('body').append('svg')
+	.style('display', 'none').append('g')
+	.attr('opacity', 0).append('g');
+
+	barTooltipSvg.append('rect')
+	.attr('class', 'bar-tooltip-sparkline-bg')
+	.attr('id', function(d,i){ return 'bar-tooltip-sparkline-bg' })
+	.attr('x', function(d,i){
+		return 0;
+	})
+	.attr('width', function(d,i){
+		return tooltipSparklineWidth;
+	})
+	.attr('height', function(d,i){
+		return tooltipSparklineHeight;
+	})
+	.attr('y', 0)
+	.style('cursor', function(d,i){
+
+	})
+	.style('fill', '#E9E9E9');
+
+
+	barTooltipSvg.append('rect')
+	.attr('class', 'bar-tooltip-sparkline-overlay')
+	.attr('id', function(d,i){ return 'bar-tooltip-sparkline-overlay' })
+	.attr('x', function(d,i){
+		return 0;
+	})
+	.attr('width', function(d,i){
+		return tooltipSparklineWidth
+	})
+	.attr('height', function(d,i){
+		return tooltipSparklineHeight;
+	})
+	.attr('y', 0)
+	.style('cursor', function(d,i){
+
+	})
+	.style('fill', '#FFF');
+
+	// tooltip sparkline
+	barTooltipSvg
+	.append('path')
+	.attr('class', 'sparkline')
+	.attr('id','barTooltipSparkline')
+	.attr("stroke", colorNeutral[2])
+	.attr("fill", 'transparent')
+    .attr("stroke-width", 1);
+
+	BarChart.updateSparklinesOverlay(dateRange);
+}
+
+BarChart.updateTooltipSparkline = function(dataId, group, dataGroupId, dataGroupName, dataTotal){
+
+	var dataset = BarChart.getTooltipData(group);
+	var color = getBarColorName(dataId)[0];
+	var name = getBarColorName(dataId)[1];
+
+	var dataByDateSparkline = [...dataset];
+	
+	dataByDateSparkline = dataByDateSparkline.filter(function(d,i){
+		if(dataId>0){ //if stacked bar
+			var med;
+			if(filters.toggle=='finalScore'){
+				med = d.s;
+			} else if (filters.toggle=='severity'){
+				med = d.s;
+			} else {
+				med = d.r;
+			}
+			return d[group] == parseInt(dataGroupId) && parseInt(med) == parseInt(dataId);
+		} else { // if regular bar
+			return d[group] == parseInt(dataGroupId);
+		}
+	});
+
+	var sparklineDates;
+
+	// parse missing dates
+	if(filters.time=='d'){
+		sparklineDates = d3.timeDays(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.date.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.date); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+
 	}
 
-	var p = (v/total)*100;
-	p = Math.round(p)+'%';
-	return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b>&nbsp;&nbsp;('+p+')</div>';
+	if(filters.time=='m'){
+		sparklineDates = d3.timeMonths(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.month.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.month); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	if(filters.time=='y'){
+		sparklineDates = d3.timeYears(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.year.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.year); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	sparklineDates.forEach(function(d,i){
+		if(!dateIndex.includes(d.getTime())){
+			dataByDateSparkline.push({
+				'key': d,
+				'value': {'median_r': null, 'median_s': null, 'total': null}
+			})
+		}		
+	});
+
+	dataByDateSparkline.forEach(function(d,i){
+		d.key = new Date(d.key);
+	});
+
+	dataByDateSparkline.sort(function(x,y){
+		return d3.ascending(x.key, y.key);
+	});
+
+	pointWidth = (tooltipSparklineWidth)/dataByDateSparkline.length;
+
+	// find maximum value
+	var contextMax = d3.max(dataByDateSparkline, function(d,i){
+		return d.value.total;
+	});
+
+	// define x scale
+	scale.tooltipSparkline.x = scale.timechart.x.copy();
+	scale.tooltipSparkline.x.range([0, tooltipSparklineWidth])
+
+	// define y scale
+	scale.tooltipSparkline.y = d3.scaleLinear()
+    .range([tooltipSparklineHeight, 1])
+    .domain([0, contextMax]);
+
+    BarChart.updateSparklinesOverlay(dateRange);
+
+    if(contextMax>0){
+
+    	if(dataId){
+			if(filters.toggle=='finalScore'){
+				var color = colorPrimary[dataId];
+				var text = metadata.scorepillar_scale[dataId].name;
+			} else if (filters.toggle=='severity'){
+				var color = colorPrimary[dataId];
+				var text = metadata.severity_units[dataId].name;
+			} else {
+				var color = colorSecondary[dataId];
+				var text = metadata.reliability_units[dataId].name;
+			}   
+			text='&nbsp;&nbsp;'+text+'&nbsp;'; 		
+    	} else {
+    		var color = colorNeutral[2];
+    		var text = ' ';
+    	}
+
+    	d3.select('#barTooltipSparkline')
+		.datum(dataByDateSparkline)
+		.style('stroke', color)
+		.attr("d", d3.line()
+	        .x(function(d) { return scale.tooltipSparkline.x(d.key)+pointWidth/2 })
+	        .y(function(d) { 
+	        	var v = d.value.total;
+	        	if(v===undefined)v=0;
+	        	return scale.tooltipSparkline.y(v);
+	        })
+        ).attr('opacity', 1);   
+
+		var p = (dataTotal/total)*100;
+		p = Math.round(p)+'%';
+		var html =  '<div style="text-align: left; font-weight: bold;">'+dataGroupName+'&nbsp;&nbsp;<span style="font-size: 9px; color: lightgrey;"></span></div><div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div><span style="font-size: 10px">' + text + '</span><div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + dataTotal + ' '+textLabel+'</b>&nbsp;&nbsp;('+p+')</div>';
+        html=html+'<br/><svg style="margin-top: 1px; margin-bottom: 1px" id="tooltipSparkline" width="'+tooltipSparklineWidth+'px" height="'+tooltipSparklineHeight+'px">'+barTooltipSvg.node().outerHTML+'</svg>';
+        return html;
+
+    } else {
+    	return null;
+    }
 }
+
+BarChart.updateSparklinesOverlay = function(d1){
+	if(scale.tooltipSparkline.x){
+		d3.select('.bar-tooltip-sparkline-overlay')
+		.attr('x', scale.tooltipSparkline.x(d1[0]))
+		.attr('width', scale.tooltipSparkline.x(d1[1])-scale.tooltipSparkline.x(d1[0]));		
+	}
+}
+
+BarChart.createTooltipSparkline();

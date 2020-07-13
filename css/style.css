@@ -145,6 +145,10 @@ svg text {
   border-radius: 0px !important;
 }
 
+.tippy-tooltip {
+  text-align: left;
+}
+
 .select2-container--default .select2-selection--multiple .select2-selection__rendered {
 	padding: 2px 4px;
 }
