@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2000px" height="15px" viewBox="0 0 2000 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>summary_3</title>
+    <g id="summary_3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#FFFFFF" x="0" y="0" width="2000" height="15"></rect>
+        <text id="IN-DEPTH-NEEDS-ASSES" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+            <tspan x="1479" y="20">IN-DEPTH NEEDS </tspan>
+            <tspan x="1479" y="37">ASSESSMENTS</tspan>
+        </text>
+        <rect id="collapse_bg" fill="#E9E9E9" x="0" y="1" width="2000" height="16"></rect>
+        <polygon id="collapsed0" stroke="#E8E8E8" fill="#AAAAAA" points="999 3 1014 12 984 12"></polygon>
+        <polygon id="collapsed1" stroke="#E8E8E8" fill="#AAAAAA" opacity="0.001" transform="translate(999.000000, 7.500000) rotate(-179.000000) translate(-999.000000, -7.500000) " points="999 3 1014 12 984 12"></polygon>
+    </g>
+</svg>
