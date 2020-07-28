@@ -397,12 +397,20 @@ var Deepviz = function(sources, callback){
 				var leadRow = {"date": d.date, "month": d.month, "year": d.year, lead_id: d.lead.id};
 				dataByLead.push(leadRow);
 			};
+			
 			// publishers (unique based on source_raw strinng)
-			var publisherArrayStr = d.date.getTime()+'-'+d.lead.source_raw;
+			if(d.lead.source){
+				var src = d.lead.source.id;
+			} else {
+				var src = d.lead.source_raw;
+			}
+			var publisherArrayStr = d.date.getTime()+'-'+src;
 			if(!publisherArray.includes(publisherArrayStr)){
 				publisherArray.push(publisherArrayStr);
-				var publisherRow = {"date": d.date, "month": d.month, "year": d.year, publisher_str: d.lead.source_raw};
-				dataByPublisher.push(publisherRow);
+				var publisherRow = {"date": d.date, "month": d.month, "year": d.year, publisher_str: src};
+				if(src>0){
+					dataByPublisher.push(publisherRow);
+				}
 			};
 
 			d.sector.forEach(function(dd,ii){
