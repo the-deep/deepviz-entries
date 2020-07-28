@@ -32,12 +32,20 @@ var mapToggle = 'bubbles';
 // data related
 var originalData; // full original dataset without filters (used to refresh/clear filters)
 var data; // active dataset after filters applied
+var dataEntries;
+var dataAssessments;
 var dataByDate;
 var metadata;
+var metadataAry;
 var dataNotSeverity;
 var dataNotReliability;
 var dataByMonth;
 var dataByYear;
+var dataByLead;
+var dataByPublisher;
+var dataByAssessmentType;
+var dataByOrganisation;
+var dataByOrganisationType;
 var dataByLocation;
 var dataByLocationSum;
 var dataByLocationArray;
@@ -53,6 +61,10 @@ var total = 0;
 var disableSync = false;
 var disableSync_location_threshold = 1000;
 var disableSync_entries_threshold = 5000;
+var atype_keys = {};
+var data_collection_technique_keys = {};
+var stakeholder_type_keys = {};
+var timeFormat = d3.timeFormat("%d-%m-%Y");
 var maxValue; // max value on a given date
 var maxContextValue;
 var tp_severity = [];
@@ -64,11 +76,12 @@ var timechartyGrids;
 var hoverColor = 'rgba(0,0,0,0.03)';
 var displayCalendar = false;
 var width = 1300;
+var duration = 700;
 var margin = {top: 18, right: 17, bottom: 0, left: 45};
 var timechartHeight = 360;
 var timechartHeight2 = timechartHeight;
 var timechartHeightOriginal = timechartHeight;
-var timechartSvgHeight = 900;
+var timechartSvgHeight = 1000;
 var brush;
 var gBrush; 
 var barWidth;
@@ -95,7 +108,7 @@ var curvedLine = d3.line()
 // map
 var maxMapBubbleValue;
 var maxMapPolygonValue;
-var mapAspectRatio = 1.263;
+var mapAspectRatio = 1.33;
 var geoBounds = {'lat': [], 'lon': []};
 
 // filters
@@ -108,6 +121,7 @@ var filters = {
 	context: [],
 	framework: [],
 	geo: [],
+	top: [],
 	toggle: 'severity',
 	admin_level: 1,
 	frameworkToggle: 'entries',
@@ -115,6 +129,10 @@ var filters = {
 	heatmapCheckbox: false,
 	panelLayout: 'default'
 };
+
+var svg_summary1;
+var svg_summary2;
+var svg_summary3;
 
 // colors
 var colorPrimary = ['#A1E6DB','#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
@@ -169,278 +187,30 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		// return the data
-		data = values[0].data;
+		dataEntries = values[0].entry_data.data;
+		dataAssessments = values[0].ary_data.data;
+		svg_summary1 = values[1];
+		svg_summary2 = values[2];
+		svg_summary3 = values[3];
 
-		metadata = values[0].meta;
+		metadata = values[0].entry_data.meta;
+		metadata.geo_array = values[0].geo_data;
+		metadataAry = values[0].ary_data.meta;
+		metadataAry.geo_array = metadata.geo_array;
 
 		frameworkToggleImg = values[1];
 
-		// parse parent locations up to 4 levels
-		data.forEach(function(d,i){
-			d.geo.forEach(function(dd,ii){
+		parseGeoData();
 
-				dd = parseInt(dd);
-				d.geo[ii]=dd;
-
-				var parents = [];
-
-				var parent = getParent(dd);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				var parent = getParent(parent);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				var parent = getParent(parent);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				var parent = getParent(parent);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				d.geo.push.apply(d.geo,parents);
-			});
-
-		});
-
-		function getParent(geo_id){
-			var parent;
-			metadata.geo_array.forEach(function(d,i){
-				if(geo_id==d.id){
-					parent = d.parent;
-				}
-			})
-			return parseInt(parent);
-		}
-
-		// remove unsed locations
-		var locationArray = [];
-		data.forEach(function(d,i){
-			d.geo.forEach(function(dd,ii){
-				if(!locationArray.includes(parseInt(dd))){
-					locationArray.push(parseInt(dd));
-				}
-			})
-		});
-
-		var newGeoArray = [];
-		metadata.geo_array.forEach(function(d,i,obj){
-			if(locationArray.includes(parseInt(d.id))){
-				newGeoArray.push(d);
-			}	
-		})
-
-		metadata.geo_array = newGeoArray;
-
-		// parse meta data, create integer id column from string ids and programattically attempt to shorten label names
-		metadata.context_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.framework_groups_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-			d._context_id = d.context_id;
-			// programattically shorten a long framework label
-			if(d.name== "Status of essential infrastructure, systems, markets and networks"){
-				d.name = "Infrastructure, systems, markets and networks";
-			}
-			metadata.context_array.forEach(function(ddd,ii){
-				if(d._context_id==ddd._id){
-					d.context_id = ddd.id;
-				}
-			});
-		});
-		metadata.affected_groups_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.specific_needs_groups_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.sector_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.severity_units.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-			// shorten label by cutting text after the first full-stop
-			d.name = d.name.split('.')[0];
-		});
-		metadata.reliability_units.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-
-		metadata.geo_array.sort(function(x, y){
-		   return d3.ascending(x.name, y.name);
-		});
-
-		metadata.geo_json = {"type": "FeatureCollection", "features": []};
-		metadata.geo_json_point = {"type": "FeatureCollection", "features": []};
-
-		metadata.geo_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-			var polygons = d.polygons;
-			polygons.coordinates = polygons.coordinates;
-			var feature = {'type':'Feature', 'properties':{'name': d.name, 'id': d.id, 'admin_level': d.admin_level}, 'geometry': polygons }
-			metadata.geo_json.features[i] = feature;
-			var point = { "type": "Point", "coordinates": [ d.centroid[0],d.centroid[1],0.0 ] }
-			var featurePoint = {'type':'Feature', 'properties':{'name': d.name, 'id': d.id, 'admin_level': d.admin_level}, 'geometry': point }
-			metadata.geo_json_point.features[i] = featurePoint;
-		});
-
-		metadata.geo_json.features.forEach(function(feature) {
-		   if(feature.geometry.type == "MultiPolygon") {
-		     feature.geometry.coordinates.forEach(function(polygon) {
-		       polygon.forEach(function(ring) {
-		         ring.reverse();
-		       })
-		     })
-		   }
-		   else if (feature.geometry.type == "Polygon") {
-		     feature.geometry.coordinates.forEach(function(ring) {
-		       ring.reverse();
-		     })  
-		   }
-		 });
-
-		metadata.severity_units.unshift({
-			"id": 6,
-			"color": "grey",
-			"name": "Null",
-			"_id": null,
-		});
-		metadata.reliability_units.unshift({
-			"id": 6,
-			"color": "grey",
-			"name": "Null",
-			"_id": null,
-		});
+		metadata = parseEntriesMetadata(metadata);
+		data = parseEntriesData(dataEntries, metadata);
+		metadataAssessments = parseAssessmentsMetadata(metadataAry);
+		dataAssessments = parseAssessmentsData(dataAssessments, metadataAry);
 
 		// disableSync threshold
-
 		if(metadata.geo_array.length>disableSync_location_threshold) disableSync = true;
 		if(data.length>disableSync_entries_threshold) disableSync = true;
 		if(urlQueryParams.get('disableSync')) disableSync = true;
-
-		// convert date strings into js date objects
-		data.forEach(function(d,i){
-			d.date = new Date(d.date);
-			d.date.setHours(0,0,0,0);
-			d.month = new Date(d.date);
-			d.month.setHours(0,0,0,0);
-			d.month.setDate(1);
-			d.year = new Date(d.date);
-			d.year.setHours(0,0,0,0);
-			d.year.setDate(1);
-			d.year.setMonth(0);
-
-			// PARSE STRING IDS TO INTEGERS
-			// parse context array
-			d._context = d.context;
-			d.context = [];
-			d._context.forEach(function(dd,ii){
-				metadata.context_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						d.context.push(ddd.id);
-					}
-				});
-			});
-			// parse specific needs array
-			d._special_needs = d.special_needs;
-			d.special_needs = [];
-			d._special_needs.forEach(function(dd,ii){
-				metadata.specific_needs_groups_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						d.special_needs.push(ddd.id);
-					}
-				});
-			});
-			// parse affected groups array
-			d._affected_groups = d.affected_groups;
-			d.affected_groups = [];
-			d._affected_groups.forEach(function(dd,ii){
-				metadata.affected_groups_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						d.affected_groups.push(ddd.id);
-					}
-				});
-			});
-			// parse affected groups array
-			d._sector = d.sector;
-			d.sector = [];
-			d._sector.forEach(function(dd,ii){
-				var context_id = 0;
-				metadata.context_array.forEach(function(ddd,ii){
-					if(dd[0]==ddd._id){
-						context_id = ddd.id;
-					}
-				});
-				var framework_id = 0;
-				metadata.framework_groups_array.forEach(function(ddd,ii){
-					if(dd[1]==ddd._id){
-						framework_id = ddd.id;
-					}
-				});
-				var sector_id = 0;
-				metadata.sector_array.forEach(function(ddd,ii){
-					if(dd[2]==ddd._id){
-						sector_id = ddd.id;
-					}
-				});
-				d.sector.push([context_id,framework_id,sector_id]);
-			});
-
-			// parse severity id
-			d._severity = d.severity;
-			metadata.severity_units.forEach(function(ddd,ii){
-				if(d._severity==ddd._id){
-					d.severity = ddd.id;
-				}
-				// parse null values
-				if(d._severity===null){
-					d.severity = 0;
-				}
-			});
-			
-			// parse reliability id
-			d._reliability = d.reliability;
-			metadata.reliability_units.forEach(function(ddd,ii){
-				if(d._reliability==ddd._id){
-					d.reliability = ddd.id;
-				}
-				// parse null values
-				if(d._reliability===null){
-					d.reliability = 0;
-				}
-			});
-			// parse geo id
-			d._geo = d.geo;
-			d.geo = [];
-
-			d._geo.forEach(function(dd,ii){
-				metadata.geo_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						if(!d.geo.includes(ddd.id)){d.geo.push(ddd.id);};
-						geoBounds.lat.push(ddd.bounds[0][0]);
-						geoBounds.lat.push(ddd.bounds[1][0]);
-						geoBounds.lon.push(ddd.bounds[0][1]);
-						geoBounds.lon.push(ddd.bounds[1][1]);
-					}
-				});
-			});
-
-		});
 
 		// parse url variable options
 		if(urlQueryParams.get('minDate')){
@@ -449,10 +219,12 @@ var Deepviz = function(sources, callback){
 			minDate.setMinutes(0);
 			data = data.filter(function(d){
 				return d.date >= minDate;
-			})
+			});
+			dataAssessments = dataAssessments.filter(function(d){
+				return d.date >= minDate;
+			});
 		}
 
-		// parse url variable options
 		if(urlQueryParams.get('maxDate')){
 			maxDate = new Date(urlQueryParams.get('maxDate'));
 			maxDate.setHours(0);
@@ -460,8 +232,10 @@ var Deepviz = function(sources, callback){
 			data = data.filter(function(d){
 				return d.date <= maxDate;
 			})
+			dataAssessments = dataAssessments.filter(function(d){
+				return d.date <= maxDate;
+			})
 		}
-
 
 		if(urlQueryParams.get('time')){
 			filters.time=urlQueryParams.get('time');
@@ -473,6 +247,7 @@ var Deepviz = function(sources, callback){
 
 		// set the data again for reset purposes
 		originalData = data;
+		originalDataAssessments = dataAssessments;
 		dataNotSeverity = data;
 		dataNotReliability = data;
 
@@ -596,7 +371,12 @@ var Deepviz = function(sources, callback){
 			.entries(data);
 		}
 
+		// entries data
 		dataByFrameworkSector = [];
+		dataByLead = [];
+		var leadArray = [];
+		dataByPublisher = [];
+		var publisherArray = [];
 		dataBySector = [];
 		dataByFramework = [];
 		dataByAffectedGroups = [];
@@ -606,10 +386,24 @@ var Deepviz = function(sources, callback){
 		dataByFrameworkContext = [];
 
 		data.forEach(function(d,i){
-
 			var frameworks = [];
 			var contexts = [];
 			var sectors = [];
+
+			// leads
+			var leadArrayStr = d.date.getTime()+'-'+d.lead.id;
+			if(!leadArray.includes(leadArrayStr)){
+				leadArray.push(leadArrayStr);
+				var leadRow = {"date": d.date, "month": d.month, "year": d.year, lead_id: d.lead.id};
+				dataByLead.push(leadRow);
+			};
+			// publishers (unique based on source_raw strinng)
+			var publisherArrayStr = d.date.getTime()+'-'+d.lead.source_raw;
+			if(!publisherArray.includes(publisherArrayStr)){
+				publisherArray.push(publisherArrayStr);
+				var publisherRow = {"date": d.date, "month": d.month, "year": d.year, publisher_str: d.lead.source_raw};
+				dataByPublisher.push(publisherRow);
+			};
 
 			d.sector.forEach(function(dd,ii){
 				var c = dd[0];
@@ -666,6 +460,28 @@ var Deepviz = function(sources, callback){
 		.key(function(d) { return d.geo; })
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(dataByLocationArray);
+
+		// assessments data
+
+		dataByAssessmentType = [];
+		dataByOrganisation = [];
+		dataByOrganisationType = [];
+		
+		dataAssessments.forEach(function(d,i){
+			dataByAssessmentType.push({"date": d.date, "month": d.month, "year": d.year, 'assessment_type': parseInt(d.assessment_type), 's': d.finalScore, 'r': null});
+
+			d.organization_and_stakeholder_type.forEach(function(dd,ii){
+				var name;
+				metadataAry.organization.forEach(function(ddd,ii){
+					if(parseInt(ddd.id)==parseInt(dd[1])){
+						name = ddd.name;
+						dataByOrganisation.push({"date": d.date, "month": d.month, "year": d.year, "stakeholder_type": dd[0], "organisation": dd[1], 'name': name, 's': d.finalScore, 'r': null });
+					}
+				});
+			});
+
+		});
+
 
 		// entries by framework sector (non-unique to populate framework cells)
 		dataByContext = dataByContextArray;
@@ -852,7 +668,7 @@ var Deepviz = function(sources, callback){
 			return d.total_entries;
 		});
 
-		updateTotals();
+		Summary.update();
 		DeepvizFramework.updateFramework();
 		BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 		BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -907,6 +723,13 @@ var Deepviz = function(sources, callback){
 
 		return this.svg;
 	};
+
+	//**************************
+	// create summary
+	//**************************
+	this.createSummary = function(){
+		Summary.create(svg_summary1,svg_summary2,svg_summary3);
+	}
 
 	//**************************
 	// create timechart
@@ -1319,8 +1142,8 @@ var Deepviz = function(sources, callback){
 		.scale(scale.timechart.x)
 		.tickSize(0)
 
-		var textLength = '5%';
-		if(expandActive==true) textLength = '3.3%';
+		var textLength = '6%';
+		if(expandActive==true) textLength = '2%';
 
 		if(filters.time=='y'){
 			xAxis.ticks(d3.timeYear.every(1))
@@ -1361,7 +1184,7 @@ var Deepviz = function(sources, callback){
 		.attr('lengthAdjust', 'spacingAndGlyphs')
 		.attr('text-anchor', 'start')
 		.attr('text-align', 'left')
-		.attr('textLength', '6.5%')
+		.attr('textLength', textLength)
 		.attr('font-variant', 'small-caps')
 		.attr('x', '0.3%');
 
@@ -1434,6 +1257,7 @@ var Deepviz = function(sources, callback){
 			var count = (Math.abs(moment(dateRange[1]).diff(moment(dateRange[0]), 'months', true)));
 			var tickFormat = d3.timeFormat("%d %b %Y");
 			var tLength = '6%';
+			if(expandActive==true) tLength = '4%';
 			if(filters.time=='d'){
 				if((count<=0.4)){
 					if(axisRange=='single day') return; // if already 'single month' then break out of fn
@@ -1476,6 +1300,7 @@ var Deepviz = function(sources, callback){
 
 				var tickFormat = d3.timeFormat("%b %Y");
 				var tLength = '5%';
+				if(expandActive==true) tLength = '3%';
 
 				if((count<=10)){
 					if(axisRange=='single month') return; 
@@ -1505,6 +1330,7 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='y'){
 				var tickFormat = d3.timeFormat("%Y");
 				var tLength = '3%';
+				if(expandActive==true) tLength = '2%';
 				var ticks = d3.timeYear.every(1);
 				axisRange = 'single year';
 			}
@@ -2236,7 +2062,7 @@ var Deepviz = function(sources, callback){
 	    function update(){
 	    	// colorBars();
 	    	updateDate();
-	    	updateTotals();
+	    	Summary.update();
 	    	updateSeverityReliability('brush', 500);
 			Map.update();
 	    	DeepvizFramework.updateFramework();
@@ -2288,7 +2114,7 @@ var Deepviz = function(sources, callback){
 
 			// colorBars();
 			updateDate();
-			updateTotals();
+			Summary.update();
 			if(disableSync==false){
 				DeepvizFramework.updateFramework();
 				Map.update();
@@ -2363,7 +2189,7 @@ var Deepviz = function(sources, callback){
 
 			colorBars();
 			updateDate();
-			updateTotals();
+			Summary.update();
 			updateSeverityReliability('brush',500);
 			Map.update();
 			DeepvizFramework.updateFramework();
@@ -2391,7 +2217,7 @@ var Deepviz = function(sources, callback){
 
 		colorBars();
 		updateDate();
-		updateTotals();
+		Summary.update();
 		updateTrendline();
 		updateSeverityReliability('init', 500);
 		DeepvizFramework.updateFramework();
@@ -2845,6 +2671,7 @@ var Deepviz = function(sources, callback){
 			filters.affected_groups = [];
 			filters.specific_needs = [];
 			filters.geo = [];
+			filters.top = [];
 		}
 
 		d3.selectAll('.sector-icon').style('opacity', 0.3);
@@ -2879,6 +2706,7 @@ var Deepviz = function(sources, callback){
 		}
 		// reset data using original loaded data
 		data = originalData;
+		dataAssessments = originalDataAssessments;
 
 		d3.select('#severityRemoveFilter').style('display', 'none').style('cursor', 'default');
 		d3.select('#reliabilityRemoveFilter').style('display', 'none').style('cursor', 'default');
@@ -2891,6 +2719,9 @@ var Deepviz = function(sources, callback){
 
 		if(filters['geo'].length>0){
 			data = data.filter(function(d){
+				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
+			});
+			dataAssessments = dataAssessments.filter(function(d){
 				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
 			});
 			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
@@ -2983,6 +2814,13 @@ var Deepviz = function(sources, callback){
 			});
 
 			d3.select('#affected_groupsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+		}
+
+		if(filters['top'].length>0){
+			data = data.filter(function(d){
+				return d['top'].some(r=> filters['top'].indexOf(r) >= 0);
+			});
+			d3.select('#summaryRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
 		if(filters['specific_needs'].length>0){
@@ -3081,7 +2919,7 @@ var Deepviz = function(sources, callback){
 			var timelineSvg = Deepviz.createSvg({
 				id: 'timeline_viz',
 				viewBoxWidth: w,
-				viewBoxHeight: 900,
+				viewBoxHeight: 1000,
 				div: '#timeline'
 			});
 
@@ -3168,7 +3006,7 @@ var Deepviz = function(sources, callback){
 
 			Deepviz.filter('reset', 'reset');
 
-			updateTotals();
+			Summary.update();
 			Map.update();
 			DeepvizFramework.updateFramework();
 			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
@@ -3429,37 +3267,6 @@ var Deepviz = function(sources, callback){
 
 		d3.select('#dateRangeText').text(string);
 
-	}
-
-	function updateTotals(){
-
-		var dc = data.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
-		var context = [];
-
-		dc.forEach(function(d,i){
-			d.context.forEach(function(dd,ii){
-				context.push(dd);
-			})
-		});
-
-		// define maximum context value
-		var contextualRowTotals = d3.nest()
-		.key(function(d) { return d;})
-		.rollup(function(leaves) { return leaves.length; })
-		.entries(context);
-
-		d3.selectAll('.total-label').text(0);
-		
-		contextualRowTotals.forEach(function(d,i){
-			d3.select('#total-label'+(d.key-1)).text(d.value);
-		})
-
-		total = d3.sum(dataByDate, function(d){
-			if((d.date>=dateRange[0])&&(d.date<dateRange[1]))
-				return d.total_entries;
-		});
-
-		d3.select('#total_entries').text(addCommas(total));
 	}
 
 	//**************************
@@ -4067,3 +3874,9 @@ function addCommas(nStr){
 	}
 	return x1 + x2;
 }
+
+$('#print').click(function(){
+	d3.select('#collapsed1').style('opacity', 0);
+	d3.select('#collapsed0').style('opacity', 1);
+	window.print();
+});

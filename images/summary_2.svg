@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2002px" height="76px" viewBox="0 0 2002 76" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>summary_2</title>
+    <g id="summary_2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#FFFFFF" x="0" y="0" width="2002" height="76"></rect>
+        <polygon id="Rectangle-6" fill="#EDEDED" points="399.94846 44 799.89692 44 799.89692 75 399.94846 75"></polygon>
+        <text id="HOUSEHOLDS-SURVEYED" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
+            <tspan x="500.06851" y="65">HOUSEHOLDS SURVEYED</tspan>
+        </text>
+        <polygon id="Rectangle-6" fill="#EDEDED" points="-1.70530257e-13 44 398.690761 44 398.690761 75 -1.70530257e-13 75"></polygon>
+        <g id="rapid_box" transform="translate(1534.289755, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0 0 228.733627 0 228.733627 43 0 43"></polygon>
+            <text id="RAPID-NEEDS-ASSESSME" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="58.2368741" y="25">RAPID NEEDS ASSESSMENTS</tspan>
+            </text>
+            <text id="total_rapid" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="7.79773727" y="30">000</tspan>
+            </text>
+            <line x1="1.29962288" y1="40" x2="226.134381" y2="40" id="filter_rapid" stroke="#EFFFFD" stroke-width="3"></line>
+        </g>
+        <text id="households" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
+            <tspan x="407.494657" y="68">000000</tspan>
+        </text>
+        <text id="individuals" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
+            <tspan x="7.54619736" y="68">000000</tspan>
+        </text>
+        <text id="INDIVIDUALS-SURVEYED" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
+            <tspan x="97.4085481" y="66">INDIVIDUALS SURVEYED</tspan>
+        </text>
+        <g id="sector_5_box">
+            <polygon id="Rectangle-6" fill="#828282" points="0 0 220.097423 0 220.097423 43 0 43"></polygon>
+            <text id="MULTI-SECTOR-ASSESSM" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="55.4619736" y="14">MULTI-SECTOR  </tspan>
+                <tspan x="55.4619736" y="31">ASSESSMENTS</tspan>
+            </text>
+            <text id="&gt;=5-Sectors" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.9613134" font-weight="300" fill="#FFFFFF">
+                <tspan x="151" y="25">&gt;=5 Sectors</tspan>
+            </text>
+            <text id="mutli_sector_5" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="6.54619736" y="30">000</tspan>
+            </text>
+            <line x1="2.51539912" y1="40" x2="217.582024" y2="40" id="filter_sector_5" stroke="#EFFFFD" stroke-width="3"></line>
+        </g>
+        <g id="sector_2_box" transform="translate(221.355123, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0 0 221.355123 0 221.355123 43 0 43"></polygon>
+            <text id="MULTI-SECTOR-ASSESSM" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="53.7196732" y="14">MULTI-SECTOR  </tspan>
+                <tspan x="53.7196732" y="31">ASSESSMENTS</tspan>
+            </text>
+            <text id="multi_sector_2" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="5.54619736" y="30">000</tspan>
+            </text>
+            <text id="&gt;=2-Sectors" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.9613134" font-weight="300" fill="#FFFFFF">
+                <tspan x="151.977373" y="24">&gt;=2 Sectors</tspan>
+            </text>
+            <line x1="2.51539912" y1="40" x2="217.582024" y2="40" id="filter_sector_2" stroke="#EFFFFD" stroke-width="3"></line>
+        </g>
+        <g id="sector_1_box" transform="translate(443.967945, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0 0 218.839723 0 218.839723 43 0 43"></polygon>
+            <text id="SINGLE-SECTOR-ASSESS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="55.2658705" y="14">SINGLE-SECTOR  </tspan>
+                <tspan x="55.2658705" y="31">ASSESSMENTS</tspan>
+            </text>
+            <text id="single_sector" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="6.2884978" y="30">000</tspan>
+            </text>
+            <text id="=1-Sector" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.9613134" font-weight="300" fill="#FFFFFF">
+                <tspan x="155.52357" y="24">=1 Sector</tspan>
+            </text>
+            <line x1="2.51539912" y1="40" x2="216.324324" y2="40" id="filter_sector_1" stroke="#EFFFFD" stroke-width="3"></line>
+        </g>
+        <g id="monitoring_5_box" transform="translate(664.065368, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0 0 222.612822 0 222.612822 43 0 43"></polygon>
+            <text id="MULTI-SECTOR-MONITOR" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="56.204274" y="14">MULTI-SECTOR </tspan>
+                <tspan x="56.204274" y="31">MONITORING</tspan>
+            </text>
+            <text id="sector_monitoring_5" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="6.80389692" y="30">000</tspan>
+            </text>
+            <text id="&gt;=5-Sectors" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.9613134" font-weight="300" fill="#FFFFFF">
+                <tspan x="150.977373" y="24">&gt;=5 Sectors</tspan>
+            </text>
+            <line x1="2.51539912" y1="40" x2="220.097423" y2="40" id="filter_monitoring_5" stroke="#EFFFFD" stroke-width="3"></line>
+        </g>
+        <g id="initial_box" transform="translate(1335.676933, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0.323067253 0 197.323067 0 197.323067 43 0.323067253 43"></polygon>
+            <text id="INITIAL-NEEDS-ASSESS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="55.3230673" y="15">INITIAL NEEDS </tspan>
+                <tspan x="55.3230673" y="32">ASSESSMENTS</tspan>
+            </text>
+            <text id="total_initial" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="5.32306725" y="30">000</tspan>
+            </text>
+            <line x1="1.32306725" y1="40" x2="195.323067" y2="40" id="filter_initial" stroke="#EFFFFD" stroke-width="3"></line>
+        </g>
+        <g id="in_depth_box" transform="translate(1763.902577, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0.0974230044 0 238.097423 0 238.097423 43 0.0974230044 43"></polygon>
+            <text id="IN-DEPTH-NEEDS-ASSES" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="44.097423" y="24">IN-DEPTH NEEDS ASSESSMENTS</tspan>
+            </text>
+            <text id="total_in_depth" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="8.097423" y="30">00</tspan>
+            </text>
+            <line x1="3.097423" y1="40" x2="236.097423" y2="40" id="filter_in_depth" stroke="#EFFFFD" stroke-width="3"></line>
+        </g>
+        <g id="monitoring_1_box" transform="translate(1111.806411, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0 0 222.612822 0 222.612822 43 0 43"></polygon>
+            <text id="sector_monitoring_1" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="5.80389692" y="29">000</tspan>
+            </text>
+            <text id="=1-Sector" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.9613134" font-weight="300" fill="#FFFFFF">
+                <tspan x="159.038969" y="24">=1 Sector</tspan>
+            </text>
+            <line x1="2.51539912" y1="40" x2="220.097423" y2="40" id="filter_monitoring_1" stroke="#EFFFFD" stroke-width="3"></line>
+            <text id="SINGLE-SECTOR-MONITO" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="56.0389692" y="15">SINGLE-SECTOR </tspan>
+                <tspan x="56.0389692" y="32">MONITORING</tspan>
+            </text>
+        </g>
+        <g id="monitoring_2_box" transform="translate(887.935889, 0.000000)">
+            <polygon id="Rectangle-6" fill="#828282" points="0 0 222.612822 0 222.612822 43 0 43"></polygon>
+            <text id="sector_monitoring_2" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#FFFFFF">
+                <tspan x="6.80389692" y="29">000</tspan>
+            </text>
+            <text id="&gt;=2-Sectors" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.9613134" font-weight="300" fill="#FFFFFF">
+                <tspan x="150.296669" y="24">&gt;=2 Sectors</tspan>
+            </text>
+            <line x1="2.51539912" y1="40" x2="220.097423" y2="40" id="filter_monitoring_2" stroke="#EFFFFD" stroke-width="3"></line>
+            <text id="MULTI-SECTOR-MONITOR" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
+                <tspan x="56.7812696" y="14">MULTI-SECTOR </tspan>
+                <tspan x="56.7812696" y="31">MONITORING</tspan>
+            </text>
+        </g>
+        <g id="key_informant_interview_box" transform="translate(801.154620, 39.000000)">
+            <polygon id="Rectangle-6" fill="#EDEDED" points="0 4.88888889 411.185407 4.88888889 411.185407 36 0 36"></polygon>
+            <text id="KEY-INFORMANTS-INTER" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
+                <tspan x="85.8972793" y="25.4861111">KEY INFORMANTS INTERVIEWED</tspan>
+            </text>
+            <text id="key_informants" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
+                <tspan x="7.5911152" y="28.5694444">00000</tspan>
+            </text>
+            <line x1="2.53037173" y1="33.0833333" x2="407.389849" y2="33.0833333" id="filter_key_informant_interview" stroke="#FFFFFF" stroke-width="3"></line>
+        </g>
+        <g id="focus_group_discussion_box" transform="translate(1213.680075, 40.000000)">
+            <polygon id="Rectangle-6" fill="#EDEDED" points="0 3.88888889 368.505971 3.88888889 368.505971 35 0 35"></polygon>
+            <text id="focusgroup" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
+                <tspan x="58.6888749" y="24.4861111">FOCUS GROUP DISCUSSIONS</tspan>
+            </text>
+            <text id="focus_group_discussions" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
+                <tspan x="8.80389692" y="27.5694444">000</tspan>
+            </text>
+            <line x1="3.77309868" y1="32.0833333" x2="364.732872" y2="32.0833333" id="filter_focus_group_discussion" stroke="#FFFFFF" stroke-width="3"></line>
+        </g>
+        <g id="community_group_discussion_box" transform="translate(1582.443746, 40.000000)">
+            <polygon id="Rectangle-6" fill="#EDEDED" points="0.556253928 4 419.556254 4 419.556254 35 0.556253928 35"></polygon>
+            <text id="COMMUNITY-GROUP-DISC" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
+                <tspan x="57.5562539" y="24">COMMUNITY GROUP DISCUSSIONS</tspan>
+            </text>
+            <text id="community_group_discussions" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
+                <tspan x="9.55625393" y="28">000</tspan>
+            </text>
+            <line x1="4.55625393" y1="32" x2="416.556254" y2="32" id="filter_community_group_discussion" stroke="#FFFFFF" stroke-width="3"></line>
+        </g>
+    </g>
+</svg>
