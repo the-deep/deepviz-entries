@@ -172,6 +172,7 @@ Map.create = function(){
         trackResize: true,
         pitchWithRotate: false,
         doubleClickZoom: true,
+        preserveDrawingBuffer: true,
         dragRotate: false
     });
 
