@@ -3926,7 +3926,7 @@ $('#print').click(function(){
 	        height: $('#main').height()+22,
 	        windowWidth: 1300,
 	        windowHeight: 2600,
-	        logging: true
+	        logging: false
 	    }).then(canvas => {
 	    // document.body.appendChild(canvas);
 		// window.print();
@@ -3990,7 +3990,7 @@ $('#printImage').click(function(){
 	        height: $('#main').height()+24,
 	        windowWidth: 1300,
 	        windowHeight: 2600,
-	        logging: true
+	        logging: false
 	    }).then(canvas => {
 
 		var img = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
