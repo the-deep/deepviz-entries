@@ -134,6 +134,8 @@ var svg_summary1;
 var svg_summary2;
 var svg_summary3;
 
+var printing = false;
+
 // colors
 var colorPrimary = ['#A1E6DB','#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
 var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
@@ -397,7 +399,7 @@ var Deepviz = function(sources, callback){
 				var leadRow = {"date": d.date, "month": d.month, "year": d.year, lead_id: d.lead.id};
 				dataByLead.push(leadRow);
 			};
-			
+
 			// publishers (unique based on source_raw strinng)
 			if(d.lead.source){
 				var src = d.lead.source.id;
@@ -3884,7 +3886,124 @@ function addCommas(nStr){
 }
 
 $('#print').click(function(){
-	d3.select('#collapsed1').style('opacity', 0);
-	d3.select('#collapsed0').style('opacity', 1);
-	window.print();
+
+	if(printing) return false;
+	printing = true;
+
+	d3.select('#print-icon').style('display', 'none');
+	d3.select('#print-loading').style('display', 'block');
+	// $('#top_row').css('position', 'inherit');
+	$('#print-date').html('<b>PDF Export</b> &nbsp;&nbsp;&nbsp;'+new Date());
+
+	setTimeout(function(){
+		html2canvas(document.querySelector("#main"),{
+	        allowTaint: true,
+	        onclone: function(doc){
+				$(doc).find('#top_row').css('position', 'unset');
+				$(doc).find('#summary_row').css('margin-top', '10px');
+				$(doc).find('#print-header').css('display', 'block')
+				$(doc).find('#svg_summary3_div').css('display', 'none');
+				$(doc).find('.main-content').css('margin-bottom', '30px');
+				$(doc).find('.removeFilterBtn').html('FILTERED');
+	        },
+	        useCORS: false,
+	        foreignObjectRendering: true,
+	        ignoreElements: function(element){
+	        	if(element.id=='print') return true;
+	        	if(element.id=='printImage') return true;
+	        	if(element.id=='lasso') return true;
+	        	if(element.id=='expand') return true;
+	        	if(element.id=='map-toggle') return true;
+	        	if(element.id=='map-bg-toggle') return true;
+	        	if(element.id=='heatmap-radius-slider-div') return true;
+	        	if(element.id=='adm-toggle') return true;
+	        	if(element.id=='dateRangeContainer_img') return true;
+	        	if($(element).hasClass('select2')) return true;
+	        	if($(element).hasClass('removeFilterBtn')) return true;
+	    		return false;
+	        },
+	        scale: 1.2,
+	        height: $('#main').height()+22,
+	        windowWidth: 1300,
+	        windowHeight: 2600,
+	        logging: true
+	    }).then(canvas => {
+	    // document.body.appendChild(canvas);
+		// window.print();
+	    // $(canvas).remove();
+
+	    var img = canvas.toDataURL("image/png");
+	    var pdf = new jsPDF("p", "mm", "a4");
+	    var imgProps= pdf.getImageProperties(img);
+	    var pdfWidth = pdf.internal.pageSize.getWidth();
+	    var pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+	    pdf.addImage(img, 'JPEG', 10, 10, pdfWidth-20, pdfHeight-20);
+	    pdf.save('deep-pdf-export.pdf');
+
+		d3.select('#print-icon').style('display', 'block');
+		d3.select('#print-loading').style('display', 'none');
+
+		printing = false;
+		},200);
+	});
+});
+
+$('#printImage').click(function(){
+
+	if(printing) return false;
+	printing = true;
+
+	d3.select('#printImage-icon').style('display', 'none');
+	d3.select('#printImage-loading').style('display', 'block');
+	// $('#top_row').css('position', 'inherit');
+	$('#print-date').html('<b>Image Export</b> &nbsp;&nbsp;&nbsp;'+new Date());
+
+	setTimeout(function(){
+		html2canvas(document.querySelector("#main"),{
+	        allowTaint: true,
+	        onclone: function(doc){
+				$(doc).find('#top_row').css('position', 'unset');
+				$(doc).find('#summary_row').css('margin-top', '10px');
+				$(doc).find('#print-header').css('display', 'block')
+				$(doc).find('#svg_summary3_div').css('display', 'none');
+				$(doc).find('.main-content').css('margin-bottom', '30px');
+				$(doc).find('.removeFilterBtn').html('FILTERED');
+	        },
+	        useCORS: false,
+	        foreignObjectRendering: true,
+	        ignoreElements: function(element){
+	        	if(element.id=='print') return true;
+	        	if(element.id=='printImage') return true;
+	        	if(element.id=='lasso') return true;
+	        	if(element.id=='expand') return true;
+	        	if(element.id=='map-toggle') return true;
+	        	if(element.id=='map-bg-toggle') return true;
+	        	if(element.id=='heatmap-radius-slider-div') return true;
+	        	if(element.id=='adm-toggle') return true;
+	        	if(element.id=='dateRangeContainer_img') return true;
+	        	if($(element).hasClass('select2')) return true;
+	        	if($(element).hasClass('removeFilterBtn')) return true;
+	    		return false;
+	        },
+	        scale: 1.2,
+	        height: $('#main').height()+24,
+	        windowWidth: 1300,
+	        windowHeight: 2600,
+	        logging: true
+	    }).then(canvas => {
+
+		var img = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+		var link = document.createElement('a');
+		link.download = 'deep-export.png';
+		link.href = img;
+		link.click();
+		link.delete;
+
+		d3.select('#printImage-icon').style('display', 'block');
+		d3.select('#printImage-loading').style('display', 'none');
+
+		printing = false;
+		},200);
+	});
 });
