@@ -1,5 +1,5 @@
 const urlQueryParams = new URLSearchParams(window.location.search);
-var sources = [urlQueryParams.get('dataUrl')];
+var sources = [urlQueryParams.get('dataUrl'), 'images/summary_1.svg', 'images/summary_2.svg', 'images/summary_3.svg'];
 
 var Deepviz = new Deepviz(sources, function(data){
 
@@ -46,7 +46,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	var timelineSvg = Deepviz.createSvg({
 		id: 'timeline_viz',
 		viewBoxWidth: 1300,
-		viewBoxHeight: 900,
+		viewBoxHeight: 1000,
 		div: '#timeline'
 	});
 
@@ -135,6 +135,11 @@ var Deepviz = new Deepviz(sources, function(data){
 
 	var map = Map.create();
 
+	//**************************
+	// summary section
+	//**************************
+	var summary = Deepviz.createSummary();
+	
 	d3.select('#toggle1').style('opacity', 0);
 	d3.select('#toggle0').style('fill', '#008974');
 	d3.select('#framework-toggle-text tspan').text('average severity');

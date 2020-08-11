@@ -13,6 +13,7 @@ var scale = {
 	'timechart': {x: '', y1: '', y2: ''},
 	'trendline': {x: '', y: ''},
 	'sparkline': {x: '', y: ''},
+	'tooltipSparkline': {x: '', y: ''},
 	'map': '',
 	'eventdrop': '',
 	'severity': {x: '', y: ''},
@@ -31,10 +32,20 @@ var mapToggle = 'bubbles';
 // data related
 var originalData; // full original dataset without filters (used to refresh/clear filters)
 var data; // active dataset after filters applied
+var dataEntries;
+var dataAssessments;
 var dataByDate;
 var metadata;
+var metadataAry;
+var dataNotSeverity;
+var dataNotReliability;
 var dataByMonth;
 var dataByYear;
+var dataByLead;
+var dataByPublisher;
+var dataByAssessmentType;
+var dataByOrganisation;
+var dataByOrganisationType;
 var dataByLocation;
 var dataByLocationSum;
 var dataByLocationArray;
@@ -50,6 +61,10 @@ var total = 0;
 var disableSync = false;
 var disableSync_location_threshold = 1000;
 var disableSync_entries_threshold = 5000;
+var atype_keys = {};
+var data_collection_technique_keys = {};
+var stakeholder_type_keys = {};
+var timeFormat = d3.timeFormat("%d-%m-%Y");
 var maxValue; // max value on a given date
 var maxContextValue;
 var tp_severity = [];
@@ -61,11 +76,12 @@ var timechartyGrids;
 var hoverColor = 'rgba(0,0,0,0.03)';
 var displayCalendar = false;
 var width = 1300;
+var duration = 700;
 var margin = {top: 18, right: 17, bottom: 0, left: 45};
 var timechartHeight = 360;
 var timechartHeight2 = timechartHeight;
 var timechartHeightOriginal = timechartHeight;
-var timechartSvgHeight = 900;
+var timechartSvgHeight = 1000;
 var brush;
 var gBrush; 
 var barWidth;
@@ -74,6 +90,8 @@ var numCategories;
 var frameworkToggleImg;
 var frameworkSparklinesCreated = false;
 var frameworkSparklineHeight = 0;
+var tooltipSparklineHeight = 40;
+var tooltipSparklineWidth = 140;
 // trendline
 var trendlinePoints;
 var avgSliderBrushing = false; // brush state
@@ -90,7 +108,7 @@ var curvedLine = d3.line()
 // map
 var maxMapBubbleValue;
 var maxMapPolygonValue;
-var mapAspectRatio = 1.263;
+var mapAspectRatio = 1.33;
 var geoBounds = {'lat': [], 'lon': []};
 
 // filters
@@ -101,7 +119,9 @@ var filters = {
 	affected_groups: [],
 	specific_needs: [],
 	context: [],
+	framework: [],
 	geo: [],
+	top: [],
 	toggle: 'severity',
 	admin_level: 1,
 	frameworkToggle: 'entries',
@@ -109,6 +129,12 @@ var filters = {
 	heatmapCheckbox: false,
 	panelLayout: 'default'
 };
+
+var svg_summary1;
+var svg_summary2;
+var svg_summary3;
+
+var printing = false;
 
 // colors
 var colorPrimary = ['#A1E6DB','#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
@@ -163,278 +189,30 @@ var Deepviz = function(sources, callback){
 		//**************************
 
 		// return the data
-		data = values[0].data;
+		dataEntries = values[0].entry_data.data;
+		dataAssessments = values[0].ary_data.data;
+		svg_summary1 = values[1];
+		svg_summary2 = values[2];
+		svg_summary3 = values[3];
 
-		metadata = values[0].meta;
+		metadata = values[0].entry_data.meta;
+		metadata.geo_array = values[0].geo_data;
+		metadataAry = values[0].ary_data.meta;
+		metadataAry.geo_array = metadata.geo_array;
 
 		frameworkToggleImg = values[1];
 
-		// parse parent locations up to 4 levels
-		data.forEach(function(d,i){
-			d.geo.forEach(function(dd,ii){
+		parseGeoData();
 
-				dd = parseInt(dd);
-				d.geo[ii]=dd;
-
-				var parents = [];
-
-				var parent = getParent(dd);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				var parent = getParent(parent);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				var parent = getParent(parent);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				var parent = getParent(parent);
-				if((parent>0)&&(!parents.includes(parent))&&(!d.geo.includes(parent))){
-					parents.push(parent);
-				}
-
-				d.geo.push.apply(d.geo,parents);
-			});
-
-		});
-
-		function getParent(geo_id){
-			var parent;
-			metadata.geo_array.forEach(function(d,i){
-				if(geo_id==d.id){
-					parent = d.parent;
-				}
-			})
-			return parseInt(parent);
-		}
-
-		// remove unsed locations
-		var locationArray = [];
-		data.forEach(function(d,i){
-			d.geo.forEach(function(dd,ii){
-				if(!locationArray.includes(parseInt(dd))){
-					locationArray.push(parseInt(dd));
-				}
-			})
-		});
-
-		var newGeoArray = [];
-		metadata.geo_array.forEach(function(d,i,obj){
-			if(locationArray.includes(parseInt(d.id))){
-				newGeoArray.push(d);
-			}	
-		})
-
-		metadata.geo_array = newGeoArray;
-
-		// parse meta data, create integer id column from string ids and programattically attempt to shorten label names
-		metadata.context_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.framework_groups_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-			d._context_id = d.context_id;
-			// programattically shorten a long framework label
-			if(d.name== "Status of essential infrastructure, systems, markets and networks"){
-				d.name = "Infrastructure, systems, markets and networks";
-			}
-			metadata.context_array.forEach(function(ddd,ii){
-				if(d._context_id==ddd._id){
-					d.context_id = ddd.id;
-				}
-			});
-		});
-		metadata.affected_groups_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.specific_needs_groups_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.sector_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-		metadata.severity_units.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-			// shorten label by cutting text after the first full-stop
-			d.name = d.name.split('.')[0];
-		});
-		metadata.reliability_units.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-		});
-
-		metadata.geo_array.sort(function(x, y){
-		   return d3.ascending(x.name, y.name);
-		});
-
-		metadata.geo_json = {"type": "FeatureCollection", "features": []};
-		metadata.geo_json_point = {"type": "FeatureCollection", "features": []};
-
-		metadata.geo_array.forEach(function(d,i){
-			d._id = d.id;
-			d.id = i+1;
-			var polygons = d.polygons;
-			polygons.coordinates = polygons.coordinates;
-			var feature = {'type':'Feature', 'properties':{'name': d.name, 'id': d.id, 'admin_level': d.admin_level}, 'geometry': polygons }
-			metadata.geo_json.features[i] = feature;
-			var point = { "type": "Point", "coordinates": [ d.centroid[0],d.centroid[1],0.0 ] }
-			var featurePoint = {'type':'Feature', 'properties':{'name': d.name, 'id': d.id, 'admin_level': d.admin_level}, 'geometry': point }
-			metadata.geo_json_point.features[i] = featurePoint;
-		});
-
-		metadata.geo_json.features.forEach(function(feature) {
-		   if(feature.geometry.type == "MultiPolygon") {
-		     feature.geometry.coordinates.forEach(function(polygon) {
-		       polygon.forEach(function(ring) {
-		         ring.reverse();
-		       })
-		     })
-		   }
-		   else if (feature.geometry.type == "Polygon") {
-		     feature.geometry.coordinates.forEach(function(ring) {
-		       ring.reverse();
-		     })  
-		   }
-		 });
-
-		metadata.severity_units.unshift({
-			"id": 6,
-			"color": "grey",
-			"name": "Null",
-			"_id": null,
-		});
-		metadata.reliability_units.unshift({
-			"id": 6,
-			"color": "grey",
-			"name": "Null",
-			"_id": null,
-		});
+		metadata = parseEntriesMetadata(metadata);
+		data = parseEntriesData(dataEntries, metadata);
+		metadataAssessments = parseAssessmentsMetadata(metadataAry);
+		dataAssessments = parseAssessmentsData(dataAssessments, metadataAry);
 
 		// disableSync threshold
-
 		if(metadata.geo_array.length>disableSync_location_threshold) disableSync = true;
 		if(data.length>disableSync_entries_threshold) disableSync = true;
 		if(urlQueryParams.get('disableSync')) disableSync = true;
-
-		// convert date strings into js date objects
-		data.forEach(function(d,i){
-			d.date = new Date(d.date);
-			d.date.setHours(0,0,0,0);
-			d.month = new Date(d.date);
-			d.month.setHours(0,0,0,0);
-			d.month.setDate(1);
-			d.year = new Date(d.date);
-			d.year.setHours(0,0,0,0);
-			d.year.setDate(1);
-			d.year.setMonth(0);
-
-			// PARSE STRING IDS TO INTEGERS
-			// parse context array
-			d._context = d.context;
-			d.context = [];
-			d._context.forEach(function(dd,ii){
-				metadata.context_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						d.context.push(ddd.id);
-					}
-				});
-			});
-			// parse specific needs array
-			d._special_needs = d.special_needs;
-			d.special_needs = [];
-			d._special_needs.forEach(function(dd,ii){
-				metadata.specific_needs_groups_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						d.special_needs.push(ddd.id);
-					}
-				});
-			});
-			// parse affected groups array
-			d._affected_groups = d.affected_groups;
-			d.affected_groups = [];
-			d._affected_groups.forEach(function(dd,ii){
-				metadata.affected_groups_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						d.affected_groups.push(ddd.id);
-					}
-				});
-			});
-			// parse affected groups array
-			d._sector = d.sector;
-			d.sector = [];
-			d._sector.forEach(function(dd,ii){
-				var context_id = 0;
-				metadata.context_array.forEach(function(ddd,ii){
-					if(dd[0]==ddd._id){
-						context_id = ddd.id;
-					}
-				});
-				var framework_id = 0;
-				metadata.framework_groups_array.forEach(function(ddd,ii){
-					if(dd[1]==ddd._id){
-						framework_id = ddd.id;
-					}
-				});
-				var sector_id = 0;
-				metadata.sector_array.forEach(function(ddd,ii){
-					if(dd[2]==ddd._id){
-						sector_id = ddd.id;
-					}
-				});
-				d.sector.push([context_id,framework_id,sector_id]);
-			});
-
-			// parse severity id
-			d._severity = d.severity;
-			metadata.severity_units.forEach(function(ddd,ii){
-				if(d._severity==ddd._id){
-					d.severity = ddd.id;
-				}
-				// parse null values
-				if(d._severity===null){
-					d.severity = 0;
-				}
-			});
-			
-			// parse reliability id
-			d._reliability = d.reliability;
-			metadata.reliability_units.forEach(function(ddd,ii){
-				if(d._reliability==ddd._id){
-					d.reliability = ddd.id;
-				}
-				// parse null values
-				if(d._reliability===null){
-					d.reliability = 0;
-				}
-			});
-			// parse geo id
-			d._geo = d.geo;
-			d.geo = [];
-
-			d._geo.forEach(function(dd,ii){
-				metadata.geo_array.forEach(function(ddd,ii){
-					if(dd==ddd._id){
-						if(!d.geo.includes(ddd.id)){d.geo.push(ddd.id);};
-						geoBounds.lat.push(ddd.bounds[0][0]);
-						geoBounds.lat.push(ddd.bounds[1][0]);
-						geoBounds.lon.push(ddd.bounds[0][1]);
-						geoBounds.lon.push(ddd.bounds[1][1]);
-					}
-				});
-			});
-
-		});
 
 		// parse url variable options
 		if(urlQueryParams.get('minDate')){
@@ -443,10 +221,12 @@ var Deepviz = function(sources, callback){
 			minDate.setMinutes(0);
 			data = data.filter(function(d){
 				return d.date >= minDate;
-			})
+			});
+			dataAssessments = dataAssessments.filter(function(d){
+				return d.date >= minDate;
+			});
 		}
 
-		// parse url variable options
 		if(urlQueryParams.get('maxDate')){
 			maxDate = new Date(urlQueryParams.get('maxDate'));
 			maxDate.setHours(0);
@@ -454,8 +234,10 @@ var Deepviz = function(sources, callback){
 			data = data.filter(function(d){
 				return d.date <= maxDate;
 			})
+			dataAssessments = dataAssessments.filter(function(d){
+				return d.date <= maxDate;
+			})
 		}
-
 
 		if(urlQueryParams.get('time')){
 			filters.time=urlQueryParams.get('time');
@@ -467,6 +249,9 @@ var Deepviz = function(sources, callback){
 
 		// set the data again for reset purposes
 		originalData = data;
+		originalDataAssessments = dataAssessments;
+		dataNotSeverity = data;
+		dataNotReliability = data;
 
 		// num contextual rows
 		numContextualRows = metadata.context_array.length;
@@ -588,7 +373,12 @@ var Deepviz = function(sources, callback){
 			.entries(data);
 		}
 
+		// entries data
 		dataByFrameworkSector = [];
+		dataByLead = [];
+		var leadArray = [];
+		dataByPublisher = [];
+		var publisherArray = [];
 		dataBySector = [];
 		dataByFramework = [];
 		dataByAffectedGroups = [];
@@ -598,17 +388,39 @@ var Deepviz = function(sources, callback){
 		dataByFrameworkContext = [];
 
 		data.forEach(function(d,i){
-
 			var frameworks = [];
 			var contexts = [];
 			var sectors = [];
+
+			// leads
+			var leadArrayStr = d.date.getTime()+'-'+d.lead.id;
+			if(!leadArray.includes(leadArrayStr)){
+				leadArray.push(leadArrayStr);
+				var leadRow = {"date": d.date, "month": d.month, "year": d.year, lead_id: d.lead.id};
+				dataByLead.push(leadRow);
+			};
+
+			// publishers (unique based on source_raw strinng)
+			if(d.lead.source){
+				var src = d.lead.source.id;
+			} else {
+				var src = d.lead.source_raw;
+			}
+			var publisherArrayStr = d.date.getTime()+'-'+src;
+			if(!publisherArray.includes(publisherArrayStr)){
+				publisherArray.push(publisherArrayStr);
+				var publisherRow = {"date": d.date, "month": d.month, "year": d.year, publisher_str: src};
+				if(src>0){
+					dataByPublisher.push(publisherRow);
+				}
+			};
 
 			d.sector.forEach(function(dd,ii){
 				var c = dd[0];
 				var f = dd[1];
 				var s = dd[2];
 				// data by sector (non-unique) for framework cells
-				dataByFrameworkSector.push({"date": d.date, "context": c, "framework": f, "sector": s, 's': d.severity, 'r': d.reliability});
+				dataByFrameworkSector.push({"date": d.date, "month": d.month, "year": d.year, "context": c, "framework": f, "sector": s, 's': d.severity, 'r': d.reliability});
 				// unique entries by framework
 				var frameworkRow = {"date": d.date, "context": c, "framework": f, 's': d.severity, 'r': d.reliability};
 				if(!frameworks.includes(f)){
@@ -622,7 +434,7 @@ var Deepviz = function(sources, callback){
 					contexts.push(c);
 				}
 				// unique entries by sector
-				var sectorRow = {"date": d.date, "sector": s, 's': d.severity, 'r': d.reliability};
+				var sectorRow = {"date": d.date, "month": d.month, "year": d.year, "sector": s, 's': d.severity, 'r': d.reliability};
 				if(!sectors.includes(s)){
 					dataBySector.push(sectorRow);
 					sectors.push(s);
@@ -644,11 +456,11 @@ var Deepviz = function(sources, callback){
 			});
 
 			d.special_needs.forEach(function(dd,ii){
-				dataBySpecificNeeds.push({"date": d.date, "specific_needs": dd, 's': d.severity, 'r': d.reliability})
+				dataBySpecificNeeds.push({"date": d.date, "month": d.month, "year": d.year, "specific_needs": dd, 's': d.severity, 'r': d.reliability})
 			});
 
 			d.affected_groups.forEach(function(dd,ii){
-				dataByAffectedGroups.push({"date": d.date, "affected_groups": dd, 's': d.severity, 'r': d.reliability})
+				dataByAffectedGroups.push({"date": d.date, "month": d.month, "year": d.year, "affected_groups": dd, 's': d.severity, 'r': d.reliability})
 			});
 
 		});
@@ -658,6 +470,28 @@ var Deepviz = function(sources, callback){
 		.key(function(d) { return d.geo; })
 		.rollup(function(leaves) { return leaves.length; })
 		.entries(dataByLocationArray);
+
+		// assessments data
+
+		dataByAssessmentType = [];
+		dataByOrganisation = [];
+		dataByOrganisationType = [];
+		
+		dataAssessments.forEach(function(d,i){
+			dataByAssessmentType.push({"date": d.date, "month": d.month, "year": d.year, 'assessment_type': parseInt(d.assessment_type), 's': d.finalScore, 'r': null});
+
+			d.organization_and_stakeholder_type.forEach(function(dd,ii){
+				var name;
+				metadataAry.organization.forEach(function(ddd,ii){
+					if(parseInt(ddd.id)==parseInt(dd[1])){
+						name = ddd.name;
+						dataByOrganisation.push({"date": d.date, "month": d.month, "year": d.year, "stakeholder_type": dd[0], "organisation": dd[1], 'name': name, 's': d.finalScore, 'r': null });
+					}
+				});
+			});
+
+		});
+
 
 		// entries by framework sector (non-unique to populate framework cells)
 		dataByContext = dataByContextArray;
@@ -844,7 +678,7 @@ var Deepviz = function(sources, callback){
 			return d.total_entries;
 		});
 
-		updateTotals();
+		Summary.update();
 		DeepvizFramework.updateFramework();
 		BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 		BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -899,6 +733,13 @@ var Deepviz = function(sources, callback){
 
 		return this.svg;
 	};
+
+	//**************************
+	// create summary
+	//**************************
+	this.createSummary = function(){
+		Summary.create(svg_summary1,svg_summary2,svg_summary3);
+	}
 
 	//**************************
 	// create timechart
@@ -1311,8 +1152,8 @@ var Deepviz = function(sources, callback){
 		.scale(scale.timechart.x)
 		.tickSize(0)
 
-		var textLength = '5%';
-		if(expandActive==true) textLength = '3.3%';
+		var textLength = '6%';
+		if(expandActive==true) textLength = '2%';
 
 		if(filters.time=='y'){
 			xAxis.ticks(d3.timeYear.every(1))
@@ -1353,7 +1194,7 @@ var Deepviz = function(sources, callback){
 		.attr('lengthAdjust', 'spacingAndGlyphs')
 		.attr('text-anchor', 'start')
 		.attr('text-align', 'left')
-		.attr('textLength', '6.5%')
+		.attr('textLength', textLength)
 		.attr('font-variant', 'small-caps')
 		.attr('x', '0.3%');
 
@@ -1426,6 +1267,7 @@ var Deepviz = function(sources, callback){
 			var count = (Math.abs(moment(dateRange[1]).diff(moment(dateRange[0]), 'months', true)));
 			var tickFormat = d3.timeFormat("%d %b %Y");
 			var tLength = '6%';
+			if(expandActive==true) tLength = '4%';
 			if(filters.time=='d'){
 				if((count<=0.4)){
 					if(axisRange=='single day') return; // if already 'single month' then break out of fn
@@ -1468,6 +1310,7 @@ var Deepviz = function(sources, callback){
 
 				var tickFormat = d3.timeFormat("%b %Y");
 				var tLength = '5%';
+				if(expandActive==true) tLength = '3%';
 
 				if((count<=10)){
 					if(axisRange=='single month') return; 
@@ -1497,6 +1340,7 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='y'){
 				var tickFormat = d3.timeFormat("%Y");
 				var tLength = '3%';
+				if(expandActive==true) tLength = '2%';
 				var ticks = d3.timeYear.every(1);
 				axisRange = 'single year';
 			}
@@ -1682,7 +1526,7 @@ var Deepviz = function(sources, callback){
 					var text = metadata.reliability_units[s].name;
 				}
 				var html = '<div style="text-align: left; font-weight: bold;">'+date+'</div>';
-				html += '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b></div>';
+				html += '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;<span style="font-size: 10px">&nbsp;' + text + '</span><div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b></div>';
 	        	instance.setContent(html);
 			},
 			onHide(instance) {
@@ -2228,7 +2072,7 @@ var Deepviz = function(sources, callback){
 	    function update(){
 	    	// colorBars();
 	    	updateDate();
-	    	updateTotals();
+	    	Summary.update();
 	    	updateSeverityReliability('brush', 500);
 			Map.update();
 	    	DeepvizFramework.updateFramework();
@@ -2280,7 +2124,7 @@ var Deepviz = function(sources, callback){
 
 			// colorBars();
 			updateDate();
-			updateTotals();
+			Summary.update();
 			if(disableSync==false){
 				DeepvizFramework.updateFramework();
 				Map.update();
@@ -2313,6 +2157,7 @@ var Deepviz = function(sources, callback){
 			
 			updateTopAxis();
 			DeepvizFramework.updateSparklinesOverlay(dateRange);		
+			Map.updateSparklinesOverlay(dateRange);		
 
 		}
 
@@ -2354,7 +2199,7 @@ var Deepviz = function(sources, callback){
 
 			colorBars();
 			updateDate();
-			updateTotals();
+			Summary.update();
 			updateSeverityReliability('brush',500);
 			Map.update();
 			DeepvizFramework.updateFramework();
@@ -2382,7 +2227,7 @@ var Deepviz = function(sources, callback){
 
 		colorBars();
 		updateDate();
-		updateTotals();
+		Summary.update();
 		updateTrendline();
 		updateSeverityReliability('init', 500);
 		DeepvizFramework.updateFramework();
@@ -2393,6 +2238,7 @@ var Deepviz = function(sources, callback){
 		DeepvizFramework.updateSparklines();
 
 		DeepvizFramework.updateSparklinesOverlay(dateRange);
+		Map.updateSparklinesOverlay(dateRange);
 
 		return bars;
 	}
@@ -2830,10 +2676,12 @@ var Deepviz = function(sources, callback){
 			filters.sector = [];
 			filters.severity = [];
 			filters.context = [];
+			filters.framework = [];
 			filters.reliability = [];
 			filters.affected_groups = [];
 			filters.specific_needs = [];
 			filters.geo = [];
+			filters.top = [];
 		}
 
 		d3.selectAll('.sector-icon').style('opacity', 0.3);
@@ -2856,73 +2704,34 @@ var Deepviz = function(sources, callback){
 		} else if(value == 'clearFramework'){
 			filters['sector'] = [];
 			filters['context'] = [];
+			filters['framework'] = [];
 		} else if(value != 'reset'){
 		  addOrRemove(filters[filterClass], value);		
 		}
 
-		if((filters['severity'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specific_needs'].length>0)||(filters['affected_groups'].length>0)){
+		if((filters['severity'].length>0)||(filters['framework'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specific_needs'].length>0)||(filters['affected_groups'].length>0)){
 			d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		} else { 
 			d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
 		}
 		// reset data using original loaded data
 		data = originalData;
+		dataAssessments = originalDataAssessments;
 
 		d3.select('#severityRemoveFilter').style('display', 'none').style('cursor', 'default');
 		d3.select('#reliabilityRemoveFilter').style('display', 'none').style('cursor', 'default');
 		d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 		// apply filters to data array
-		if(filters['severity'].length==6){
-			filters['severity'] = [];
-		}
-
-		if(filters['severity'].length>0){
-			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
-			d3.select('#severityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
-
-		if(filters['reliability'].length==6)filters['reliability'] = [];
-
-		if(filters['reliability'].length>0){
-			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
-			d3.select('#reliabilityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
-
-		if(filters.reliability.length==0){
-			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
-				return colorSecondary[i];
-			});		
-		} else {
-			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
-				return colorLightgrey[i];
-			});	
-			filters.reliability.forEach(function(d,i){
-				d3.select('.reliabilityBar.reliability'+(d))
-				.style('fill', colorSecondary[d])
-			});
-		}
-
-		if(filters.severity.length==0){
-			d3.selectAll('.severityBar').style('fill', function(d,i){
-				return colorPrimary[i];
-			});		
-		} else {
-			d3.selectAll('.severityBar').style('fill', function(d,i){
-				return colorLightgrey[i];
-			});	
-			filters.severity.forEach(function(d,i){
-				d3.select('.severityBar.severity'+(d))
-				.style('fill', colorPrimary[d]);
-			});
-		}
-
 		if(filters['geo'].length==metadata.geo_array.length){
 			filters['geo'] = [];
 		}
 
 		if(filters['geo'].length>0){
 			data = data.filter(function(d){
+				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
+			});
+			dataAssessments = dataAssessments.filter(function(d){
 				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
 			});
 			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
@@ -2960,6 +2769,23 @@ var Deepviz = function(sources, callback){
 			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		} else {
 			d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0);
+		}
+		// framework row
+		if(filters['framework'].length>=metadata.framework_groups_array.length)filters['framework'] = [];
+
+		if(filters['framework'].length>0){
+			d3.selectAll('.frameworkRowSelector').style('opacity',0.5);
+			// filter data
+			data = data.filter(function(d){
+				return d['sector'].some(r=> filters['framework'].indexOf(parseInt(r[1])) >= 0);
+			});
+			// bar/text shading
+			filters.framework.forEach(function(d,i){
+				d3.selectAll('.frameworkRowSelector-'+(d)).style('opacity', 1);
+			});
+			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+		} else {
+			d3.selectAll('.frameworkRowSelector').style('opacity',1);
 		}
 
 		if(filters['sector'].length>=metadata.sector_array.length)filters['sector'] = [];
@@ -3000,6 +2826,13 @@ var Deepviz = function(sources, callback){
 			d3.select('#affected_groupsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
 
+		if(filters['top'].length>0){
+			data = data.filter(function(d){
+				return d['top'].some(r=> filters['top'].indexOf(r) >= 0);
+			});
+			d3.select('#summaryRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+		}
+
 		if(filters['specific_needs'].length>0){
 			data = data.filter(function(d){
 				return d['special_needs'].some(r=> filters['specific_needs'].indexOf(r) >= 0);
@@ -3012,6 +2845,59 @@ var Deepviz = function(sources, callback){
 			});
 			d3.select('#specific_needsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 		}
+
+		// data to be used by severity/reliability topline charts
+		dataNotSeverity = data;
+		dataNotReliability = data;
+
+		// severity/reliability filters
+		if(filters['severity'].length==6){
+			filters['severity'] = [];
+		}
+
+		if(filters['severity'].length>0){
+			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
+			dataNotReliability = dataNotReliability.filter(function(d){return  filters['severity'].includes(d['severity']);});
+			d3.select('#severityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+		}
+
+		if(filters['reliability'].length==6)filters['reliability'] = [];
+
+		if(filters['reliability'].length>0){
+			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
+			dataNotSeverity = dataNotSeverity.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
+			d3.select('#reliabilityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+		}
+
+		// color reliability/severity bars
+		if(filters.reliability.length==0){
+			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
+				return colorSecondary[i];
+			});		
+		} else {
+			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
+				return colorLightgrey[i];
+			});	
+			filters.reliability.forEach(function(d,i){
+				d3.select('.reliabilityBar.reliability'+(d))
+				.style('fill', colorSecondary[d])
+			});
+		}
+
+		if(filters.severity.length==0){
+			d3.selectAll('.severityBar').style('fill', function(d,i){
+				return colorPrimary[i];
+			});		
+		} else {
+			d3.selectAll('.severityBar').style('fill', function(d,i){
+				return colorLightgrey[i];
+			});	
+			filters.severity.forEach(function(d,i){
+				d3.select('.severityBar.severity'+(d))
+				.style('fill', colorPrimary[d]);
+			});
+		}
+
 		var duration = 500;
 		if(filterClass=='reset') {
 			duration = 0;
@@ -3043,7 +2929,7 @@ var Deepviz = function(sources, callback){
 			var timelineSvg = Deepviz.createSvg({
 				id: 'timeline_viz',
 				viewBoxWidth: w,
-				viewBoxHeight: 900,
+				viewBoxHeight: 1000,
 				div: '#timeline'
 			});
 
@@ -3130,7 +3016,7 @@ var Deepviz = function(sources, callback){
 
 			Deepviz.filter('reset', 'reset');
 
-			updateTotals();
+			Summary.update();
 			Map.update();
 			DeepvizFramework.updateFramework();
 			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
@@ -3337,6 +3223,7 @@ var Deepviz = function(sources, callback){
 		});
 
 		updateSeverityReliability(target, 500);
+
 		updateTrendline();
 		Map.update();
 		colorBars();
@@ -3390,37 +3277,6 @@ var Deepviz = function(sources, callback){
 
 		d3.select('#dateRangeText').text(string);
 
-	}
-
-	function updateTotals(){
-
-		var dc = data.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
-		var context = [];
-
-		dc.forEach(function(d,i){
-			d.context.forEach(function(dd,ii){
-				context.push(dd);
-			})
-		});
-
-		// define maximum context value
-		var contextualRowTotals = d3.nest()
-		.key(function(d) { return d;})
-		.rollup(function(leaves) { return leaves.length; })
-		.entries(context);
-
-		d3.selectAll('.total-label').text(0);
-		
-		contextualRowTotals.forEach(function(d,i){
-			d3.select('#total-label'+(d.key-1)).text(d.value);
-		})
-
-		total = d3.sum(dataByDate, function(d){
-			if((d.date>=dateRange[0])&&(d.date<dateRange[1]))
-				return d.total_entries;
-		});
-
-		d3.select('#total_entries').text(addCommas(total));
 	}
 
 	//**************************
@@ -3500,14 +3356,19 @@ var Deepviz = function(sources, callback){
 		if(target == 'brush') duration = 0;
 
 		var s_total = 0;
+		var s_total_filtered = 0;
 		var r_total = 0;
+		var r_total_filtered = 0;
 		var severity = [0,0,0,0,0,0];
+		var severityFiltered = [0,0,0,0,0,0];
 		var severityRolling = [0,0,0,0,0,0];
 		var severityCount = 0;
 		var reliability = [0,0,0,0,0,0];
+		var reliabilityFiltered = [0,0,0,0,0,0];
 		var reliabilityRolling = [0,0,0,0,0,0];
 		var reliabilityCount = 0;
-		var timedata = data;
+		var severityData = dataNotSeverity;
+		var reliabilityData = dataNotReliability;
 
 		d3.selectAll('.severityBar')
 		.attr('fill', function(d,i){
@@ -3541,16 +3402,6 @@ var Deepviz = function(sources, callback){
 			return colorSecondary[i];
 		});
 
-		var reliabilityData = timedata;
-		if(filters['severity'].length>0){
-			reliabilityData = timedata.filter(function(d){return  filters['severity'].includes(d['severity']);});
-		}
-
-		var severityData = timedata;
-		if(filters['reliability'].length>0){
-			severityData = timedata.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
-		}
-
 		var dateBySeverity = d3.nest()
 		.key(function(d) { return d.date;})
 		.key(function(d) { return d.severity; })
@@ -3581,8 +3432,12 @@ var Deepviz = function(sources, callback){
 			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < severity.length; i++) { 
 					severity[i] += d.severity[i];
+					if((filters.severity.includes(i))||(filters.severity.length==0)){
+						severityFiltered[i] += d.severity[i];
+					}
 				}
 				s_total += d.total_entries;
+				s_total_filtered += d.total_entries;
 			}
 			delete d.values;
 		});
@@ -3608,8 +3463,12 @@ var Deepviz = function(sources, callback){
 			if((d.date>=dateRange[0])&&(d.date<dateRange[1])){
 				for (i = 0; i < reliability.length; i++) { 
 					reliability[i] += d.reliability[i];
+					if((filters.reliability.includes(i))||(filters.reliability.length==0)){
+						reliabilityFiltered[i] += d.reliability[i];
+					}
 				}
 				r_total += d.total_entries;
+				r_total_filtered += d.total_entries;
 			}
 			delete d.values;
 		});
@@ -3624,7 +3483,7 @@ var Deepviz = function(sources, callback){
 				reliabilityRolling[i] = reliabilityCount;
 			}
 
-			if((target=='reliability')||(target=='init')||(target=='context')||(target=='geo')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
+			if((target=='reliability')||(target=='init')||(target=='framework')||(target=='context')||(target=='geo')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
 				d3.selectAll('.severityBar')
 				.transition()
 				.duration(duration)
@@ -3682,7 +3541,7 @@ var Deepviz = function(sources, callback){
 				});				
 			};
 
-			if((target=='severity')||(target=='init')||(target=='geo')||(target=='context')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
+			if((target=='severity')||(target=='init')||(target=='geo')||(target=='framework')||(target=='context')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', function(d,i){
 					var parent = d3.select(this.parentNode);
@@ -3732,14 +3591,16 @@ var Deepviz = function(sources, callback){
 			}
 
 			// severity median
-			s_total += -severity[0];
-			var severityNull = severity[0];
-			severity[0] = 0;
+			s_total += -severityFiltered[0];
+			s_total_filtered = d3.sum(severityFiltered);
+			s_total_filtered += -severityFiltered[0];
+			var severityNull = severityFiltered[0];
+			severityFiltered[0] = 0;
 			var s = 0;
 			var s_median = 0;
-			severity.every(function(d,i){
-				s += severity[i];
-				if (s > s_total / 2){
+			severityFiltered.every(function(d,i){
+				s += severityFiltered[i];
+				if (s > s_total_filtered / 2){
 					s_median = i;
 					return false;	
 				} else { 
@@ -3749,6 +3610,8 @@ var Deepviz = function(sources, callback){
 
 			// reliability median
 			r_total += -reliability[0];
+			r_total_filtered = d3.sum(reliabilityFiltered);
+			r_total_filtered += -reliabilityFiltered[0];
 			var reliabilityNull = reliability[0];
 			reliability[0] = 0;
 			var r = 0;
@@ -3765,15 +3628,21 @@ var Deepviz = function(sources, callback){
 
 			d3.select('#severity_value').text(metadata.severity_units[s_median].name ).style('color', colorPrimary[s_median]);
 			d3.select('#severityAvg').attr('x',function(d){
-				var nullP = (1 - (s_total / (s_total+severityNull)))*1000;
+				var nullP = (1 - (s_total_filtered / (s_total_filtered+severityNull)))*1000;
 				return (1000-nullP)/2+nullP;
+			})
+			.attr('opacity',function(d){
+				if(filters.severity.length>0) { return 0; } else { return 1;}
 			});
 
 			d3.select('#reliability_value').text(metadata.reliability_units[r_median].name ).style('color', colorSecondary[r_median]);
 			d3.select('#reliabiltiyAvg').attr('x',function(d){
 				var nullP = (1 - (r_total / (r_total+reliabilityNull)))*1000;
 				return (1000-nullP)/2+nullP;
-			});	
+			})
+			.attr('opacity',function(d){
+				if(filters.severity.length>0) { return 0; } else { return 1;}
+			});
 
 			d3.select('#severitySvg').style('visibility', 'visible');
 			d3.select('#reliabilitySvg').style('visibility', 'visible');
@@ -4015,3 +3884,126 @@ function addCommas(nStr){
 	}
 	return x1 + x2;
 }
+
+$('#print').click(function(){
+
+	if(printing) return false;
+	printing = true;
+
+	d3.select('#print-icon').style('display', 'none');
+	d3.select('#print-loading').style('display', 'block');
+	// $('#top_row').css('position', 'inherit');
+	$('#print-date').html('<b>PDF Export</b> &nbsp;&nbsp;&nbsp;'+new Date());
+
+	setTimeout(function(){
+		html2canvas(document.querySelector("#main"),{
+	        allowTaint: true,
+	        onclone: function(doc){
+				$(doc).find('#top_row').css('position', 'unset');
+				$(doc).find('#summary_row').css('margin-top', '10px');
+				$(doc).find('#print-header').css('display', 'block')
+				$(doc).find('#svg_summary3_div').css('display', 'none');
+				$(doc).find('.main-content').css('margin-bottom', '30px');
+				$(doc).find('.removeFilterBtn').html('FILTERED');
+	        },
+	        useCORS: false,
+	        foreignObjectRendering: true,
+	        ignoreElements: function(element){
+	        	if(element.id=='print') return true;
+	        	if(element.id=='printImage') return true;
+	        	if(element.id=='lasso') return true;
+	        	if(element.id=='expand') return true;
+	        	if(element.id=='map-toggle') return true;
+	        	if(element.id=='map-bg-toggle') return true;
+	        	if(element.id=='heatmap-radius-slider-div') return true;
+	        	if(element.id=='adm-toggle') return true;
+	        	if(element.id=='dateRangeContainer_img') return true;
+	        	if($(element).hasClass('select2')) return true;
+	        	if($(element).hasClass('removeFilterBtn')) return true;
+	    		return false;
+	        },
+	        scale: 1.2,
+	        height: $('#main').height()+22,
+	        windowWidth: 1300,
+	        windowHeight: 2600,
+	        logging: false
+	    }).then(canvas => {
+	    // document.body.appendChild(canvas);
+		// window.print();
+	    // $(canvas).remove();
+
+	    var img = canvas.toDataURL("image/png");
+	    var pdf = new jsPDF("p", "mm", "a4");
+	    var imgProps= pdf.getImageProperties(img);
+	    var pdfWidth = pdf.internal.pageSize.getWidth();
+	    var pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+	    pdf.addImage(img, 'JPEG', 10, 10, pdfWidth-20, pdfHeight-20);
+	    pdf.save('deep-pdf-export.pdf');
+
+		d3.select('#print-icon').style('display', 'block');
+		d3.select('#print-loading').style('display', 'none');
+
+		printing = false;
+		},200);
+	});
+});
+
+$('#printImage').click(function(){
+
+	if(printing) return false;
+	printing = true;
+
+	d3.select('#printImage-icon').style('display', 'none');
+	d3.select('#printImage-loading').style('display', 'block');
+	// $('#top_row').css('position', 'inherit');
+	$('#print-date').html('<b>Image Export</b> &nbsp;&nbsp;&nbsp;'+new Date());
+
+	setTimeout(function(){
+		html2canvas(document.querySelector("#main"),{
+	        allowTaint: true,
+	        onclone: function(doc){
+				$(doc).find('#top_row').css('position', 'unset');
+				$(doc).find('#summary_row').css('margin-top', '10px');
+				$(doc).find('#print-header').css('display', 'block')
+				$(doc).find('#svg_summary3_div').css('display', 'none');
+				$(doc).find('.main-content').css('margin-bottom', '30px');
+				$(doc).find('.removeFilterBtn').html('FILTERED');
+	        },
+	        useCORS: false,
+	        foreignObjectRendering: true,
+	        ignoreElements: function(element){
+	        	if(element.id=='print') return true;
+	        	if(element.id=='printImage') return true;
+	        	if(element.id=='lasso') return true;
+	        	if(element.id=='expand') return true;
+	        	if(element.id=='map-toggle') return true;
+	        	if(element.id=='map-bg-toggle') return true;
+	        	if(element.id=='heatmap-radius-slider-div') return true;
+	        	if(element.id=='adm-toggle') return true;
+	        	if(element.id=='dateRangeContainer_img') return true;
+	        	if($(element).hasClass('select2')) return true;
+	        	if($(element).hasClass('removeFilterBtn')) return true;
+	    		return false;
+	        },
+	        scale: 1.2,
+	        height: $('#main').height()+24,
+	        windowWidth: 1300,
+	        windowHeight: 2600,
+	        logging: false
+	    }).then(canvas => {
+
+		var img = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+		var link = document.createElement('a');
+		link.download = 'deep-export.png';
+		link.href = img;
+		link.click();
+		link.delete;
+
+		d3.select('#printImage-icon').style('display', 'block');
+		d3.select('#printImage-loading').style('display', 'none');
+
+		printing = false;
+		},200);
+	});
+});

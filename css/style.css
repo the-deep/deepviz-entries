@@ -2,11 +2,6 @@ html {
 
 }
 
-text {
-	fill: #4c4c4c;
-	color: #4c4c4c;
-}
-
 .time-select text {
 	fill: #FFF;
 }
@@ -36,12 +31,37 @@ svg text {
   -webkit-user-select: none; /* Chrome, Safari, and Opera *
   -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
+h2 {
+	font-size: 1.3em;
+}
 
-#main-content {
-	padding-top: 73px;
-	padding-bottom: 0px;
-	min-height: 500px;
+.main-content {
 	opacity: 0;
+	position: relative;
+	padding-bottom: 20px;
+}
+
+#summary_row {
+	position: relative;
+    margin-top: 16px;
+    z-index: 200;
+}
+
+#svg_summary1_div {
+	position: relative;
+	z-index: 5;
+	margin-bottom: 1px;
+}
+
+#svg_summary2_div {
+	position: relative;
+	z-index: 3;
+}
+
+#svg_summary3_div {
+	position: relative;
+	z-index: 2;
+	cursor: pointer;
 }
 
 #avg_slider_svg {
@@ -49,89 +69,90 @@ svg text {
     float: right;
 }
 
-.avg_slider_full_width {
-	right: -74px !important;
-    zoom: 0.7 !important;
-}
-
-#header-bg {
-	background-color: #008974;
+#top-row {
+	height: 58px;
+	border-bottom: 2px solid #e8e8e8;
+	margin-bottom: 7px;
+	padding-top: 5px;
 	position: fixed;
 	top: 0px;
 	z-index: 3;
-	height: 55px;	
-	border-bottom: 2px solid #e8e8e8;
-	width: 100px;
-}
-
-#loading { 
-	float: right;
-    padding-top: 15px;
-    padding-right: 8px;
-    display: none;
-}
-
-#loading img {
-	height: 20px;
-}
-
-#top-row {
-	height: 55px;
-	border-bottom: 2px solid #e8e8e8;
-	margin-bottom: 7px;
-	position: fixed;
-	top: 0px;
-	z-index: 1000;
 	width: 97.5%;
 	background-color: #FFF;
 	border-right: 1px solid #FFF;
 }
 
-#total_entries {
-	margin-bottom: 0px;
-	font-size: 36px;
-	font-weight: bold;
-	color: #FFF !important;
-	line-height: 0.8;
-	padding-top: 0px;
-}
+#top_row {
+	top: 0px;
+	background-color: #FFF;
+    position: fixed;
+    width: 100%;
+    z-index: 210;
 
-.header-row {
-	position: relative;
 }
-
-#total { 
-	padding-top: 2px;
-	float: left; 
-	color: #FFF;
-	background-color: #008974;
-	height: 53px;
-	border-right: 21px solid #008974;
-}
-
-#total .title {
-	color: #FFF !important;
-}
-
-#container {
-	padding: 0px 15px 0px 15px;
+.container1 {
+	padding: 4px 15px 0px 15px;
 	margin: 0px auto;
 	background-color: #FFF;
+	min-height: 500px;
+
+}
+
+.container2 {
+	padding: 0px 15px 0px 15px;
+	margin: 0px auto;
+	background-color: #FAFAFA;
+}
+
+#scores-container {
+	width: 63%;
+	float: right;
+    top: 0px;
+    right: 0px;
+}
+
+#methodology {
+    margin-top: 4px;
+    padding-top: 1px;
+}
+
+#methodology h2 {
+    margin-top: 7px;
+    margin-bottom: 0px;
+}
+
+#methodology hr {
+	display: block; height: 1px;
+    border: 0; border-top: 1px dotted #ececec;
+    margin: 1em 0; padding: 0; 
 }
 
 .leftcol {
-	width: 34%;
-	float:left;
+	width: 36%;
+	position: relative;
 }
 
 .rightcol {
-	width: 65%;
-	float:right;
-	padding-top: 3px;
+	width: 63%;
+	float: right;
+    position: absolute;
+    top: 50px;
+    right: 0px;
 }
 
+.tippy-tooltip {
+  text-align: left;
+}
+
+#svg_quality_div .axis text {
+ fill: grey;
+}
 .widget {
 	margin-bottom: 0px;
+}
+
+#quality6 .axis text {
+	font-weight: bold;
 }
 
 #map {
@@ -143,6 +164,10 @@ svg text {
 
 [class^='select2'] {
   border-radius: 0px !important;
+}
+
+.tippy-tooltip {
+  text-align: left;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__rendered {
@@ -204,11 +229,6 @@ svg text {
  margin-bottom: 12px;
 }
 
-#timechart-container {
-	position: relative;
-	top: -6px;
-}
-
 @media only screen and (max-width: 1140px) {
 
 	#framework-chart svg {
@@ -265,10 +285,6 @@ svg text {
 		font-size: 12px !important;
 	}
 
-	#total_entries {
-		font-size: 32px !important;
-	}
-
 	#top-row {
 		height: 48px;
 		width: 97% !important;
@@ -276,10 +292,6 @@ svg text {
 
 	#header-bg {
 		height: 48px;	
-	}
-
-	#total {
-		height: 46px;	
 	}
 
 	#main-content {
@@ -335,11 +347,6 @@ svg text {
 	#footerRow {
 	    margin-top: 10px !important;
 	}
-	#globalRemoveFilter {
-		height: 12px !important;
-		top: 7px;
-		left: 86px !important;
-	}
 
 }
 
@@ -386,9 +393,9 @@ svg text {
 	}
 
 	#globalRemoveFilter {
-		height: 11px !important;
+		height: 15px !important;
 		top: 7px;
-		left: 86px !important;
+		left: 90px !important;
 	}
 
 	#dateRangeText {
@@ -401,20 +408,12 @@ svg text {
 
 	body { font-size: 11px; }
 
-	#total_entries {
-		font-size: 26px !important;
-	}
-
 	#top-row {
 		height: 40px;
 	}
 
 	#header-bg {
 		height: 40px;	
-	}
-
-	#total {
-		height: 38px;	
 	}
 
 	#main-content {
@@ -476,10 +475,6 @@ svg text {
 
 	body { font-size: 8px; }
 
-	#total_entries {
-		font-size: 20px !important;
-	}
-
 	.title {
 		font-size: 8px !important;
 	}
@@ -490,10 +485,6 @@ svg text {
 
 	#header-bg {
 		height: 32px;	
-	}
-
-	#total {
-		height: 30px;	
 	}
 
 	#main-content {
@@ -688,12 +679,11 @@ font-size: 15px;
 }
 
 #globalRemoveFilter {
-	height: 13px;
+	height: 15px;
 	display: none;
 	position: absolute;
-	top: 4px;
-	left: 91px;
-	filter: invert(100%);
+	top: 6px;
+	left: 83px;
 }
 
 .removeFilterBtn {
@@ -704,10 +694,10 @@ font-size: 15px;
 #severityRemoveFilter,
 #geoRemoveFilter {
 	height: 13px;
-	padding-left: 3px;
-	display: none;
-	padding-top: 1px;
-	position: absolute;
+    padding-left: 5px;
+    display: none;
+    padding-top: 2px;
+    position: absolute;
 }
 
 #reliabilityRemoveFilter:hover,
@@ -799,6 +789,8 @@ font-size: 15px;
 
 .header {
 	margin-bottom: 9px;
+    position: relative;
+
 }
 
 .title {
@@ -820,16 +812,18 @@ font-size: 15px;
 	font-weight: bold;
 	display: inline-block;
 	line-height: 1.4;
-	margin-bottom: 0px;
-    margin-left: 11px;
-    margin-top: 3px;
+    float: right;
+    padding-right: 19px;
 }
 
 #dateRangeText {
 	    padding-top: 2px;
-    font-size: 17px;
+    font-size: 16px;
     color: #008974;
     cursor: default;
+    padding-right: 2px;
+    position: absolute;
+    font-size: 14px;
 }
 
 .monthly .table-condensed thead tr:nth-child(2),
@@ -856,18 +850,19 @@ font-size: 15px;
 
 #dateRange {
 	display: inline;
-	font-size: 16px;
+	font-size: 12px;
 	text-align: left;
 	font-weight: bold;
 	border: none;
 	margin-top: 2px;
 	font-family: Source Sans Pro, sans-serif;
 	opacity: 0;
-	position: absolute;
-	top: 20px;
+	position: relative;
+    top: 0px;
+    right: 0px;
+    width: 170px;
 	cursor: pointer;
 }
-
 
 #timeline {
 	width: 100%;
@@ -881,11 +876,14 @@ font-size: 15px;
 	float: right;
 }
 
+#timechart-legend div {
+	float: right;
+}
+
 #timechart-select {
     top: 3px;
     position: relative;
     left: 2px;
-
 }
 
 .handle {
@@ -1212,4 +1210,65 @@ font-size: 15px;
 	height: 23px;
 	width: 24px;
 	z-index: 5;
+}
+
+#print {
+	height: 20px;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    top: 3px;
+    left: 60px;
+}
+
+#print img {
+	height: 20px;
+}
+
+#print-loading {
+	height: 20px;
+	display: none;
+}
+
+#print img:hover {
+	opacity: 0.9;
+}
+
+#printImage {
+	height: 20px;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    top: 3px;
+    left: 60px;
+}
+
+#printImage img {
+	height: 20px;
+}
+
+#printImage-loading {
+	height: 20px;
+	display: none;
+}
+
+#printImage img:hover {
+	opacity: 0.9;
+}
+
+@page {
+	size: A4;
+	margin: 1em;
+	width: 100%;
+	zoom: 100%;
+	scale: 1;
+	padding: 0;
+}
+
+@media print {
+
+  #main {
+    display: none;
+  }
+
 }

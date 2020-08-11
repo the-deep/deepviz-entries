@@ -3,6 +3,7 @@ var categories;
 var sparklinePadding = {'left': 5, 'right': 5, 'bottom': 10 };
 var leftColWidth = 232;
 var pointWidth; 
+var tooltipSvg;
 
 DeepvizFramework.create = function(a){
 
@@ -199,7 +200,7 @@ DeepvizFramework.create = function(a){
 	.enter()
 	.append('g')
 	.attr('class', function(d,i){
-		return 'frameworkRow f'+i
+		return 'frameworkRow f'+d.id + ' c'+d.context_id;
 	})
 	.attr('transform', function(d,i){
 		return 'translate(0,'+ (frameworkMargins.top + (i+1) * rowHeight)+')';
@@ -210,7 +211,7 @@ DeepvizFramework.create = function(a){
 	.enter()
 	.append('g')
 	.attr('class', function(d,i){
-		return 'frameworkRow f'+i
+		return 'frameworkRow f'+d.id + ' c'+d.context_id;
 	})
 	.attr('transform', function(d,i){
 		return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight )+')';
@@ -222,6 +223,17 @@ DeepvizFramework.create = function(a){
 	.attr('width', leftColWidth)
 	.attr('height', frameworkRowHeight)
 	.style('fill', '#FAFAFA');
+
+	rows.append('rect')
+	.attr('x', leftColWidth)
+	.attr('y', -20)
+	.attr('class', function(d,i){
+		return 'frameworkRowSelector frameworkRowSelector-bg frameworkRowSelector-'+d.id;
+	})
+	.attr('width', (leftSpacing-leftColWidth))
+	.attr('height', frameworkRowHeight)
+	.style('fill', '#FFF')
+	// .style('fill', 'cyan');
 
 	// left headers
 
@@ -273,7 +285,9 @@ DeepvizFramework.create = function(a){
 	var secondCol = rows.append('g');
 
 	var labels = secondCol.append('text')
-	.attr('class','frameworkCol2')
+	.attr('class', function(d,i){
+		return 'frameworkCol2 frameworkRowSelector frameworkRowSelector-'+d.id
+	})
 	.text(function(d,i){
 		return d.name;
 	})
@@ -294,7 +308,9 @@ DeepvizFramework.create = function(a){
 	.attr('id',function(d,i){
 		return 'f'+d.id+'-val';
 	})
-	.attr('class', 'f-val')
+	.attr('class', function(d,i){ 
+		return 'f-val frameworkCol2 frameworkRowSelector frameworkRowSelector-'+d.id
+	})
 	.style('text-anchor', 'middle')
 	.attr('x', function(d,i){
 		return leftSpacing-17;
@@ -366,6 +382,19 @@ DeepvizFramework.create = function(a){
 		Deepviz.filter('context', parseInt(d.key));
 	});
 
+	// 2nd col filters
+	d3.selectAll('.frameworkRowSelector')
+	.style('cursor', 'pointer')
+	.on('mouseover', function(d,i){
+		return d3.select('.frameworkRowSelector-'+d.id+'.frameworkRowSelector-bg').style('fill', colorGrey[2]).style('opacity', 0.05);	
+	})
+	.on('mouseout', function(d,i){
+		d3.selectAll('.frameworkRowSelector-bg').style('fill', '#FFF');
+	}).on('click', function(d,i){
+		d3.selectAll('.frameworkRowSelector-bg').style('fill', '#FFF');
+		Deepviz.filter('framework',d.id);
+	});
+
 	// sparkline containers
 	rollingH = 0;
 	frameworkSparklineHeight = d3.min(categories, function(d,i){
@@ -401,7 +430,10 @@ DeepvizFramework.create = function(a){
 	.enter()
 	.append('g')
 	.attr('class', function(d,i){
-		return 'frameworkCol ' + d3.select(this.parentNode).attr('class').split(' ')[1];
+		return 'frameworkCol ' + d3.select(this.parentNode).attr('class').split(' ')[1] + d3.select(this.parentNode).attr('class').split(' ')[2];
+	})
+	.attr('data-sector', function(d,i){
+		return d.id;
 	})
 	.attr('transform', function(d,i){
 		return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - frameworkMargins.top + ')';
@@ -484,6 +516,9 @@ DeepvizFramework.create = function(a){
 	.attr('class', function(d,i){
 		return d3.select(this.parentNode).attr('class').split(' ')[1];
 	})
+	.attr('data-sector', function(d,i){
+		return d.id;
+	})
 	.attr('transform', function(d,i){
 		return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - (frameworkMargins.top ) + ')';
 	})
@@ -509,7 +544,7 @@ DeepvizFramework.create = function(a){
 	.attr('transform', 'translate(0,0)');
 
 	hSel.append('rect')
-	.attr('x', 231)
+	.attr('x', (leftSpacing))
 	.attr('width', frameworkWidth+20)
 	.attr('height', rowHeight-1)
 	.style('fill', frameworkSelectStyle.fill)
@@ -559,7 +594,7 @@ DeepvizFramework.create = function(a){
 	        if(v==0) return false;
 
 	        if(filters.frameworkToggle=='entries'){
-				var html = '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorNeutral[2] + '">&nbsp;&nbsp;</div>&nbsp;<div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' entries</b></div>';
+				var html = '<div style="width: 100px; height: 12px; display: inline; margin-bottom: 2px; font-size: 9px; text-align: left; background-color: '+ colorNeutral[2] + '">&nbsp;&nbsp;</div><div style="padding-left: 5px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' entries</b></div>';
 	        } else {
 				if (filters.toggle=='severity'){
 			        var s = cell.attr('data-severity');
@@ -572,9 +607,23 @@ DeepvizFramework.create = function(a){
 					var color = colorSecondary[s];
 
 				}
-				var html = '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp; ' + text + ' <div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b></div>';
+				var html = '<div style="width: 100px; height: 12px; display: inline; text-align: left; font-size: 9px;  background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp; <span style="font-size: 10px; ">' + text + ' </span><div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b></div>';
 	        }
+
+
+        	var cellId = cell.attr('id');
+
+        	var parentNode = d3.select(cell.node().parentNode.parentNode);
+        	var contextId = parentNode.attr('class').split(' ')[2].substring(1);
+        	var frameworkId = parentNode.attr('class').split(' ')[1].substring(1);
+        	var sectorId = d3.select(cell.node().parentNode).attr('data-sector');
+        	
+        	var path = DeepvizFramework.updateTooltipSparkline(contextId, frameworkId, sectorId);
+
+	        html=html+'<br/><svg style="margin-top: 1px; margin-bottom: 1px" id="tooltipSparkline" width="'+tooltipSparklineWidth+'px" height="'+tooltipSparklineHeight+'px">'+path.node().outerHTML+'</svg>';
         	instance.setContent(html);
+
+        	// d3.select(instance).append('svg');
 		}
 	});
 
@@ -645,6 +694,8 @@ DeepvizFramework.updateFramework = function(){
 			}
 		});
 	} 
+
+
 
 	var d = d3.nest()
 	.key(function(d) { return d.framework; })
@@ -733,8 +784,9 @@ DeepvizFramework.updateFramework = function(){
 	// color null cells without median
 	if(nullEntries){
 		nullEntries.forEach(function(d,i){
-			var id = 'f'+(d.framework-1)+'s'+(d.sector-1);
-			d3.select('#'+id +'rect').style('fill', function(d){ return colorNeutral[0]; }).style('opacity', 1);
+			var id = 'f'+(d.framework)+'s'+(d.sector-1);
+			d3.select('#'+id +'rect').style('fill', function(d){ return colorNeutral[0]; }).style('opacity', 1)
+			.attr('data-context', d.context);
 		});			
 	}
 
@@ -742,14 +794,13 @@ DeepvizFramework.updateFramework = function(){
 			.attr('data-severity', 0)
 			.attr('data-reliability', 0);
 
-
 	d.forEach(function(d,i){
 		var sum = d3.sum(d.values, function(d){ return d.value.total});
 		d.total = sum;
 		var f = d.key;
 		d.values.forEach(function(dd,ii){
 			var s = dd.key;
-			var id = 'f'+(f-1)+'s'+(s-1);
+			var id = 'f'+(f)+'s'+(s-1);
 			
 			if(filters.frameworkToggle == 'entries'){
 				var v = dd.value.total;
@@ -773,6 +824,7 @@ DeepvizFramework.updateFramework = function(){
 			d3.select('#framework-layer2 #'+id +'rect').attr('data-entries', dd.value.total)
 			.attr('data-severity', Math.round(dd.value.median_s))
 			.attr('data-reliability', Math.round(dd.value.median_r));
+			// .attr('data-context', );
 
 			// set the text for all cells
 			d3.select('#'+id +'text').text(v).style('visibility', 'hidden')
@@ -925,6 +977,7 @@ DeepvizFramework.createSparklines = function(){
 
 	});
 
+	DeepvizFramework.createTooltipSparkline();
 	DeepvizFramework.updateSparklines();
 
 }
@@ -1001,6 +1054,9 @@ DeepvizFramework.updateSparklines = function(){
 		.entries(dataByDateSparkline);
 	}
 
+
+
+	// add missing dates
 	sparklineDates.forEach(function(d,i){
 		if(!dateIndex.includes(d.getTime())){
 			dataByDateSparkline.push({
@@ -1024,8 +1080,9 @@ DeepvizFramework.updateSparklines = function(){
 		return d3.ascending(x.key, y.key);
 	});
 
+	pointWidth = (leftColWidth - (sparklinePadding.left+sparklinePadding.right))/dataByDateSparkline.length;
 
-	pointWidth = (leftColWidth - sparklinePadding.left)/dataByDateSparkline.length;
+	d3.select('#framework-svg').selectAll('linearGradient').remove();
 
 	categories.forEach(function(d,i){
 
@@ -1038,14 +1095,56 @@ DeepvizFramework.updateSparklines = function(){
 
 		// define x scale
 		scale.sparkline.x = scale.timechart.x.copy();
-		scale.sparkline.x.range([sparklinePadding.left, (leftColWidth-sparklinePadding.right)])
+		scale.sparkline.x.range([sparklinePadding.left, (leftColWidth-(sparklinePadding.right))])
 
 		// define y scale
 		scale.sparkline.y = d3.scaleLinear()
 	    .range([frameworkSparklineHeight, 1])
 	    .domain([0, contextMax]);
 
+		var filteredSparklineData = dataByDateSparkline.filter(function(d){ 
+	    	return d.values; 
+	    });
+
 	    if(contextMax>0){
+
+	    // gradient line color
+		d3.select('#framework-svg')
+			.append("linearGradient")
+			.attr("id", 'frameworkLlinearGradient'+i)
+			.attr("gradientUnits", "userSpaceOnUse")
+			.attr("x1", pointWidth/2)
+			.attr("x2", (leftColWidth-(sparklinePadding.right+sparklinePadding.left)+pointWidth/2))
+			.selectAll("stop")
+			.data(filteredSparklineData)
+			.join("stop")
+			.attr("offset", function(d,i){
+				var w = leftColWidth-(sparklinePadding.right+sparklinePadding.left);
+				return ((scale.sparkline.x(d.key))/w);
+			})
+			.attr("stop-color", function(d,i){
+		      	if(filters.frameworkToggle=='entries'){
+			      	var col = colorNeutral[2];
+	  			} else {
+			      	var col = colorLightgrey[2];
+	  			}
+		      	if(!d.values) return col;
+		      	d.values.forEach(function(dd,ii){
+		      		if(dd.key==contextId){
+		      			if(filters.frameworkToggle=='entries'){
+			      			col = colorNeutral[2];
+		      			} else {
+		      				if(filters.toggle=='severity'){
+				      			col = colorPrimary[Math.round(dd.value.median_s)];
+		      				} else {
+				      			col = colorSecondary[Math.round(dd.value.median_r)];
+		      				}
+		      			}
+		      		}
+		      	});
+		      	return col;
+			});
+
 			d3.select('#sparkline-'+contextId)
 			.datum(dataByDateSparkline)
 			.attr("d", d3.line()
@@ -1055,7 +1154,10 @@ DeepvizFramework.updateSparklines = function(){
 		        	if(v===undefined)v=0;
 		        	return scale.sparkline.y(v);
 		        })
-	        ).attr('opacity', 1);   	
+	        )
+	        .attr('opacity', 1)
+	        .attr('stroke', 'url(#frameworkLlinearGradient'+i+')');
+
 	    } else {
 	    	d3.select('#sparkline-'+contextId).attr('opacity', 0);
 	    }
@@ -1068,5 +1170,219 @@ DeepvizFramework.updateSparklinesOverlay = function(d1){
 	if(scale.sparkline.x(d1[0])>1000) return;
 	d3.selectAll('.sparkline-overlay')
 	.attr('x', scale.sparkline.x(d1[0]))
-	.attr('width', scale.sparkline.x(d1[1])-scale.sparkline.x(d1[0]))
+	.attr('width', scale.sparkline.x(d1[1])-scale.sparkline.x(d1[0]));
+
+	if(scale.tooltipSparkline.x){
+		d3.select('.tooltip-sparkline-overlay')
+		.attr('x', scale.tooltipSparkline.x(d1[0]))
+		.attr('width', scale.tooltipSparkline.x(d1[1])-scale.tooltipSparkline.x(d1[0]));		
+	}
 }
+
+DeepvizFramework.createTooltipSparkline = function(){
+
+	tooltipSvg = d3.select('#framework-svg').append('g')
+	.attr('opacity', 0).append('g');
+
+	tooltipSvg.append('rect')
+	.attr('class', 'tooltip-sparkline-bg')
+	.attr('id', function(d,i){ return 'tooltip-sparkline-bg' })
+	.attr('x', function(d,i){
+		return 0;
+	})
+	.attr('width', function(d,i){
+		return tooltipSparklineWidth;
+	})
+	.attr('height', function(d,i){
+		return tooltipSparklineHeight;
+	})
+	.attr('y', 0)
+	.style('cursor', function(d,i){
+
+	})
+	.style('fill', '#E9E9E9');
+
+
+	tooltipSvg.append('rect')
+	.attr('class', 'tooltip-sparkline-overlay')
+	.attr('id', function(d,i){ return 'tooltip-sparkline-overlay' })
+	.attr('x', function(d,i){
+		return 0;
+	})
+	.attr('width', function(d,i){
+		return tooltipSparklineWidth
+	})
+	.attr('height', function(d,i){
+		return tooltipSparklineHeight;
+	})
+	.attr('y', 0)
+	.style('cursor', function(d,i){
+
+	})
+	.style('fill', '#FFF');
+
+	// tooltip sparkline
+	tooltipSvg
+	.append('path')
+	.attr('class', 'sparkline')
+	.attr('id','tooltipSparkline')
+	.attr("stroke", colorNeutral[2])
+	.attr("fill", 'transparent')
+    .attr("stroke-width", 1);
+
+	DeepvizFramework.updateSparklinesOverlay(dateRange);
+}
+
+DeepvizFramework.updateTooltipSparkline = function(contextId, frameworkId, sectorId){
+
+	var dataByDateSparkline = [...dataByFrameworkSector];
+	dataByDateSparkline = dataByDateSparkline.filter(function(d,i){
+		return d.context == contextId && d.framework == frameworkId && d.sector == sectorId;
+	});
+
+	var sparklineDates;
+
+	// parse missing dates
+	if(filters.time=='d'){
+		sparklineDates = d3.timeDays(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.date.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.date); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+
+	}
+
+	if(filters.time=='m'){
+		sparklineDates = d3.timeMonths(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.month.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.month); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	if(filters.time=='y'){
+		sparklineDates = d3.timeYears(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
+		dateIndex = dataByDateSparkline.map(function(d) { return d.year.getTime(); });
+
+		dataByDateSparkline = d3.nest()
+		.key(function(d) { return (d.year); })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})		
+		.entries(dataByDateSparkline);
+	}
+
+	sparklineDates.forEach(function(d,i){
+		if(!dateIndex.includes(d.getTime())){
+			dataByDateSparkline.push({
+				'key': d,
+				'value': {'median_r': null, 'median_s': null, 'total': null}
+			})
+		}		
+	});
+
+	dataByDateSparkline.forEach(function(d,i){
+		d.key = new Date(d.key);
+	});
+
+	dataByDateSparkline.sort(function(x,y){
+		return d3.ascending(x.key, y.key);
+	});
+
+	pointWidth = (tooltipSparklineWidth)/dataByDateSparkline.length;
+
+	// find maximum value
+	var contextMax = d3.max(dataByDateSparkline, function(d,i){
+		return d.value.total;
+	});
+
+	// define x scale
+	scale.tooltipSparkline.x = scale.timechart.x.copy();
+	scale.tooltipSparkline.x.range([0, tooltipSparklineWidth])
+
+	// define y scale
+	scale.tooltipSparkline.y = d3.scaleLinear()
+    .range([tooltipSparklineHeight, 1])
+    .domain([0, contextMax]);
+
+    DeepvizFramework.updateSparklinesOverlay(dateRange);
+
+	var filteredSparklineData = dataByDateSparkline.filter(function(d){ 
+    	return d.value.total>0; 
+    })
+
+    if(contextMax>0){
+
+    	// gradient line color
+    	d3.select('#frameworkTooltipGradientSparkline').remove();
+		d3.select('#framework-svg')
+			.append("linearGradient")
+			.attr("id", 'frameworkTooltipGradientSparkline')
+			.attr("gradientUnits", "userSpaceOnUse")
+			.attr("x1", 0)
+			.attr("x2", tooltipSparklineWidth)
+			.selectAll("stop")
+			.data(filteredSparklineData)
+		    .join("stop")
+			.attr("offset", d => ((scale.tooltipSparkline.x(d.key)+(pointWidth/2)) / (tooltipSparklineWidth)) )
+			.attr("stop-color", function(d,i){
+				if(filters.frameworkToggle=='entries'){
+			      	var col = colorNeutral[2];
+      			} else {
+			      	var col = colorLightgrey[3];
+      			}
+				if(!d.value.total) return col;
+				if(filters.frameworkToggle=='entries'){
+					col = colorNeutral[2];
+				} else {
+					if(filters.toggle=='severity'){
+						col = colorPrimary[Math.round(d.value.median_s)];
+					} else {
+						col = colorSecondary[Math.round(d.value.median_r)];
+					}
+				}
+				return col;
+			});
+
+    	d3.select('#tooltipSparkline')
+		.datum(dataByDateSparkline)
+		.style('stroke', 'url(#frameworkTooltipGradientSparkline)')
+		.attr("d", d3.line()
+	        .x(function(d) { return scale.tooltipSparkline.x(d.key)+pointWidth/2 })
+	        .y(function(d) { 
+	        	var v = d.value.total;
+	        	if(v===undefined)v=0;
+	        	return scale.tooltipSparkline.y(v);
+	        })
+        ).attr('opacity', 1);   
+
+        return tooltipSvg;
+
+    } else {
+    	return null;
+    }
+
+
+}
+
+
