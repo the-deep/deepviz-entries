@@ -47,7 +47,7 @@ Summary.create = function(svg_summary1,svg_summary2,svg_summary3){
 			.duration(duration)
 			.style('margin-top', -$('#svg_summary1_div').height()+'px')
 			.on('end', function(d){
-				d3.select(this).style('opacity', 0).style('display', 'none');
+				d3.select(this).style('opacity', 0);
 			})
 
 			d3.select('#summary_row')
@@ -87,13 +87,28 @@ Summary.create = function(svg_summary1,svg_summary2,svg_summary3){
 	collapsed = true;
 	d3.select('#svg_summary2_div')
 	.style('margin-top', -$('#svg_summary1_div').height()+'px')
-	.style('opacity', 0)
-	.style('display', 'none');
+	.style('opacity', 0);
 
 	d3.select('#summary_row')
 	.style('margin-top', function(){
 		var h = $('#svg_summary1_div').height()+$('#svg_summary3_div').height()+10;
 		return h+'px';
+	});
+
+	d3.selectAll('#top_row svg tspan').attr('class', function(d,i){
+		var t = d3.select(this).text();
+		if(t.includes(00)){
+			return 'summary-value';
+		} else {
+			return 'summary-label'
+		}
+	});
+
+	d3.selectAll('#top_row svg tspan').attr('data-x', function(d,i){
+		var t = d3.select(this).text();
+		if(!t.includes(00)){
+			return d3.select(this).attr('x');
+		} 
 	});
 
 	// topline filters
@@ -150,7 +165,7 @@ Summary.create = function(svg_summary1,svg_summary2,svg_summary3){
 		// })
 	});
 
-	Summary.update(true);
+	Summary.update();
 }
 
 Summary.update = function(){
@@ -403,5 +418,24 @@ Summary.update = function(){
 		if(d.top.includes('community_group_discussion')) return 1;
 	})
 	d3.select('#community_group_discussions tspan').text(addCommas(community_group_discussion));
+
+	// spacing
+	var boxes = d3.selectAll('#top_row svg g').filter(function(d,i){
+		var t = d3.select(this).attr('id');
+		return t.includes('_box');
+	});
+
+	boxes.each(function(d,i){
+		var valueWidth = d3.select(this).select('.summary-value').node().getBBox().width;
+
+		d3.select(this).selectAll('.summary-label').attr('x',function(d,i){
+			if(d3.select(this).text().includes('=')){
+					return valueWidth+126;		
+				} else {
+					return valueWidth+18;						
+				}
+
+		});
+	})
 
 }

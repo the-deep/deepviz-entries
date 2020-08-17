@@ -1,13 +1,19 @@
-html {
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url("../fonts/SourceSansPro-Regular.ttf");
+}
 
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url("../fonts/SourceSansPro-Bold.ttf");
+    font-weight: bold;
 }
 
 .time-select text {
 	fill: #FFF;
 }
 
-body {
-	font-family: 'Source Sans Pro', sans-serif  !important;
+body, canvas {
 	font-size: 14px;
 	margin: 0;
 	-moz-user-select: none; /* Firefox */
@@ -17,10 +23,13 @@ body {
 	-webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
 
+div, text, tspan, svg, body, canvas {
+	font-family: 'Source Sans Pro', sans-serif !important;
+}
+
 input { cursor: pointer; }
 
 svg {
-	font-family: Source Sans Pro, sans-serif !important;
 	font-size: 18px;
 }
 
@@ -38,7 +47,7 @@ h2 {
 .main-content {
 	opacity: 0;
 	position: relative;
-	padding-bottom: 20px;
+	padding-bottom: 12px;
 }
 
 #summary_row {
@@ -54,7 +63,6 @@ h2 {
 }
 
 #svg_summary2_div {
-	position: relative;
 	z-index: 3;
 }
 
@@ -105,10 +113,14 @@ h2 {
 }
 
 #scores-container {
-	width: 63%;
+	width: 62%;
 	float: right;
     top: 0px;
     right: 0px;
+}
+
+#timechart-container {
+	margin-top: 4px;
 }
 
 #methodology {
@@ -133,7 +145,7 @@ h2 {
 }
 
 .rightcol {
-	width: 63%;
+	width: 62%;
 	float: right;
     position: absolute;
     top: 50px;
@@ -162,6 +174,15 @@ h2 {
 	margin-top: 3px;
 }
 
+#gridmap-div {
+	position: absolute;
+	background-color: #FFF;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
 [class^='select2'] {
   border-radius: 0px !important;
 }
@@ -223,6 +244,7 @@ h2 {
 #mapcontainer {
 	padding-right: 15px;
 	padding-top: 2px;
+	margin-bottom: 8px;
 }
 
 #mapcol {
@@ -259,10 +281,6 @@ h2 {
 
 	#framework-toggle-switch {
 		left: 155px !important;
-		top: 16px !important;
-	}
-
-	#framework-chart .title {
 		top: 16px !important;
 	}
 
@@ -333,10 +351,6 @@ h2 {
 		top: 0px !important;
 	}
 
-	#framework-chart .title {
-		top: 13px !important;
-	}
-
 	#framework-chart {
 	    padding-top: 10px !important;
 	}
@@ -383,9 +397,6 @@ h2 {
 		top: 12px !important;
 		width: 18%;
 
-	}
-	#framework-chart .title {
-		top: 10px !important;
 	}
 
 	#top-row {
@@ -453,9 +464,6 @@ h2 {
 		top: 10px !important;
 	}
 
-	#framework-chart .title {
-		top: 7px !important;
-	}
 	#avg_slider {
 		top: 0px !important;
 	}
@@ -518,10 +526,6 @@ h2 {
 		height: 10px !important;
 		width: 10px !important;
 		padding-left: 0px;
-	}
-
-	#framework-chart .title {
-		top: 7px !important;
 	}
 
 	#framework-toggle-switch{ 
@@ -610,7 +614,7 @@ h2 {
 
 #timechart-legend {
     position: absolute;
-    top: 6px;
+    top: 5px;
     left: 282px;
 }
 
@@ -629,7 +633,8 @@ font-size: 15px;
 
 .avgSliderLabel {
 	font-size: 10px;
-	font-weight: 100;
+	font-weight: normal;
+	fill: #3F3F3F;
 }
 
 .sliderIcon {
@@ -691,8 +696,10 @@ font-size: 15px;
 }
 
 #reliabilityRemoveFilter,
+#humanitarianprofileRemoveFilter,
 #severityRemoveFilter,
-#geoRemoveFilter {
+#geoRemoveFilter,
+.removeFilterBtn {
 	height: 13px;
     padding-left: 5px;
     display: none;
@@ -706,7 +713,7 @@ font-size: 15px;
 }
 
 #severity {
-	width: 49%;
+	width: 48.5%;
 	display: inline-block;
 	fill: green;
 	padding-right: 2%;
@@ -764,7 +771,7 @@ font-size: 15px;
 }
 
 #reliability {
-	width: 49%;
+	width: 48.5%;
 	display: inline-block;
 	fill: red;
 	float: right;
@@ -803,7 +810,7 @@ font-size: 15px;
 
 .subtitle {
 	font-size: 12px;
-	font-weight: lighter;
+	font-weight: normal;
 	display: inline;
 	padding-left: 3px;
 }
@@ -872,7 +879,6 @@ font-size: 15px;
 #timechart-legend {
 	width: 150px;
 	height: 20px;
-	padding-top: 2px;
 	float: right;
 }
 
@@ -951,12 +957,11 @@ font-size: 15px;
 
 #framework-chart {
 	width: 100%;
-	padding-top: 10px;
 }
 
 #framework-chart .title {
-	position: absolute;
-	top: 18px;
+	position: relative;
+    top: 16px;
 }
 
 #framework-toggle-switch {
@@ -1031,6 +1036,10 @@ font-size: 15px;
 #col3 {
 }
 
+#humanitarianprofile {
+	margin-top: -16px;
+}
+
 #tooltip {
 	position: absolute;
 	left: -100px;
@@ -1040,7 +1049,7 @@ font-size: 15px;
 	color: #FFF;
 	padding: 1px 4px;
 	font-size: 12px;
-	font-weight: 12px;
+	font-weight: normal;
 	text-anchor: left;
 }
 
@@ -1053,7 +1062,7 @@ font-size: 15px;
     top: 73px;
     display: inline;
     left: 5px;
-    z-index: 2;
+    z-index: 100;
     cursor: pointer;
 }
 
@@ -1074,7 +1083,7 @@ font-size: 15px;
     top: 4px;
     display: inline;
     right: 4px;
-    z-index: 2;
+    z-index: 11;
     cursor: pointer;
 }
 
@@ -1109,12 +1118,16 @@ font-size: 15px;
     cursor: pointer;
 }
 
+.tippy-btn {
+	outline: none;
+}
+
 #map-bg-toggle {
 	position: absolute;
     top: 5px;
     display: inline;
     right: 39px;
-    z-index: 200;
+    z-index: 100;
     cursor: pointer !important;
     zoom: 0.8;
 }
@@ -1125,6 +1138,7 @@ font-size: 15px;
     border: 2px solid #b7bebe;
     outline: none;
     font-weight: normal;
+    ap
 }
 
 #heatmap-radius-slider-div {
@@ -1176,7 +1190,7 @@ font-size: 15px;
     top: 99px;
     display: inline;
     left: 5px;
-    z-index: 2;
+    z-index: 11;
     cursor: pointer;
 }
 
@@ -1185,6 +1199,10 @@ font-size: 15px;
 }
 
 #map-toggle-heatmap {
+	display: none;
+}
+
+#map-toggle-gridmap, #gridmap-div {
 	display: none;
 }
 
@@ -1204,12 +1222,24 @@ font-size: 15px;
 	z-index: 5;
 }
 
+#map-toggle-rect-gridmap {
+	position: absolute;
+	top: 47px;
+	height: 21px;
+	width: 24px;
+	z-index: 5;
+}
+
 #map-toggle-rect-choropleth {
 	position: absolute;
-	top: 46px;
+	top: 69px;
 	height: 23px;
 	width: 24px;
 	z-index: 5;
+}
+
+.grid-rect {
+	outline: none;
 }
 
 #print {
@@ -1219,6 +1249,7 @@ font-size: 15px;
     position: relative;
     top: 3px;
     left: 60px;
+	outline: none;
 }
 
 #print img {
@@ -1241,6 +1272,7 @@ font-size: 15px;
     position: relative;
     top: 3px;
     left: 60px;
+	outline: none;
 }
 
 #printImage img {
@@ -1253,6 +1285,29 @@ font-size: 15px;
 }
 
 #printImage img:hover {
+	opacity: 0.9;
+}
+
+#copyImage {
+	height: 20px;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    top: 3px;
+    left: 60px;
+	outline: none;
+}
+
+#copyImage img {
+	height: 20px;
+}
+
+#copyImage-loading {
+	height: 20px;
+	display: none;
+}
+
+#copyImage img:hover {
 	opacity: 0.9;
 }
 

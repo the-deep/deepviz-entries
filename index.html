@@ -14,11 +14,10 @@
 	<link href='js/vendor/mapbox-gl.css' rel='stylesheet' />
 	<link href='js/vendor/tippy.css' rel='stylesheet' />
 	<link href='js/vendor/daterangepicker.css' rel='stylesheet' />
-	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700&display=swap" rel="stylesheet">
 	<link href="js/vendor/select2.min.css" rel="stylesheet" />
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=8090" rel="stylesheet" type="text/css" media="all" />
+	<link href="css/style.css?cache=9038" rel="stylesheet" type="text/css" media="all" />
 
 </head>
 
@@ -45,12 +44,13 @@
 
 		<div id="summary_row">
 
-			<div class="leftcol" style="float: left; position: relative">
+			<div class="leftcol" style="float: left; position: relative; margin-bottom: 1px;">
 
 				<h2 style="margin-bottom: 3px; margin-top: 0px; display: inline-block">Summary<img id="globalRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/></h2>
 
 				<div id="print"><img id="print-icon" src="images/print.png"/><img id="print-loading" src="images/loading.gif"/></div>
 				<div id="printImage"><img id="printImage-icon" src="images/printImage.png"/><img id="printImage-loading" src="images/loading.gif"/></div>
+				<div id="copyImage"><img id="copyImage-icon" src="images/copyImage.png"/><img id="copyImage-loading" src="images/loading.gif"/></div>
 
 				<div class="selectedDate">
 					<div class="title">
@@ -100,10 +100,13 @@
 		<div id="mapcontainer" class="leftcol">
 				<select id="location-search" class="js-example-responsive" style="width: 100%; height: 26px" name="states[]" multiple="multiple"></select>
 				<div id="map">
+
+					<div id="gridmap-div"></div>
+
 					<div id="lasso">
-						<img id="lasso-default" height="24px" src="images/lasso-default.svg"/>
-						<img id="lasso-selected" height="24px" src="images/lasso-selected.svg"/>
-						<img id="lasso-hover" height="24px" src="images/lasso-hover.svg"/>
+						<img id="lasso-default" height="24px" src="images/lasso-default.svg" class="tippy-btn" data-tippy-content="Select locations"/>
+						<img id="lasso-selected" height="24px" src="images/lasso-selected.svg" class="tippy-btn" data-tippy-content="Select locations"/>
+						<img id="lasso-hover" height="24px" src="images/lasso-hover.svg" class="tippy-btn" data-tippy-content="Select locations"/>
 					</div>
 					<div id="expand">
 						<img id="expand-default" height="24px" src="images/expand-default.svg"/>
@@ -111,18 +114,21 @@
 						<img id="expand-hover" height="24px" src="images/expand-hover.svg"/>
 					</div>
 					<div id="map-toggle">
-						<div id="map-toggle-rect-bubbles"></div>
-						<div id="map-toggle-rect-heatmap"></div>
-						<div id="map-toggle-rect-choropleth"></div>
+						<div id="map-toggle-rect-bubbles" class="tippy-btn" data-tippy-content="Proportional symbols"></div>
+						<div id="map-toggle-rect-heatmap" class="tippy-btn" data-tippy-content="Heatmap"></div>
+						<div id="map-toggle-rect-gridmap" class="tippy-btn" data-tippy-content="Tile grid map"></div>
+						<div id="map-toggle-rect-choropleth" class="tippy-btn" data-tippy-content="Choropleth"></div>
 
-						<img id="map-toggle-bubbles" height="70px" src="images/map-toggle-bubbles.svg"/>
-						<img id="map-toggle-heatmap" height="70px" src="images/map-toggle-heatmap.svg"/>
-						<img id="map-toggle-choropleth" height="70px" src="images/map-toggle-choropleth.svg"/>
+						<img id="map-toggle-bubbles" height="91px" src="images/map-toggle-bubbles.svg"/>
+						<img id="map-toggle-heatmap" height="91px" src="images/map-toggle-heatmap.svg"/>
+						<img id="map-toggle-gridmap" height="91px" src="images/map-toggle-gridmap.svg"/>
+						<img id="map-toggle-choropleth" height="91px" src="images/map-toggle-choropleth.svg"/>
 					</div>
 					<div id="heatmap-radius-slider-div">
 					</div>
 
-					<div id="map-bg-toggle">
+
+					<div id="map-bg-toggle" class="tippy-btn-vert" data-tippy-content="Change background layer">
 						<select>
 							<option value="light-v10">light-grey</option>
 							<option value="streets-v11">streets</option>
@@ -131,9 +137,11 @@
 						</select>
 					</div>
 
-					<div id="adm-toggle">
+					<div id="adm-toggle" class="tippy-btn-vert" data-tippy-content="Change admin level">
 						<object type="image/svg+xml" data="images/adm.svg" class="adm"></object>
 					</div>
+
+
 				</div>
 		</div><!-- /.leftcol -->
 
@@ -193,11 +201,13 @@
 				<div id="affected-groups-svg" class="col-content"></div>
 			</div>		
 		</div>
-
 		<br/>
+		<div id="humanitarianprofileTitle" class="title">HUMANITARIAN PROFILE</div><img id="humanitarianprofileRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+		<div id="humanitarianprofile">
+			
+		</div>
 		</div><!-- /#main-content -->
 	</div>
-
 </div><!-- /#main -->
 
 <!-- load vendor JavaScript -->
@@ -212,15 +222,17 @@
 <script type="text/javascript" src="js/vendor/select2.min.js"></script>
 <script src='js/vendor/mapbox-gl.js'></script>
 
+
 <!-- load custom JavaScript -->
 <script type="text/javascript" src="js/geojson-rewind.js"></script>
-<script type="text/javascript" src="js/map.js?cache=8090"></script>
-<script type="text/javascript" src="js/framework.js?cache=8090"></script>
-<script type="text/javascript" src="js/summary.js?cache=8008"></script>
-<script type="text/javascript" src="js/parse-data.js?cache=8090"></script>
-<script type="text/javascript" src="js/deepviz.js?cache=8090"></script>
-<script type="text/javascript" src="js/barchart.js?cache=8090"></script>
-<script type="text/javascript" src="js/main.js?cache=8090"></script>
+<script type="text/javascript" src="js/map.js?cache=9038"></script>
+<script type="text/javascript" src="js/framework.js?cache=9038"></script>
+<script type="text/javascript" src="js/summary.js?cache=9038"></script>
+<script type="text/javascript" src="js/parse-data.js?cache=9038"></script>
+<script type="text/javascript" src="js/deepviz.js?cache=9038"></script>
+<script type="text/javascript" src="js/barchart.js?cache=9038"></script>
+<script type="text/javascript" src="js/humanitarianprofile.js?cache=9038"></script>
+<script type="text/javascript" src="js/main.js?cache=9038"></script>
 
 	
 </body>

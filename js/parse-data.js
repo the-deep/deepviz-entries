@@ -674,6 +674,12 @@ parseEntriesMetadata = function(metadata){
 	metadata.affected_groups_array.forEach(function(d,i){
 		d._id = d.id;
 		d.id = i+1;
+		d.humanitarian_profile = [];
+		var affectedGroups = d.name.split("/");
+		affectedGroups.forEach(function(dd,ii){
+			var name = dd.trim().replace(/\s+/g,'');
+			d.humanitarian_profile.push(name);
+		});
 	});
 	metadata.specific_needs_groups_array.forEach(function(d,i){
 		d._id = d.id;

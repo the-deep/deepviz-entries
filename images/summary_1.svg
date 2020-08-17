@@ -122,13 +122,15 @@
     <g id="summary_1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <rect fill="#FFFFFF" x="0" y="0" width="2000" height="77"></rect>
         <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="2000" height="87"></rect>
-        <polygon id="Rectangle-6" fill="#167868" points="0 43 356 43 356 77 0 77"></polygon>
-        <text id="STAKEHOLDERS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14" font-weight="bold" fill="#FFFFFF">
-            <tspan x="96.2212445" y="63">STAKEHOLDERS</tspan>
-        </text>
-        <text id="total_stakeholders" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="36" font-weight="bold" fill="#FFFFFF">
-            <tspan x="5.79949717" y="70">0,000</tspan>
-        </text>
+        <g id="stakeholders_box" transform="translate(0.000000, 35.000000)">
+            <polygon id="Rectangle-6" fill="#167868" points="0 8 356 8 356 42 0 42"></polygon>
+            <text id="STAKEHOLDERS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14" font-weight="bold" fill="#FFFFFF">
+                <tspan x="96.2212445" y="28">STAKEHOLDERS</tspan>
+            </text>
+            <text id="total_stakeholders" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="36" font-weight="bold" fill="#FFFFFF">
+                <tspan x="5.79949717" y="35">0,000</tspan>
+            </text>
+        </g>
         <g id="lngo_box" transform="translate(356.927718, 35.000000)">
             <polygon id="Rectangle-6" fill="#26A18C" points="0.0722815839 8 233.072282 8 233.072282 42 0.0722815839 42"></polygon>
             <text id="LNGOStitle" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
@@ -220,25 +222,34 @@
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-13"></use>
             </g>
         </g>
-        <polygon id="Rectangle-6" fill="#008483" points="547 -1 745 -1 745 42 547 42"></polygon>
-        <text id="total_assessments" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39" font-weight="bold" fill="#FFFFFF">
-            <tspan x="552" y="33">0,000</tspan>
-        </text>
-        <text id="NEEDS-ASSESSMENTS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.76" font-weight="bold" fill="#FFFFFF">
-            <tspan x="650" y="16">NEEDS </tspan>
-            <tspan x="650" y="34">ASSESSMENTS</tspan>
-        </text>
-        <polygon id="Rectangle-6" fill="#008483" points="357 -1 546 -1 546 42 357 42"></polygon>
-        <text id="total_publishers" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39" font-weight="bold" fill="#FFFFFF">
-            <tspan x="361" y="32">0,000</tspan>
-        </text>
-        <text id="PUBLISHERS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14.76" font-weight="bold" fill="#FFFFFF">
-            <tspan x="459" y="25">PUBLISHERS</tspan>
-        </text>
-        <polygon id="Rectangle-6" fill="#008483" points="0 -1 189 -1 189 42 0 42"></polygon>
-        <text id="DOCUMENTS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14.76" font-weight="bold" fill="#FFFFFF">
-            <tspan x="103" y="26">DOCUMENTS</tspan>
-        </text>
+        <g id="assessments_box" transform="translate(547.000000, -5.000000)">
+            <polygon id="Rectangle-6" fill="#008483" points="0 4 198 4 198 47 0 47"></polygon>
+            <text id="total_assessments" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39" font-weight="bold" fill="#FFFFFF">
+                <tspan x="5" y="38">0,000</tspan>
+            </text>
+            <text id="NEEDS-ASSESSMENTS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.76" font-weight="bold" fill="#FFFFFF">
+                <tspan x="103" y="21">NEEDS </tspan>
+                <tspan x="103" y="39">ASSESSMENTS</tspan>
+            </text>
+        </g>
+        <g id="publishers_box" transform="translate(357.000000, -6.000000)">
+            <polygon id="Rectangle-6" fill="#008483" points="0 5 189 5 189 48 0 48"></polygon>
+            <text id="total_publishers" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39" font-weight="bold" fill="#FFFFFF">
+                <tspan x="4" y="38">0,000</tspan>
+            </text>
+            <text id="PUBLISHERS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14.76" font-weight="bold" fill="#FFFFFF">
+                <tspan x="102" y="31">PUBLISHERS</tspan>
+            </text>
+        </g>
+        <g id="total_documents_box" transform="translate(0.000000, -5.000000)">
+            <polygon id="Rectangle-6" fill="#008483" points="0 4 189 4 189 47 0 47"></polygon>
+            <text id="DOCUMENTS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14.76" font-weight="bold" fill="#FFFFFF">
+                <tspan x="103" y="31">DOCUMENTS</tspan>
+            </text>
+            <text id="total_documents" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39" font-weight="bold" fill="#FFFFFF">
+                <tspan x="6" y="38">0,000</tspan>
+            </text>
+        </g>
         <g id="entries_box" transform="translate(190.000000, -5.000000)">
             <polygon id="Rectangle-6" fill="#008483" points="0 4 166 4 166 47 0 47"></polygon>
             <text id="total_entries" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39.000001" font-weight="bold" fill="#FFFFFF">
@@ -327,10 +338,7 @@
                 <use stroke="#A9F8ED" stroke-width="2.58000004" fill="#D8D8D8" fill-rule="evenodd" xlink:href="#path-23"></use>
             </g>
         </g>
-        <text id="total_documents" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39" font-weight="bold" fill="#FFFFFF">
-            <tspan x="6" y="33">0,000</tspan>
-        </text>
-        <g id="Group" transform="translate(1816.000000, -6.000000)">
+        <g id="other_documents_box" transform="translate(1816.000000, -6.000000)">
             <polygon id="Rectangle-6" fill="#008483" points="0 4 184 4 184 47 0 47"></polygon>
             <text id="total_other_documents" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="39" font-weight="bold" fill="#FFFFFF">
                 <tspan x="4" y="38">0,000</tspan>
