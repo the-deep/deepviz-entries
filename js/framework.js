@@ -26,7 +26,7 @@ DeepvizFramework.create = function(a){
 	var title = d3.select('#framework-chart').append('div');
 	title.attr('class', 'title').text('SECTORAL FRAMEWORK');
 
-	var filterImg = d3.select('#framework-chart').append('img')
+	d3.select('#framework-chart').append('img')
 	.attr('id', 'frameworkRemoveFilter')
 	.attr('class', 'removeFilterBtn')
 	.attr('src', 'images/filter.png')

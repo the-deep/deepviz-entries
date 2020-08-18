@@ -27,7 +27,6 @@ HumanitarianProfile.create = function(){
 			var name = dd.trim();
 			var level = ii;
 			var rowStr = name+'-'+level;
-			var row = {name: name, level: level, parent: parent};
 			if(!treeStr.includes(rowStr)){
 				treeStr.push(rowStr);
 				tree.push({name: name, level: level, parent: parent})
@@ -44,7 +43,7 @@ HumanitarianProfile.create = function(){
 	var treeLayout = d3.tree()
 	.size([1200, height-padding])
 
-	var root = d3.hierarchy(root);
+	root = d3.hierarchy(root);
 
 	treeLayout(root)
 
@@ -191,12 +190,13 @@ HumanitarianProfile.update = function(){
 
 		node.selectAll('circle').attr('fill', function(dd,ii){
 			if(filters.frameworkToggle!='entries'){
+				var median;
 				if(filters.toggle=='severity'){
-					var median = d.value.median_s;
+					median = d.value.median_s;
 					if(isNaN(median))median = 0;
 					return colorPrimary[median];
 				} else {
-					var median = d.value.median_r;
+					median = d.value.median_r;
 					if(isNaN(median))median = 0;
 					return colorSecondary[median];
 				}
