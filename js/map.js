@@ -1876,10 +1876,6 @@ Map.ticked = function() {
 		Deepviz.filter('geo',d.properties.id);
 	});
 
-	var nodeMax = d3.max(nodes, function(d,i){
-		return d.total;
-	});
-
   u.exit().remove();
 
   Map.updateGridmap();
@@ -1931,10 +1927,6 @@ Map.updateGridmap = function(){
 				}
 			})
 		});
-
-	    var maxMapValue = d3.max(bubbleData, function(d) {
-	    	return d.value.total;
-	    });
 
 	    nodes = metadata.geo_json_point.features;
 
@@ -2033,15 +2025,7 @@ Map.updateGridmap = function(){
 			})
 		});
 
-	    var maxMapValue = d3.max(bubbleData, function(d) {
-	    	return d.value.total;
-	    });
-
 	    nodes = metadata.geo_json_point.features;
-
-		var nodeMax = d3.max(nodes, function(d,i){
-			return d.total;
-		});
 
 	    var u = d3.select('#map-grid-svg')
 	    .selectAll('.grid-rect')

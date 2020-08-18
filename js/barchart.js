@@ -14,7 +14,7 @@ BarChart.createBarChart = function(a){
 
 	title.attr('class', 'title').text(a.title);
 
-	var filterImg = div.append('img')
+	div.append('img')
 	.attr('id', a.classname+'RemoveFilter')
 	.attr('class', 'removeFilterBtn')
 	.attr('src', 'images/filter.png')
@@ -157,7 +157,7 @@ BarChart.createStackedBarChart = function(a){
 
 	title.attr('class', 'title').text(a.title);
 
-	var filterImg = div.append('img')
+	div.append('img')
 	.attr('id', a.classname+'RemoveFilter')
 	.attr('class', 'removeFilterBtn')
 	.attr('src', 'images/filter.png')
