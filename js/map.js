@@ -13,6 +13,7 @@ var gridmapInit = false;
 var simulation;
 var nodes;
 var nodeRadius = 13;
+var bubbleData;
 
 var heatmapColorEntries = [
 		'interpolate',
@@ -428,7 +429,7 @@ Map.createBubbles = function(){
 
 	var locationBySeverityReliability = dataByLocationArray;
 
-	var bubbleData = d3.nest()
+	bubbleData = d3.nest()
 	.key(function(d) {  return d.geo;})
 	.rollup(function(v) { return {
 		'total': d3.sum(v, function(d){
@@ -1042,7 +1043,7 @@ Map.updateBubbles = function(){
 			}
 		});
 
-		var bubbleData = d3.nest()
+		bubbleData = d3.nest()
 		.key(function(d) {  return d.geo;})
 		.rollup(function(v) { return {
 			'median': Math.round(d3.median(v, function(d) { if(filters.toggle=='severity'){return d.s;} else { return d.r; } } )), 
@@ -1126,39 +1127,6 @@ Map.updateBubbles = function(){
 			});
 		}
 
-		// bubbles.forEach(function(d,i){
-
-		// 	var geo = metadata.geo_array[d.key-1];
-		// 	var tot = d.value.total;
-
-		// 	if(tot>0){
-		// 		d3.selectAll('#bubble'+(d.key-1)).style('display', 'block').select('.map-bubble')
-		// 		.attr('transform', function(d,i){
-		// 			var size = scale.map(tot);
-		// 			return 'scale('+size+')';
-		// 		});
-		// 	} 
-		// 	d3.selectAll('#bubble'+(d.key-1)+' .map-bubble-value').text(d.value.total);
-
-		// 	if(filters.frameworkToggle=='entries'){
-		// 		d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-		// 		d3.selectAll('.outerCircle').attr('stroke', colorNeutral[3]);
-		// 	} else {
-		// 		if(filters.toggle=='severity'){
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorPrimary[d.value.value]);
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorPrimary[d.value.value]);
-		// 		} else {
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorSecondary[d.value.value]);
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorSecondary[d.value.value]);
-		// 		}
-		// 	}
-
-		// 	if(filters.geo.includes(geo.id)){
-		// 		d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', 'cyan');
-		// 	}
-
-		// });
-
 	// bubbles display number of entries
 	} else {
 
@@ -1167,7 +1135,7 @@ Map.updateBubbles = function(){
 			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.admin_level==filters.admin_level));
 		});
 
-		var bubbleData = d3.nest()
+		bubbleData = d3.nest()
 		.key(function(d) {  return d.geo;})
 		.rollup(function(v) { return {
 			'total': d3.sum(v, function(d){
@@ -1909,7 +1877,7 @@ Map.updateGridmap = function(){
 			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.admin_level==filters.admin_level));
 		});
 
-		var bubbleData = d3.nest()
+		bubbleData = d3.nest()
 		.key(function(d) {  return d.geo;})
 		.rollup(function(v) { return {
 			'total': d3.sum(v, function(d){
@@ -1934,7 +1902,7 @@ Map.updateGridmap = function(){
 			return d.total;
 		});
 
-	    var u = d3.select('#map-grid-svg')
+	    d3.select('#map-grid-svg')
 	    .selectAll('.grid-rect')
 	    .data(nodes)
 	    .attr('data-name',function(d,i){
@@ -2004,7 +1972,7 @@ Map.updateGridmap = function(){
 			}
 		});
 
-		var bubbleData = d3.nest()
+		bubbleData = d3.nest()
 		.key(function(d) {  return d.geo;})
 		.rollup(function(v) { return {
 			'median': Math.round(d3.median(v, function(d) { if(filters.toggle=='severity'){return d.s;} else { return d.r; } } )), 
@@ -2027,7 +1995,7 @@ Map.updateGridmap = function(){
 
 	    nodes = metadata.geo_json_point.features;
 
-	    var u = d3.select('#map-grid-svg')
+	    d3.select('#map-grid-svg')
 	    .selectAll('.grid-rect')
 	    .data(nodes)
 	    .attr('data-name',function(d,i){
