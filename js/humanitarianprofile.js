@@ -1,7 +1,7 @@
 var HumanitarianProfile = {};
-var height = 360;
+var height = 365;
 var padding = 60;
-var maxRadius = 28;
+var maxRadius = 27;
 
 HumanitarianProfile.create = function(){
 
