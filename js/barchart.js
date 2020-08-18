@@ -6,7 +6,19 @@ var tooltipSparklineWidth = 140;
 
 BarChart.createBarChart = function(a){
 
-	var padding = {left: 20, right: 25, top: 35, bar: {y: 5}};
+	var padding = {left: 20, right: 50, top: 20, bar: {y: 5}};
+
+	// add title
+	var div = d3.select('#'+a.div);
+	var title = div.append('div');
+
+	title.attr('class', 'title').text(a.title);
+
+	div.append('img')
+	.attr('id', a.classname+'RemoveFilter')
+	.attr('class', 'removeFilterBtn')
+	.attr('src', 'images/filter.png')
+	.attr('title', 'Clear filter');
 
 	// create svg
 	var svg = Deepviz.createSvg({
@@ -27,28 +39,6 @@ BarChart.createBarChart = function(a){
 	} else {
 		var rowHeight = height/a.rows.length;
 	}
-
-	// add title
-	var title = svg.append('g')
-	.attr('transform', 'translate(0,0)');
-
-	title
-	.append('text')
-	.attr('x', 0)
-	.attr('y', 20)
-	.style('font-weight', 'bold')
-	.text(a.title);
-
-	// add filter icon
-	title.append('image')
-	.attr('id', a.classname+'RemoveFilter')
-	.attr('class', 'removeFilterBtn')
-	.attr('xlink:href', 'images/filter.png')
-	.attr('title', 'Reset filter')
-	.attr('y', 1)
-	.attr('x', title.node().getBBox().width +5 )
-	.attr('height', '22px')
-	.attr('width', '22px');
 
 	var chartarea = svg.append('g');
 
@@ -74,11 +64,6 @@ BarChart.createBarChart = function(a){
 	var labelWidth = chartarea.node().getBBox().width + padding.left;
 	label.attr('x', labelWidth-20);
 	labelWidth = labelWidth + 70;
-
-	// title.attr('transform', function(d,i){
-	// 	var offset = d3.select(this).node().getBBox().width +35;
-	// 	return 'translate('+(labelWidth-offset)+',0)';
-	// })
 
 	var width = a.width - labelWidth - padding.right; 
 
@@ -164,7 +149,19 @@ BarChart.createBarChart = function(a){
 
 BarChart.createStackedBarChart = function(a){
 
-	var padding = {left: 20, right: 25, top: 35, bar: {y: 5}};
+	var padding = {left: 20, right: 50, top: 15, bar: {y: 5}};
+
+	// add title
+	var div = d3.select('#'+a.div);
+	var title = div.append('div');
+
+	title.attr('class', 'title').text(a.title);
+
+	div.append('img')
+	.attr('id', a.classname+'RemoveFilter')
+	.attr('class', 'removeFilterBtn')
+	.attr('src', 'images/filter.png')
+	.attr('title', 'Clear filter');
 
 	// create svg
 	var svg = Deepviz.createSvg({
@@ -183,28 +180,6 @@ BarChart.createStackedBarChart = function(a){
 
 	var height = a.height - padding.top;
 	var rowHeight = height/a.rows.length;
-
-	// add title
-	var title = svg.append('g')
-	.attr('transform', 'translate(0,0)');
-
-	title
-	.append('text')
-	.attr('x', 0)
-	.attr('y', 20)
-	.style('font-weight', 'bold')
-	.text(a.title);
-
-	// add filter icon
-	title.append('image')
-	.attr('id', a.classname+'RemoveFilter')
-	.attr('class', 'removeFilterBtn')
-	.attr('xlink:href', 'images/filter.png')
-	.attr('title', 'Reset filter')
-	.attr('y', 1)
-	.attr('x', title.node().getBBox().width +5 )
-	.attr('height', '22px')
-	.attr('width', '22px');
 
 	var chartarea = svg.append('g');
 

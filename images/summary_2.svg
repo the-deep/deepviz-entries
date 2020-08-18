@@ -3,11 +3,24 @@
     <title>summary_2</title>
     <g id="summary_2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <rect fill="#FFFFFF" x="0" y="0" width="2002" height="76"></rect>
-        <polygon id="Rectangle-6" fill="#EDEDED" points="399.94846 44 799.89692 44 799.89692 75 399.94846 75"></polygon>
-        <text id="HOUSEHOLDS-SURVEYED" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
-            <tspan x="500.06851" y="65">HOUSEHOLDS SURVEYED</tspan>
-        </text>
-        <polygon id="Rectangle-6" fill="#EDEDED" points="-1.70530257e-13 44 398.690761 44 398.690761 75 -1.70530257e-13 75"></polygon>
+        <g id="households_box" transform="translate(399.948460, 40.000000)">
+            <polygon id="Rectangle-6" fill="#EDEDED" points="1.13686838e-13 4 399.94846 4 399.94846 35 1.13686838e-13 35"></polygon>
+            <text id="HOUSEHOLDS-SURVEYED" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
+                <tspan x="100.12005" y="25">HOUSEHOLDS SURVEYED</tspan>
+            </text>
+            <text id="households" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
+                <tspan x="7.54619736" y="28">000000</tspan>
+            </text>
+        </g>
+        <g id="individuals_box" transform="translate(-0.000000, 40.000000)">
+            <polygon id="Rectangle-6" fill="#EDEDED" points="-1.70530257e-13 4 398.690761 4 398.690761 35 -1.70530257e-13 35"></polygon>
+            <text id="individuals" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
+                <tspan x="7.54619736" y="28">000000</tspan>
+            </text>
+            <text id="INDIVIDUALS-SURVEYED" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
+                <tspan x="97.4085481" y="26">INDIVIDUALS SURVEYED</tspan>
+            </text>
+        </g>
         <g id="rapid_box" transform="translate(1534.289755, 0.000000)">
             <polygon id="Rectangle-6" fill="#828282" points="0 0 228.733627 0 228.733627 43 0 43"></polygon>
             <text id="RAPID-NEEDS-ASSESSME" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">
@@ -18,15 +31,6 @@
             </text>
             <line x1="1.29962288" y1="40" x2="226.134381" y2="40" id="filter_rapid" stroke="#EFFFFD" stroke-width="3"></line>
         </g>
-        <text id="households" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
-            <tspan x="407.494657" y="68">000000</tspan>
-        </text>
-        <text id="individuals" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28" font-weight="normal" fill="#696969">
-            <tspan x="7.54619736" y="68">000000</tspan>
-        </text>
-        <text id="INDIVIDUALS-SURVEYED" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="17.1073232" font-weight="bold" fill="#696969">
-            <tspan x="97.4085481" y="66">INDIVIDUALS SURVEYED</tspan>
-        </text>
         <g id="sector_5_box">
             <polygon id="Rectangle-6" fill="#828282" points="0 0 220.097423 0 220.097423 43 0 43"></polygon>
             <text id="MULTI-SECTOR-ASSESSM" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="12.9613134" font-weight="bold" fill="#FFFFFF">

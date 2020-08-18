@@ -23,6 +23,15 @@ DeepvizFramework.create = function(a){
 	var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
 	var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom))/numFrameworkRows;
 
+	var title = d3.select('#framework-chart').append('div');
+	title.attr('class', 'title').text('SECTORAL FRAMEWORK');
+
+	d3.select('#framework-chart').append('img')
+	.attr('id', 'frameworkRemoveFilter')
+	.attr('class', 'removeFilterBtn')
+	.attr('src', 'images/filter.png')
+	.attr('title', 'Clear filter');
+
 	// create framework svg
 	var frameworkSvg = Deepviz.createSvg({
 		id: 'framework-svg',
@@ -36,30 +45,12 @@ DeepvizFramework.create = function(a){
 	var layer2 = frameworkSvg.append('g').attr('id', 'framework-layer2');
 	var layer3 = frameworkSvg.append('g').attr('id', 'framework-layer3')
 
-	// title
-	var title = frameworkSvg.append('g')
+	// toggle
+	var toggle = frameworkSvg.append('g')
 	.attr('transform', 'translate(0,-2)');
 
-	title
-	.append('text')
-	.attr('x', 0)
-	.attr('y', 20)
-	.style('font-weight', 'bold')
-	.text('SECTORAL FRAMEWORK');
-
-	// add filter icon
-	title.append('image')
-	.attr('id', 'frameworkRemoveFilter')
-	.attr('class', 'removeFilterBtn')
-	.attr('xlink:href', 'images/filter.png')
-	.attr('title', 'Reset filter')
-	.attr('y', 5)
-	.attr('x', title.node().getBBox().width +5 )
-	.attr('height', '17px')
-	.attr('width', '17px');
-
 	// add toggle switch
-	var toggleswitch = title.append('g')
+	var toggleswitch = toggle.append('g')
 	.attr('id', 'framework-toggle-switch')
 	.attr('transform', 'translate(237,1)')
 
@@ -264,7 +255,8 @@ DeepvizFramework.create = function(a){
 	.attr('id', function(d,i){
 		return 'context-name-'+d.context_id;
 	})
-	.style('font-weight', 'bold');
+	.style('font-weight', 'bold')
+	.style('fill', '#4c4c4c');
 
 	labelName.attr('class', function(d,i){
 		if(d.contextRow == 1){
@@ -694,8 +686,6 @@ DeepvizFramework.updateFramework = function(){
 			}
 		});
 	} 
-
-
 
 	var d = d3.nest()
 	.key(function(d) { return d.framework; })
