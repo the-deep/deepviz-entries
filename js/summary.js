@@ -232,7 +232,7 @@ Summary.update = function(){
 	var totalAssessments = dc.length;
 
 	// other documents
-	d3.select('#total_other_documents tspan').text(addCommas(totalLeads-totalAssessments));
+	d3.select('#total_other_documents tspan').text(addCommas(Math.max(0,(totalLeads-totalAssessments))));
 
 	var mutli_sector_5 = d3.sum(dc, function(d){
 		if(d.sector_count>=5)
