@@ -143,7 +143,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// humanitrian profile
 	//**************************
-	var humanitarianProfile = HumanitarianProfile.create();
+	HumanitarianProfile.create();
 
 	d3.select('#toggle1').style('opacity', 0);
 	d3.select('#toggle0').style('fill', '#008974');
