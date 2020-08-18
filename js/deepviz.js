@@ -1293,7 +1293,7 @@ var Deepviz = function(sources, callback){
 
 			var count = (Math.abs(moment(dateRange[1]).diff(moment(dateRange[0]), 'months', true)));
 			var tickFormat = d3.timeFormat("%d %b %Y");
-			var tLength = '6%';
+			var tLength = '5.5%';
 			if(expandActive==true) tLength = '4%';
 			if(filters.time=='d'){
 				if((count<=0.4)){
@@ -3890,6 +3890,29 @@ var Deepviz = function(sources, callback){
 			} 
 		});
 		mapbox.resize();
+
+		if(collapsed==true){
+
+			d3.select('#svg_summary2_div')
+			.style('margin-top', -$('#svg_summary1_div').height()+'px')
+
+			d3.select('#summary_row')
+			.style('margin-top', function(){
+				var h = $('#svg_summary1_div').height()+$('#svg_summary3_div').height()+10;
+				return h+'px';
+			});
+
+		} else {
+
+			d3.select('#svg_summary2_div')
+			.style('margin-top', '0px')
+
+			d3.select('#summary_row')
+			.style('margin-top', function(){
+				var h = $('#svg_summary1_div').height()*2+$('#svg_summary3_div').height()+10;
+				return h+'px';
+			});
+		}
 	}
 
 	// rounding function

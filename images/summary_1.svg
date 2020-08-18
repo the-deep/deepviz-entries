@@ -262,8 +262,8 @@
         <g id="coordination_2_box" transform="translate(970.000000, -3.000000)">
             <polygon id="Rectangle-6" fill="#008B74" points="0 1.44000006 216.720004 1.44000006 216.720004 44.4400008 0 44.4400008"></polygon>
             <text id="COORDINATED-NEEDS-AS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="63.6400011" y="17.1600001">COORDINATED NEEDS </tspan>
-                <tspan x="63.6400011" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="63.6400011" y="18.1600001">COORDINATED NEEDS </tspan>
+                <tspan x="63.6400011" y="36.1600001">ASSESSMENTS</tspan>
             </text>
             <text id="&gt;=2-Sectors" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.1160103" font-weight="300" fill="#FFFFFF">
                 <tspan x="154.800003" y="34.0800004">&gt;=2 Sectors</tspan>
@@ -279,8 +279,8 @@
         <g id="harmonized_box" transform="translate(1400.000000, -3.000000)">
             <polygon id="Rectangle-6" fill="#008B74" points="0 1.44000006 196.940003 1.44000006 196.940003 44.4400008 0 44.4400008"></polygon>
             <text id="HARMONIZED-NEEDS-ASS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="64.5000011" y="17.1600001">HARMONIZED NEEDS </tspan>
-                <tspan x="64.5000011" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="64.5000011" y="18.1600001">HARMONIZED NEEDS </tspan>
+                <tspan x="64.5000011" y="36.1600001">ASSESSMENTS</tspan>
             </text>
             <text id="harmonized" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="34.4000006" font-weight="bold" fill="#FFFFFF">
                 <tspan x="4.30000007" y="34">000</tspan>
@@ -296,8 +296,8 @@
                 <tspan x="4.30000007" y="34">000</tspan>
             </text>
             <text id="COORDINATED-NEEDS-AS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="63.6400011" y="17.1600001">COORDINATED NEEDS </tspan>
-                <tspan x="63.6400011" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="63.6400011" y="18.1600001">COORDINATED NEEDS </tspan>
+                <tspan x="63.6400011" y="36.1600001">ASSESSMENTS</tspan>
             </text>
             <text id="=1-Sector" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.1160103" font-weight="300" fill="#FFFFFF">
                 <tspan x="157.380003" y="34.0800004">=1 Sector</tspan>
@@ -310,8 +310,8 @@
         <g id="coordination_5_box" transform="translate(746.000000, -3.000000)">
             <polygon id="Rectangle-6" fill="#008B74" points="0 1.44000006 222.740004 1.44000006 222.740004 44.4400008 0 44.4400008"></polygon>
             <text id="COORDINATED-NEEDS-AS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="62.780001" y="17.1600001">COORDINATED NEEDS </tspan>
-                <tspan x="62.780001" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="62.780001" y="18.1600001">COORDINATED NEEDS </tspan>
+                <tspan x="62.780001" y="36.1600001">ASSESSMENTS</tspan>
             </text>
             <text id="coordinated_5_sector" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="34.4000006" font-weight="bold" fill="#FFFFFF">
                 <tspan x="4.30000007" y="34">000</tspan>
@@ -327,8 +327,8 @@
         <g id="uncoordinated_box" transform="translate(1598.000000, -3.000000)">
             <polygon id="Rectangle-6" fill="#008B74" points="0 1.44000006 216.720004 1.44000006 216.720004 44.4400008 0 44.4400008"></polygon>
             <text id="UNCOORDINATED-NEEDS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="61.060001" y="17.1600001">UNCOORDINATED NEEDS </tspan>
-                <tspan x="61.060001" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="61.060001" y="18.1600001">UNCOORDINATED NEEDS </tspan>
+                <tspan x="61.060001" y="36.1600001">ASSESSMENTS</tspan>
             </text>
             <text id="uncoordinated" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="34.4000006" font-weight="bold" fill="#FFFFFF">
                 <tspan x="3.44000006" y="34">000</tspan>
