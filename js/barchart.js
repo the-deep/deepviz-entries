@@ -3,6 +3,7 @@ var updating = false;
 var updateInterval = 0;
 var tooltipSparklineHeight = 40;
 var tooltipSparklineWidth = 140;
+var maxBarHeight = 0;
 
 BarChart.createBarChart = function(a){
 
@@ -38,6 +39,10 @@ BarChart.createBarChart = function(a){
 		a.rows = a.rows.splice(0,10);
 	} else {
 		var rowHeight = height/a.rows.length;
+	}
+
+	if((maxBarHeight>0)&&(rowHeight>maxBarHeight)){
+		rowHeight = maxBarHeight
 	}
 
 	var chartarea = svg.append('g');
@@ -180,6 +185,10 @@ BarChart.createStackedBarChart = function(a){
 
 	var height = a.height - padding.top;
 	var rowHeight = height/a.rows.length;
+
+	if((maxBarHeight>0)&&(rowHeight>maxBarHeight)){
+		rowHeight = maxBarHeight;
+	}
 
 	var chartarea = svg.append('g');
 
