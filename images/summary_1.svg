@@ -52,8 +52,8 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M3.07228158,38 L230.072282,38" id="path-11"></path>
-        <filter x="-3.7%" y="-275.0%" width="107.5%" height="850.0%" filterUnits="objectBoundingBox" id="filter-12">
+        <path d="M3.07228158,38 L219.072282,38" id="path-11"></path>
+        <filter x="-3.9%" y="-275.0%" width="107.9%" height="850.0%" filterUnits="objectBoundingBox" id="filter-12">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
             <feMorphology radius="1.5" operator="erode" in="SourceAlpha" result="shadowInner"></feMorphology>
@@ -62,8 +62,8 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M2.08976919,38 L235.039136,38" id="path-13"></path>
-        <filter x="-3.6%" y="-275.0%" width="107.3%" height="850.0%" filterUnits="objectBoundingBox" id="filter-14">
+        <path d="M2.17720723,38 L244.87341,38" id="path-13"></path>
+        <filter x="-3.5%" y="-275.0%" width="107.0%" height="850.0%" filterUnits="objectBoundingBox" id="filter-14">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
             <feMorphology radius="1.5" operator="erode" in="SourceAlpha" result="shadowInner"></feMorphology>
@@ -197,7 +197,7 @@
             </g>
         </g>
         <g id="rcrc_box" transform="translate(1528.927718, 35.000000)">
-            <polygon id="Rectangle-6" fill="#6BD1C0" points="0.0722815839 8 232.072282 8 232.072282 42 0.0722815839 42"></polygon>
+            <polygon id="Rectangle-6" fill="#6BD1C0" points="0.0722815839 8 221.072282 8 221.072282 42 0.0722815839 42"></polygon>
             <text id="RCRClabel" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
                 <tspan x="66.0722816" y="29">RCRC</tspan>
             </text>
@@ -209,13 +209,13 @@
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-11"></use>
             </g>
         </g>
-        <g id="government_box" transform="translate(1761.927718, 35.000000)">
-            <polygon id="Rectangle-6" fill="#7FC2B7" points="0.0728915551 8 238.064453 8 238.064453 42 0.0728915551 42"></polygon>
+        <g id="government_box" transform="translate(1750.927718, 35.000000)">
+            <polygon id="Rectangle-6" fill="#7FC2B7" points="0.0759414109 8 248.025308 8 248.025308 42 0.0759414109 42"></polygon>
             <text id="GOVERNMENTlabel" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="72.6804865" y="29">GOVERNMENT </tspan>
+                <tspan x="75.721511" y="29">GOVERNMENT BODIES </tspan>
             </text>
             <text id="government" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="35" font-weight="bold" fill="#FFFFFF">
-                <tspan x="5.15727974" y="34">000</tspan>
+                <tspan x="5.3730655" y="34">000</tspan>
             </text>
             <g id="filter_government">
                 <use fill="black" fill-opacity="1" filter="url(#filter-14)" xlink:href="#path-13"></use>
