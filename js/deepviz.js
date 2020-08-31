@@ -2006,7 +2006,6 @@ var Deepviz = function(sources, callback){
 	    	dateRange[1].setHours(0,0,0,0);
 	    	dateRange[1] = moment(dateRange[1].setDate(dateRange[1].getDate())).add(1, 'day');
 	    	gBrush.call(brush.move, dateRange.map(scale.timechart.x));
-
 		    update();
 		});
 
@@ -2160,7 +2159,7 @@ var Deepviz = function(sources, callback){
 			// colorBars();
 			updateDate();
 			Summary.update();
-			if(disableSync==false){
+			if((disableSync==false)||(d3.event.sourceEvent==null)){
 				DeepvizFramework.updateFramework();
 				Map.update();
 				updateSeverityReliability('brush');
