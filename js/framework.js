@@ -7,6 +7,23 @@ var tooltipSvg;
 
 DeepvizFramework.create = function(a){
 
+	// handle metadata with single-rows
+	var count = 0;
+	var contextId = null;
+	metadata.framework_groups_array.forEach(function(d,i){
+		if(contextId==d.context_id){
+			count++;
+		} else {
+			if(count==1){
+				var row = {'id': -1, 'context_id': metadata.framework_groups_array[i-1].context_id, 'name': '', 'tooltip': ''};
+				metadata.framework_groups_array.splice((i),0,row);
+			} else {
+				count = 1;
+			}
+		} 
+		contextId=d.context_id;
+	});
+
 	var frameworkRowHeight = 28;
 	var frameworkHeight = metadata.framework_groups_array.length * frameworkRowHeight;
 
@@ -345,7 +362,7 @@ DeepvizFramework.create = function(a){
 	.style('fill', colorLightgrey[3])
 	.style('cursor', 'pointer')
 	.style('opacity', 0)
-	.on('mouseover', function(d,i){
+	.on('mouseover', function(d,i){		
 		if(filters['context'].includes(parseInt(d.key))){
 			// return d3.select(this).style('fill', '#FFF').style('opacity',0.5);
 		} else {
@@ -376,15 +393,20 @@ DeepvizFramework.create = function(a){
 
 	// 2nd col filters
 	d3.selectAll('.frameworkRowSelector')
-	.style('cursor', 'pointer')
+	.style('cursor', function(d,i){
+		if(d.name.length>1) return 'pointer';
+	})
 	.on('mouseover', function(d,i){
+		if(d.name.length>1)
 		return d3.select('.frameworkRowSelector-'+d.id+'.frameworkRowSelector-bg').style('fill', colorGrey[2]).style('opacity', 0.05);	
 	})
 	.on('mouseout', function(d,i){
 		d3.selectAll('.frameworkRowSelector-bg').style('fill', '#FFF');
 	}).on('click', function(d,i){
-		d3.selectAll('.frameworkRowSelector-bg').style('fill', '#FFF');
-		Deepviz.filter('framework',d.id);
+		if(d.name.length>1){
+			d3.selectAll('.frameworkRowSelector-bg').style('fill', '#FFF');
+			Deepviz.filter('framework',d.id);
+		}
 	});
 
 	// sparkline containers
@@ -611,7 +633,6 @@ DeepvizFramework.create = function(a){
         	var sectorId = d3.select(cell.node().parentNode).attr('data-sector');
         	
         	var path = DeepvizFramework.updateTooltipSparkline(contextId, frameworkId, sectorId);
-
 	        html=html+'<br/><svg style="margin-top: 1px; margin-bottom: 1px" id="tooltipSparkline" width="'+tooltipSparklineWidth+'px" height="'+tooltipSparklineHeight+'px">'+path.node().outerHTML+'</svg>';
         	instance.setContent(html);
 
@@ -1247,7 +1268,6 @@ DeepvizFramework.updateTooltipSparkline = function(contextId, frameworkId, secto
 			}
 		})		
 		.entries(dataByDateSparkline);
-
 	}
 
 	if(filters.time=='m'){
@@ -1319,7 +1339,7 @@ DeepvizFramework.updateTooltipSparkline = function(contextId, frameworkId, secto
 
 	var filteredSparklineData = dataByDateSparkline.filter(function(d){ 
     	return d.value.total>0; 
-    })
+    });
 
     if(contextMax>0){
 
