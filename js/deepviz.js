@@ -75,6 +75,11 @@ var tp_reliability = [];
 var timechartInit = 0;
 var timechartyAxis;
 var timechartyGrids;
+var svgChartBg;
+var svgSubtimechart;
+var contextualRowHeight;
+var contextualRowsHeight;
+var subTimechartBg
 var hoverColor = 'rgba(0,0,0,0.03)';
 var displayCalendar = false;
 var width = 1300;
@@ -110,7 +115,7 @@ var curvedLine = d3.line()
 // map
 var maxMapBubbleValue;
 var maxMapPolygonValue;
-var mapAspectRatio = 1.2;
+var mapAspectRatio = 1.28;
 var geoBounds = {'lat': [], 'lon': []};
 
 // filters
@@ -129,6 +134,8 @@ var filters = {
 	toggle: 'severity',
 	admin_level: 1,
 	frameworkToggle: 'entries',
+	timechartToggle: 'eventdrop',
+	bumpchartToggle: 'sector',
 	time: 'd',
 	heatmapCheckbox: false,
 	panelLayout: 'default'
@@ -989,7 +996,7 @@ var Deepviz = function(sources, callback){
 		// setup svg layers
 		//**************************
 		var gridlines = svgBg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
-		var svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
+		svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 		
 		var chartAreaParent = svg.append('g').attr('id', 'chart-area-parent').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 
@@ -1023,7 +1030,7 @@ var Deepviz = function(sources, callback){
 		// .attr('x2', options.width-margin.right)
 		// .style('stroke', '#ebebeb');
 
-		var svgEventDrop = svg.append('g')
+		svgSubtimechart = svg.append('g')
 		.attr('id', 'eventdrop')
 		.attr('transform', 'translate('+(margin.left+0)+','+margin.top+')')
 		.style('opacity', 1);
@@ -1567,7 +1574,6 @@ var Deepviz = function(sources, callback){
 			}
 		});
 
-
 		//**************************
 		// draw trendline
 		//**************************
@@ -1590,97 +1596,6 @@ var Deepviz = function(sources, callback){
 			}
 		})
 		.attr('vector-effect', 'non-scaling-stroke');
-
-		// *************************
-		// draw contextual rows
-		//**************************
-
-		var timechart = d3.select('#timeChart');
-		var yPadding = 20;
-
-		var contextualRows = svgChartBg.append('g')
-		.attr('id', 'contextualRows')
-		.attr('transform', 'translate(0,'+ (timechartHeightOriginal + yPadding - 38 ) + ')');
-
-		var contextualRowsHeight = timechartSvgHeight - timechartHeightOriginal - yPadding - 17;
-
-		var title = contextualRows.append('text')
-		.text('CONTEXT')
-		.attr('transform', 'rotate(270)')
-		.attr('x', -contextualRowsHeight/2 - 20)
-		.attr('y', -20)
-		.style('font-size', '23px')
-		.style('font-weight', '300')
-		.style('fill', '#CCCCCC');
-
-		contextualRows.append('rect')
-		.attr('height', contextualRowsHeight)
-		.attr('width', options.width-60)
-		.attr('x', 0)
-		.attr('y',0)
-		.style('fill', '#FFF')
-		.style('fill-opacity',0);
-
-		contextualRows.append('rect')
-		.attr('height', contextualRowsHeight+45)
-		.attr('width', 10)
-		.attr('x', -5)
-		.attr('y',-30)
-		.style('fill', '#FFF')
-		.style('fill-opacity',1);
-
-		// svg.append('rect')
-		// .attr('height', timechartSvgHeight)
-		// .attr('width', 35)
-		// .attr('x', options.width-16)
-		// .attr('y',6)
-		// .style('fill', '#FFF')
-		// .style('fill-opacity',1);
-
-		var contextualRowHeight = contextualRowsHeight/numContextualRows;
-
-		var rows = contextualRows.selectAll('.contextualRow')
-		.data(metadata.context_array)
-		.enter()
-		.append('g')
-		.attr('class', 'contextualRow')
-		.attr('transform', function(d,i){
-			return 'translate(0,'+(i*(contextualRowHeight)) + ' )' ;
-		})
-
-		rows
-		.append('line')
-		.attr('class', 'contextualRowLine')
-		.attr('x1',0)
-		.attr('x2',options.width)
-		.attr('y1', 0)
-		.attr('y2', 0);
-
-		// row title
-		rows.append('text').text(function(d,i){
-			return d.name.toUpperCase();
-		})
-		.attr('class', 'label')
-		.attr('y',18)
-		.attr('x',4)
-		// .style('font-weight', 'bold')
-		.style('font-size', '16px');
-
-		// row total value
-		rows.append('text')
-		.text('0')
-		.attr('class', 'total-label')
-		.attr('id', function(d,i){
-			return 'total-label'+i;
-		})
-		.attr('x', function(d,i){
-			var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
-			return xoffset + 10;
-		})
-		.attr('y',18)
-		.style('font-size', '16px')
-		.style('font-weight', 'bold')
-		.style('fill', colorNeutral[4]);
 
 		//**************************
 		// date buttons Y M D
@@ -1709,99 +1624,55 @@ var Deepviz = function(sources, callback){
 		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
 
 		//**************************
-		// create event drops
+		// create sub-timechart
 		//**************************
-
-		maxContextValue = d3.max(dataByContext, function(d) {
-			var m = d3.max(d.values, function(d) {
-				return d.value.total;
-			})
-			if(new Date(d.key)<=new Date(maxDate)){
-				return m;
-			}
+		var timechartToggle = d3.select(document.getElementById("timechart-toggle").contentDocument);
+		// toggle switch click
+		timechartToggle.selectAll('text,tspan').style('pointer-events', 'none').style('user-select', 'none');
+		timechartToggle.select('#bumpchart-toggle').style('cursor', 'pointer').on('click', function(){
+			console.log('change bumpchart');
+			filters.bumpchartToggle = event.target.parentNode.id.substring(5);
+			Deepviz.createBumpchart(options);
 		});
 
-		scale.eventdrop = d3.scaleLinear()
-		.range([0,12])
-		.domain([0,maxContextValue]);
-
-		var eventDropGroupBg = svgEventDrop.append('g');
-		var eventDropGroup = svgEventDrop.append('g').attr('id', 'event-drop-group');
-
-		var eventDrops = eventDropGroup.selectAll(".eventDropGroup")
-		.data(dataByContext)
-		.enter()
-		.append('g')
-		.attr('id', function(d,i){
-			var dt = d.key = new Date(d.key);
-			dt.setHours(0,0,0,0);
-			return 'date'+dt.getTime();
-		})
-		.attr("class", "eventDropGroup")
-		.attr('data-width', function(d,i) { 
-			if(filters.time=='y'){
-				var date = new Date(d[options.dataKey]);
-				var endYear = new Date(date.getFullYear(), 11, 31);
-				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   
-			}
-
-			if(filters.time=='m'){
-				var date = new Date(d[options.dataKey]);
-				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
-				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);
-			}
-
-			if(filters.time=='d'){
-				var date = new Date(d[options.dataKey]);
-				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
-				return scale.timechart.x(endDate) - scale.timechart.x(d.key);
-			}	
-
-		})
-		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d.key);} return "translate(" + scale.timechart.x(d.key) + ",-38)"; });
-		
-		// event mask groups (to be used for event drop grey brush mask)
-		var eventDropGroup = eventDrops.append('g');
-
-		var eventDrops = eventDropGroup.selectAll('.eventDrop')
-		.data(function(d,i){ return d.values;})
-		.enter()
-		.append('circle')
-		.attr('id', function(d,i){
-			var parent = d3.select(this.parentNode).datum();
-			var dt = new Date(parent.key);
-			dt.setHours(0,0,0,0);
-			return 'event-drop-'+(d.key)+'-'+dt.getTime();
-		})
-		.attr('class', 'eventDrop')
-		.attr('r', function(d){
-			var t = 0;
-			if(d) t = d.value.total;
-			return scale.eventdrop(t);
-		})
-		.attr('cx', function(d,i){
-				var w = d3.select(this.parentNode.parentNode).attr('data-width');
-				return (w/2);
-			})
-		.attr('cy', function(d,i){
-			return timechartHeight2 + (contextualRowHeight*(d.key))+19;
-		})
-		.style('fill', function(d,i){
-			if(filters.frameworkToggle == 'average'){
-				if(filters.toggle == 'reliability'){
-					return colorSecondary[Math.round(d.value.median_r)];
-				} else { // primary fallback
-					return colorPrimary[Math.round(d.value.median_s)];
-				} 
+		timechartToggle.select('#timechart-toggle-obj').style('cursor', 'pointer').on('click', function(){
+			if(filters.timechartToggle=='bumpchart'){
+				filters.timechartToggle = 'eventdrop';
+				Deepviz.createEventdrop(options);
+				timechartToggle.select('#timechart-toggle0').attr('opacity', 1);
+				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 1);
+				timechartToggle.select('#timechart-toggle1').attr('opacity', 0);
+				timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.5);
+				timechartToggle.select('#bumpchart-toggle').transition().duration(500).attr('opacity', 0);
 			} else {
-				return colorNeutral[3];
+				filters.timechartToggle = 'bumpchart';
+				Deepviz.createBumpchart(options);
+				timechartToggle.select('#timechart-toggle0').attr('opacity', 0);
+				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
+				timechartToggle.select('#timechart-toggle1').attr('opacity', 1);
+				timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 1);
+				timechartToggle.select('#bumpchart-toggle').transition().duration(500).attr('opacity', 1);
 			}
 		})
+		if(filters.timechartToggle=='eventdrop'){
+			Deepviz.createEventdrop(options);
+			timechartToggle.select('#timechart-toggle0').attr('opacity', 1);
+			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 1);
+			timechartToggle.select('#timechart-toggle1').attr('opacity', 0);
+			timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.5);
+			timechartToggle.select('#bumpchart-toggle').attr('opacity', 0);
+		} else {
+			Deepviz.createBumpchart(options);
+			timechartToggle.select('#timechart-toggle0').attr('opacity', 0);
+			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
+			timechartToggle.select('#timechart-toggle1').attr('opacity', 1);
+			timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 1);
+			timechartToggle.select('#bumpchart-toggle').attr('opacity', 1);
+		}
 
 		//**************************
 		// hover 
 		//**************************
-		
 		dateHover.append('rect')
 		.attr('height', timechartHeight2)
 		.attr('x', 0)
@@ -1818,7 +1689,7 @@ var Deepviz = function(sources, callback){
 		.attr('fill', hoverColor)
 		.attr('opacity', 0);
 
-		var eventDropDateHoverRect = eventDropGroupBg.append('rect')
+		var eventDropDateHoverRect = subTimechartBg.append('rect')
 		.attr('id', 'eventDropDateHoverRect')
 		.attr('x', 500)
 		.attr('y', timechartHeight2)
@@ -1841,7 +1712,6 @@ var Deepviz = function(sources, callback){
 			var w;
 			if(filters.time=='d'){ 
 				var x1 = d3.timeDay.floor(scale.timechart.x.invert(x));
-				// w = d3.timeDay.ceil(scale.timechart.x.invert(x));
 				w = bw;
 			}
 			if(filters.time=='m'){ 
@@ -1854,10 +1724,8 @@ var Deepviz = function(sources, callback){
 				w = d3.timeYear.ceil(scale.timechart.x.invert(x));
 				w = scale.timechart.x(w) - scale.timechart.x(x1);				
 			}
-			dateHoverRect.attr('x', scale.timechart.x(x1))
-			.attr('width', w);
-			eventDropDateHoverRect.attr('x', scale.timechart.x(x1))
-			.attr('width', w);
+			dateHoverRect.attr('x', scale.timechart.x(x1)).attr('width', w);
+			eventDropDateHoverRect.attr('x', scale.timechart.x(x1)).attr('width', w);
 			d3.selectAll('.sparkline-hover').attr('x', scale.sparkline.x(x1)+pointWidth/2);
 		});
 
@@ -1866,7 +1734,6 @@ var Deepviz = function(sources, callback){
 			var w;
 			if(filters.time=='d'){ 
 				var x1 = d3.timeDay.floor(scale.timechart.x.invert(x));
-				// w = d3.timeDay.ceil(scale.timechart.x.invert(x));
 				w = bw;
 			}
 			if(filters.time=='m'){ 
@@ -1879,15 +1746,11 @@ var Deepviz = function(sources, callback){
 				w = d3.timeYear.ceil(scale.timechart.x.invert(x));
 				w = scale.timechart.x(w) - scale.timechart.x(x1);				
 			}
-			dateHoverRect.attr('x', scale.timechart.x(x1))
-			.attr('width', w);
-			eventDropDateHoverRect.attr('x', scale.timechart.x(x1))
-			.attr('width', w);
-
+			dateHoverRect.attr('x', scale.timechart.x(x1)).attr('width', w);
+			eventDropDateHoverRect.attr('x', scale.timechart.x(x1)).attr('width', w);
 			dateHoverRect.attr('opacity', 1);
 			eventDropDateHoverRect.attr('opacity', 1);
 			d3.selectAll('.sparkline-hover').attr('opacity', 1);
-
 		}).on('mouseout', function(d,i){
 			dateHoverRect.attr('opacity', 0);
 			eventDropDateHoverRect.attr('opacity', 0);
@@ -1897,7 +1760,6 @@ var Deepviz = function(sources, callback){
 			var w;
 			if(filters.time=='d'){ 
 				var x1 = d3.timeDay.floor(scale.timechart.x.invert(x));
-				// w = d3.timeDay.ceil(scale.timechart.x.invert(x));
 				w = bw;
 			}
 			if(filters.time=='m'){ 
@@ -1910,19 +1772,14 @@ var Deepviz = function(sources, callback){
 				w = d3.timeYear.ceil(scale.timechart.x.invert(x));
 				w = scale.timechart.x(w) - scale.timechart.x(x1);				
 			}
-			dateHoverRect.attr('x', scale.timechart.x(x1))
-			.attr('width', w);
-			eventDropDateHoverRect.attr('x', scale.timechart.x(x1))
-			.attr('width', w);
-
+			dateHoverRect.attr('x', scale.timechart.x(x1)).attr('width', w);
+			eventDropDateHoverRect.attr('x', scale.timechart.x(x1)).attr('width', w);
 			d3.selectAll('.sparkline-hover').attr('x', scale.sparkline.x(x1)+pointWidth/2);
-
 		});
 
 		//**************************
 		// date slider brushes
 		//**************************
-	    // initialise the brush
 	    brush = d3.brushX()
 	    .extent([[scale.timechart.x(minDate), -margin.top], [scale.timechart.x(maxDate), timechartSvgHeight-(margin.top+margin.bottom)]])
 	    .on("start", dragging)
@@ -1943,15 +1800,6 @@ var Deepviz = function(sources, callback){
 	    .data([{type: "w"}, {type: "e"}])
 	    .enter().append("g")
 	    .attr('class', 'handleG');
-
-	    // handleTop.append('path')
-	    // .attr("class", "handle--custom-top")
-	    // .attr("stroke", "#000")
-	    // .attr('stroke-width', 3)
-	    // .attr('fill', '#000')
-	    // .attr("cursor", "ew-resize")
-	    // .attr("d", 'M -8,0 -1,11 6,0 z')
-	    // .attr('transform', 'translate(0,1)')
 
 	    handleTop.append('rect')
 	    .attr('x',-5)
@@ -2278,6 +2126,209 @@ var Deepviz = function(sources, callback){
 		Map.updateSparklinesOverlay(dateRange);
 
 		return bars;
+	}
+
+	//**************************
+	// create event drops
+	//**************************
+	this.createEventdrop = function(options){
+
+		console.log('createEventdrop()');
+
+		// destroy previous
+		d3.select('#contextualRows').remove();
+		d3.select('#event-drop-group').remove();
+		d3.select('#event-drop-group-bg').remove();
+
+		//*************************
+		// draw contextual rows
+		//**************************
+		var timechart = d3.select('#timeChart');
+		var yPadding = 20;
+
+		var contextualRows = svgChartBg.append('g')
+		.attr('id', 'contextualRows')
+		.attr('transform', 'translate(0,'+ (timechartHeightOriginal + yPadding - 38 ) + ')');
+
+		contextualRowsHeight = timechartSvgHeight - timechartHeightOriginal - yPadding - 17;
+
+		var title = contextualRows.append('text')
+		.text('CONTEXT')
+		.attr('transform', 'rotate(270)')
+		.attr('x', -contextualRowsHeight/2 - 20)
+		.attr('y', -20)
+		.style('font-size', '23px')
+		.style('font-weight', '300')
+		.style('fill', '#CCCCCC');
+
+		contextualRows.append('rect')
+		.attr('height', contextualRowsHeight)
+		.attr('width', options.width-60)
+		.attr('x', 0)
+		.attr('y',0)
+		.style('fill', '#FFF')
+		.style('fill-opacity',0);
+
+		contextualRows.append('rect')
+		.attr('height', contextualRowsHeight+45)
+		.attr('width', 10)
+		.attr('x', -5)
+		.attr('y',-30)
+		.style('fill', '#FFF')
+		.style('fill-opacity',1);
+
+		contextualRowHeight = contextualRowsHeight/numContextualRows;
+
+		var rows = contextualRows.selectAll('.contextualRow')
+		.data(metadata.context_array)
+		.enter()
+		.append('g')
+		.attr('class', 'contextualRow')
+		.attr('transform', function(d,i){
+			return 'translate(0,'+(i*(contextualRowHeight)) + ' )' ;
+		})
+
+		rows
+		.append('line')
+		.attr('class', 'contextualRowLine')
+		.attr('x1',0)
+		.attr('x2',options.width)
+		.attr('y1', 0)
+		.attr('y2', 0);
+
+		// row title
+		rows.append('text').text(function(d,i){
+			return d.name.toUpperCase();
+		})
+		.attr('class', 'label')
+		.attr('y',18)
+		.attr('x',4)
+		.style('font-size', '16px');
+
+		// row total value
+		rows.append('text')
+		.text('0')
+		.attr('class', 'total-label')
+		.attr('id', function(d,i){
+			return 'total-label'+i;
+		})
+		.attr('x', function(d,i){
+			var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
+			return xoffset + 10;
+		})
+		.attr('y',18)
+		.style('font-size', '16px')
+		.style('font-weight', 'bold')
+		.style('fill', colorNeutral[4]);
+
+		//**************************
+		// eventdrop circles
+		//**************************
+		maxContextValue = d3.max(dataByContext, function(d) {
+			var m = d3.max(d.values, function(d) {
+				return d.value.total;
+			})
+			if(new Date(d.key)<=new Date(maxDate)){
+				return m;
+			}
+		});
+
+		scale.eventdrop = d3.scaleLinear()
+		.range([0,12])
+		.domain([0,maxContextValue]);
+
+		subTimechartBg = svgSubtimechart.append('g').attr('id', 'event-drop-group-bg');
+		var eventDropGroup = svgSubtimechart.append('g').attr('id', 'event-drop-group');
+
+		var eventDrops = eventDropGroup.selectAll(".eventDropGroup")
+		.data(dataByContext)
+		.enter()
+		.append('g')
+		.attr('id', function(d,i){
+			var dt = d.key = new Date(d.key);
+			dt.setHours(0,0,0,0);
+			return 'date'+dt.getTime();
+		})
+		.attr("class", "eventDropGroup")
+		.attr('data-width', function(d,i) { 
+			if(filters.time=='y'){
+				var date = new Date(d[options.dataKey]);
+				var endYear = new Date(date.getFullYear(), 11, 31);
+				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   
+			}
+
+			if(filters.time=='m'){
+				var date = new Date(d[options.dataKey]);
+				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
+				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);
+			}
+
+			if(filters.time=='d'){
+				var date = new Date(d[options.dataKey]);
+				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
+				return scale.timechart.x(endDate) - scale.timechart.x(d.key);
+			}	
+
+		})
+		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d.key);} return "translate(" + scale.timechart.x(d.key) + ",-38)"; });
+		
+		// event mask groups (to be used for event drop grey brush mask)
+		var eventDropGroup = eventDrops.append('g');
+
+		var eventDrops = eventDropGroup.selectAll('.eventDrop')
+		.data(function(d,i){ return d.values;})
+		.enter()
+		.append('circle')
+		.attr('id', function(d,i){
+			var parent = d3.select(this.parentNode).datum();
+			var dt = new Date(parent.key);
+			dt.setHours(0,0,0,0);
+			return 'event-drop-'+(d.key)+'-'+dt.getTime();
+		})
+		.attr('class', 'eventDrop')
+		.attr('r', function(d){
+			var t = 0;
+			if(d) t = d.value.total;
+			return scale.eventdrop(t);
+		})
+		.attr('cx', function(d,i){
+				var w = d3.select(this.parentNode.parentNode).attr('data-width');
+				return (w/2);
+			})
+		.attr('cy', function(d,i){
+			return timechartHeight2 + (contextualRowHeight*(d.key))+19;
+		})
+		.style('fill', function(d,i){
+			if(filters.frameworkToggle == 'average'){
+				if(filters.toggle == 'reliability'){
+					return colorSecondary[Math.round(d.value.median_r)];
+				} else { // primary fallback
+					return colorPrimary[Math.round(d.value.median_s)];
+				} 
+			} else {
+				return colorNeutral[3];
+			}
+		});
+	}
+
+	//**************************
+	// create bump chart
+	//**************************
+	this.createBumpchart = function(){
+		
+		console.log('createBumpchart() - '+filters.bumpchartToggle);
+
+		// destroy previous
+		d3.select('#contextualRows').remove();
+		d3.select('#event-drop-group').remove();
+		d3.select('#event-drop-group-bg').remove();
+
+		var timechartToggle = d3.select(document.getElementById("timechart-toggle").contentDocument);
+		timechartToggle.select('#bumpchart-toggle').selectAll('rect').attr('fill', '#F4F4F4');
+		timechartToggle.select('#bumpchart-toggle').selectAll('text').attr('fill', '#4c4c4c');
+		timechartToggle.select('#bumpchart-toggle #bump-'+filters.bumpchartToggle).select('rect').attr('fill', colorNeutral[3]);
+		timechartToggle.select('#bumpchart-toggle #bump-'+filters.bumpchartToggle).select('text').attr('fill', '#FFF');
+
 	}
 
 	//**************************
@@ -3118,102 +3169,6 @@ var Deepviz = function(sources, callback){
 		.range([timechartHeight2, 0])
 		.domain([0, rounder(maxValue)]);
 
-		// //**************************
-		// // Bar/event drop groups (by date)
-		// //**************************
-		// var barGroup = d3.select('#chart-bar-group');
-
-		// var bars = barGroup.selectAll(".barGroup")
-		// .data(chartdata)
-		// .enter()
-		// .append('g')
-		// .attr('id', function(d,i){
-		// 	var dt = new Date(d.date);
-		// 	dt.setHours(0,0,0,0);
-		// 	return 'date'+dt.getTime();
-		// })
-		// .attr("class", "barGroup")
-		// .attr('data-width', function(d,i) { 
-		// 	if(filters.time=='y'){
-		// 		var date = new Date(d.key);
-		// 		var endYear = new Date(date.getFullYear(), 11, 31);
-		// 		return scale.timechart.x(endYear) - scale.timechart.x(d.key);   		
-		// 	}
-
-		// 	if(filters.time=='m'){
-		// 		var date = new Date(d.key);
-		// 		var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
-		// 		return scale.timechart.x(endMonth) - scale.timechart.x(d.key);   		
-		// 	}
-
-		// 	if(filters.time=='d'){
-		// 		var date = new Date(d.key);
-		// 		var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
-		// 		return scale.timechart.x(endDate) - scale.timechart.x(d.key);   		
-		// 	}	
-
-		// })
-		// .attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d.key);} return "translate(" + scale.timechart.x(d.key) + ",0)"; })
-		// .exit()
-		// .remove();
-		
-		// bars = d3.select('#chart-bar-group').selectAll(".barGroup");
-
-		// var yArray = [];
-
-		// var individualBars = bars.selectAll('.bar')
-		// .data(function(d,i){ return d.barValues;})
-		// .enter()
-		// .append("rect")
-		// .attr('class', function(d,i){
-		// 	return 'bar severity'+(i+1);
-		// })
-		// .style('stroke', '#fff')
-		// .style('stroke-opacity',0)
-		// .attr("x", function(d,i) { 
-		// 	var w = d3.select(this.parentNode).attr('data-width');
-		// 	barWidth = w;
-		// 	if(filters.time=='m'){
-		// 		return w*0.2
-		// 	}
-		// 	if(filters.time=='y'){
-		// 		return w*0.3
-		// 	}
-		// })
-		// .attr("width", function(d,i) { 
-		// 	var w = d3.select(this.parentNode).attr('data-width');
-		// 	if(filters.time=='m'){
-		// 		w=w*0.6;
-		// 	}
-		// 	if(filters.time=='y'){
-		// 		w=w*0.4
-		// 	}
-		// 	return w-1;
-		// })
-		// .on('mouseover', function(){
-		// 	d3.select(this).style('fill-opacity', 1 - 0.05)
-		// })
-		// .on('mouseout', function(){
-		// 	d3.select(this).style('fill-opacity', 1)
-		// })
-		// .attr("height", 0)
-		// .attr("y", timechartHeight2);
-
-		// individualBars.transition()
-		// .duration(500)
-
-		// .attr("y", function(d,i) { 
-		// 	if(i>0){
-		// 		yArray[i] = yArray[i-1] + d;
-		// 	} else {
-		// 		yArray[i] = d;
-		// 	}
-		// 	return scale.timechart.y1(yArray[i]); 
-		// })
-		// .attr("height", function(d,i) { 
-		// 	return timechartHeight2-scale.timechart.y1(d); 
-		// });
-
 		timechartyAxis = d3.axisLeft()
 		.scale(scale.timechart.y1)
 		.ticks(4)
@@ -3274,14 +3229,27 @@ var Deepviz = function(sources, callback){
 			}, 50);
 		}
 
-		//**************************
-		// update event drops
-		//**************************
+		if(filters.timechartToggle=='eventdrop'){
+			Deepviz.updateEventdrop();
+		} else {
+			Deepviz.updateBumpchart();
+		}
+		updateSeverityReliability(target, 500);
+		updateTrendline();
+		Map.update();
+		colorBars();
+		DeepvizFramework.updateSparklines();
+
+	}
+
+	//**************************
+	// update event drops
+	//**************************
+	this.updateEventdrop = function(){
+		console.log('updateEventdrop()');
 
 		var eventDrops = d3.select('#event-drop-group').selectAll(".eventDropGroup");
-
-		var eventDropCircles = eventDrops.selectAll('.eventDrop')
-				.attr('r', 0);
+		var eventDropCircles = eventDrops.selectAll('.eventDrop').attr('r', 0);
 
 		dataByContext.forEach(function(d,i){
 			var time = new Date(d.key).getTime();
@@ -3303,25 +3271,13 @@ var Deepviz = function(sources, callback){
 				})
 			})
 		});
+	}
 
-		updateSeverityReliability(target, 500);
-
-		updateTrendline();
-		Map.update();
-		colorBars();
-
-		d3.selectAll('.barGroup').each(function(d,i){
-			d3.select(this).selectAll('.bar').style('fill', function(d,i){
-				if(filters.toggle == 'severity'){
-					return colorPrimary[i];
-				} else {
-					return colorSecondary[i];
-				}
-			})
-		});
-
-		DeepvizFramework.updateSparklines();
-
+	//**************************
+	// update bump chart
+	//**************************
+	this.updateBumpchart = function(){
+		console.log('updateBumpchart()');
 	}
 
 	//**************************
@@ -3797,52 +3753,15 @@ var Deepviz = function(sources, callback){
 	}
 
 	function colorBars(){
-		// d3.selectAll('.eventDropGroup').each(function(d,i){
-		// 	if(!d3.select(this).attr('id')) return;
-		// 	var idate = parseInt(d3.select(this).attr('id').slice(4));
-		// 	if(((new Date(idate)) >= (dateRange[0]))&&((new Date(idate))< (dateRange[1]))){
-		// 		// d3.select(this).selectAll('.bar').style('fill', function(d,i){
-		// 		// 	if(filters.toggle == 'severity'){
-		// 		// 		return colorPrimary[i];
-		// 		// 	} else {
-		// 		// 		return colorSecondary[i];
-		// 		// 	}
-		// 		// }).style('fill-opacity', 1);
-
-		// 		d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
-		// 			if(filters.toggle == 'severity'){
-		// 				return colorNeutral[3];
-		// 			} else {
-		// 				return colorNeutral[3];
-		// 			}
-		// 		});
-		// 	} else {
-		// 		// d3.select(this).selectAll('.bar').style('fill', function(d,i){
-		// 		// 	return colorLightgrey[i];
-		// 		// }).style('fill-opacity', 1);
-		// 		d3.select(this).selectAll('.eventDrop').style('fill', function(d,i){
-		// 			return colorLightgrey[1];
-		// 		});
-		// 	}
-		// });
-		// d3.selectAll('.barGroup').each(function(d,i){
-		// 	if(!d3.select(this).attr('id')) return;
-		// 	var idate = parseInt(d3.select(this).attr('id').slice(4));
-		// 	if(((new Date(idate)) >= (dateRange[0]))&&((new Date(idate))< (dateRange[1]))){
-		// 		d3.select(this).selectAll('.bar').style('fill', function(d,i){
-		// 			if(filters.toggle == 'severity'){
-		// 				return colorPrimary[i];
-		// 			} else {
-		// 				return colorSecondary[i];
-		// 			}
-		// 		}).style('fill-opacity', 1);
-		// 	} else {
-		// 		d3.select(this).selectAll('.bar').style('fill', function(d,i){
-		// 			return colorLightgrey[i];
-		// 		}).style('fill-opacity', 1);
-		// 	}
-		// });
-
+		d3.selectAll('.barGroup').each(function(d,i){
+			d3.select(this).selectAll('.bar').style('fill', function(d,i){
+				if(filters.toggle == 'severity'){
+					return colorPrimary[i];
+				} else {
+					return colorSecondary[i];
+				}
+			})
+		});
 	}
 
 	//**************************

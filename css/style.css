@@ -112,6 +112,17 @@ h2 {
 	margin-top: 4px;
 }
 
+#timechart-toggle {
+
+}
+
+#timechart-toggle {
+	padding-top: 13px;
+	padding-bottom: 10px;
+    width: 100%;
+    padding-left: 12px;     
+}
+
 #methodology {
     margin-top: 4px;
     padding-top: 1px;
