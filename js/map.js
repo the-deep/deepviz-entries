@@ -200,7 +200,6 @@ Map.create = function(){
 	if (url.searchParams.get('mapboxStyle')) {
 		mapboxStyle = url.searchParams.get('mapboxStyle');
 		$('#map-bg-toggle select').val(mapboxStyle);
-
 	}
 
     //Setup mapbox-gl map
@@ -280,7 +279,7 @@ Map.create = function(){
 		    map.boxZoom.disable();
 			// change cursor
 			d3.select('#map-bubble-svg').style('cursor', 'crosshair');
-
+			console.log('lassoactive');
 		} else {
 			lassoActive = false;
 			$('#lasso-selected').hide();
@@ -544,8 +543,8 @@ Map.createBubbles = function(){
 	.attr("fill", "#FFF")
 	.attr('cx', 0)
 	.attr('cy', 0)
-	.attr('r' , 30)
-	.attr("stroke-width", 2);
+	.attr('r' , 28)
+	.attr("stroke-width", 4);
 
 	featureElementG
 	.append("circle")
@@ -553,7 +552,7 @@ Map.createBubbles = function(){
 	.attr("fill", colorNeutral[3])
 	.attr('cx', 0)
 	.attr('cy', 0)
-	.attr('r' , 26)
+	.attr('r' , 25)
 	.attr("stroke-width", 0);
 
 	featureElementG
@@ -1024,11 +1023,12 @@ Map.updateBubbles = function(){
 	d3.select('#map-polygons').style('display', 'none');
 
 	d3.select('#map-grid-svg').style('display', 'none');
-
-	map.dragPan.enable();
-	map.doubleClickZoom.enable();
+	if(lassoActive!=true){
+		map.dragPan.enable();
+		map.doubleClickZoom.enable();	
+		d3.selectAll('#map-bubble-svg').style('cursor','grab');
+	}
 	$('#map-bg-toggle').show();
-	d3.selectAll('#map-bubble-svg').style('cursor','grab');
 	d3.selectAll('#map-bubble-svg .bubble').style('cursor','pointer');
 
 	// bubbles display severity/reliability
@@ -1107,22 +1107,42 @@ Map.updateBubbles = function(){
 		});
 
 		if(filters.toggle=='severity'){
-			featureElementG.select('.innerCircle').style('fill', function(d,i){ return colorPrimary[d.median]});
+			featureElementG.select('.innerCircle').style('fill', function(d,i){ 
+				if((filters.geo.length==0)||(filters.geo.includes(d.id))){
+					return colorPrimary[d.median];
+				} else { 
+					return colorGrey[1]; 
+				}
+			});
 			featureElementG.select('.outerCircle').attr('stroke', function(d,i){ 
 				if(filters.geo.includes(d.id)){
 					return 'cyan';
 				} else {
-					return colorPrimary[d.median]
+					if(filters.geo.length>0){
+						return colorGrey[1];
+					} else {
+						return colorPrimary[d.median];
+					}
 				}
 			});
 
 		} else {
-			featureElementG.select('.innerCircle').style('fill', function(d,i){ return colorSecondary[d.median]});
+			featureElementG.select('.innerCircle').style('fill', function(d,i){ 
+				if((filters.geo.length==0)||(filters.geo.includes(d.id))){
+					return colorSecondary[d.median];
+				} else { 
+					return colorGrey[1]; 
+				}
+			});
 			featureElementG.select('.outerCircle').attr('stroke', function(d,i){ 
 				if(filters.geo.includes(d.id)){
 					return 'cyan';
 				} else {
-					return colorSecondary[d.median]
+					if(filters.geo.length>0){
+						return colorGrey[1];
+					} else {
+						return colorSecondary[d.median];
+					}
 				}
 			});
 		}
@@ -1197,51 +1217,25 @@ Map.updateBubbles = function(){
 			return d.total;
 		})
 
-		featureElementG.select('.innerCircle').style('fill', colorNeutral[3]);
+		featureElementG.select('.innerCircle').style('fill', function(d,i){ 
+			if((filters.geo.length==0)||(filters.geo.includes(d.id))){
+				return colorNeutral[3];
+			} else { 
+				return colorGrey[1]; 
+			}
+		});
+
 		featureElementG.select('.outerCircle').attr('stroke', function(d,i){ 
-				if(filters.geo.includes(d.id)){
-					return 'cyan';
+			if(filters.geo.includes(d.id)){
+				return 'cyan';
+			} else {
+				if(filters.geo.length>0){
+					return colorGrey[1];
 				} else {
-					return colorNeutral[3]
+					return colorNeutral[3];
 				}
-			});
-
-		// bubbles.forEach(function(d,i){
-
-		// 	var geo = metadata.geo_array[d.key-1];
-		// 	var tot = d.value.total;
-
-		// 	if(tot>0){
-		// 		d3.selectAll('#bubble'+(d.key-1)).style('display', 'block').select('.map-bubble')
-		// 		.attr('transform', function(d,i){
-		// 			var size = scale.map(tot);
-		// 			return 'scale('+size+')';
-		// 		}).style('opacity', 1).style('display', 'block');
-		// 	} 
-		// 	d3.selectAll('#bubble'+(d.key-1)+' .map-bubble-value').text(d.value.total);
-
-		// 	// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-		// 	// d3.selectAll('.outerCircle').attr('stroke', colorNeutral[3]);
-
-		// 	if(filters.frameworkToggle=='entries'){
-		// 		d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorNeutral[3]);
-		// 		d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorNeutral[3]);
-		// 	} else {
-		// 		if(filters.toggle=='severity'){
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorPrimary[d.value.value]);
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorPrimary[d.value.value]);
-		// 		} else {
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .innerCircle').style('fill', colorSecondary[d.value.value]);
-		// 			d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', colorSecondary[d.value.value]);
-		// 		}
-		// 	}
-
-		// 	if(filters.geo.includes(geo.id)){
-		// 		d3.selectAll('#bubble'+(d.key-1)+ ' .outerCircle').attr('stroke', 'cyan');
-		// 	}
-			
-		// });
-
+			}
+		});
 	}
 
 }

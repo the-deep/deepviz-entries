@@ -83,7 +83,7 @@ var margin = {top: 18, right: 17, bottom: 0, left: 45};
 var timechartHeight = 330;
 var timechartHeight2 = timechartHeight;
 var timechartHeightOriginal = timechartHeight;
-var timechartSvgHeight = 900;
+var timechartSvgHeight = 1000;
 var brush;
 var gBrush; 
 var barWidth;
@@ -110,7 +110,7 @@ var curvedLine = d3.line()
 // map
 var maxMapBubbleValue;
 var maxMapPolygonValue;
-var mapAspectRatio = 1.2;
+var mapAspectRatio = 1.33;
 var geoBounds = {'lat': [], 'lon': []};
 
 // filters
@@ -1623,7 +1623,7 @@ var Deepviz = function(sources, callback){
 
 		contextualRows.append('rect')
 		.attr('height', contextualRowsHeight+45)
-		.attr('width', 10)
+		.attr('width',6)
 		.attr('x', -5)
 		.attr('y',-30)
 		.style('fill', '#FFF')
@@ -1662,7 +1662,7 @@ var Deepviz = function(sources, callback){
 		})
 		.attr('class', 'label')
 		.attr('y',18)
-		.attr('x',4)
+		.attr('x',-2)
 		// .style('font-weight', 'bold')
 		.style('font-size', '16px');
 
@@ -2006,7 +2006,6 @@ var Deepviz = function(sources, callback){
 	    	dateRange[1].setHours(0,0,0,0);
 	    	dateRange[1] = moment(dateRange[1].setDate(dateRange[1].getDate())).add(1, 'day');
 	    	gBrush.call(brush.move, dateRange.map(scale.timechart.x));
-
 		    update();
 		});
 
@@ -2160,7 +2159,7 @@ var Deepviz = function(sources, callback){
 			// colorBars();
 			updateDate();
 			Summary.update();
-			if(disableSync==false){
+			if((disableSync==false)||(d3.event.sourceEvent==null)){
 				DeepvizFramework.updateFramework();
 				Map.update();
 				updateSeverityReliability('brush');
@@ -3011,7 +3010,7 @@ var Deepviz = function(sources, callback){
 			var timelineSvg = Deepviz.createSvg({
 				id: 'timeline_viz',
 				viewBoxWidth: w,
-				viewBoxHeight: 900,
+				viewBoxHeight: timechartSvgHeight,
 				div: '#timeline'
 			});
 
