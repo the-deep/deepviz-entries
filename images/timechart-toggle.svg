@@ -28,12 +28,6 @@
             <circle id="timechart-toggle0" stroke="#E5E5E5" fill="#505050" cx="23" cy="23" r="21"></circle>
         </g>
         <g id="bumpchart-toggle" transform="translate(922.000000, 4.000000)">
-            <g id="bump-demographic" transform="translate(862.000000, 1.000000)">
-                <rect id="Rectangle" fill="#F4F4F4" x="0.0201699391" y="0" width="228" height="41"></rect>
-                <text id="Demographic" fill-rule="nonzero" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="28.3139965" font-weight="bold" fill="#7E7E7E">
-                    <tspan x="30.6496072" y="30">Demographic</tspan>
-                </text>
-            </g>
             <g id="bump-specific-needs" transform="translate(630.000000, 1.000000)">
                 <rect id="Rectangle" fill="#F4F4F4" x="0.0201721978" y="0" width="229" height="41"></rect>
                 <text id="Specific-Needs" fill-rule="nonzero" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="28.3139965" font-weight="bold" fill="#7E7E7E">

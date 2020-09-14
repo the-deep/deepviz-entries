@@ -42,16 +42,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	// time chart
 	//**************************
 
-	// create svg
-	var timelineSvg = Deepviz.createSvg({
-		id: 'timeline_viz',
-		viewBoxWidth: 1300,
-		viewBoxHeight: 900,
-		div: '#timeline'
-	});
-
 	var timeChart = Deepviz.timeChart({
-		appendTo: timelineSvg,
 		id: 'timeChart',
 		opacity: 1,
 		gutter: 0.5,
