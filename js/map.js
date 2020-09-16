@@ -279,7 +279,6 @@ Map.create = function(){
 		    map.boxZoom.disable();
 			// change cursor
 			d3.select('#map-bubble-svg').style('cursor', 'crosshair');
-			console.log('lassoactive');
 		} else {
 			lassoActive = false;
 			$('#lasso-selected').hide();
@@ -1021,17 +1020,16 @@ Map.update = function(e){
 Map.updateBubbles = function(){
 	if(!mapInit)return;
 
-	d3.selectAll('.bubble')
-	.style('display', 'none');
-
+	d3.selectAll('.bubble').style('display', 'none');
 	d3.select('#map-polygons').style('display', 'none');
-
 	d3.select('#map-grid-svg').style('display', 'none');
+
 	if(lassoActive!=true){
 		map.dragPan.enable();
 		map.doubleClickZoom.enable();	
 		d3.selectAll('#map-bubble-svg').style('cursor','grab');
 	}
+	
 	$('#map-bg-toggle').show();
 	d3.selectAll('#map-bubble-svg .bubble').style('cursor','pointer');
 
@@ -1249,16 +1247,12 @@ Map.updateBubbles = function(){
 //**************************
 Map.updateChoropleth = function(){
 
-	d3.selectAll('.bubble')
-	.style('display', 'none');
-
+	d3.selectAll('.bubble').style('display', 'none');
 	d3.select('#map-polygons').style('display', 'block');
-
 	d3.select('#map-grid-svg').style('display', 'none');
 
-	d3.selectAll('.polygon')
-	.style('fill', colorLightgrey[1])
-	.attr('data-total', 0);
+	d3.selectAll('.polygon').style('fill', colorLightgrey[1]).attr('data-total', 0);
+
 	$('#map-bg-toggle').show();
 
 	d3.selectAll('#map-bubble-svg').style('cursor','grab');
@@ -1539,7 +1533,6 @@ function check_style_status() {
     checking_style_status = false;
     map._container.trigger('map_style_finally_loaded');
   } else {
-    // If not yet loaded, repeat check after delay:
     setTimeout(function() {check_style_status();}, 200);
     return;
   }
@@ -1777,7 +1770,8 @@ Map.updateSparklinesOverlay = function(d1){
 //**************************
 Map.createGridmap = function(){
 
-	d3.selectAll('.grid-rect').remove();
+	d3.select('#map-grid-svg')
+    .selectAll('.grid-rect').remove();
 
 	// dynamic grid size
 	if(filters.admin_level==0){
@@ -1805,7 +1799,6 @@ Map.createGridmap = function(){
 	    return nodeRadius*.7;
 	  }))
 	.on('tick', Map.ticked)
-	// .stop();
 
 	for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
 	    simulation.tick();
@@ -1865,6 +1858,7 @@ Map.updateGridmap = function(){
 	// map.dragPan.disable();
 	// map.doubleClickZoom.disable();
 	// d3.selectAll('#map-bubble-svg').style('cursor','default');
+
 	d3.selectAll('#map-bubble-svg rect').style('cursor','pointer');
 
 	// gridmap display number of entries
@@ -1892,8 +1886,6 @@ Map.updateGridmap = function(){
 				}
 			})
 		});
-
-	    nodes = metadata.geo_json_point.features;
 
 		var nodeMax = d3.max(nodes, function(d,i){
 			return d.total;

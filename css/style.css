@@ -147,7 +147,7 @@ canvas {
 }
 
 #timechart-toggle {
-	padding-top: 9px;
+	padding-top: 12px;
 	padding-bottom: 10px;
     width: 100%;
     padding-left: 12px;     
@@ -1008,6 +1008,7 @@ font-size: 15px;
 #framework-chart {
 	width: 100%;
 	position: relative;
+    margin-top: 11px;
 }
 
 #frameworkRemoveFilter {

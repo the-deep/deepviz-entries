@@ -1,6 +1,8 @@
 var DeepvizBumpChart = {};
 var maxRank;
 var bumpchartTopPadding = 30;
+var bData;
+var bumpchartTimer;
 
 //**************************
 // create bump chart
@@ -11,6 +13,7 @@ DeepvizBumpChart.create = function(){
 	d3.select('#contextualRows').remove();
 	d3.select('#event-drop-group').remove();
 	d3.select('#event-drop-group-bg').remove();
+	d3.selectAll('#bumpchartLabels').remove();
 
 	var timechartToggle = d3.select(document.getElementById("timechart-toggle").contentDocument);
 	timechartToggle.select('#bumpchart-toggle').selectAll('rect').attr('fill', '#F4F4F4');
@@ -18,8 +21,54 @@ DeepvizBumpChart.create = function(){
 	timechartToggle.select('#bumpchart-toggle #bump-'+filters.bumpchartToggle).select('rect').attr('fill', colorNeutral[3]);
 	timechartToggle.select('#bumpchart-toggle #bump-'+filters.bumpchartToggle).select('text').attr('fill', '#FFF');
 
-	DeepvizBumpChart.update();
+	//**************************
+	// create canvas
+	//**************************
+	// create element for data binding
+	bumpchartCustomBase = document.createElement('custom');
 
+	var svg = d3.select('#eventdrop');
+	var bumpchartLine = svg.append('g');
+	bumpchartLine.append('path').attr('id', 'bumpchartLine');
+
+	var foreignObject = d3.select('#eventdrop').append('g').attr('id','event-drop-group-bg').append('foreignObject')
+		.attr("x", -20)
+		.attr("y", timechartHeight2)
+		.attr("width", width-(margin.right+margin.left-20))
+		.attr("height", contextualRowsHeight);
+
+	var foBody = foreignObject.append("xhtml:body")
+	.style("margin", "0px")
+	.style("padding", "0px")
+	.style("width", width + "px")
+	.style("height", contextualRowsHeight + "px")
+
+	// Add embedded canvas to embedded body
+	bumpchartCanvas = foBody.append("canvas")
+	    .attr("x", 0)
+	    .attr("y", 0)
+	    .attr("width", width*2)
+	    .attr("height", contextualRowsHeight*2)
+
+	// retina display
+	if(window.devicePixelRatio){
+	    bumpchartCanvas
+	    .attr('width', width * window.devicePixelRatio)
+	    .attr('height', contextualRowsHeight * window.devicePixelRatio)
+	    .style('width', width + 'px')
+	    .style('height', contextualRowsHeight + 'px');
+	    var ctx = bumpchartCanvas.node().getContext('2d');
+	    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+	}
+
+	bumpchartLine.append('rect')
+	.attr('x',width-(margin.right+margin.left))
+	.attr('width', margin.right)
+	.attr('height', contextualRowsHeight+100)
+	.attr('y', timechartHeight2)
+	.attr('fill', '#FFF');
+
+	DeepvizBumpChart.update();
 	dragActive = false;
 }
 
@@ -28,25 +77,20 @@ DeepvizBumpChart.create = function(){
 //**************************
 DeepvizBumpChart.update = function(){
 
-	var bData = DeepvizBumpChart.getData();
+	bData = DeepvizBumpChart.getData();
 
 	scale.bumpchart.y = d3.scaleLinear()
-	.range([0, contextualRowsHeight-bumpchartTopPadding])
+	.range([0, contextualRowsHeight-bumpchartTopPadding-5])
 	.domain([0, maxRank]);
 
 	// loop through each line
 	var svg = d3.select('#eventdrop');
 
+	d3.selectAll('#bumpchartLabels').remove();
 	d3.selectAll('.bumpchartLine').remove();
 	d3.selectAll('.bumpchartLineOverlay').remove();
 	d3.selectAll('#bumpchartOverlayTop').remove();
 	d3.selectAll('#bumpchartOverlay').remove();
-
-	// var lineGroups = d3.select("#toplayer").append('g').attr('id', 'bumpchartOverlay').selectAll('.bumpchartLine')
-	var lineGroups = svg.append('g').attr('id', 'bumpchartOverlay')
-	.attr("clip-path", "url(#bumpMask)")
-	.selectAll('.bumpchartLine')
-	.data(bData);
 
 	var title = svg.append('text')
 	.text('RANK')
@@ -58,117 +102,50 @@ DeepvizBumpChart.update = function(){
 	.style('font-weight', '300')
 	.style('fill', '#CCCCCC');
 
-	lineGroups
-	.exit()
-	.remove();
+	// Get drawing context of canvas
+	var context = bumpchartCanvas.node().getContext("2d");
+	var custom = d3.select(bumpchartCustomBase); // replacement of SVG
 
-	var c = 1;
-	var lines = lineGroups
-	.enter()
-	.append('g')
-	.attr('class', 'bumpchartLine')
-	.attr('transform', function(d,i){
-		var x = 0;
-		return 'translate('+x+','+(timechartHeight2+(bumpchartTopPadding/2))+')';
-	}) 
-	.append('path')
-	.attr('class','pathline')
-	.attr('id',function(d,i){
-		return 'pathline'+i;
-	})
-	.attr('stroke', function(d,i){
-		c++;
-		if(c==5)c = 1;
-
-		if(filters.bumpchartToggle=='sector'){
-			if(filters.sector.length>0){
-				if(filters.sector.includes(d.id)){
-					return colorNeutral[c];
-				} else {
-					return colorLightgrey[c];
-				}
-			}
-		}
-
-		if(filters.bumpchartToggle=='geo'){
-			if(filters.geo.length>0){
-				if(filters.geo.includes(d.id)){
-					return colorNeutral[c];
-				} else {
-					return colorLightgrey[c];
-				}
-			}
-		}
-
-		if(filters.bumpchartToggle=='affected-group'){
-			if(filters.affected_groups.length>0){
-				if(filters.affected_groups.includes(d.id)){
-					return colorNeutral[c];
-				} else {
-					return colorLightgrey[c];
-				}
-			}
-		}
-
-		if(filters.bumpchartToggle=='specific-needs'){
-			if(filters.specific_needs.length>0){
-				if(filters.specific_needs.includes(d.id)){
-					return colorNeutral[c];
-				} else {
-					return colorLightgrey[c];
-				}
-			}
-		}
-
-		return colorNeutral[c];
-	})
-	.style('stroke-opacity', 1)
-	.style('stroke-width', 3)
-	.style('fill', 'none')
-	.attr('opacity', 1);
-
-	lines = d3.selectAll('.pathline')
-	.datum(function(d,i){
-		if(d.values)
-		return d.values;
-	})
-	.attr("d", d3.line()
+	var line = d3.line()
 		.curve(d3.curveMonotoneX)
         .x(function(d) { 
-        	return scale.timechart.x(d.date) })
+        	return scale.timechart.x(d.date) +45/2 })
         .y(function(d) { 
         	var v = d.rank;
-        	return scale.bumpchart.y(v);
-        })
-    );
+        	return scale.bumpchart.y(v)+contextualRowHeight/2;
+        }).context(context);
 
-	// overlay mouseover 
-	var lineGroupsOverlay = d3.select("#toplayer").append('g').attr('id', 'bumpchartOverlayTop')
-	.selectAll('.bumpchartLineOverlay')
-	.data(bData);
+	// clear canvas
+	context.clearRect(0, 0, width, contextualRowsHeight);
 
-	lineGroupsOverlay
-	.exit()
-	.remove();
+	// draw lines to bumpchart canvas
+	var elements = bData.forEach(function(d,i){
+		context.beginPath();
+		line(d.values);
+		context.lineWidth = 2;
+		context.opacity = 0.5;
 
-	var c = 1;
-	var linesOverlay = lineGroupsOverlay
-	.enter()
-	.append('g')
-	.attr('class', 'bumpchartLineOverlay')
-	.attr('data-name', function(d,i){
-		return d.name;
-	})
-	.attr('data-color', function(d,i){
-		c++;
-		if(c==5)c = 1;
+		var rank = (d.values[d.values.length-1].rank);
+	    if(rank>10) rank = 10;
+
+		var bumpchartColor = d3.scaleLinear()
+	    .domain([0, 10])
+	    .range([colorNeutral[4], '#daf5f1'])
+	    .interpolate(d3.interpolateHcl);
+
+		var bumpchartColorGrey = d3.scaleLinear()
+	    .domain([0, 10])
+	    .range([colorGrey[3],colorLightgrey[1]])
+	    .interpolate(d3.interpolateHcl);
+
+		var color = bumpchartColor(rank);
 
 		if(filters.bumpchartToggle=='sector'){
 			if(filters.sector.length>0){
 				if(filters.sector.includes(d.id)){
-					return colorNeutral[c];
+					color = bumpchartColor(rank);
 				} else {
-					return colorLightgrey[c];
+					color = bumpchartColorGrey(rank);
 				}
 			}
 		}
@@ -176,9 +153,9 @@ DeepvizBumpChart.update = function(){
 		if(filters.bumpchartToggle=='geo'){
 			if(filters.geo.length>0){
 				if(filters.geo.includes(d.id)){
-					return colorNeutral[c];
+					color = bumpchartColor(rank);
 				} else {
-					return colorLightgrey[c];
+					color = bumpchartColorGrey(rank);
 				}
 			}
 		}
@@ -186,9 +163,9 @@ DeepvizBumpChart.update = function(){
 		if(filters.bumpchartToggle=='affected-group'){
 			if(filters.affected_groups.length>0){
 				if(filters.affected_groups.includes(d.id)){
-					return colorNeutral[c];
+					color = bumpchartColor(rank);
 				} else {
-					return colorLightgrey[c];
+					color = bumpchartColorGrey(rank);
 				}
 			}
 		}
@@ -196,70 +173,285 @@ DeepvizBumpChart.update = function(){
 		if(filters.bumpchartToggle=='specific-needs'){
 			if(filters.specific_needs.length>0){
 				if(filters.specific_needs.includes(d.id)){
-					return colorNeutral[c];
+					color = bumpchartColor(rank);
 				} else {
-					return colorLightgrey[c];
+					color = bumpchartColorGrey(rank);
 				}
 			}
 		}
 
-		return colorNeutral[c];
-	})
-	.attr('transform', function(d,i){
-		var x = 0;
-		return 'translate('+x+','+(timechartHeight2+(bumpchartTopPadding/2))+')';
-	})
-	.append('path')
-	.attr('class','pathlineOverlay')
-	.attr('id',function(d,i){
-		return 'pathlineOverlay'+i;
-	})
-	.style('opacity',0)
-	.style('stroke', function(d,i){
-		return d3.select(this.parentNode).attr('data-color');
-	})
-	.style('stroke-opacity', 0)
-	.style('stroke-width', 4)
-	.style('fill', 'none')
-	.attr('opacity', 1)
-	.on('mouseover', function(d,i){
-		if(dragActive==true) return false;
-		d3.selectAll('.pathline').transition().style('opacity',0);
-		d3.selectAll('#pathline'+i).transition().style('opacity',1);
-	})
-	.on('mouseout', function(d,i){
-		d3.selectAll('.pathline').transition().style('opacity',1);
+		context.strokeStyle = color;
+		context.globalAlpha = 0.8;
+		context.stroke();
+		context.closePath();
 	});
 
-	linesOverlay = d3.selectAll('.pathlineOverlay')
-	.datum(function(d,i){
-		if(d.values)
-		return d.values;
-	})
-	.attr("d", d3.line()
-		.curve(d3.curveMonotoneX)
-        .x(function(d) { return scale.timechart.x(d.date) })
-        .y(function(d) { 
-        	var v = d.rank;
-        	return scale.bumpchart.y(v);
-        })
-    );
+	// var lineGroups = svg.append('g').attr('id', 'bumpchartOverlay')
+	// .attr("clip-path", "url(#bumpMask)")
+	// .selectAll('.bumpchartLine')
+	// .data(bData);
 
-	tippy('.bumpchartLineOverlay', { 
-		content(d) {
-			return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ d.getAttribute('data-color') + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d.getAttribute('data-name')
-		},
-		placement: 'top-end',
-		distance: 25,
-		followCursor: true,
-		theme: 'light-border',
-		delay: [250,100],
-		inertia: false,
-		allowHTML: true,
-		animation: 'shift-away',
-		arrow: true,
-		size: 'small'
+	// lineGroups
+	// .exit()
+	// .remove();
+
+	// var c = 1;
+	// var lines = lineGroups
+	// .enter()
+	// .append('g')
+	// .attr('class', 'bumpchartLine')
+	// .attr('transform', function(d,i){
+	// 	var x = 0;
+	// 	return 'translate('+x+','+(timechartHeight2+(bumpchartTopPadding/2))+')';
+	// }) 
+	// .append('path')
+	// .attr('class','pathline')
+	// .attr('id',function(d,i){
+	// 	return 'pathline'+i;
+	// })
+	// .attr('stroke', function(d,i){
+	//     var rank = (d.values[d.values.length-1].rank);
+	//     if(rank>10) rank = 10;
+	// 	var bumpchartColor = d3.scaleLinear()
+	//     .domain([0, 10])
+	//     .range([colorNeutral[4], '#daf5f1'])
+	//     .interpolate(d3.interpolateHcl);
+
+	// 	var bumpchartColorGrey = d3.scaleLinear()
+	//     .domain([0, 10])
+	//     .range([colorGrey[3],colorLightgrey[1]])
+	//     .interpolate(d3.interpolateHcl);
+
+	// 	if(filters.bumpchartToggle=='sector'){
+	// 		if(filters.sector.length>0){
+	// 			if(filters.sector.includes(d.id)){
+	// 				return bumpchartColor(rank);
+	// 			} else {
+	// 				return bumpchartColorGrey(rank);
+	// 			}
+	// 		}
+	// 	}
+
+	// 	if(filters.bumpchartToggle=='geo'){
+	// 		if(filters.geo.length>0){
+	// 			if(filters.geo.includes(d.id)){
+	// 				return bumpchartColor(rank);
+	// 			} else {
+	// 				return bumpchartColorGrey(rank);
+	// 			}
+	// 		}
+	// 	}
+
+	// 	if(filters.bumpchartToggle=='affected-group'){
+	// 		if(filters.affected_groups.length>0){
+	// 			if(filters.affected_groups.includes(d.id)){
+	// 				return bumpchartColor(rank);
+	// 			} else {
+	// 				return bumpchartColorGrey(rank);
+	// 			}
+	// 		}
+	// 	}
+
+	// 	if(filters.bumpchartToggle=='specific-needs'){
+	// 		if(filters.specific_needs.length>0){
+	// 			if(filters.specific_needs.includes(d.id)){
+	// 				return bumpchartColor(rank);
+	// 			} else {
+	// 				return bumpchartColorGrey(rank);
+	// 			}
+	// 		}
+	// 	}
+
+	// 	return bumpchartColor(rank);
+	// })
+	// .style('stroke-opacity', 1)
+	// .style('stroke-width', 3)
+	// .style('fill', 'none')
+	// .attr('opacity', 1);
+
+	// lines = d3.selectAll('.pathline')
+	// .datum(function(d,i){
+	// 	if(d.values)
+	// 	return d.values;
+	// })
+	// .attr("d", d3.line()
+	// 	.curve(d3.curveMonotoneX)
+ //        .x(function(d) { 
+ //        	return scale.timechart.x(d.date) })
+ //        .y(function(d) { 
+ //        	var v = d.rank;
+ //        	return scale.bumpchart.y(v);
+ //        })
+ //    );
+
+	// // overlay mouseover 
+	// var lineGroupsOverlay = d3.select("#toplayer").append('g').attr('id', 'bumpchartOverlayTop')
+	// .selectAll('.bumpchartLineOverlay')
+	// .data(bData);
+
+	// lineGroupsOverlay
+	// .exit()
+	// .remove();
+
+	// var timer;
+	// var c = 1;
+	// var linesOverlay = lineGroupsOverlay
+	// .enter()
+	// .append('g')
+	// .attr('class', 'bumpchartLineOverlay')
+	// .attr('data-name', function(d,i){
+	// 	return d.name;
+	// })
+	// .attr('data-color', function(d,i){
+
+	//     var rank = (d.values[d.values.length-1].rank);
+
+	// 	var bumpchartColor = d3.scaleLinear()
+	//     .domain([0, 9])
+	//     .range([colorNeutral[1], colorNeutral[5]])
+	//     .interpolate(d3.interpolateRgb.gamma(2.2))(rank);
+
+	// 	var bumpchartColorGrey = d3.scaleLinear()
+	//     .domain([0, 9])
+	//     .range([colorLightgrey[1], colorGrey[3]])
+	//     .interpolate(d3.interpolateRgb.gamma(2.2))(rank);
+
+	// 	if(filters.bumpchartToggle=='sector'){
+	// 		if(filters.sector.length>0){
+	// 			if(filters.sector.includes(d.id)){
+	// 				return bumpchartColor;
+	// 			} else {
+	// 				return bumpchartColorGrey;
+	// 			}
+	// 		}
+	// 	}
+
+	// 	if(filters.bumpchartToggle=='geo'){
+	// 		if(filters.geo.length>0){
+	// 			if(filters.geo.includes(d.id)){
+	// 				return bumpchartColor;
+	// 			} else {
+	// 				return bumpchartColorGrey;
+	// 			}
+	// 		}
+	// 	}
+
+	// 	if(filters.bumpchartToggle=='affected-group'){
+	// 		if(filters.affected_groups.length>0){
+	// 			if(filters.affected_groups.includes(d.id)){
+	// 				return bumpchartColor;
+	// 			} else {
+	// 				return bumpchartColorGrey;
+	// 			}
+	// 		}
+	// 	}
+
+	// 	if(filters.bumpchartToggle=='specific-needs'){
+	// 		if(filters.specific_needs.length>0){
+	// 			if(filters.specific_needs.includes(d.id)){
+	// 				return bumpchartColor;
+	// 			} else {
+	// 				return bumpchartColorGrey;
+	// 			}
+	// 		}
+	// 	}
+
+	// 	return bumpchartColor;
+	// })
+	// .attr('transform', function(d,i){
+	// 	var x = 0;
+	// 	return 'translate('+x+','+(timechartHeight2+(bumpchartTopPadding/2))+')';
+	// })
+	// .append('path')
+	// .attr('class','pathlineOverlay')
+	// .attr('id',function(d,i){
+	// 	return 'pathlineOverlay'+i;
+	// })
+	// .style('opacity',0)
+	// .style('stroke', function(d,i){
+	// 	return d3.select(this.parentNode).attr('data-color');
+	// })
+	// .style('stroke-opacity', 0)
+	// .style('stroke-width', 4)
+	// .style('fill', 'none')
+	// .attr('opacity', 1)
+	// .on('mouseover', function(d,i){
+	// 	if(dragActive==true) return false;
+	// 	timer = window.setTimeout( function(){
+	// 		d3.selectAll('.pathline').style('opacity',0);
+	// 		d3.selectAll('#pathline'+i).style('opacity',1);			
+	// 	}, 500);
+	// })
+	// .on('mouseout', function(d,i){
+	// 	window.clearTimeout(timer);
+	// 	d3.selectAll('.pathline').style('opacity',1);
+	// });
+
+	// add labels
+	bData.forEach(function(d,i){
+		d3.select('#eventdrop').append('g').attr('id','bumpchartLabels')
+		.append('text')
+		.style('font-size', '17px')
+		.text(function(dd,ii){
+			return d.name.trim();
+		})
+		// .attr('alignment-baseline','middle')
+		.attr('x', width-margin.right-35)
+		.attr('y', function(dd,ii){
+			return scale.bumpchart.y(d.values[d.values.length-1].rank)+timechartHeight2+(contextualRowHeight/2);
+		}).on('mouseover', function(){
+			if((dragActive==true)||(filters.timechartToggle!='bumpchart')) return false;
+				bumpchartTimer = window.setTimeout( function(){
+					d3.select('#event-drop-group-bg').style('opacity', 0.2);
+					var bumpchartLine = d3.select('#bumpchartLine')
+					.datum(d.values)
+					.attr('fill', 'none')
+					.attr('stroke', colorNeutral[4])
+					.attr('stroke-width', 3)
+					.attr('stroke-opacity', 1)
+					.style('opacity',1)
+					.attr("d", d3.line()
+						.curve(d3.curveMonotoneX)
+				        .x(function(d) { return scale.timechart.x(d.date)+2 })
+				        .y(function(d) { 
+				        	var v = d.rank;
+				        	return scale.bumpchart.y(v)+timechartHeight2+(contextualRowHeight/2)
+				        })
+				    );
+				}, 300);
+			})
+		.on('mouseout', function(d,i){
+			window.clearTimeout(bumpchartTimer);
+			d3.select('#bumpchartLine').style('opacity',0);
+			d3.select('#event-drop-group-bg').style('opacity', 1);
+		});
 	});
+
+		d3.selectAll('#bumpchartLabels text')
+		.call(wrap,170);
+
+		d3.selectAll('#bumpchartLabels text').attr('transform', function(){
+			var h = d3.select(this).node().getBBox().height;
+			var shift = -(h/2)+16;
+			return 'translate('+0+','+shift+')';
+		})
+
+	// tippy('.bumpchartLineOverlay', { 
+	// 	content(d) {
+	// 		if(filters.timechartToggle=='bumpchart')
+	// 		return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ d.getAttribute('data-color') + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;' + d.getAttribute('data-name')
+	// 	},
+	// 	placement: 'top-end',
+	// 	distance: 25,
+	// 	followCursor: true,
+	// 	theme: 'light-border',
+	// 	delay: [500,100],
+	// 	inertia: false,
+	// 	allowHTML: true,
+	// 	animation: 'shift-away',
+	// 	arrow: true,
+	// 	size: 'small'
+	// });
 }
 
 //**************************
@@ -455,7 +647,7 @@ DeepvizBumpChart.getData = function(){
 			}
 		})
 		d.values.sort(function(a, b){ 
-			return d3.descending(a.filter, b.filter)||d3.descending(a.value, b.value)||d3.ascending(a.name, b.name) 
+			return d3.descending(a.value, b.value)||d3.descending(a.filter, b.filter)||d3.ascending(a.name, b.name) 
 		});
 		d.values.forEach(function(dd,ii){
 			dd.rank = ii;
@@ -487,6 +679,7 @@ DeepvizBumpChart.getData = function(){
 DeepvizBumpChart.destroy = function(){
 	d3.selectAll('.bumpchartLine').remove();
 	d3.selectAll('.bumpchartLine').remove();
+	d3.selectAll('#bumpchartLabels').remove();
 	d3.selectAll('.bumpchartLineOverlay').remove();
 	d3.selectAll('#bumpchartOverlayTop').remove();
 	d3.selectAll('#bumpchartOverlay').remove();

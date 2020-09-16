@@ -26,15 +26,17 @@ var scale = {
 
 var labelCharLimit = 60;
 var textLabel = 'Entries';
-var timechartCustomBase = document.createElement('custom-timechart');
 var timechartCanvas;
 var drawingTimeline = false;
+var timechartCustomBase = document.createElement('custom-timechart');
 var	customTimechart = d3.select(timechartCustomBase);
 var contextTimechart;
 var joinTimechart;
 var individualBars;
 var eventdropCanvas;
 var eventdropCustomBase;
+var bumpchartCanvas;
+var bumpchartCustomBase;
 var mapbox;
 var mapboxToken = 'pk.eyJ1Ijoic2hpbWl6dSIsImEiOiJjam95MDBhamYxMjA1M2tyemk2aHMwenp5In0.i2kMIJulhyPLwp3jiLlpsA';
 var lassoActive = false;
@@ -95,7 +97,7 @@ var hoverColor = 'rgba(0,0,0,0.03)';
 var displayCalendar = false;
 var width = 1300;
 var duration = 700;
-var margin = {top: 18, right: 17, bottom: 0, left: 45};
+var margin = {top: 18, right: 216, bottom: 0, left: 45};
 var timechartHeight = 330;
 var timechartHeight2 = timechartHeight;
 var timechartHeightOriginal = timechartHeight;
@@ -498,7 +500,7 @@ var Deepviz = function(sources, callback){
 				var str;
 				metadata.affected_groups_array.forEach(function(d,i){
 					if(dd==d.id){
-						str = d.name;
+						str = d.name_alt;
 					}
 				});
 				var affectedGroups = str.split("/");
@@ -1237,6 +1239,13 @@ var Deepviz = function(sources, callback){
 		.attr('transform', 'translate('+(width_new + margin.left-1)+','+margin.top+')')
 		.style('font-size', options.yAxis.font.values.size);
 
+		yAxisText2.append('rect')
+		.attr('x', 2)
+		.attr('y', -10)
+		.attr('width', margin.right)
+		.style('fill', '#FFF')
+		.attr('height', timechartHeight2+20)
+
 		yAxisText2
 		.append("text")
 		.attr('class','axisLabel1')
@@ -1368,6 +1377,13 @@ var Deepviz = function(sources, callback){
 		.attr('x2', 0)
 		.attr('y1', -(timechartSvgHeight-timechartHeight2-margin.top-39))
 		.attr('y2', 22)
+
+		xAxisObj.append('rect')
+		.attr('x',  width-margin.right-margin.left)
+		.attr('y', 0)
+		.attr('width', margin.right)
+		.style('fill', '#FFF')
+		.attr('height', timechartHeight2+50)
 
 		// add the axis buttons
 		xAxisObj.selectAll(".tick").each(function(d,i){
@@ -1765,12 +1781,14 @@ var Deepviz = function(sources, callback){
 		timechartToggle.select('#bumpchart-toggle').style('cursor', 'pointer').on('click', function(){
 			filters.bumpchartToggle = event.target.parentNode.id.substring(5);
 			DeepvizBumpChart.create(options);
+			// Deepviz.redrawTimeline();
 		});
 
 		timechartToggle.select('#timechart-toggle-obj').style('cursor', 'pointer').on('click', function(){
 			if(filters.timechartToggle=='bumpchart'){
 				filters.timechartToggle = 'eventdrop';
 				Deepviz.createEventdrop(options);
+				// Deepviz.redrawTimeline();
 				timechartToggle.select('#timechart-toggle0').attr('opacity', 1);
 				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 1);
 				timechartToggle.select('#timechart-toggle1').attr('opacity', 0);
@@ -1779,6 +1797,7 @@ var Deepviz = function(sources, callback){
 			} else {
 				filters.timechartToggle = 'bumpchart';
 				DeepvizBumpChart.create(options);
+				// Deepviz.redrawTimeline();
 				timechartToggle.select('#timechart-toggle0').attr('opacity', 0);
 				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
 				timechartToggle.select('#timechart-toggle1').attr('opacity', 1);
@@ -1788,6 +1807,7 @@ var Deepviz = function(sources, callback){
 		})
 		if(filters.timechartToggle=='eventdrop'){
 			Deepviz.createEventdrop(options);
+			// Deepviz.redrawTimeline();
 			timechartToggle.select('#timechart-toggle0').attr('opacity', 1);
 			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 1);
 			timechartToggle.select('#timechart-toggle1').attr('opacity', 0);
@@ -1795,6 +1815,7 @@ var Deepviz = function(sources, callback){
 			timechartToggle.select('#bumpchart-toggle').attr('opacity', 0);
 		} else {
 			DeepvizBumpChart.create(options);
+			// Deepviz.redrawTimeline();
 			timechartToggle.select('#timechart-toggle0').attr('opacity', 0);
 			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
 			timechartToggle.select('#timechart-toggle1').attr('opacity', 1);
@@ -2145,9 +2166,9 @@ var Deepviz = function(sources, callback){
 			updateDate();
 			// Summary.update();
 			if((disableSync==false)||(d3.event.sourceEvent==null)){
-				DeepvizFramework.updateFramework();
-				Map.update();
-				updateSeverityReliability('brush');
+				// DeepvizFramework.updateFramework();
+				// Map.update();
+				// updateSeverityReliability('brush');
 			} 
 			// BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
 			// BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
@@ -2386,9 +2407,19 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.updateBars = function(chartdata){
 
-		d3.selectAll('.custom-bar-group').remove();
+		function removeElements(elements){
+		    for(var i = 0; i < elements.length; i++){
+		        elements[i].parentNode.removeChild(elements[i]);
+		    }
+		}
 
-		joinTimechart = d3.selectAll('.custom-bar-group')
+		removeElements(document.querySelectorAll('custom-timechart'));
+
+		customTimechart.selectAll('.custom-bar-group').remove();
+		timechartCustomBase = document.createElement('custom-timechart');
+		customTimechart = d3.select(timechartCustomBase);
+
+		joinTimechart = customTimechart.selectAll('.custom-bar-group')
 		.data(chartdata)
 		.enter()
 		.append('custom')
@@ -2531,13 +2562,13 @@ var Deepviz = function(sources, callback){
 		.style('fill', '#FFF')
 		.style('fill-opacity',0);
 
-		contextualRows.append('rect')
-		.attr('height', contextualRowsHeight+45)
-		.attr('width', 6)
-		.attr('x', -5)
-		.attr('y',0)
-		.style('fill', '#FFF')
-		.style('fill-opacity',1);
+		// contextualRows.append('rect')
+		// .attr('height', contextualRowsHeight+45)
+		// .attr('width', 6)
+		// .attr('x', -5)
+		// .attr('y',0)
+		// .style('fill', '#FFF')
+		// .style('fill-opacity',1);
 
 		contextualRowHeight = contextualRowsHeight/numContextualRows;
 
@@ -2558,15 +2589,6 @@ var Deepviz = function(sources, callback){
 		.attr('y1', 0)
 		.attr('y2', 0);
 
-		// row title
-		rows.append('text').text(function(d,i){
-			return d.name.toUpperCase();
-		})
-		.attr('class', 'label')
-		.attr('y',18)
-		.attr('x',4)
-		.style('font-size', '16px');
-
 		// row total value
 		rows.append('text')
 		.text('0')
@@ -2574,14 +2596,26 @@ var Deepviz = function(sources, callback){
 		.attr('id', function(d,i){
 			return 'total-label'+i;
 		})
-		.attr('x', function(d,i){
-			var xoffset = d3.select(this.parentNode).selectAll('.label').node().getBBox().width;
-			return xoffset + 10;
-		})
-		.attr('y',18)
-		.style('font-size', '16px')
+		.attr('x',(width-margin.right)-34)
+		.attr('y',contextualRowHeight/2+4)
+		.style('font-size', '15px')
 		.style('font-weight', 'bold')
 		.style('fill', colorNeutral[4]);
+
+		// row title
+		rows.append('text').text(function(d,i){
+			return d.name.toUpperCase();
+		})
+		.attr('class', 'label')
+		.attr('alignment-baseline','middle')
+		.attr('y',contextualRowHeight/2+4)
+		.style('font-size', '15px')
+		.attr('x', function(d,i){
+			var xoffset = d3.select(this.parentNode).selectAll('.total-label').node().getBBox().width;
+			return xoffset + (width-margin.right)-11;
+		})
+		rows.selectAll('.label')
+		.call(wrap,165);
 
 		//**************************
 		// scale ranges
@@ -2608,7 +2642,7 @@ var Deepviz = function(sources, callback){
 		var foreignObject = subTimechartBg.append('foreignObject')
 			.attr("x", -20)
 			.attr("y", timechartHeight2)
-			.attr("width", width)
+			.attr("width", width-(margin.right+margin.left-20))
 			.attr("height", contextualRowsHeight);
 
 		var foBody = foreignObject.append("xhtml:body")
@@ -2646,7 +2680,7 @@ var Deepviz = function(sources, callback){
 			return 'date'+dt.getTime();
 		})
 		.attr("class", "eventDropGroup")
-		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d.key);} return "translate(" + scale.timechart.x(d.key) + ",-38)"; });
+		.attr("transform", function(d,i) { if(i==1){barWidth+=scale.timechart.x(d.key);} return "translate(" + scale.timechart.x(d.key) + ",0)"; });
 
 		// draw circles
 		this.updateEventdrop();
@@ -3585,7 +3619,7 @@ var Deepviz = function(sources, callback){
 			return (w/2)+scale.timechart.x(dateKey) + 19;
 		})
 		.attr('y', function(d,i){
-			return (contextualRowHeight*(d.key))-20;
+			return (contextualRowHeight*(d.key))-contextualRowHeight/2;
 		}).attr('fill', function(d,i){
 			if(filters.frameworkToggle == 'average'){
 				if(filters.toggle == 'reliability'){
@@ -4471,3 +4505,37 @@ $('#copyImage').click(function(){
 		size: 'small'
 	});
 });
+
+function wrap(text, width) {
+    text.each(function () {
+        var text = d3.select(this);
+        var words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            x = text.attr("x"),
+            y = text.attr("y"),
+            dy = 0, //parseFloat(text.attr("dy")),
+            tspan = text.text(null)
+                        .append("tspan")
+                        .attr("x", x)
+                        .attr("y", y)
+                        .attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan")
+                            .attr("x", x)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                            .text(word);
+            }
+        }
+    });
+}
+

@@ -680,6 +680,10 @@ parseEntriesMetadata = function(metadata){
 			var name = dd.trim().replace(/\s+/g,'');
 			d.humanitarian_profile.push(name);
 		});
+		d.name_alt = d.name;
+		if(affectedGroups.length>1){
+			d.name = affectedGroups[affectedGroups.length-2].trim() + ' / ' + affectedGroups[affectedGroups.length-1].trim()
+		} 
 	});
 	metadata.specific_needs_groups_array.forEach(function(d,i){
 		d._id = d.id;

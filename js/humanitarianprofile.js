@@ -21,7 +21,7 @@ HumanitarianProfile.create = function(){
 	var treeStr = [];
 
 	groups.forEach(function(d,i){
-		var affectedGroups = d.name.split("/");
+		var affectedGroups = d.name_alt.split("/");
 		var parent = null;
 		affectedGroups.forEach(function(dd,ii){
 			var name = dd.trim();
@@ -179,7 +179,6 @@ HumanitarianProfile.update = function(){
 
 	nested.forEach(function(d,i){
 		var node = d3.select('#hp-'+d.key.replace(/\s+/g,'')+'-'+(d.value.level));
-
 		node.attr('transform',function(dd,ii){
 			var scale = scalehumanitarianprofile(d.value.total);
 			return 'scale('+scale+')'
