@@ -41,8 +41,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// time chart
 	//**************************
-
-	var timeChart = Deepviz.timeChart({
+	Deepviz.timeChart({
 		id: 'timeChart',
 		opacity: 1,
 		gutter: 0.5,

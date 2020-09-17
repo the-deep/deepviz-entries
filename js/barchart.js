@@ -216,7 +216,7 @@ BarChart.createStackedBarChart = function(a){
 	labelWidth = labelWidth + 76;
 
 	if(a.classname == 'sector'){
-		var icon = rows.append('image')
+		rows.append('image')
 		.attr('class', function(d,i){
 			return 'sector-icon sector-icon-'+d.id;
 		})
@@ -231,7 +231,7 @@ BarChart.createStackedBarChart = function(a){
 	}
 
 	if(a.classname == 'data_collection_technique'){
-		var icon = rows.append('image')
+		rows.append('image')
 		.attr('class', function(d,i){
 			return 'data-collection-technique-icon data-collection-technique-icon-'+d.id;
 		})
@@ -496,54 +496,6 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		d3.selectAll('.'+group+'-'+(d)).style('opacity', 1);
 	});
 
-	// labels.forEach(function(dd,ii){
-
-	// 	d3.select('#'+group+dd.key+'label').text(dd.value).style('opacity', 1)
-	// 	.style('fill', function(){
-	// 		if(filters.toggle == 'finalScore'){
-	// 			return colorNeutral[4];
-	// 		} else {
-	// 			return colorNeutral[4];
-	// 		}
-	// 	});
-	// 	var row = dd.key;
-	// });
-
-	// d.forEach(function(d,i){
-	// 	var key = d.key;
-	// 	var wcount = scale[group].paddingLeft;
-	// 	var xcount = scale[group].paddingLeft;
-	// 		var s = d.key;
-	// 		var id = group+(key)+'s0';
-	// 		var w = scale[group].x(d.value)-wcount;
-	// 		d3.select('#'+id )
-	// 		.attr('x', xcount)
-	// 		.attr('width', w)
-	// 		.attr('data-value', d.value)
-	// 		.style('fill', function(){
-	// 			if(filters.toggle == 'finalScore'){
-	// 				return colorPrimary[3];
-	// 			} else {
-	// 				return colorSecondary[s];
-	// 			}
-	// 		});
-	// 		var rect = document.querySelector('#'+id)
-	// 		tippy(rect, { 
-	// 			content: '1',
-	// 			theme: 'light-border',
-	// 			delay: [250,100],
-	// 			inertia: false,
-	// 			distance: 8,
-	// 			allowHTML: true,
-	// 			animation: 'shift-away',
-	// 			arrow: true,
-	// 			size: 'small',
-	// 			onShow(instance) {
-	// 		        var v = d3.select('#'+id).attr('data-value');
-	// 				return '<div style="width: 100px; height: 10px; display: inline; background-color: '+ colorPrimary[2] + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;<div style="padding-left: 3px; padding-bottom: 2px; display: inline; font-weight: bold; color: '+ colorNeutral[4] + '; font-size: 9px">' + v + ' entries</div>';
-	// 			}
-	// 		});
-	// });
 }
 
 //**************************

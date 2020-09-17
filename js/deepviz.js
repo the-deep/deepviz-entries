@@ -1,4 +1,3 @@
-var eventdropCanvas;
 //**************************
 // define variables
 //**************************
@@ -1076,7 +1075,7 @@ var Deepviz = function(sources, callback){
 		//**************************
 		// setup svg layers
 		//**************************
-		var gridlines = svgBg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
+		svgBg.append('g').attr('id', 'gridlines').attr('class', 'gridlines').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 		svgChartBg = svg.append('g').attr('id', 'svgchartbg').attr('class', 'chartarea').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
 		
 		var chartAreaParent = svg.append('g').attr('id', 'chart-area-parent').attr('transform', 'translate('+(margin.left+0)+','+margin.top+')');
@@ -1307,16 +1306,11 @@ var Deepviz = function(sources, callback){
 		.scale(scale.timechart.x)
 		.tickSize(0)
 
-		var textLength = '6%';
-		if(expandActive==true) textLength = '2%';
-
 		if(filters.time=='y'){
 			xAxis.ticks(d3.timeYear.every(1))
 			.tickFormat(d3.timeFormat("%Y"));
 			xAxisTop.ticks(d3.timeYear.every(1))
 			.tickFormat(d3.timeFormat("%d %b %Y"));
-			var textLength = '3%';
-			if(expandActive==true) textLength = '2%';
 		} else {
 			var months = monthDiff(minDate, maxDate);
 			if(months<=5){
@@ -1327,30 +1321,6 @@ var Deepviz = function(sources, callback){
 				xAxisTop.ticks(10).tickFormat(d3.timeFormat("%d %b %Y"))
 			}
 		}
-
-		// // x-axis top
-		// var xAxisObjTop = chartAreaSvg.append("g")
-		// .attr("class", "xAxis2 axis")
-		// .attr("transform", "translate(" + -0.5 + "," + (timechartHeight2) + ")")
-		// .call(xAxisTop);
-
-		// xAxisObjTop.selectAll(".tick")
-		// .append('line')
-		// .attr('class', 'xAxisHorizontalLine')
-		// .attr('x1', 0)
-		// .attr('x2', 0)
-		// .attr('y1', -(timechartSvgHeight-timechartHeight2-margin.top-39))
-		// .attr('y2', 0)
-		// .attr('vector-effect', 'non-scaling-stroke');
-
-		// xAxisObjTop.selectAll(".tick text")
-		// .attr("transform", "translate(" + 0 + ", "+-timechartHeight2+")")
-		// .attr('lengthAdjust', 'spacingAndGlyphs')
-		// .attr('text-anchor', 'start')
-		// .attr('text-align', 'left')
-		// .attr('textLength', textLength)
-		// .attr('font-variant', 'small-caps')
-		// .attr('x', '0.3%');
 
 		// x-axis bottom
 		var xAxisObj = svgBg.append("g")
@@ -1440,7 +1410,6 @@ var Deepviz = function(sources, callback){
 
 		var updatingTopAxis = false;
 		var updateTopAxisInterval = 100;
-		var axisRange = 'not set';
 		updateTopAxis = function(){
 
 			var count = (Math.abs(moment(dateRange[1]).diff(moment(dateRange[0]), 'months', true)));
@@ -1448,21 +1417,20 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='d'){
 				var tickFormat = d3.timeFormat("%d %b %Y");
 				var ticks = d3.timeDay.every(1);
-				
 				if((count>0.2)&&(count<=2)){
-					var ticks = d3.timeWeek.every(1);
+					ticks = d3.timeWeek.every(1);
 				}
 				else if((count>2)&&(count<=10)){
-					var ticks = d3.timeMonth.every(1);
+					ticks = d3.timeMonth.every(1);
 				}
 				else if((count>10)&&(count<=36)){
-					var ticks = d3.timeMonth.every(3);
+					ticks = d3.timeMonth.every(3);
 				}
 				else if((count>36)&&(count<=64)){
-					var ticks = d3.timeMonth.every(6);
+					ticks = d3.timeMonth.every(6);
 				}
 				else if((count>64)){
-					var ticks = d3.timeMonth.every(12);
+					ticks = d3.timeMonth.every(12);
 				}
 			}
 
@@ -1470,13 +1438,13 @@ var Deepviz = function(sources, callback){
 				var tickFormat = d3.timeFormat("%b %Y");
 				var ticks = d3.timeMonth.every(1);
 				if((count>10)&&(count<=36)){
-					var ticks = d3.timeMonth.every(3);
+					ticks = d3.timeMonth.every(3);
 				}
 				else if((count>36)&&(count<=64)){
-					var ticks = d3.timeMonth.every(6);
+					ticks = d3.timeMonth.every(6);
 				}
 				else if((count>64)){
-					var ticks = d3.timeMonth.every(12);
+					ticks = d3.timeMonth.every(12);
 				}
 			}
 
@@ -1501,31 +1469,6 @@ var Deepviz = function(sources, callback){
 			.attr('text-align', 'left')
 			.attr('font-variant', 'small-caps')
 			.attr('x', 5);
-
-			// xAxisTop
-			// .tickFormat(tickFormat)
-			// .ticks(ticks);
-					
-			// d3.select('.xAxis2')
-			// .call(xAxisTop);
-
-			// xAxisObjTop.selectAll(".tick")
-			// .append('line')
-			// .attr('class', 'xAxisHorizontalLine')
-			// .attr('x1', 0)
-			// .attr('x2', 0)
-			// .attr('y1', -(timechartSvgHeight-timechartHeight2-margin.top-39))
-			// .attr('y2', 0)
-			// .attr('vector-effect', 'non-scaling-stroke');
-
-			// xAxisObjTop.selectAll(".tick text")
-			// .attr("transform", "translate(" + 0 + ", "+-timechartHeight2+")")
-			// .attr('lengthAdjust', 'spacingAndGlyphs')
-			// .attr('text-anchor', 'start')
-			// .attr('text-align', 'left')
-			// .attr('textLength', tLength)
-			// .attr('font-variant', 'small-caps')
-			// .attr('x', '0.3%');
 
 			updatingTopAxis = false;
 
@@ -1598,7 +1541,7 @@ var Deepviz = function(sources, callback){
 
 		var bw; 
 
-		var bars = dateHover.selectAll(".bar1Group")
+		dateHover.selectAll(".bar1Group")
 		.data(chartdata)
 		.enter()
 		.append('g')
@@ -1615,18 +1558,19 @@ var Deepviz = function(sources, callback){
 		.attr('y', -400)
 		.attr('height', timechartHeight2+800)
 		.attr('width', function(d,i) { 
+			var date;
 			if(filters.time=='y'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endYear = new Date(date.getFullYear(), 11, 31);
 				bw = scale.timechart.x(endYear) - scale.timechart.x(d.key);
 			}
 			if(filters.time=='m'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
 				bw = scale.timechart.x(endMonth) - scale.timechart.x(d.key);
 			}
 			if(filters.time=='d'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
 				bw = scale.timechart.x(endDate) - scale.timechart.x(d.key);
 			}	
@@ -1663,17 +1607,18 @@ var Deepviz = function(sources, callback){
 		        var id = d3.select(instance.reference).attr('id');
 		        var date = new Date(parseInt(id.slice(4)));
 		        var thisData = dataByDate.filter(function(d){ return new Date(d.key).getTime() == new Date(date).getTime()});
-
+		        var dateformatter;
+		        var color,text;
         		if(filters.time=='d'){
-        			var dateformatter = d3.timeFormat("%d %b %Y");
+        			dateformatter = d3.timeFormat("%d %b %Y");
 				}
 
 				if(filters.time=='m'){
-					var dateformatter = d3.timeFormat("%b %Y");
+					dateformatter = d3.timeFormat("%b %Y");
 				}
 
 				if(filters.time=='y'){
-					var dateformatter = d3.timeFormat("%Y");
+					dateformatter = d3.timeFormat("%Y");
 				}
 
 				date = dateformatter(date);
@@ -1693,8 +1638,8 @@ var Deepviz = function(sources, callback){
 							return true;
 						}
 					});
-					var color = colorPrimary[s_median];
-					var text = metadata.severity_units[s_median].name;
+					color = colorPrimary[s_median];
+					text = metadata.severity_units[s_median].name;
 				} else {
 					var r = 0;
 					var r_median = 0;
@@ -1710,8 +1655,8 @@ var Deepviz = function(sources, callback){
 							return true;
 						}
 					});
-					var color = colorSecondary[r];
-					var text = metadata.reliability_units[r].name;
+					color = colorSecondary[r_median];
+					text = metadata.reliability_units[r_median].name;
 				}
 				var html = '<div style="text-align: left; font-weight: bold;">'+date+'</div>';
 				html += '<div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;<span style="font-size: 10px">&nbsp;' + text + '</span><div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + thisData[0].total_entries + ' '+textLabel+'</b></div>';
@@ -2113,17 +2058,17 @@ var Deepviz = function(sources, callback){
 	    	if(d3.event.sourceEvent) if(d3.event.sourceEvent.type === "brush") return;
 	    	if(d3.event.sourceEvent) if(d3.event.sourceEvent.type == "start") return;
 
-	    	var s = d3.event.selection;
-
+			var s = d3.event.selection;
+			var direction;
 			if (d3.event.type === "start"){
 				bs = d3.event.selection;
 			} else if (d3.event.type === "brush"){
 				if (bs[0] !== s[0] && bs[1] !== s[1]) {
-					var direction = 'both';
+					direction = 'both';
 				} else if (bs[0] !== s[0]) {
-					var direction = 'left';
+					direction = 'left';
 				} else {
-					var direction = 'right';
+					direction = 'right';
 				}
 			}
 
@@ -2190,7 +2135,7 @@ var Deepviz = function(sources, callback){
 			var ratio = (scale.timechart.x(d1[0])/(width_new)) + (1-(scale.timechart.x(d1[1])/(width_new)));
 			var marginWeighted = ((margin.left+margin.right)*ratio);
 			var xOffset2 = (scale.timechart.x(d1[1]))-(marginWeighted);
-			var vWidth = ((xOffset2-xOffset))+(margins)
+			var vWidth = (xOffset2-xOffset)+(margins)
 			var vBox = xOffset +' 0 '+ vWidth +' '+timechartSvgHeight;
 			chartAreaSvg.attr('viewBox', vBox);
 			chartAreaSvgCanvas.attr('viewBox', vBox);
@@ -2254,7 +2199,7 @@ var Deepviz = function(sources, callback){
 			var ratio = (scale.timechart.x(d1[0])/width_new) + (1-(scale.timechart.x(d1[1])/width_new));
 			var marginWeighted = ((margin.left+margin.right)*ratio);
 			var xOffset2 = (scale.timechart.x(d1[1]))-(marginWeighted);
-			var vWidth = ((xOffset2-xOffset))+(margins)
+			var vWidth = (xOffset2-xOffset)+(margins)
 			var vBox = xOffset +' 0 '+ vWidth +' '+timechartSvgHeight;
 			chartAreaSvg.attr('viewBox', vBox);
 			chartAreaSvgCanvas.attr('viewBox', vBox);
@@ -2323,18 +2268,19 @@ var Deepviz = function(sources, callback){
 			return 'date'+dt.getTime();
 		})
 		.attr('data-width', function(d,i) { 
+			var date;
 			if(filters.time=='y'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endYear = new Date(date.getFullYear(), 11, 31);
 				bw = scale.timechart.x(endYear) - scale.timechart.x(d.key);
 			}
 			if(filters.time=='m'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
 				bw = scale.timechart.x(endMonth) - scale.timechart.x(d.key);
 			}
 			if(filters.time=='d'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
 				bw = scale.timechart.x(endDate) - scale.timechart.x(d.key);
 			}	
@@ -2427,20 +2373,21 @@ var Deepviz = function(sources, callback){
 			return 'date'+dt.getTime();
 		})
 		.attr('data-width', function(d,i) { 
+			var date;
 			if(filters.time=='y'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endYear = new Date(date.getFullYear(), 11, 31);
 				bw = scale.timechart.x(endYear) - scale.timechart.x(d.key);
 				return bw*10;   
 			}
 			if(filters.time=='m'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
 				bw = scale.timechart.x(endMonth) - scale.timechart.x(d.key);
 				return bw*10;
 			}
 			if(filters.time=='d'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
 				bw = scale.timechart.x(endDate) - scale.timechart.x(d.key);
 				return bw*10;
@@ -2533,7 +2480,6 @@ var Deepviz = function(sources, callback){
 		//*************************
 		// draw contextual rows
 		//**************************
-		var timechart = d3.select('#timeChart');
 		var yPadding = 20;
 
 		var contextualRows = contextualRowsGroup.append('g')
@@ -2542,7 +2488,7 @@ var Deepviz = function(sources, callback){
 
 		contextualRowsHeight = timechartSvgHeight - timechartHeightOriginal - yPadding - 17;
 
-		var title = contextualRows.append('text')
+		contextualRows.append('text')
 		.text('CONTEXT')
 		.attr('transform', 'rotate(270)')
 		.attr('x', -contextualRowsHeight/2 - 20)
@@ -2667,7 +2613,7 @@ var Deepviz = function(sources, callback){
 		}
 
 		// groups used for date hover
-		var eventDrops = eventDropG.selectAll(".eventDropGroup")
+		eventDropG.selectAll(".eventDropGroup")
 		.data(dataByContext)
 		.enter()
 		.append('g')
@@ -3583,18 +3529,19 @@ var Deepviz = function(sources, callback){
 			return 'date'+dt.getTime();
 		})
 		.attr('data-width', function(d,i) { 
+			var date;
 			if(filters.time=='y'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endYear = new Date(date.getFullYear(), 11, 31);
 				return scale.timechart.x(endYear) - scale.timechart.x(d.key);   
 			}
 			if(filters.time=='m'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endMonth = new Date(date.getFullYear(), date.getMonth()+1, 1);
 				return scale.timechart.x(endMonth) - scale.timechart.x(d.key);
 			}
 			if(filters.time=='d'){
-				var date = new Date(d['key']);
+				date = new Date(d['key']);
 				var endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
 				return scale.timechart.x(endDate) - scale.timechart.x(d.key);
 			}	
@@ -3659,7 +3606,7 @@ var Deepviz = function(sources, callback){
 		}
 
 		if(filters.time=='m'){
-			var dateformatter = d3.timeFormat("%b %Y");
+			dateformatter = d3.timeFormat("%b %Y");
 			if(dateformatter(dateRange[0]) == dateformatter(dateToStr)){
 				var string = dateformatter(dateRange[0]);
 			} else {
@@ -3668,7 +3615,7 @@ var Deepviz = function(sources, callback){
 		}
 
 		if(filters.time=='y'){
-			var dateformatter = d3.timeFormat("%Y");
+			dateformatter = d3.timeFormat("%Y");
 			if(dateformatter(dateRange[0]) == dateformatter(dateToStr)){
 				var string = dateformatter(dateRange[0]);
 			} else {

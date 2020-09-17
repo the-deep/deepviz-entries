@@ -92,7 +92,7 @@ DeepvizBumpChart.update = function(){
 	d3.selectAll('#bumpchartOverlayTop').remove();
 	d3.selectAll('#bumpchartOverlay').remove();
 
-	var title = svg.append('text')
+	svg.append('text')
 	.text('RANK')
 	.attr('class', 'rankTitle')
 	.attr('transform', 'rotate(270)')
@@ -104,7 +104,6 @@ DeepvizBumpChart.update = function(){
 
 	// Get drawing context of canvas
 	var context = bumpchartCanvas.node().getContext("2d");
-	var custom = d3.select(bumpchartCustomBase); // replacement of SVG
 
 	var line = d3.line()
 		.curve(d3.curveMonotoneX)
@@ -119,7 +118,7 @@ DeepvizBumpChart.update = function(){
 	context.clearRect(0, 0, width, contextualRowsHeight);
 
 	// draw lines to bumpchart canvas
-	var elements = bData.forEach(function(d,i){
+	bData.forEach(function(d,i){
 		context.beginPath();
 		line(d.values);
 		context.lineWidth = 2;
@@ -403,7 +402,7 @@ DeepvizBumpChart.update = function(){
 			if((dragActive==true)||(filters.timechartToggle!='bumpchart')) return false;
 				bumpchartTimer = window.setTimeout( function(){
 					d3.select('#event-drop-group-bg').style('opacity', 0.2);
-					var bumpchartLine = d3.select('#bumpchartLine')
+					d3.select('#bumpchartLine')
 					.datum(d.values)
 					.attr('fill', 'none')
 					.attr('stroke', colorNeutral[4])
@@ -462,24 +461,11 @@ DeepvizBumpChart.getData = function(){
 	var groupedData = [];
 	maxRank = 9;
 
-	// date index for missing dates
-	if(filters.time=='d'){
-		var dIndex = d3.timeDays(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
-	}
-
-	if(filters.time=='m'){
-		var dIndex = d3.timeMonths(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
-	}
-
-	if(filters.time=='y'){
-		var dIndex = d3.timeYears(scale.timechart.x.domain()[0], scale.timechart.x.domain()[1], 1);
-	}
-
 	var activeEl = [];
 	var nestedData = [];
 
 	if(filters.bumpchartToggle=='sector'){
-		var nestedData = d3.nest()
+		nestedData = d3.nest()
 		.key(function(d) {
 			if(filters.time=='d') return new Date(d.date);
 			if(filters.time=='m') return new Date(d.month);
@@ -494,7 +480,7 @@ DeepvizBumpChart.getData = function(){
 
 	if(filters.bumpchartToggle=='geo'){
 		var locData = dataByLocationArray.filter(function(d,i){ return d.admin_level == filters.admin_level})
-		var nestedData = d3.nest()
+		nestedData = d3.nest()
 		.key(function(d) {
 			if(filters.time=='d') return new Date(d.date);
 			if(filters.time=='m') return new Date(d.month);
@@ -508,7 +494,7 @@ DeepvizBumpChart.getData = function(){
 	}
 
 	if(filters.bumpchartToggle=='affected-group'){
-		var nestedData = d3.nest()
+		nestedData = d3.nest()
 		.key(function(d) {
 			if(filters.time=='d') return new Date(d.date);
 			if(filters.time=='m') return new Date(d.month);
@@ -522,7 +508,7 @@ DeepvizBumpChart.getData = function(){
 	}
 
 	if(filters.bumpchartToggle=='specific-needs'){
-		var nestedData = d3.nest()
+		nestedData = d3.nest()
 		.key(function(d) {
 			if(filters.time=='d') return new Date(d.date);
 			if(filters.time=='m') return new Date(d.month);
@@ -544,7 +530,6 @@ DeepvizBumpChart.getData = function(){
 	nestedData.sort(function(a, b){ return d3.ascending(a.date, b.date); });
 
 	var appendData = [];
-	var thisRowLeftOffset;
 
 	nestedData.forEach(function(d,i){
 		d.values.forEach(function(dd,ii){
@@ -601,7 +586,6 @@ DeepvizBumpChart.getData = function(){
 				appendData.push(c);
 			}
 		} 
-		thisRowLeftOffset = {...d};
 		if(filters.time=='m') d.date.setDate(5);
 		if(filters.time=='y') d.date.setMonth(2);
 	});
@@ -618,8 +602,6 @@ DeepvizBumpChart.getData = function(){
 	if(appendData.length>0) concatData = nestedData.concat(appendData);
 
 	concatData.sort(function(a, b){ return d3.ascending(a.date, b.date); });
-
-	var groupedData;
 
 	concatData.forEach(function(d,i){
 		d.values.forEach(function(dd,ii){
