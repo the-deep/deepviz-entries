@@ -1413,10 +1413,10 @@ var Deepviz = function(sources, callback){
 		updateTopAxis = function(){
 
 			var count = (Math.abs(moment(dateRange[1]).diff(moment(dateRange[0]), 'months', true)));
-
+			var ticks,tickFormat;
 			if(filters.time=='d'){
-				var tickFormat = d3.timeFormat("%d %b %Y");
-				var ticks = d3.timeDay.every(1);
+				tickFormat = d3.timeFormat("%d %b %Y");
+				ticks = d3.timeDay.every(1);
 				if((count>0.2)&&(count<=2)){
 					ticks = d3.timeWeek.every(1);
 				}
@@ -1435,8 +1435,8 @@ var Deepviz = function(sources, callback){
 			}
 
 			if(filters.time=='m'){
-				var tickFormat = d3.timeFormat("%b %Y");
-				var ticks = d3.timeMonth.every(1);
+				tickFormat = d3.timeFormat("%b %Y");
+				ticks = d3.timeMonth.every(1);
 				if((count>10)&&(count<=36)){
 					ticks = d3.timeMonth.every(3);
 				}
@@ -1449,8 +1449,8 @@ var Deepviz = function(sources, callback){
 			}
 
 			if(filters.time=='y'){
-				var tickFormat = d3.timeFormat("%Y");
-				var ticks = d3.timeYear.every(1);
+				tickFormat = d3.timeFormat("%Y");
+				ticks = d3.timeYear.every(1);
 			}
 
 			scale.timechart.xTop = d3.scaleTime()
