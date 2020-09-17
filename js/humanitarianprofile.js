@@ -72,14 +72,14 @@ HumanitarianProfile.create = function(){
 	.attr('cx', 0)
 	.attr('cy', 0)
 	.attr('r', maxRadius+2)
-	.attr('fill', colorNeutral[3])
+	.attr('fill', colorNeutral[2])
 
 	nodes
 	.append('circle')
 	.attr('cx', 0)
 	.attr('cy', 0)
 	.attr('r', maxRadius-2)
-	.attr('fill', colorNeutral[3])
+	.attr('fill', colorNeutral[2])
 	.style('stroke', '#FFF')
 	.style('stroke-width', '1px');
 
@@ -200,7 +200,7 @@ HumanitarianProfile.update = function(){
 					return colorSecondary[median];
 				}
 			} else {
-				return colorNeutral[3];
+				return colorNeutral[2];
 			}
 		});
 

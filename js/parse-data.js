@@ -442,15 +442,15 @@ parseAssessmentsData = function(data, metadata){
 		d.final_score = finalScore;
 
 		if(finalScore<=5){
-			d.finalScore = 1;
+			d.finalScore = 0;
 		} else if(finalScore<=10){
-			d.finalScore = 2;
+			d.finalScore = 1;
 		} else if(finalScore<=15){
-			d.finalScore = 3;
+			d.finalScore = 2;
 		} else if(finalScore<=20){
-			d.finalScore = 4;
+			d.finalScore = 3;
 		} else if (finalScore<=25){
-			d.finalScore = 5;
+			d.finalScore = 4;
 		};
 
 		d.top = [];

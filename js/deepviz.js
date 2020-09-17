@@ -1455,11 +1455,9 @@ var Deepviz = function(sources, callback){
 				else if((count>2)&&(count<=10)){
 					var ticks = d3.timeMonth.every(1);
 				}
-
 				else if((count>10)&&(count<=36)){
 					var ticks = d3.timeMonth.every(3);
 				}
-
 				else if((count>36)&&(count<=64)){
 					var ticks = d3.timeMonth.every(6);
 				}
@@ -1474,7 +1472,6 @@ var Deepviz = function(sources, callback){
 				if((count>10)&&(count<=36)){
 					var ticks = d3.timeMonth.every(3);
 				}
-
 				else if((count>36)&&(count<=64)){
 					var ticks = d3.timeMonth.every(6);
 				}
@@ -1590,7 +1587,7 @@ var Deepviz = function(sources, callback){
 		customTimechart.selectAll('.custom-bar-group').remove();
 		contextTimechart = timechartCanvas.node().getContext("2d");
 
-		this.drawBars(chartdata, width);
+		this.drawEntryBars(chartdata, width);
 
 		//**************************
 		// Bar/event drop groups (by date)
@@ -2311,9 +2308,9 @@ var Deepviz = function(sources, callback){
 	}
 
 	//**************************
-	// draw timechart bars
+	// draw timechart entry bars
 	//**************************
-	this.drawBars = function(chartdata, width){
+	this.drawEntryBars = function(chartdata, width){
 
 		joinTimechart = customTimechart.selectAll('.custom-bar-group')
 		.data(chartdata)
@@ -2403,9 +2400,9 @@ var Deepviz = function(sources, callback){
 	}
 
 	//**************************
-	// update timechart bars
+	// update timechart entry bars
 	//**************************
-	this.updateBars = function(chartdata){
+	this.updateEntryBars = function(chartdata){
 
 		function removeElements(elements){
 		    for(var i = 0; i < elements.length; i++){
@@ -3110,288 +3107,288 @@ var Deepviz = function(sources, callback){
 	// filtering (push values to filter array)
 	//**************************
 	this.filter = function(filterClass, value){
+		$('#loadImage').fadeIn(50,function(){
 
-		$('#loadImage').show();
-
-		if(filterClass=='clear'){
-			filters.sector = [];
-			filters.severity = [];
-			filters.context = [];
-			filters.framework = [];
-			filters.reliability = [];
-			filters.affected_groups = [];
-			filters.affected_groups_hp = [];
-			filters.specific_needs = [];
-			filters.geo = [];
-			filters.top = [];
-			filters.humanitarian_profile = [];
-		}
-
-		d3.selectAll('.sector-icon').style('opacity', 0.3);
-		d3.selectAll('.sector').style('opacity', 1);
-		d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
-		d3.selectAll('.col-header-text').style('opacity', 1);	
-		d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
-		d3.select('#sectorRemoveFilter').style('display', 'none').style('cursor', 'default');
-
-		d3.selectAll('.specifc_needs').style('opacity', 1);
-		d3.selectAll('.affected_groups').style('opacity', 1);
-		d3.select('#specific_needsRemoveFilter').style('display', 'none').style('cursor', 'default');
-		d3.select('#affected_groupsRemoveFilter').style('display', 'none').style('cursor', 'default');
-
-		// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
-		// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
-		if(value=='clear'){
-			filters[filterClass] = [];
-		} else if(value == 'clearFramework'){
-			filters['sector'] = [];
-			filters['context'] = [];
-			filters['framework'] = [];
-		} else if(value != 'reset'){
-		  addOrRemove(filters[filterClass], value);		
-		}
-
-		// reset data using original loaded data
-		data = originalData;
-		dataAssessments = originalDataAssessments;
-
-		d3.select('#severityRemoveFilter').style('display', 'none').style('cursor', 'default');
-		d3.select('#reliabilityRemoveFilter').style('display', 'none').style('cursor', 'default');
-		d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
-		d3.select('#humanitarianprofileRemoveFilter').style('display', 'none').style('cursor', 'default');
-
-		// apply filters to data array
-		if(filters['geo'].length==metadata.geo_array.length){
-			filters['geo'] = [];
-		}
-
-		if(filters['geo'].length>0){
-			data = data.filter(function(d){
-				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
-			});
-			dataAssessments = dataAssessments.filter(function(d){
-				return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
-			});
-			d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-			$('#location-search').val(filters['geo']); 
-			$('#location-search').trigger('change.select2');
-			// select2 many location results override default behavior and show number of locations selected in placeholder
-			var values = $('#location-search').select2('data');
-			var select2Height = $('.select2').height();
-			if(select2Height>30){
-				$('.select2-selection__choice').hide();
-				$('.select2-search__field').attr('placeholder', values.length+' LOCATIONS SELECTED' ).css('width', '100%')
-			} else {
-				$('.select2-search__field').attr('placeholder', '' );
-				$('.select2-selection__choice').show();
+			if(filterClass=='clear'){
+				filters.sector = [];
+				filters.severity = [];
+				filters.context = [];
+				filters.framework = [];
+				filters.reliability = [];
+				filters.affected_groups = [];
+				filters.affected_groups_hp = [];
+				filters.specific_needs = [];
+				filters.geo = [];
+				filters.top = [];
+				filters.humanitarian_profile = [];
 			}
-		} else {
-			$('#location-search').val(filters['geo']); 
-			$('#location-search').trigger('change.select2');
-		}
 
-		if(filters['context'].length>=numCategories)filters['context'] = [];
-
-		if(filters['context'].length>0){
-			d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0.6);
-
-			// filter data
-			data = data.filter(function(d){
-				return d['sector'].some(r=> filters['context'].indexOf(parseInt(r[0])) >= 0);
-			});
-			// bar/text shading
-			filters.context.forEach(function(d,i){
-				// selected state
-				d3.selectAll('#context-filter'+(d)).style('fill', colorGrey[1]).style('opacity', 0.1);
-			});
-			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		} else {
-			d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0);
-		}
-		// framework row
-		if(filters['framework'].length>=metadata.framework_groups_array.length)filters['framework'] = [];
-
-		if(filters['framework'].length>0){
-			d3.selectAll('.frameworkRowSelector').style('opacity',0.5);
-			// filter data
-			data = data.filter(function(d){
-				return d['sector'].some(r=> filters['framework'].indexOf(parseInt(r[1])) >= 0);
-			});
-			// bar/text shading
-			filters.framework.forEach(function(d,i){
-				d3.selectAll('.frameworkRowSelector-'+(d)).style('opacity', 1);
-			});
-			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		} else {
-			d3.selectAll('.frameworkRowSelector').style('opacity',1);
-		}
-
-		if(filters['sector'].length>=metadata.sector_array.length)filters['sector'] = [];
-
-		if(filters['sector'].length>0){
-			// filter data
-			data = data.filter(function(d){
-				return d['sector'].some(r=> filters['sector'].indexOf(r[2]) >= 0);
-				// return filters['sector'].includes(d['sector'][2]);
-			});
-			// bar/text shading
-			d3.selectAll('.sector').style('opacity', 0.2);
-			d3.selectAll('.sector-bg').style('opacity', 0);
+			d3.selectAll('.sector-icon').style('opacity', 0.3);
+			d3.selectAll('.sector').style('opacity', 1);
 			d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
-			d3.selectAll('.col-header-text').style('opacity', 0.3);	
-			d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-			d3.select('#sectorRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-			filters.sector.forEach(function(d,i){
-				d3.selectAll('.sector-'+(d-1)).style('opacity', 1);
-				d3.selectAll('.sector-bg-'+(d-1)).style('opacity', 0);
-				d3.select('#col-header-bg-'+(d)).style('opacity', .1)
-				d3.selectAll('.sector-icon-'+(d)).style('opacity', 1)
-				d3.select('#col-header-'+(d) + ' .col-header-text' ).style('opacity', 1)
-			});
-		} 
+			d3.selectAll('.col-header-text').style('opacity', 1);	
+			d3.select('#frameworkRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#sectorRemoveFilter').style('display', 'none').style('cursor', 'default');
 
-		if(filterClass=='humanitarian_profile'){
-			if(filters['humanitarian_profile'].length==0){
-				filters['affected_groups_hp'] = [];
+			d3.selectAll('.specifc_needs').style('opacity', 1);
+			d3.selectAll('.affected_groups').style('opacity', 1);
+			d3.select('#specific_needsRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#affected_groupsRemoveFilter').style('display', 'none').style('cursor', 'default');
+
+			// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
+			// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
+			if(value=='clear'){
+				filters[filterClass] = [];
+			} else if(value == 'clearFramework'){
+				filters['sector'] = [];
+				filters['context'] = [];
+				filters['framework'] = [];
+			} else if(value != 'reset'){
+			  addOrRemove(filters[filterClass], value);		
 			}
-		}
 
-		if(filterClass=='affected_groups'){
-			if(filters['affected_groups'].length==0){
-				filters['affected_groups'] = [];
-				// filters['humanitarian_profile'] = [];
+			// reset data using original loaded data
+			data = originalData;
+			dataAssessments = originalDataAssessments;
+
+			d3.select('#severityRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#reliabilityRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#geoRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#humanitarianprofileRemoveFilter').style('display', 'none').style('cursor', 'default');
+
+			// apply filters to data array
+			if(filters['geo'].length==metadata.geo_array.length){
+				filters['geo'] = [];
 			}
-		}
 
-		filters['affected_groups_hp'] = [];
-
-		if(filters['humanitarian_profile'].length>0){
-			filters['humanitarian_profile'].forEach(function(d,i){
-				// All, Affected, Displaced
-				metadata.affected_groups_array.forEach(function(dd,ii){
-					if(dd.humanitarian_profile.includes(d)){
-						if(!filters.affected_groups_hp.includes(dd.id)) filters.affected_groups_hp.push(dd.id);
-					}
+			if(filters['geo'].length>0){
+				data = data.filter(function(d){
+					return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
 				});
-			});
-			d3.select('#humanitarianprofileRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
+				dataAssessments = dataAssessments.filter(function(d){
+					return d['geo'].some(r=> filters['geo'].indexOf(r) >= 0);
+				});
+				d3.select('#geoRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+				$('#location-search').val(filters['geo']); 
+				$('#location-search').trigger('change.select2');
+				// select2 many location results override default behavior and show number of locations selected in placeholder
+				var values = $('#location-search').select2('data');
+				var select2Height = $('.select2').height();
+				if(select2Height>30){
+					$('.select2-selection__choice').hide();
+					$('.select2-search__field').attr('placeholder', values.length+' LOCATIONS SELECTED' ).css('width', '100%')
+				} else {
+					$('.select2-search__field').attr('placeholder', '' );
+					$('.select2-selection__choice').show();
+				}
+			} else {
+				$('#location-search').val(filters['geo']); 
+				$('#location-search').trigger('change.select2');
+			}
 
-		if(filters['affected_groups_hp'].length>0){
-			data = data.filter(function(d){
-				return d['affected_groups'].some(r=> filters['affected_groups_hp'].indexOf(r) >= 0);
-			});
-			// bar/text shading
-			d3.selectAll('.affected_groups').style('opacity', 0.2);
-			d3.selectAll('.affected_groups-bg').style('opacity', 0);
-			filters.affected_groups.forEach(function(d,i){
-				d3.selectAll('.affected_groups-'+(d-1)).style('opacity', 1);
-			});
+			if(filters['context'].length>=numCategories)filters['context'] = [];
 
-			// d3.select('#affected_groupsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
+			if(filters['context'].length>0){
+				d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0.6);
 
-		if(filters['affected_groups'].length>0){
-			data = data.filter(function(d){
-				return d['affected_groups'].some(r=> filters['affected_groups'].indexOf(r) >= 0);
-			});
-			// bar/text shading
-			d3.selectAll('.affected_groups').style('opacity', 0.2);
-			d3.selectAll('.affected_groups-bg').style('opacity', 0);
-			filters.affected_groups.forEach(function(d,i){
-				d3.selectAll('.affected_groups-'+(d-1)).style('opacity', 1);
-			});
+				// filter data
+				data = data.filter(function(d){
+					return d['sector'].some(r=> filters['context'].indexOf(parseInt(r[0])) >= 0);
+				});
+				// bar/text shading
+				filters.context.forEach(function(d,i){
+					// selected state
+					d3.selectAll('#context-filter'+(d)).style('fill', colorGrey[1]).style('opacity', 0.1);
+				});
+				d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			} else {
+				d3.selectAll('.context-filter').style('fill', '#FFF').style('opacity',0);
+			}
+			// framework row
+			if(filters['framework'].length>=metadata.framework_groups_array.length)filters['framework'] = [];
 
-			d3.select('#affected_groupsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
+			if(filters['framework'].length>0){
+				d3.selectAll('.frameworkRowSelector').style('opacity',0.5);
+				// filter data
+				data = data.filter(function(d){
+					return d['sector'].some(r=> filters['framework'].indexOf(parseInt(r[1])) >= 0);
+				});
+				// bar/text shading
+				filters.framework.forEach(function(d,i){
+					d3.selectAll('.frameworkRowSelector-'+(d)).style('opacity', 1);
+				});
+				d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			} else {
+				d3.selectAll('.frameworkRowSelector').style('opacity',1);
+			}
 
-		if(filters['top'].length>0){
-			data = data.filter(function(d){
-				return d['top'].some(r=> filters['top'].indexOf(r) >= 0);
-			});
-			d3.select('#summaryRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
+			if(filters['sector'].length>=metadata.sector_array.length)filters['sector'] = [];
 
-		if(filters['specific_needs'].length>0){
-			data = data.filter(function(d){
-				return d['special_needs'].some(r=> filters['specific_needs'].indexOf(r) >= 0);
-			});
-			// bar/text shading
-			d3.selectAll('.specifc_needs').style('opacity', 0.2);
-			d3.selectAll('.specifc_needs-bg').style('opacity', 0);
-			filters.specific_needs.forEach(function(d,i){
-				d3.selectAll('.specifc_needs-'+(d-1)).style('opacity', 1);
-			});
-			d3.select('#specific_needsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
+			if(filters['sector'].length>0){
+				// filter data
+				data = data.filter(function(d){
+					return d['sector'].some(r=> filters['sector'].indexOf(r[2]) >= 0);
+					// return filters['sector'].includes(d['sector'][2]);
+				});
+				// bar/text shading
+				d3.selectAll('.sector').style('opacity', 0.2);
+				d3.selectAll('.sector-bg').style('opacity', 0);
+				d3.selectAll('.col-header-bg-selected').style('opacity', 0);	
+				d3.selectAll('.col-header-text').style('opacity', 0.3);	
+				d3.select('#frameworkRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+				d3.select('#sectorRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+				filters.sector.forEach(function(d,i){
+					d3.selectAll('.sector-'+(d-1)).style('opacity', 1);
+					d3.selectAll('.sector-bg-'+(d-1)).style('opacity', 0);
+					d3.select('#col-header-bg-'+(d)).style('opacity', .1)
+					d3.selectAll('.sector-icon-'+(d)).style('opacity', 1)
+					d3.select('#col-header-'+(d) + ' .col-header-text' ).style('opacity', 1)
+				});
+			} 
 
-		// data to be used by severity/reliability topline charts
-		dataNotSeverity = data;
-		dataNotReliability = data;
+			if(filterClass=='humanitarian_profile'){
+				if(filters['humanitarian_profile'].length==0){
+					filters['affected_groups_hp'] = [];
+				}
+			}
 
-		// severity/reliability filters
-		if(filters['severity'].length==6){
-			filters['severity'] = [];
-		}
+			if(filterClass=='affected_groups'){
+				if(filters['affected_groups'].length==0){
+					filters['affected_groups'] = [];
+					// filters['humanitarian_profile'] = [];
+				}
+			}
 
-		if(filters['severity'].length>0){
-			data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
-			dataNotReliability = dataNotReliability.filter(function(d){return  filters['severity'].includes(d['severity']);});
-			d3.select('#severityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
+			filters['affected_groups_hp'] = [];
 
-		if(filters['reliability'].length==6)filters['reliability'] = [];
+			if(filters['humanitarian_profile'].length>0){
+				filters['humanitarian_profile'].forEach(function(d,i){
+					// All, Affected, Displaced
+					metadata.affected_groups_array.forEach(function(dd,ii){
+						if(dd.humanitarian_profile.includes(d)){
+							if(!filters.affected_groups_hp.includes(dd.id)) filters.affected_groups_hp.push(dd.id);
+						}
+					});
+				});
+				d3.select('#humanitarianprofileRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
 
-		if(filters['reliability'].length>0){
-			data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
-			dataNotSeverity = dataNotSeverity.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
-			d3.select('#reliabilityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		}
+			if(filters['affected_groups_hp'].length>0){
+				data = data.filter(function(d){
+					return d['affected_groups'].some(r=> filters['affected_groups_hp'].indexOf(r) >= 0);
+				});
+				// bar/text shading
+				d3.selectAll('.affected_groups').style('opacity', 0.2);
+				d3.selectAll('.affected_groups-bg').style('opacity', 0);
+				filters.affected_groups.forEach(function(d,i){
+					d3.selectAll('.affected_groups-'+(d-1)).style('opacity', 1);
+				});
 
-		// color reliability/severity bars
-		if(filters.reliability.length==0){
-			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
-				return colorSecondary[i];
-			});		
-		} else {
-			d3.selectAll('.reliabilityBar').style('fill', function(d,i){
-				return colorLightgrey[i];
-			});	
-			filters.reliability.forEach(function(d,i){
-				d3.select('.reliabilityBar.reliability'+(d))
-				.style('fill', colorSecondary[d])
-			});
-		}
+				// d3.select('#affected_groupsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
 
-		if(filters.severity.length==0){
-			d3.selectAll('.severityBar').style('fill', function(d,i){
-				return colorPrimary[i];
-			});		
-		} else {
-			d3.selectAll('.severityBar').style('fill', function(d,i){
-				return colorLightgrey[i];
-			});	
-			filters.severity.forEach(function(d,i){
-				d3.select('.severityBar.severity'+(d))
-				.style('fill', colorPrimary[d]);
-			});
-		}
+			if(filters['affected_groups'].length>0){
+				data = data.filter(function(d){
+					return d['affected_groups'].some(r=> filters['affected_groups'].indexOf(r) >= 0);
+				});
+				// bar/text shading
+				d3.selectAll('.affected_groups').style('opacity', 0.2);
+				d3.selectAll('.affected_groups-bg').style('opacity', 0);
+				filters.affected_groups.forEach(function(d,i){
+					d3.selectAll('.affected_groups-'+(d-1)).style('opacity', 1);
+				});
 
-		var duration = 500;
-		if(filterClass=='reset') {
-			duration = 0;
-		}
+				d3.select('#affected_groupsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
 
-		if((filters['severity'].length>0)||(filters['humanitarian_profile'].length>0)||(filters['framework'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specific_needs'].length>0)||(filters['affected_groups'].length>0)){
-			d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
-		} else { 
-			d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
-		}
+			if(filters['top'].length>0){
+				data = data.filter(function(d){
+					return d['top'].some(r=> filters['top'].indexOf(r) >= 0);
+				});
+				d3.select('#summaryRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
 
-		Deepviz.updateTimeline(filterClass, duration);
-		d3.select('#globalRemoveFilter').on('click', function(){ Deepviz.filter('clear', 'clear'); });
+			if(filters['specific_needs'].length>0){
+				data = data.filter(function(d){
+					return d['special_needs'].some(r=> filters['specific_needs'].indexOf(r) >= 0);
+				});
+				// bar/text shading
+				d3.selectAll('.specifc_needs').style('opacity', 0.2);
+				d3.selectAll('.specifc_needs-bg').style('opacity', 0);
+				filters.specific_needs.forEach(function(d,i){
+					d3.selectAll('.specifc_needs-'+(d-1)).style('opacity', 1);
+				});
+				d3.select('#specific_needsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
 
-		$('#loadImage').delay(500).fadeOut(700);
+			// data to be used by severity/reliability topline charts
+			dataNotSeverity = data;
+			dataNotReliability = data;
+
+			// severity/reliability filters
+			if(filters['severity'].length==6){
+				filters['severity'] = [];
+			}
+
+			if(filters['severity'].length>0){
+				data = data.filter(function(d){return  filters['severity'].includes(d['severity']);});
+				dataNotReliability = dataNotReliability.filter(function(d){return  filters['severity'].includes(d['severity']);});
+				d3.select('#severityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
+
+			if(filters['reliability'].length==6)filters['reliability'] = [];
+
+			if(filters['reliability'].length>0){
+				data = data.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
+				dataNotSeverity = dataNotSeverity.filter(function(d){return  filters['reliability'].includes(d['reliability']);});
+				d3.select('#reliabilityRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
+
+			// color reliability/severity bars
+			if(filters.reliability.length==0){
+				d3.selectAll('.reliabilityBar').style('fill', function(d,i){
+					return colorSecondary[i];
+				});		
+			} else {
+				d3.selectAll('.reliabilityBar').style('fill', function(d,i){
+					return colorLightgrey[i];
+				});	
+				filters.reliability.forEach(function(d,i){
+					d3.select('.reliabilityBar.reliability'+(d))
+					.style('fill', colorSecondary[d])
+				});
+			}
+
+			if(filters.severity.length==0){
+				d3.selectAll('.severityBar').style('fill', function(d,i){
+					return colorPrimary[i];
+				});		
+			} else {
+				d3.selectAll('.severityBar').style('fill', function(d,i){
+					return colorLightgrey[i];
+				});	
+				filters.severity.forEach(function(d,i){
+					d3.select('.severityBar.severity'+(d))
+					.style('fill', colorPrimary[d]);
+				});
+			}
+
+			var duration = 500;
+			if(filterClass=='reset') {
+				duration = 0;
+			}
+
+			if((filters['severity'].length>0)||(filters['humanitarian_profile'].length>0)||(filters['framework'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specific_needs'].length>0)||(filters['affected_groups'].length>0)){
+				d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			} else { 
+				d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
+			}
+
+			Deepviz.updateTimeline(filterClass, duration);
+			d3.select('#globalRemoveFilter').on('click', function(){ Deepviz.filter('clear', 'clear'); });
+
+			$('#loadImage').delay(500).fadeOut(700);
+		});
 
 	}
 
@@ -3401,6 +3398,8 @@ var Deepviz = function(sources, callback){
 	this.redrawTimeline = function(){
 
 		if(drawingTimeline==true) return false;
+
+		$('#loadImage').show();
 
 		drawingTimeline = true;
 
@@ -3519,7 +3518,6 @@ var Deepviz = function(sources, callback){
 
 		});
 
-
 	}
 
 	//**************************
@@ -3555,7 +3553,7 @@ var Deepviz = function(sources, callback){
 			DeepvizBumpChart.create();
 		}
 		updateSeverityReliability(target, 750);
-        Deepviz.updateBars(chartdata, width);
+        Deepviz.updateEntryBars(chartdata, width);
 		updateTrendline();
 		Map.update();
 		colorBars();
@@ -4538,4 +4536,3 @@ function wrap(text, width) {
         }
     });
 }
-

@@ -1976,8 +1976,6 @@ Map.updateGridmap = function(){
 			})
 		});
 
-	    nodes = metadata.geo_json_point.features;
-
 	    d3.select('#map-grid-svg')
 	    .selectAll('.grid-rect')
 	    .data(nodes)

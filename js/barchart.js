@@ -3,7 +3,7 @@ var updating = false;
 var updateInterval = 0;
 var tooltipSparklineHeight = 40;
 var tooltipSparklineWidth = 140;
-var maxBarHeight = 0;
+var maxBarHeight = 60;
 
 BarChart.createBarChart = function(a){
 
@@ -222,6 +222,21 @@ BarChart.createStackedBarChart = function(a){
 		})
 		.attr('xlink:href', function(d,i){
 			return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
+		})
+		.attr('height', 23)
+		.attr('width', 23)
+		.attr('y', rowHeight/2 - 12)
+		.attr('x', labelWidth-85);
+		labelWidth = labelWidth + 36;
+	}
+
+	if(a.classname == 'data_collection_technique'){
+		var icon = rows.append('image')
+		.attr('class', function(d,i){
+			return 'data-collection-technique-icon data-collection-technique-icon-'+d.id;
+		})
+		.attr('xlink:href', function(d,i){
+			return 'images/data-collection-technique-icons/'+(d.name.replace(/\s+/g, '-').toLowerCase())+'.svg'; 
 		})
 		.attr('height', 23)
 		.attr('width', 23)
@@ -458,14 +473,17 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		return d.value;
 	});
 
-
-
 	rows.select('.'+group+'-label').text(function(d,i){
 		if(d.value>0){ return d.value; } else { return ''}
 	});
 
 	rows.select('.'+group+'-percentlabel').text(function(d,i){
-		var p = (d.value/total)*100;
+		if(textLabel=='Assessments'){
+			var t = totalAssessments;
+		} else {
+			var t = total;
+		}
+		var p = (d.value/t)*100;
 		p = Math.round(p);
 		if(d.value>0){ return '('+p+'%)'; } else { return ''};
 	});
@@ -651,7 +669,12 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 			});
 
 			d3.select('#'+group+(i+1)+'percentlabel').text(function(d,i){
-				var p = (value/total)*100;
+				if(textLabel=='Assessments'){
+					var t = totalAssessments;
+				} else {
+					var t = total;
+				}
+				var p = (value/t)*100;
 				p = Math.round(p);
 				if(value>0){ return '('+p+'%)'; } else { return ''};
 			});
@@ -665,7 +688,20 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 					if(filters['sector'].includes(key)){
 						return 1;
 					} else {
-						return 0.2;
+						return 0.5;
+					}
+				})				
+			}
+			if(group=='data_collection_technique'){
+				d3.select('.data-collection-technique-icon-'+(i+1))
+				.attr('href', function(d,i){
+					return 'images/data-collection-technique-icons/'+name.replace(/\s+/g, '-').toLowerCase()+'.svg'
+				})
+				.style('opacity', function(d,i){
+					if(filters['data_collection_technique'].includes(key)){
+						return 1;
+					} else {
+						return 0.7;
 					}
 				})				
 			}
@@ -945,7 +981,12 @@ BarChart.updateTooltipSparkline = function(dataId, group, dataGroupId, dataGroup
 	        })
         ).attr('opacity', 1);   
 
-		var p = (dataTotal/total)*100;
+		if(textLabel=='Assessments'){
+			var t = totalAssessments;
+		} else {
+			var t = total;
+		}
+		var p = (dataTotal/t)*100;
 		p = Math.round(p)+'%';
 		var html =  '<div style="text-align: left; font-weight: bold;">'+dataGroupName+'&nbsp;&nbsp;<span style="font-size: 9px; color: lightgrey;"></span></div><div style="width: 100px; height: 10px; display: inline; background-color: '+ color + '">&nbsp;&nbsp;</div><span style="font-size: 10px">' + text + '</span><div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + dataTotal + ' '+textLabel+'</b>&nbsp;&nbsp;('+p+')</div>';
         html=html+'<br/><svg style="margin-top: 1px; margin-bottom: 1px" id="tooltipSparkline" width="'+tooltipSparklineWidth+'px" height="'+tooltipSparklineHeight+'px">'+barTooltipSvg.node().outerHTML+'</svg>';
