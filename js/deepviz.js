@@ -2032,6 +2032,7 @@ var Deepviz = function(sources, callback){
 	    	// colorBars();
 	    	updateDate();
 	    	Summary.update();
+	    	Map.update();
 	    	updateSeverityReliability('brush', 500);
 	    	DeepvizFramework.updateFramework();
 	    	BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
@@ -2041,6 +2042,7 @@ var Deepviz = function(sources, callback){
 
 	    	handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 	    	handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + ((timechartSvgHeight-timechartHeight2-20) - margin.top) + ")"; });
+	   		$('#loadImage').delay(50).fadeOut(500);
 	    }
 
 	    // programattically set date range
