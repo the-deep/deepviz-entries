@@ -180,7 +180,7 @@ Summary.update = function(){
 		})
 	});
 
-	// define maximum context value
+	// contextual rows
 	var contextualRowTotals = d3.nest()
 	.key(function(d) { return d;})
 	.rollup(function(leaves) { return leaves.length; })
@@ -189,8 +189,24 @@ Summary.update = function(){
 	d3.selectAll('.total-label').text(0);
 	
 	contextualRowTotals.forEach(function(d,i){
-		d3.select('#total-label'+(d.key-1)).text(d.value);
+		d3.select('#total-label'+(d.key-1)).text(addCommas(d.value));
 	});
+
+	d3.selectAll('.contextualRow .label')
+	.attr('x', function(d,i){
+		var xoffset = d3.select(this.parentNode).selectAll('.total-label').node().getBBox().width;
+		return xoffset + (width-margin.right)-30;
+	})
+	.attr('transform', function(){
+		var h = d3.select(this).node().getBBox().height;
+		var shift = -(h/2)+10;
+		return 'translate('+0+','+shift+')';
+	})
+	.selectAll('tspan')
+	.attr('x', function(d,i){
+		var xoffset = d3.select(this.parentNode.parentNode).selectAll('.total-label').node().getBBox().width;
+		return xoffset + (width-margin.right)-25;
+	})
 
 	var individuals = d3.sum(dc, d => d.individuals);
 	var households = d3.sum(dc, d => d.households);
@@ -430,9 +446,9 @@ Summary.update = function(){
 
 		d3.select(this).selectAll('.summary-label').attr('x',function(d,i){
 			if(d3.select(this).text().includes('=')){
-					return valueWidth+126;		
+					return valueWidth+110;		
 				} else {
-					return valueWidth+18;						
+					return valueWidth+13;						
 				}
 
 		});

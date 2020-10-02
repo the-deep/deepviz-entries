@@ -279,7 +279,6 @@ Map.create = function(){
 		    map.boxZoom.disable();
 			// change cursor
 			d3.select('#map-bubble-svg').style('cursor', 'crosshair');
-			console.log('lassoactive');
 		} else {
 			lassoActive = false;
 			$('#lasso-selected').hide();
@@ -415,9 +414,13 @@ Map.create = function(){
 		if(expandActive==true){
 			$('#mapcol, #mapcontainer').removeClass('leftcol');
 			$('#timechart-container').removeClass('rightcol');
+			d3.select('#timeline').style('position', 'absolute');
+			d3.selectAll('#timeline div').style('top', '0px');
 		} else {
 			$('#mapcol, #mapcontainer').addClass('leftcol');
 			$('#timechart-container').addClass('rightcol');
+			d3.select('#timeline').style('position', 'unset');
+			d3.selectAll('#timeline div').style('top', '25px');
 		}
 		Deepviz.redrawTimeline();
 		Deepviz.resizeDevice();
@@ -1017,17 +1020,16 @@ Map.update = function(e){
 Map.updateBubbles = function(){
 	if(!mapInit)return;
 
-	d3.selectAll('.bubble')
-	.style('display', 'none');
-
+	d3.selectAll('.bubble').style('display', 'none');
 	d3.select('#map-polygons').style('display', 'none');
-
 	d3.select('#map-grid-svg').style('display', 'none');
+
 	if(lassoActive!=true){
 		map.dragPan.enable();
 		map.doubleClickZoom.enable();	
 		d3.selectAll('#map-bubble-svg').style('cursor','grab');
 	}
+	
 	$('#map-bg-toggle').show();
 	d3.selectAll('#map-bubble-svg .bubble').style('cursor','pointer');
 
@@ -1245,16 +1247,12 @@ Map.updateBubbles = function(){
 //**************************
 Map.updateChoropleth = function(){
 
-	d3.selectAll('.bubble')
-	.style('display', 'none');
-
+	d3.selectAll('.bubble').style('display', 'none');
 	d3.select('#map-polygons').style('display', 'block');
-
 	d3.select('#map-grid-svg').style('display', 'none');
 
-	d3.selectAll('.polygon')
-	.style('fill', colorLightgrey[1])
-	.attr('data-total', 0);
+	d3.selectAll('.polygon').style('fill', colorLightgrey[1]).attr('data-total', 0);
+
 	$('#map-bg-toggle').show();
 
 	d3.selectAll('#map-bubble-svg').style('cursor','grab');
@@ -1535,7 +1533,6 @@ function check_style_status() {
     checking_style_status = false;
     map._container.trigger('map_style_finally_loaded');
   } else {
-    // If not yet loaded, repeat check after delay:
     setTimeout(function() {check_style_status();}, 200);
     return;
   }
@@ -1738,28 +1735,27 @@ Map.updateTooltipSparkline = function(geoId, geoName, geoTotal, geoMedian){
 	        	return scale.tooltipSparkline.y(v);
 	        })
         ).attr('opacity', 1);   
+			var html = '<div style="text-align: left; font-weight: bold;">'+geoName+'&nbsp;&nbsp;<span style="font-size: 9px; color: lightgrey;">ADM '+filters.admin_level+'</span></div>';
 
-		var html = '<div style="text-align: left; font-weight: bold;">'+geoName+'&nbsp;&nbsp;<span style="font-size: 9px; color: lightgrey;">ADM '+filters.admin_level+'</span></div>';
-		if(filters.frameworkToggle=='entries'){
-			html = html+'<div style="width: 100px; height: 13px; display: inline; margin-bottom: 2px; font-size: 10px; text-align: left; background-color: '+ colorNeutral[2] + '">&nbsp;&nbsp;</div><div style="padding-left: 5px; padding-bottom: 0px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + geoTotal + ' entries</b></div>';
-		} else {
-			if (filters.toggle=='severity'){
-				var color = colorPrimary[geoMedian];
-				var text = metadata.severity_units[geoMedian].name;
-			} else {
-				var color = colorSecondary[geoMedian];
-				var text = metadata.reliability_units[geoMedian].name;
-			}
-			html = html+'<div style="width: 100px; height: 13px; display: inline; margin-bottom: 2px; font-size: 10px; text-align: left; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;<span style="font-size: 10px">'+text+'</span><div style="padding-left: 5px; padding-bottom: 0px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + geoTotal + ' entries</b></div>';
-		}
-        html=html+'<br/><svg style="margin-top: 1px; margin-bottom: 1px" id="tooltipSparkline" width="'+tooltipSparklineWidth+'px" height="'+tooltipSparklineHeight+'px">'+mapTooltipSvg.node().outerHTML+'</svg>';
+				if(filters.frameworkToggle=='entries'){
+					html = html+'<div style="width: 100px; height: 13px; display: inline; margin-bottom: 2px; font-size: 10px; text-align: left; background-color: '+ colorNeutral[2] + '">&nbsp;&nbsp;</div><div style="padding-left: 5px; padding-bottom: 0px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + geoTotal + ' entries</b></div>';
+				} else {
+					if(geoMedian>0){
+						if (filters.toggle=='severity'){
+							var color = colorPrimary[geoMedian];
+							var text = metadata.severity_units[geoMedian].name;
+						} else {
+							var color = colorSecondary[geoMedian];
+							var text = metadata.reliability_units[geoMedian].name;
+						}
+						html = html+'<div style="width: 100px; height: 13px; display: inline; margin-bottom: 2px; font-size: 10px; text-align: left; background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp;&nbsp;<span style="font-size: 10px">'+text+'</span><div style="padding-left: 5px; padding-bottom: 0px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + geoTotal + ' entries</b></div>';
+					}
+				}
+		        html=html+'<br/><svg style="margin-top: 1px; margin-bottom: 1px" id="tooltipSparkline" width="'+tooltipSparklineWidth+'px" height="'+tooltipSparklineHeight+'px">'+mapTooltipSvg.node().outerHTML+'</svg>';
+			} 
+	        return html;
 
-        return html;
-
-    } else {
-    	return null;
-    }
-}
+    } 
 
 Map.updateSparklinesOverlay = function(d1){
 	if(scale.tooltipSparkline.x){
@@ -1774,7 +1770,8 @@ Map.updateSparklinesOverlay = function(d1){
 //**************************
 Map.createGridmap = function(){
 
-	d3.selectAll('.grid-rect').remove();
+	d3.select('#map-grid-svg')
+    .selectAll('.grid-rect').remove();
 
 	// dynamic grid size
 	if(filters.admin_level==0){
@@ -1802,7 +1799,6 @@ Map.createGridmap = function(){
 	    return nodeRadius*.7;
 	  }))
 	.on('tick', Map.ticked)
-	// .stop();
 
 	for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
 	    simulation.tick();
@@ -1862,6 +1858,7 @@ Map.updateGridmap = function(){
 	// map.dragPan.disable();
 	// map.doubleClickZoom.disable();
 	// d3.selectAll('#map-bubble-svg').style('cursor','default');
+
 	d3.selectAll('#map-bubble-svg rect').style('cursor','pointer');
 
 	// gridmap display number of entries
@@ -1889,8 +1886,6 @@ Map.updateGridmap = function(){
 				}
 			})
 		});
-
-	    nodes = metadata.geo_json_point.features;
 
 		var nodeMax = d3.max(nodes, function(d,i){
 			return d.total;
@@ -1923,26 +1918,20 @@ Map.updateGridmap = function(){
 
 	    d3.selectAll('.grid-rect').attr('fill', function(d) {
 	    	var v = d.total;
-	    	return colorScale(v);
-	    }).style('display', function(d) {
-	    	var v = d.total;
-	    	if(v==0){
-	    		return 'none';
-	    	} else {
-		    	return 'block'
-	    	}
+	    	if(v>0) return colorScale(v);
+	    	return '#FFF';
 	    }).style('stroke', function(d,i){ 
 			if(filters.geo.includes(d.properties.id)){
 				return 'cyan';
 			} else {
-				return '#FFF';
+				return colorLightgrey[2]
 			}
 		}).on('mouseover', function(d,i){
 			d3.select(this).style('stroke', function(d,i){ 
 				if(filters.geo.includes(d.properties.id)){
 					return 'cyan';
 				} else {
-					return colorLightgrey[2];
+					return colorLightgrey[3];
 				}
 			});
 		}).on('mouseout', function(d,i){
@@ -1950,7 +1939,7 @@ Map.updateGridmap = function(){
 				if(filters.geo.includes(d.properties.id)){
 					return 'cyan';
 				} else {
-					return '#FFF';
+					return colorLightgrey[2];
 				}
 			});
 		})
@@ -1987,8 +1976,6 @@ Map.updateGridmap = function(){
 			})
 		});
 
-	    nodes = metadata.geo_json_point.features;
-
 	    d3.select('#map-grid-svg')
 	    .selectAll('.grid-rect')
 	    .data(nodes)
@@ -2011,24 +1998,21 @@ Map.updateGridmap = function(){
 	    simulation.tick();
 
 		d3.selectAll('.grid-rect').attr('fill', function(d) {
-			if(filters.toggle=='severity'){
-		    	return colorPrimary[d.median];
-
+			if(d.median>0){
+				if(filters.toggle=='severity'){
+			    	return colorPrimary[d.median];
+				} else {
+			    	return colorSecondary[d.median];
+				}			
 			} else {
-		    	return colorSecondary[d.median];
+				return '#FFF';
 			}
-	    }).style('display', function(d) {
-	    	var v = d.total;
-	    	if(v==0){
-	    		return 'none';
-	    	} else {
-		    	return 'block'
-	    	}
+
 	    }).style('stroke', function(d,i){ 
 			if(filters.geo.includes(d.properties.id)){
 				return 'cyan';
 			} else {
-				return colorGrey[0];
+				return colorLightgrey[2];
 			}
 		});
 	}

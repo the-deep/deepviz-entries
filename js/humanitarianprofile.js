@@ -21,7 +21,7 @@ HumanitarianProfile.create = function(){
 	var treeStr = [];
 
 	groups.forEach(function(d,i){
-		var affectedGroups = d.name.split("/");
+		var affectedGroups = d.name_alt.split("/");
 		var parent = null;
 		affectedGroups.forEach(function(dd,ii){
 			var name = dd.trim();
@@ -72,14 +72,14 @@ HumanitarianProfile.create = function(){
 	.attr('cx', 0)
 	.attr('cy', 0)
 	.attr('r', maxRadius+2)
-	.attr('fill', colorNeutral[3])
+	.attr('fill', colorNeutral[2])
 
 	nodes
 	.append('circle')
 	.attr('cx', 0)
 	.attr('cy', 0)
 	.attr('r', maxRadius-2)
-	.attr('fill', colorNeutral[3])
+	.attr('fill', colorNeutral[2])
 	.style('stroke', '#FFF')
 	.style('stroke-width', '1px');
 
@@ -179,7 +179,6 @@ HumanitarianProfile.update = function(){
 
 	nested.forEach(function(d,i){
 		var node = d3.select('#hp-'+d.key.replace(/\s+/g,'')+'-'+(d.value.level));
-
 		node.attr('transform',function(dd,ii){
 			var scale = scalehumanitarianprofile(d.value.total);
 			return 'scale('+scale+')'
@@ -201,7 +200,7 @@ HumanitarianProfile.update = function(){
 					return colorSecondary[median];
 				}
 			} else {
-				return colorNeutral[3];
+				return colorNeutral[2];
 			}
 		});
 

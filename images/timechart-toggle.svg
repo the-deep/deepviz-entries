@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2032px" height="50px" viewBox="0 0 2032 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>timechart-toggle</title>
+    <g id="timechart-toggle" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <text id="View-timeline-sub-di" font-family="SourceSansPro-Light, Source Sans Pro" font-size="22.6273561" font-weight="300" fill="#5F5F5F">
+            <tspan x="13.1525942" y="33">View timeline sub-dimension</tspan>
+        </text>
+        <text id="Contextual-event-dro" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="24.8900917" font-weight="normal" fill="#141414">
+            <tspan x="369.211293" y="34">Contextual event drop</tspan>
+        </text>
+        <text id="Bump-chart" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="24.8900917" font-weight="normal" fill="#141414">
+            <tspan x="703.3326" y="34">Bump chart</tspan>
+        </text>
+        <g id="timechart-toggle1-icon" opacity="0.864490327" transform="translate(843.000000, 16.000000)" stroke="#505050">
+            <polyline id="Path-3" stroke-width="7.0710485" transform="translate(21.213145, 4.949734) scale(1, -1) translate(-21.213145, -4.949734) " points="-5.66564835e-15 9.8994679 16.0099211 9.8994679 27.2168659 0 42.426291 0"></polyline>
+            <polyline id="Path-3" stroke-width="7.0710485" points="-5.66564835e-15 21.2131455 16.0099211 21.2131455 27.2168659 0 42.426291 0"></polyline>
+            <polyline id="Path-3" stroke-width="4.71403233" transform="translate(21.213145, 15.792008) scale(-1, 1) translate(-21.213145, -15.792008) " points="-5.66564835e-15 21.6845487 16.0099211 21.6845487 27.2168659 9.8994679 42.426291 9.8994679"></polyline>
+        </g>
+        <g id="timechart-toggle0-icon" transform="translate(306.000000, 16.000000)" fill="#505050">
+            <circle id="Oval" cx="8.27312644" cy="11.8869646" r="8.27312644"></circle>
+            <circle id="Oval" cx="24.8193793" cy="11.8869646" r="11.0308353"></circle>
+            <circle id="Oval" cx="38.6079234" cy="11.8869646" r="5.51541763"></circle>
+            <circle id="Oval" cx="49.6387586" cy="11.8869646" r="5.51541763"></circle>
+        </g>
+        <g id="timechart-toggle-obj" transform="translate(614.000000, 2.000000)">
+            <path d="M52.6166667,0 L52.6162082,0.0349190422 C53.0411812,0.011740966 53.4692135,0 53.9,0 C66.6577777,0 77,10.2974508 77,23 C77,35.7025492 66.6577777,46 53.9,46 C53.4692135,46 53.0411812,45.988259 52.6162082,45.965081 L52.6166667,46 L24.3833333,46 L24.3837918,45.965081 C23.9588188,45.988259 23.5307865,46 23.1,46 C10.3422223,46 0,35.7025492 0,23 C0,10.2974508 10.3422223,0 23.1,0 C23.5307865,0 23.9588188,0.011740966 24.3837918,0.0349190422 L24.3833333,0 L52.6166667,0 Z" id="Combined-Shape" stroke="#777777" stroke-width="2" fill="#FFFFFF"></path>
+            <circle id="timechart-toggle1" stroke="#E5E5E5" fill="#505050" cx="53" cy="23" r="21"></circle>
+            <circle id="timechart-toggle0" stroke="#E5E5E5" fill="#505050" cx="23" cy="23" r="21"></circle>
+        </g>
+        <g id="bumpchart-toggle" transform="translate(922.000000, 4.000000)">
+            <g id="bump-specific-needs" transform="translate(630.000000, 1.000000)">
+                <rect id="Rectangle" fill="#F4F4F4" x="0.0201721978" y="0" width="229" height="41"></rect>
+                <text id="Specific-Needs" fill-rule="nonzero" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="28.3139965" font-weight="bold" fill="#7E7E7E">
+                    <tspan x="23.9295404" y="30">Specific Needs</tspan>
+                </text>
+            </g>
+            <g id="bump-affected-group" transform="translate(401.000000, 1.000000)">
+                <rect id="Rectangle" fill="#F4F4F4" x="0.0201699391" y="0" width="228" height="41"></rect>
+                <text id="Affected-Group" fill-rule="nonzero" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="28.3139965" font-weight="bold" fill="#7E7E7E">
+                    <tspan x="20.7538654" y="30">Affected Group</tspan>
+                </text>
+            </g>
+            <g id="bump-sector" transform="translate(201.000000, 0.000000)">
+                <rect id="Rectangle" fill="#008975" x="0.497780157" y="1" width="197.024631" height="39"></rect>
+                <text id="Sector" fill="#FFFFFF" fill-rule="nonzero" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="30.9346901" font-weight="bold">
+                    <tspan x="52.2267936" y="30">Sector</tspan>
+                </text>
+            </g>
+            <g id="bump-geo" transform="translate(0.000000, 2.000000)">
+                <rect id="Rectangle" fill="#F4F4F4" x="0.497780157" y="0.554700332" width="197.024631" height="39"></rect>
+                <text id="Geo" fill-rule="nonzero" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="28.3139965" font-weight="bold" fill="#7E7E7E">
+                    <tspan x="72.8367325" y="28.5547003">Geo</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>

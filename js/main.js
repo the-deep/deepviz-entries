@@ -41,17 +41,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// time chart
 	//**************************
-
-	// create svg
-	var timelineSvg = Deepviz.createSvg({
-		id: 'timeline_viz',
-		viewBoxWidth: 1300,
-		viewBoxHeight: timechartSvgHeight,
-		div: '#timeline'
-	});
-
-	var timeChart = Deepviz.timeChart({
-		appendTo: timelineSvg,
+	Deepviz.timeChart({
 		id: 'timeChart',
 		opacity: 1,
 		gutter: 0.5,
@@ -148,5 +138,6 @@ var Deepviz = new Deepviz(sources, function(data){
 	d3.select('#toggle1').style('opacity', 0);
 	d3.select('#toggle0').style('fill', '#008974');
 	d3.select('#framework-toggle-text tspan').text('average severity');
+	$('#loadImage').fadeOut();
 
 });
