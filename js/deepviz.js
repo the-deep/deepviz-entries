@@ -467,7 +467,7 @@ var Deepviz = function(sources, callback){
 					};
 				})
 			} else {
-				var src = d.lead.author_raw;
+				src = d.lead.author_raw;
 				var authorArrayStr = d.date.getTime()+'-'+src;
 				if(!authorArray.includes(authorArrayStr)){
 					authorArray.push(authorArrayStr);
