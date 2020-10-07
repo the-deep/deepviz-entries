@@ -566,8 +566,6 @@ parseEntriesData = function(dataEntries, metadata){
 			d.lead._authors = d.lead.authors;
 			d.lead.authors.forEach(function(dd,ii){
 				dd._id = dd.id;
-				var orgId;
-				var orgTypeId;
 				metadata.organization.forEach(function(ddd,ii){
 					if((dd._id==ddd._id)){
 						dd.id=ddd.id;
