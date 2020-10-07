@@ -439,10 +439,11 @@ var Deepviz = function(sources, callback){
 			};
 
 			// publishers (unique based on source_raw strinng)
+			var src;
 			if(d.lead.source){
-				var src = d.lead.source.id;
+				src = d.lead.source.id;
 			} else {
-				var src = d.lead.source_raw;
+				src = d.lead.source_raw;
 			}
 			var publisherArrayStr = d.date.getTime()+'-'+src;
 			if(!publisherArray.includes(publisherArrayStr)){
