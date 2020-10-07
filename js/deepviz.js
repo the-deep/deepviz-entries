@@ -56,6 +56,7 @@ var dataByMonth;
 var dataByYear;
 var dataByLead;
 var dataByPublisher;
+var dataByAuthor;
 var dataByAssessmentType;
 var dataByOrganisation;
 var dataByOrganisationType;
@@ -228,9 +229,11 @@ var Deepviz = function(sources, callback){
 
 		parseGeoData();
 
+		metadataAssessments = parseAssessmentsMetadata(metadataAry);
+		metadata.organization = metadataAssessments.organization;
+		metadata.organization_type = metadataAssessments.organization_type;
 		metadata = parseEntriesMetadata(metadata);
 		data = parseEntriesData(dataEntries, metadata);
-		metadataAssessments = parseAssessmentsMetadata(metadataAry);
 		dataAssessments = parseAssessmentsData(dataAssessments, metadataAry);
 
 		// disableSync threshold
@@ -411,6 +414,8 @@ var Deepviz = function(sources, callback){
 		var leadArray = [];
 		dataByPublisher = [];
 		var publisherArray = [];
+		dataByAuthor = [];
+		var authorArray = [];
 		dataBySector = [];
 		dataByFramework = [];
 		dataByAffectedGroups = [];
@@ -447,6 +452,30 @@ var Deepviz = function(sources, callback){
 					dataByPublisher.push(publisherRow);
 				}
 			};
+			// authors (unique based on author_raw strinng)
+			if((d.lead.authors)&&(d.lead.authors.length>0)){
+				d.lead.authors.forEach(function(dd,ii){
+					var src = dd.id;
+					var authorArrayStr = d.date.getTime()+'-'+src;
+					if(!authorArray.includes(authorArrayStr)){
+						authorArray.push(authorArrayStr);
+						var authorRow = {"date": d.date, "month": d.month, "year": d.year, author: src, 'author_type': dd.type, 's': d.severity, 'r': d.reliability};
+						if(src>0){
+							dataByAuthor.push(authorRow);
+						}
+					};
+				})
+			} else {
+				var src = d.lead.author_raw;
+				var authorArrayStr = d.date.getTime()+'-'+src;
+				if(!authorArray.includes(authorArrayStr)){
+					authorArray.push(authorArrayStr);
+					var authorRow = {"date": d.date, "month": d.month, "year": d.year, author: src, 'author_type': d.lead.type, 's': d.severity, 'r': d.reliability};
+					if(src>0){
+						dataByAuthor.push(authorRow);
+					}
+				};
+			}
 
 			d.sector.forEach(function(dd,ii){
 				var c = dd[0];
@@ -524,22 +553,20 @@ var Deepviz = function(sources, callback){
 
 		// assessments data
 		dataByAssessmentType = [];
-		dataByOrganisation = [];
-		dataByOrganisationType = [];
-		
 		dataAssessments.forEach(function(d,i){
 			dataByAssessmentType.push({"date": d.date, "month": d.month, "year": d.year, 'assessment_type': parseInt(d.assessment_type), 's': d.finalScore, 'r': null});
+		});
 
-			d.organization_and_stakeholder_type.forEach(function(dd,ii){
-				var name;
-				metadataAry.organization.forEach(function(ddd,ii){
-					if(parseInt(ddd.id)==parseInt(dd[1])){
-						name = ddd.name;
-						dataByOrganisation.push({"date": d.date, "month": d.month, "year": d.year, "stakeholder_type": dd[0], "organisation": dd[1], 'name': name, 's': d.finalScore, 'r': null });
-					}
-				});
+		dataByOrganisation = [];
+		dataByOrganisationType = [];	
+		dataByAuthor.forEach(function(d,ii){
+			var name;
+			metadataAry.organization.forEach(function(dd,ii){
+				if(parseInt(dd.id)==parseInt(d.author)){
+					name = dd.short_name;
+					dataByOrganisation.push({"date": d.date, "month": d.month, "year": d.year, "stakeholder_type": dd.organization_type_id, "organisation": dd.id, 'name': name, 's': d.severity, 'r': d.reliability });
+				}
 			});
-
 		});
 
 		// entries by framework sector (non-unique to populate framework cells)
