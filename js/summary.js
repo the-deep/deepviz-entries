@@ -369,55 +369,55 @@ Summary.update = function(){
 		} 
 	});
 
-	// stakeholder row
-	var organisations = dataByOrganisation.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
-	var uniqueOrganisations = [];
+	// AUTHORS/SOURCES ROW
+	var authors = dataByOrganisation.filter(function(d){return ((d.date>=dateRange[0])&&(d.date<dateRange[1])) ;});
+	var uniqueAuthors = [];
 	var stakeholderTypes = [];
 
-	organisations.forEach(function(d,i){
-		if(!uniqueOrganisations.includes(d.organisation)){
-			uniqueOrganisations.push(d.organisation);
+	authors.forEach(function(d,i){
+		if(!uniqueAuthors.includes(d.organisation)){
+			uniqueAuthors.push(d.organisation);
 			if(d.stakeholder_type!=null) stakeholderTypes.push(d.stakeholder_type);
 		}
 	});
 
-	d3.select('#total_stakeholders tspan').text(addCommas(uniqueOrganisations.length));
+	d3.select('#total_stakeholders tspan').text(addCommas(uniqueAuthors.length));
 
-	// STAKEHOLDERS ROW
-	var lngo = d3.sum(dc, function(d){
-		if(d.top.includes('lngo')) return 1;
-	})
+	var lngo = d3.sum(stakeholderTypes, function(d){
+		if(d==stakeholder_type_keys.lngo) return 1;
+	});
 	d3.select('#lngo tspan').text(addCommas(lngo));
 
-	var ingo = d3.sum(dc, function(d){
-		if(d.top.includes('ingo')) return 1;
+	var ingo = d3.sum(stakeholderTypes, function(d){
+		if(d==stakeholder_type_keys.ingo) return 1;
 	})
 	d3.select('#ingo tspan').text(addCommas(ingo));
 
-	var un_agency = d3.sum(dc, function(d){
-		if(d.top.includes('un_agency')) return 1;
+	var un_agency = d3.sum(stakeholderTypes, function(d){
+		if(d==stakeholder_type_keys.un_agency) return 1;
 	})
 	d3.select('#un_agency tspan').text(addCommas(un_agency));
 
-	var cluster = d3.sum(dc, function(d){
-		if(d.top.includes('cluster')) return 1;
+	var cluster = d3.sum(stakeholderTypes, function(d){
+		if(d==stakeholder_type_keys.cluster) return 1;
 	})
 	d3.select('#cluster tspan').text(addCommas(cluster));
 
-	var donor = d3.sum(dc, function(d){
-		if(d.top.includes('donor')) return 1;
+	var donor = d3.sum(stakeholderTypes, function(d){
+		if(d==stakeholder_type_keys.donor) return 1;
 	})
 	d3.select('#donor tspan').text(addCommas(donor));
 
-	var rcrc = d3.sum(dc, function(d){
-		if(d.top.includes('rcrc')) return 1;
+	var rcrc = d3.sum(stakeholderTypes, function(d){
+		if(d==stakeholder_type_keys.rcrc) return 1;
 	})
 	d3.select('#rcrc tspan').text(addCommas(rcrc));
 
-	var government = d3.sum(dc, function(d){
-		if(d.top.includes('government')) return 1;
+	var government = d3.sum(stakeholderTypes, function(d){
+		if(d==stakeholder_type_keys.government) return 1;
 	})
 	d3.select('#government tspan').text(addCommas(government));
+
 
 	// BOTTOM ROW
 	var key_informants = d3.sum(dc,function(d){

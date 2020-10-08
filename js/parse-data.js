@@ -179,12 +179,6 @@ parseAssessmentsMetadata = function(metadata){
 		d.id = i+1;
 	});
 
-	metadata.organization.forEach(function(d,i){
-		d._id = d.id;
-		d.id = i+1;
-		d.name = d.short_name;
-	});
-
 	metadata.organization_type.forEach(function(d,i){
 		d._id = d.id;
 		d.id = i+1;
@@ -197,6 +191,23 @@ parseAssessmentsMetadata = function(metadata){
 		if(d.name=='Red Cross/Red Crescent Movement') stakeholder_type_keys.rcrc = d.id;
 		if(d.name=='Cluster') stakeholder_type_keys.cluster = d.id;
 	});
+
+	metadata.organization.forEach(function(d,i){
+		d._id = d.id;
+		d.id = i+1;
+		d.name = d.short_name;
+
+		d._organization_type_id = d.organization_type_id;
+
+		if(d._organization_type_id !== null){
+			d.organization_type_id = metadata.organization_type.filter(function(dd,ii){
+				return dd._id == d._organization_type_id;
+			})[0].id;		
+		}
+
+	});
+
+
 
 	metadata.scorepillar_scale.forEach(function(d,i){
 		d._id = d.id;
@@ -550,6 +561,31 @@ parseEntriesData = function(dataEntries, metadata){
 		d.year.setMonth(0);
 
 		// PARSE STRING IDS TO INTEGERS
+		// parse lead author/source
+		if((d.lead.authors)&&(d.lead.authors.length>0)){
+			d.lead._authors = d.lead.authors;
+			d.lead.authors.forEach(function(dd,ii){
+				dd._id = dd.id;
+				metadata.organization.forEach(function(ddd,ii){
+					if((dd._id==ddd._id)){
+						dd.id=ddd.id;
+						dd.name=ddd.short_name;
+						metadata.organization_type.forEach(function(dddd,iiii){
+							if(dddd._id==ddd.organization_type_id){
+								dd.type=dddd.id;
+							}
+						})
+					}
+				});
+			});
+		} else if (d.lead.author_raw.length>0){
+			metadata.organization.forEach(function(ddd,ii){
+				if((d.lead.author_raw==ddd.short_name)||(d.lead.author_raw==ddd.long_name)){
+					d.lead.authors.push({'id': ddd.id, 'type': ddd.organization_type_id})
+				}
+			});			
+		}
+
 		// parse context array
 		d._context = d.context;
 		d.context = [];
