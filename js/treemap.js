@@ -173,8 +173,12 @@ DeepvizTreemap.update = function(){
 	}).on('mouseout', function(d,i){
 		d3.select(this).select('rect').style('stroke', 'none')
 	}).on('click', function(d,i){
+		if($('#treemap-toggle-list .disabled').length==1){ // disable demography remove after api update
+			return false; 
+		}
 		$('#treemap-toggle-list ul').find('.disabled:first').attr('id').substring(8);
 		$('#treemap-toggle-list ul').find('.disabled:first').removeClass('disabled');
+
 		var thisId = d.data.id;
 		treemapFilters[treemapActiveLevel] = thisId;
 		DeepvizTreemap.update(thisId);
@@ -328,7 +332,7 @@ DeepvizTreemap.updateData = function(){
 
  	}
 
-	var treeDataObj = {'name': 'root', 'children': treeData}
+	var treeDataObj = {'name': '', 'children': treeData}
 
 	var root = d3.hierarchy(treeDataObj)
       .sum(d => d.value)
