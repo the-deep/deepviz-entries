@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="606px" height="17px" viewBox="0 0 606 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>treemap-toggle</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="treemap-toggle">
+            <g id="treemap-demographic" opacity="0" transform="translate(504.003032, 0.000000)">
+                <rect id="Rectangle" fill="#F4F4F4" x="0" y="0.414418641" width="101.377048" height="15.7479084"></rect>
+                <text id="Demographic" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="11" font-weight="normal" fill="#7E7E7E">
+                    <tspan x="19.7730238" y="12">Demographic</tspan>
+                </text>
+            </g>
+            <g id="treemap-specific-needs" transform="translate(401.271146, 0.000000)">
+                <rect id="Rectangle" fill="#F4F4F4" x="0" y="0.414418641" width="101.377048" height="15.7479084"></rect>
+                <text id="Specific-Needs" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="11" font-weight="normal" fill="#7E7E7E">
+                    <tspan x="17.1605238" y="12">Specific Needs</tspan>
+                </text>
+            </g>
+            <g id="treemap-affected-group" transform="translate(299.536657, 0.000000)">
+                <rect id="Rectangle" fill="#F4F4F4" x="0" y="0.414418641" width="101.377048" height="15.7479084"></rect>
+                <text id="Affected-Group" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="11" font-weight="normal" fill="#7E7E7E">
+                    <tspan x="16.4455238" y="12">Affected Group</tspan>
+                </text>
+            </g>
+            <g id="treemap-sector" transform="translate(210.768329, 0.000000)">
+                <rect id="Rectangle" fill="#008975" x="7.10542736e-15" y="0.414418641" width="87.8891143" height="15.3334897"></rect>
+                <text id="Sector" fill="#FFFFFF" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="12.0181406" font-weight="normal">
+                    <tspan x="26.6143036" y="12">Sector</tspan>
+                </text>
+            </g>
+            <g id="treemap-geo" transform="translate(122.000000, 0.950000)">
+                <rect id="Rectangle" fill="#F4F4F4" x="-1.42108547e-14" y="-1.77635684e-15" width="87.7709317" height="15.1999998"></rect>
+                <text id="Geo" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="11" font-weight="normal" fill="#7E7E7E">
+                    <tspan x="33.7855689" y="11.05">Geo</tspan>
+                </text>
+            </g>
+            <text id="Select-treemap-dimen" font-family="SourceSansPro-Light, Source Sans Pro" font-size="10.627356" font-weight="300" fill="#5F5F5F">
+                <tspan x="0.047484928" y="12">Select treemap dimension</tspan>
+            </text>
+        </g>
+    </g>
+</svg>

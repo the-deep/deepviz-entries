@@ -190,6 +190,9 @@ parseAssessmentsMetadata = function(metadata){
 		if(d.name=='UN Agencies') stakeholder_type_keys.un_agency = d.id;
 		if(d.name=='Red Cross/Red Crescent Movement') stakeholder_type_keys.rcrc = d.id;
 		if(d.name=='Cluster') stakeholder_type_keys.cluster = d.id;
+		if(d.name.includes('Academic')) stakeholder_type_keys.academic = d.id;
+		if(d.name=='Other') stakeholder_type_keys.other = d.id;
+		if(d.name=='Media') stakeholder_type_keys.media = d.id;
 	});
 
 	metadata.organization.forEach(function(d,i){
@@ -206,8 +209,6 @@ parseAssessmentsMetadata = function(metadata){
 		}
 
 	});
-
-
 
 	metadata.scorepillar_scale.forEach(function(d,i){
 		d._id = d.id;
@@ -638,6 +639,7 @@ parseEntriesData = function(dataEntries, metadata){
 					sector_id = ddd.id;
 				}
 			});
+			if(!d.sector.includes([context_id,framework_id,sector_id]))
 			d.sector.push([context_id,framework_id,sector_id]);
 		});
 
@@ -680,6 +682,27 @@ parseEntriesData = function(dataEntries, metadata){
 			});
 		});
 
+	});
+
+	// calculate lead median severity/reliability
+
+	var leadNest = d3.nest()
+	.key(function(d) { return d.lead.id;})
+	.rollup(function(leaves) { 
+		var median_s = Math.round(d3.median(leaves, function(d) { return d.severity; })); 
+		var median_r = Math.round(d3.median(leaves, function(d) { return d.reliability; })); 
+		return { 'entries': leaves.length, 'median_s': median_s, 'median_r': median_r }
+	})
+	.entries(dataEntries);
+
+	dataEntries.forEach(function(d,i){
+		leadNest.forEach(function(dd,ii){
+			if(d.lead.id==dd.key){
+				d.lead.median_s = dd.value.median_s;
+				d.lead.median_r = dd.value.median_r;
+				d.lead.entries = dd.value.entries;
+			}
+		});
 	});
 
 	return dataEntries;

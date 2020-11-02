@@ -28,7 +28,7 @@ DeepvizFramework.create = function(a){
 	var frameworkHeight = metadata.framework_groups_array.length * frameworkRowHeight;
 
 	var numFrameworkRows = metadata.framework_groups_array.length;
-	var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2};
+	var frameworkMargins = {top: 20, left: 0, right: 0, bottom: 2, sectorTotalRow: 20};
 
 	if(metadata.sector_array.length>10){
 		var leftSpacing = 460; 
@@ -38,7 +38,7 @@ DeepvizFramework.create = function(a){
 
 	var frameworkWidth = 1600;
 	var colWidth = (frameworkWidth-leftSpacing)/metadata.sector_array.length;
-	var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom))/numFrameworkRows;
+	var rowHeight = (frameworkHeight - (frameworkMargins.top + frameworkMargins.bottom + frameworkMargins.sectorTotalRow))/numFrameworkRows;
 
 	var title = d3.select('#framework-chart').append('div');
 	title.attr('class', 'title').text('SECTORAL FRAMEWORK');
@@ -71,7 +71,7 @@ DeepvizFramework.create = function(a){
 	.attr('id', 'framework-toggle-switch')
 	.attr('transform', 'translate(237,1)')
 
-	toggleswitch = toggleswitch.append('g').attr('transform', 'scale(0.52)');
+	toggleswitch = toggleswitch.append('g').attr('transform', 'scale(0.49)');
 
 	toggleswitch.append('path').attr('d','M164.383333,2.03489404 L164.383333,2 L192.616667,2 L192.616667,2.03489404 C193.041489,2.01173252 193.469368,2 193.9,2 C206.657778,2 217,12.2974508 217,25 C217,37.7025492 206.657778,48 193.9,48 C193.469368,48 193.041489,47.9882675 192.616667,47.965106 L192.616667,48 L164.383333,48 L164.383333,47.965106 C163.958511,47.9882675 163.530632,48 163.1,48 C150.342222,48 140,37.7025492 140,25 C140,12.2974508 150.342222,2 163.1,2 C163.530632,2 163.958511,2.01173252 164.383333,2.03489404 Z')
 	.style('fill', '#FFF')
@@ -150,7 +150,7 @@ DeepvizFramework.create = function(a){
 	})
 	.attr('id', function(d,i){ return 'framework-col-'+i; })
 	.attr('x', 21)
-	.attr('y', 1)
+	.attr('y', 1);
 	// .style('font-size', '13px')
 	// .attr('x', (colWidth/2)+10)
 	// .style('text-anchor', 'middle');
@@ -167,6 +167,53 @@ DeepvizFramework.create = function(a){
 	.attr('width', 14)
 	.attr('y', -11)
 	.attr('x', 2);
+
+	// sector total row
+	columnHeadersBg
+	.append('text')
+	.attr('class', 'col-header-value')
+	.text(function(d,i){
+		return '1,234';
+	})
+	.attr('id', function(d,i){ return 'framework-col-value-'+d.id; })
+	.attr('x', colWidth/2)
+	.attr('y', frameworkMargins.sectorTotalRow+2);
+
+	layer2
+	.append('line')
+	.attr('x1', 0)
+	.attr('x2', frameworkWidth)
+	.attr('y1', 25)
+	.attr('y2', 25)
+	.attr('class', 'framework-domain')
+	.attr('stroke', 'green')
+	.style('stroke-width', '1px');
+
+	var totalLabel = layer2
+	.append('text')
+	.text(function(d,i){
+		return 'TOTAL';
+	})
+	.attr('y', frameworkMargins.top + frameworkMargins.sectorTotalRow -1)
+	.style('text-anchor', 'end');
+
+	totalLabel
+	.attr('x', function(d,i){
+		var bbox = d3.select(this).node().getBBox();
+		return leftSpacing-37;
+	});
+
+	var totalDataLabels = layer2.append('text')
+	.text('00')
+	.attr('class', 'col-header-value')
+	.attr('id',function(d,i){
+		return 'totalDataLabel'
+	})
+	.style('text-anchor', 'middle')
+	.attr('x', function(d,i){
+		return leftSpacing-18;
+	})
+	.attr('y', frameworkMargins.top + frameworkMargins.sectorTotalRow -1)
 
 	columnHeaders
 	.attr('transform', function(d,i){
@@ -211,7 +258,7 @@ DeepvizFramework.create = function(a){
 		return 'frameworkRow f'+d.id + ' c'+d.context_id;
 	})
 	.attr('transform', function(d,i){
-		return 'translate(0,'+ (frameworkMargins.top + (i+1) * rowHeight)+')';
+		return 'translate(0,'+ (frameworkMargins.top + frameworkMargins.sectorTotalRow + (i+1) * rowHeight)+')';
 	});
 
 	var rows2 = layer2.selectAll('.frameworkRow')
@@ -222,7 +269,7 @@ DeepvizFramework.create = function(a){
 		return 'frameworkRow f'+d.id + ' c'+d.context_id;
 	})
 	.attr('transform', function(d,i){
-		return 'translate(0,'+ (frameworkMargins.top + (i+1)* rowHeight )+')';
+		return 'translate(0,'+ (frameworkMargins.top + frameworkMargins.sectorTotalRow + (i+1)* rowHeight )+')';
 	});
 
 	rows.append('rect')
@@ -306,7 +353,7 @@ DeepvizFramework.create = function(a){
 	labels
 	.attr('x', function(d,i){
 		var bbox = d3.select(this).node().getBBox();
-		return leftSpacing-32;
+		return leftSpacing-37;
 	})
 
 	var dataLabels = secondCol.append('text')
@@ -322,7 +369,7 @@ DeepvizFramework.create = function(a){
 	})
 	.style('text-anchor', 'middle')
 	.attr('x', function(d,i){
-		return leftSpacing-17;
+		return leftSpacing-18;
 	})
 	.attr('y', -2);
 
@@ -350,10 +397,10 @@ DeepvizFramework.create = function(a){
 	.attr('y', function(d,i){
 		if(i==0){
 			rollingH += rowHeight;
-			return rowHeight;
+			return rowHeight + frameworkMargins.sectorTotalRow;
 		} else { 
 			rollingH += (categories[i-1].value) * rowHeight;
-			return rollingH;
+			return rollingH + frameworkMargins.sectorTotalRow;
 		}
 	})
 	.style('cursor', function(d,i){
@@ -431,10 +478,10 @@ DeepvizFramework.create = function(a){
 	.attr('data-y', function(d,i){
 		if(i==0){
 			rollingH += rowHeight;
-			return rowHeight + rowHeight;
+			return rowHeight + rowHeight + frameworkMargins.sectorTotalRow;
 		} else { 
 			rollingH += (categories[i-1].value) * rowHeight;
-			return rollingH + rowHeight;
+			return rollingH + rowHeight + frameworkMargins.sectorTotalRow;
 		}
 	})
 
@@ -450,7 +497,7 @@ DeepvizFramework.create = function(a){
 		return d.id;
 	})
 	.attr('transform', function(d,i){
-		return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - frameworkMargins.top + ')';
+		return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - (frameworkMargins.top) + ')';
 	})
 	.attr('id', function(d,i){
 		var c = d3.select(this.parentNode).attr('class').split(' ')[1];
@@ -534,7 +581,7 @@ DeepvizFramework.create = function(a){
 		return d.id;
 	})
 	.attr('transform', function(d,i){
-		return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - (frameworkMargins.top ) + ')';
+		return 'translate('+ ((colWidth)*i+leftSpacing) + ','+ - (frameworkMargins.top) + ')';
 	})
 	.attr('id', function(d,i){
 		var c = d3.select(this.parentNode).attr('class').split(' ')[1];
@@ -642,7 +689,7 @@ DeepvizFramework.create = function(a){
 
 	rows2.on('mouseover', function(d,i){
 		hSel.attr('transform', function(){
-			return 'translate(0,'+((i*rowHeight)+frameworkMargins.top+7)+')';
+			return 'translate(0,'+((i*rowHeight)+(frameworkMargins.top+frameworkMargins.sectorTotalRow)+7)+')';
 		})
 	});
 
@@ -662,22 +709,28 @@ DeepvizFramework.create = function(a){
 		d3.selectAll('#framework-toggle').style('opacity', 1)
 
 	}).on('click', function(d,i){
-		if(filters.frameworkToggle=='entries'){
-			if(filters.toggle == 'severity'){
-				d3.select('#framework-toggle').style('fill', colorPrimary[3]);
+		$('#loadImage').fadeIn(5,function(){
+		$('#loadImageFramework').fadeIn(50,function(){		
+			if(filters.frameworkToggle=='entries'){
+				if(filters.toggle == 'severity'){
+					d3.select('#framework-toggle').style('fill', colorPrimary[3]);
+				} else {
+					d3.select('#framework-toggle').style('fill', colorSecondary[3]);
+				}
+				d3.select('#framework-toggle').transition().duration(200).attr('cx', 194);
+				filters.frameworkToggle = 'average';
 			} else {
-				d3.select('#framework-toggle').style('fill', colorSecondary[3]);
-			}
-			d3.select('#framework-toggle').transition().duration(200).attr('cx', 194);
-			filters.frameworkToggle = 'average';
-		} else {
-			d3.select('#framework-toggle').style('fill', colorNeutral[3]);
-			d3.select('#framework-toggle').transition().duration(200).attr('cx', 164);
-			filters.frameworkToggle = 'entries';				
-		};
-		Map.update();
-		DeepvizFramework.updateFramework();
-		Deepviz.updateTimeline();
+				d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+				d3.select('#framework-toggle').transition().duration(200).attr('cx', 164);
+				filters.frameworkToggle = 'entries';				
+			};
+			Map.update();
+			DeepvizFramework.updateFramework();
+			Deepviz.updateTimeline();
+
+			$('#loadImage, #loadImageFramework').delay(50).fadeOut(500);
+		});
+		});
 	});	
 
 }
@@ -848,6 +901,34 @@ DeepvizFramework.updateFramework = function(){
 			});
 		});
 	});
+
+	// update sector column totals
+
+	d3.selectAll('.col-header-value').text(0);
+
+	var dat = dataBySector.filter(function(d){
+		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
+	});
+
+	var totalEntriesWithSector = d3.nest()
+	.key(function(d) { return d['d'].pk; })
+	.entries(dat).length;	
+
+	d3.select('#totalDataLabel').text(addCommas(totalEntriesWithSector))
+
+	var nest = d3.nest()
+	.key(function(d) { return d['sector']; })
+	.key(function(d) { if((filters.toggle=='severity')||(filters.toggle=='finalScore')){ return d.s; } else { return d.r } }).sortKeys(d3.ascending)
+	.rollup(function(leaves) { return leaves.length; })		
+	.entries(dat);	
+
+	nest.forEach(function(d,i){
+		d.value = d3.sum(d.values, function(d){
+			return d.value;
+		});
+		d3.select('#framework-col-value-'+d.key).text(addCommas(d.value));
+	});
+
 }
 
 //**************************

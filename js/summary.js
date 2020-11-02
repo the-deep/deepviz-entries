@@ -228,7 +228,7 @@ Summary.update = function(){
 		}
 	});
 
-	var totalLeads = uniqueLeads.length;
+	totalLeads = uniqueLeads.length;
 	d3.select('#total_documents tspan').text(addCommas(totalLeads));
 
 	// publishers

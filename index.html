@@ -18,7 +18,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=77781" rel="stylesheet" type="text/css" media="all" />
+	<link href="css/style.css?cache=7302" rel="stylesheet" type="text/css" media="all" />
 
 </head>
 
@@ -189,7 +189,7 @@
 							</div><!-- / .rightcol -->
 
 							<div id="framework-chart" class="clearfix">
-
+								<div id="loadImageFramework" class="loader"></div>
 							</div>
 
 							<div id="footerRow">
@@ -208,15 +208,97 @@
 							<br/>
 
 						</div>
+
 					</div><!-- /#main-content -->
 				</div>
 			</div>
 			<div id="main-page2">
 				<div class="container1 main-content">
+
 					<div id="humanitarianprofileTitle" class="title">HUMANITARIAN PROFILE</div><img id="humanitarianprofileRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
 					<div id="humanitarianprofile"></div>
-				</div>
-			</div>
+
+					<div id="treemap-section">
+						<div id="treemapCol">
+							<div id="treemapTitle" class="title">TREEMAP</div>
+							<img id="treemapRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+							<div id="treemap-toggle">
+								<div id="treemap-toggle-title">
+									Drag to change treemap hierarchy
+								</div>
+								<div id="treemap-toggle-list">
+									<ul>
+									    <li id='treemap_geo'>Geo</li>
+									    <li id='treemap_sector' class='disabled'>Sector</li>
+									    <li id='treemap_affected_groups' class='disabled'>Affected Group</li>
+									    <li id='treemap_special_needs' class='disabled'>Specific Needs</li>
+									    <li id='treemap_demography' class='disabled'>Demography</li>
+									</ul>
+								</div>
+							</div>
+							<div id="treemap"></div>
+						</div>
+						<div id="sunburstCol">
+							<div id="sunburstTitle" class="title">SUNBURST</div>
+							<img id="sunburstRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
+							<div id="sunburst"></div>
+						</div>
+					</div><!-- /#treemap-section -->
+
+					<div id="sources-section">
+						<h3 style="margin-bottom: 3px; margin-top: 0px; display: inline-block">Sources<img id="sourcesRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/></h3>
+						<div id="sources-toggle-container">
+							<object id="sources-toggle-obj" type="image/svg+xml" data="images/sources-toggle.svg"></object>
+						</div>
+
+						<div id="firstChartRow">
+							<div class="chartCol">
+								<div id="top-authors-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-un-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-ingo-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-ngo-svg" class="col-content"></div>
+							</div>	
+						</div><!-- /#firstChartRow -->
+						<br/>
+						<div id="secondChartRow">
+							<div class="chartCol">
+								<div id="top-rcrc-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-other-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-media-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-gov-svg" class="col-content"></div>
+							</div>	
+						</div><!-- /#secondChartRow -->
+						<br/>
+						<div id="thirdChartRow">
+							<div class="chartCol">
+								<div id="top-academic-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-donor-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol">
+								<div id="top-cluster-svg" class="col-content"></div>
+							</div>
+							<div class="chartCol"></div>
+						</div><!-- /#thirdChartRow -->
+					</div><!-- /#sources-section -->
+
+
+				</div><!-- /.container1 -->
+
+			</div><!-- /#main-page2 -->
 		</div>
 
 		<!-- load vendor JavaScript -->
@@ -226,6 +308,7 @@
 		<script type="text/javascript" src="js/vendor/d3.v5.min.js"></script>
 		<script type="text/javascript" src="js/vendor/moment.min.js"></script>
 		<script type="text/javascript" src="js/vendor/popper.min.js"></script>
+		<script type="text/javascript" src="js/vendor/jquery-ui-sortable.min.js"></script>
 		<script type="text/javascript" src="js/vendor/tippy.min.js"></script>
 		<script type="text/javascript" src="js/vendor/daterangepicker.min.js"></script>
 		<script type="text/javascript" src="js/vendor/select2.min.js"></script>
@@ -234,15 +317,16 @@
 
 		<!-- load custom JavaScript -->
 		<script type="text/javascript" src="js/geojson-rewind.js"></script>
-		<script type="text/javascript" src="js/map.js?cache=77781"></script>
-		<script type="text/javascript" src="js/framework.js?cache=77781"></script>
-		<script type="text/javascript" src="js/bumpchart.js?cache=77781"></script>
-		<script type="text/javascript" src="js/summary.js?cache=77781"></script>
-		<script type="text/javascript" src="js/parse-data.js?cache=77781"></script>
-		<script type="text/javascript" src="js/deepviz.js?cache=77781"></script>
-		<script type="text/javascript" src="js/barchart.js?cache=77781"></script>
-		<script type="text/javascript" src="js/humanitarianprofile.js?cache=77781"></script>
-		<script type="text/javascript" src="js/main.js?cache=77781"></script>
+		<script type="text/javascript" src="js/map.js?cache=7302"></script>
+		<script type="text/javascript" src="js/framework.js?cache=7302"></script>
+		<script type="text/javascript" src="js/bumpchart.js?cache=7302"></script>
+		<script type="text/javascript" src="js/treemap.js?cache=7302"></script>
+		<script type="text/javascript" src="js/summary.js?cache=7302"></script>
+		<script type="text/javascript" src="js/parse-data.js?cache=7302"></script>
+		<script type="text/javascript" src="js/deepviz.js?cache=7302"></script>
+		<script type="text/javascript" src="js/barchart.js?cache=7302"></script>
+		<script type="text/javascript" src="js/humanitarianprofile.js?cache=7302"></script>
+		<script type="text/javascript" src="js/main.js?cache=7302"></script>
 
 
 	</body>
