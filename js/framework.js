@@ -194,12 +194,13 @@ DeepvizFramework.create = function(a){
 	.text(function(d,i){
 		return 'TOTAL';
 	})
+	.style('font-weight', 'bold')
 	.attr('y', frameworkMargins.top + frameworkMargins.sectorTotalRow -1)
 	.style('text-anchor', 'end');
 
 	totalLabel
 	.attr('x', function(d,i){
-		return leftSpacing-37;
+		return leftSpacing-39;
 	});
 
 	layer2.append('text')
