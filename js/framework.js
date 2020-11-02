@@ -199,11 +199,10 @@ DeepvizFramework.create = function(a){
 
 	totalLabel
 	.attr('x', function(d,i){
-		var bbox = d3.select(this).node().getBBox();
 		return leftSpacing-37;
 	});
 
-	var totalDataLabels = layer2.append('text')
+	layer2.append('text')
 	.text('00')
 	.attr('class', 'col-header-value')
 	.attr('id',function(d,i){

@@ -602,7 +602,6 @@ var Deepviz = function(sources, callback){
 			var type;
 			metadataAry.organization.forEach(function(dd,ii){
 				if(parseInt(dd.id)==parseInt(d.organisation)){
-					name = dd.short_name;
 					type = dd.organization_type_id;
 				}
 			});
@@ -2784,7 +2783,8 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.createSourcesCharts = function(){
 		var srcChartHeight = 400;
-		var topAuthorsChart = BarChart.createStackedBarChart({
+		
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 AUTHORS',
 			rows: 'organization',
 			classname: 'organisation',
@@ -2795,7 +2795,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topUnChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 UN AGENCIES',
 			rows: 'organization',
 			classname: 'organisation-un',
@@ -2806,7 +2806,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topIngoChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 INTERNATIONAL ORGANISATIONS',
 			rows: 'organization',
 			classname: 'organisation-ingo',
@@ -2817,7 +2817,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topNgoChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 NATIONAL ORGANISATIONS',
 			rows: 'organization',
 			classname: 'organisation-lngo',
@@ -2828,7 +2828,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topRcrcChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 RCRC ORGANISATIONS',
 			rows: 'organization',
 			classname: 'organisation-rcrc',
@@ -2839,7 +2839,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topOtherChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 OTHER ORGANISATIONS',
 			rows: 'organization',
 			classname: 'organisation-other',
@@ -2850,7 +2850,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topMediaChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 MEDIA ORGANISATIONS',
 			rows: 'organization',
 			classname: 'organisation-media',
@@ -2861,7 +2861,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topGovChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 GOVERNMENT BODIES',
 			rows: 'organization',
 			classname: 'organisation-gov',
@@ -2872,7 +2872,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topAcademicChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 ACADEMIC/RESEARCH INSTITUTIONS',
 			rows: 'organization',
 			classname: 'organisation-academic',
@@ -2883,7 +2883,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topDonorChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 DONOR ORGANISATIONS',
 			rows: 'organization',
 			classname: 'organisation-donor',
@@ -2894,7 +2894,7 @@ var Deepviz = function(sources, callback){
 			limit: 10
 		});
 
-		var topClusterChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'TOP 10 CLUSTERS/SECTORS',
 			rows: 'organization',
 			classname: 'organisation-cluster',

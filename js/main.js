@@ -21,7 +21,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// top sources charts
 	//**************************
-	var sourcesCharts = Deepviz.createSourcesCharts();
+	Deepviz.createSourcesCharts();
 
 	//**************************
 	// severity chart
@@ -143,7 +143,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// treemap
 	//**************************
-	var treemap = DeepvizTreemap.create();
+	DeepvizTreemap.create();
 	
 	d3.select('#toggle1').style('opacity', 0);
 	d3.select('#toggle0').style('fill', '#008974');

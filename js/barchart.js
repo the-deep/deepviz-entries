@@ -261,8 +261,6 @@ BarChart.createStackedBarChart = function(a){
 		labelWidth = labelWidth + 36;
 	}
 
-	var width = a.width - labelWidth - padding.right; 
-
 	// adjust title and filter button spacing
 	d3.select('#'+a.classname+'Title').style('text-align', 'left').style('display', 'inline');
 
@@ -533,9 +531,6 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 	if(group=='sector'){
 		d.forEach(function(d,i){
 			var key = d.key;
-			var wcount = scale[group].paddingLeft;
-			var xcount = scale[group].paddingLeft;
-			var value = d.value; 
 			var name = d.name;
 
 			d3.select('.'+group+'-icon-'+(i+1))

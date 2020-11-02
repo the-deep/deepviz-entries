@@ -173,7 +173,7 @@ DeepvizTreemap.update = function(){
 	}).on('mouseout', function(d,i){
 		d3.select(this).select('rect').style('stroke', 'none')
 	}).on('click', function(d,i){
-		var next = $('#treemap-toggle-list ul').find('.disabled:first').attr('id').substring(8);
+		$('#treemap-toggle-list ul').find('.disabled:first').attr('id').substring(8);
 		$('#treemap-toggle-list ul').find('.disabled:first').removeClass('disabled');
 		var thisId = d.data.id;
 		treemapFilters[treemapActiveLevel] = thisId;
@@ -227,10 +227,11 @@ DeepvizTreemap.updateData = function(){
 	treemapActiveLevel = order[order.length-1];
 
  	var treeData;
+ 	var dat;
 
  	if(treemapActiveLevel=='geo'){
 
-	 	var dat = dataByLocationArray.filter(function(d){
+	 	dat = dataByLocationArray.filter(function(d){
 			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1])&&(d.admin_level==filters.admin_level));
 		});
 
@@ -254,7 +255,7 @@ DeepvizTreemap.updateData = function(){
 
  	if(treemapActiveLevel=='sector'){
 
-	 	var dat = dataBySector.filter(function(d){
+	 	dat = dataBySector.filter(function(d){
 			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
 		});
 
@@ -278,7 +279,7 @@ DeepvizTreemap.updateData = function(){
 
  	if(treemapActiveLevel=='affected_groups'){
 
-	 	var dat = dataByAffectedGroups.filter(function(d){
+	 	dat = dataByAffectedGroups.filter(function(d){
 			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
 		});
 
@@ -304,7 +305,7 @@ DeepvizTreemap.updateData = function(){
 
   	if(treemapActiveLevel=='special_needs'){
 
-	 	var dat = dataBySpecificNeeds.filter(function(d){
+	 	dat = dataBySpecificNeeds.filter(function(d){
 			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
 		});
 
@@ -327,7 +328,7 @@ DeepvizTreemap.updateData = function(){
 
  	}
 
-	var treeDataObj = {'name': root, 'children': treeData}
+	var treeDataObj = {'name': 'root', 'children': treeData}
 
 	var root = d3.hierarchy(treeDataObj)
       .sum(d => d.value)
