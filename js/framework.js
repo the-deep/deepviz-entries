@@ -195,6 +195,7 @@ DeepvizFramework.create = function(a){
 		return 'TOTAL';
 	})
 	.style('font-weight', 'bold')
+	.style('fill', colorNeutral[4])
 	.attr('y', frameworkMargins.top + frameworkMargins.sectorTotalRow -1)
 	.style('text-anchor', 'end');
 
