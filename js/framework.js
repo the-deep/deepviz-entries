@@ -316,7 +316,8 @@ DeepvizFramework.create = function(a){
 		cat = cat_name;
 		cat1++;
 	})
-	.attr('x',7)
+	.attr('x',6)
+	.attr('y', -3)
 	.attr('id', function(d,i){
 		return 'context-name-'+d.context_id;
 	})
@@ -333,6 +334,7 @@ DeepvizFramework.create = function(a){
 			.style('text-anchor', 'left')
 			.style('font-weight', 'bold')
 			.style('fill', 'rgb(0, 137, 116)')
+			.attr('y', -3)
 			.attr('x', b.width + 12)
 		}
 		return 'context-name';
