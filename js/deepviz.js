@@ -598,7 +598,6 @@ var Deepviz = function(sources, callback){
 			d.author_type = type;
 		});
 		dataByAuthor.forEach(function(d,ii){
-			var name;
 			var type;
 			metadataAry.organization.forEach(function(dd,ii){
 				if(parseInt(dd.id)==parseInt(d.organisation)){
