@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="651px" height="50px" viewBox="0 0 651 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>sources-toggle1</title>
+    <g id="sources-toggle1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#FFFFFF" x="0" y="0" width="651" height="50"></rect>
+        <path d="M423.616667,2 L423.616208,2.03491904 C424.041181,2.01174097 424.469214,2 424.9,2 C437.657778,2 448,12.2974508 448,25 C448,37.7025492 437.657778,48 424.9,48 C424.469214,48 424.041181,47.988259 423.616208,47.965081 L423.616667,48 L395.383333,48 L395.383792,47.965081 C394.958819,47.988259 394.530786,48 394.1,48 C381.342222,48 371,37.7025492 371,25 C371,12.2974508 381.342222,2 394.1,2 C394.530786,2 394.958819,2.01174097 395.383792,2.03491904 L395.383333,2 L423.616667,2 Z" id="Combined-Shape" stroke="#777777" stroke-width="2" fill="#FFFFFF"></path>
+        <circle id="toggle1" stroke="#E5E5E5" fill="#505050" cx="424.5" cy="25.5" r="18.5"></circle>
+        <circle id="toggle0" stroke="#E5E5E5" fill="#505050" cx="394.5" cy="25.5" r="18.5"></circle>
+        <text id="framework-toggle-text" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="24" font-weight="normal" fill="#313131">
+            <tspan x="462" y="33">Number of leads</tspan>
+        </text>
+        <text id="Number-of-entries" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="24" font-weight="normal" fill="#313131">
+            <tspan x="175.92" y="33">Number of entries</tspan>
+        </text>
+        <text id="View-sources-by" font-family="SourceSansPro-Light, Source Sans Pro" font-size="22.6273561" font-weight="300" fill="#5F5F5F">
+            <tspan x="14.4318708" y="33">View sources by</tspan>
+        </text>
+    </g>
+</svg>

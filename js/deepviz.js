@@ -23,7 +23,7 @@ var scale = {
 	'reliability': {x: '', y: ''}
 };
 
-var labelCharLimit = 60;
+var labelCharLimit = 31;
 var textLabel = 'Entries';
 var timechartCanvas;
 var drawingTimeline = false;
@@ -57,6 +57,9 @@ var dataByYear;
 var dataByLead;
 var dataByPublisher;
 var dataByAuthor;
+var dataByAuthorUnique;
+var dataByAuthorLeads;
+var dataByAuthorBarData = {};
 var dataByAssessmentType;
 var dataByOrganisation;
 var dataByOrganisationType;
@@ -73,6 +76,7 @@ var dataBySpecificNeeds;
 var dataByAffectedGroups;
 var dataByAffectedGroupsRows;
 var total = 0;
+var totalLeads = 0;
 var disableSync = false;
 var disableSync_location_threshold = 1000;
 var disableSync_entries_threshold = 5000;
@@ -143,6 +147,7 @@ var filters = {
 	specific_needs: [],
 	context: [],
 	framework: [],
+	organisation: [], // author
 	geo: [],
 	top: [],
 	toggle: 'severity',
@@ -150,9 +155,12 @@ var filters = {
 	frameworkToggle: 'entries',
 	timechartToggle: 'eventdrop',
 	bumpchartToggle: 'sector',
+	treemapToggle: 'sector',
 	time: 'd',
 	heatmapCheckbox: false,
-	panelLayout: 'default'
+	panelLayout: 'default',
+	authorToggle: 'entries',
+	author: [],
 };
 
 var svg_summary1;
@@ -235,6 +243,8 @@ var Deepviz = function(sources, callback){
 		metadata = parseEntriesMetadata(metadata);
 		data = parseEntriesData(dataEntries, metadata);
 		dataAssessments = parseAssessmentsData(dataAssessments, metadataAry);
+
+		if(urlQueryParams.get('pk')) data = data.filter(function(d){ return d.pk == urlQueryParams.get('pk')})
 
 		// disableSync threshold
 		if(metadata.geo_array.length>disableSync_location_threshold) disableSync = true;
@@ -415,6 +425,9 @@ var Deepviz = function(sources, callback){
 		dataByPublisher = [];
 		var publisherArray = [];
 		dataByAuthor = [];
+		dataByAuthorUnique = [];
+		dataByAuthorLeads = [];
+		var authorLeadArray = [];
 		var authorArray = [];
 		dataBySector = [];
 		dataByFramework = [];
@@ -458,11 +471,16 @@ var Deepviz = function(sources, callback){
 				d.lead.authors.forEach(function(dd,ii){
 					var src = dd.id;
 					var authorArrayStr = d.date.getTime()+'-'+src;
+					var authorRow = {"pk": d.pk, "lead_id": d.lead.id, "date": d.date, "month": d.month, "year": d.year, "organisation": src, 'author_type': dd.type, 's': d.lead.median_s, 'r': d.lead.median_r};
+					dataByAuthor.push(authorRow);
+					if(!authorLeadArray.includes(leadArrayStr)){
+						authorLeadArray.push(leadArrayStr);
+						dataByAuthorLeads.push(authorRow);
+					};	
 					if(!authorArray.includes(authorArrayStr)){
 						authorArray.push(authorArrayStr);
-						var authorRow = {"date": d.date, "month": d.month, "year": d.year, author: src, 'author_type': dd.type, 's': d.severity, 'r': d.reliability};
 						if(src>0){
-							dataByAuthor.push(authorRow);
+							dataByAuthorUnique.push(authorRow);
 						}
 					};
 				})
@@ -471,9 +489,14 @@ var Deepviz = function(sources, callback){
 				var authorArrayStr = d.date.getTime()+'-'+src;
 				if(!authorArray.includes(authorArrayStr)){
 					authorArray.push(authorArrayStr);
-					var authorRow = {"date": d.date, "month": d.month, "year": d.year, author: src, 'author_type': d.lead.type, 's': d.severity, 'r': d.reliability};
+					var authorRow = {"pk": d.pk, "lead_id": d.lead.id, "date": d.date, "month": d.month, "year": d.year, "organisation": src, 'author_type': d.lead.type, 's': d.lead.median_s, 'r': d.lead.median_r};
 					if(src>0){
-						dataByAuthor.push(authorRow);
+						dataByAuthor.push(authorRow);	
+						dataByAuthorUnique.push(authorRow);
+						if(!authorLeadArray.includes(leadArrayStr)){
+							authorLeadArray.push(leadArrayStr);
+							dataByAuthorLeads.push(authorRow);
+						};	
 					}
 				};
 			}
@@ -497,12 +520,14 @@ var Deepviz = function(sources, callback){
 					contexts.push(c);
 				}
 				// unique entries by sector
-				var sectorRow = {"date": d.date, "month": d.month, "year": d.year, "sector": s, 's': d.severity, 'r': d.reliability};
+				var sectorRow = {"date": d.date, "month": d.month, "year": d.year, "sector": s, 's': d.severity, 'r': d.reliability, 'd': d};
 				if(!sectors.includes(s)){
 					dataBySector.push(sectorRow);
 					sectors.push(s);
 				}
 			});
+
+			d.sector_i = sectors;
 
 			d.geo.forEach(function(dd,ii){
 				var adm = null;
@@ -511,7 +536,7 @@ var Deepviz = function(sources, callback){
 						adm = d.admin_level;
 					}
 				})
-				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd, "admin_level": adm, 's': d.severity, 'r': d.reliability });
+				dataByLocationArray.push({"date": d.date, "month": d.month, "year": d.year, "geo": dd, "admin_level": adm, 's': d.severity, 'r': d.reliability, 'd': d });
 			});
 
 			d.context.forEach(function(dd,ii){
@@ -519,7 +544,7 @@ var Deepviz = function(sources, callback){
 			});
 
 			d.special_needs.forEach(function(dd,ii){
-				dataBySpecificNeeds.push({"date": d.date, "month": d.month, "year": d.year, "specific_needs": dd, 's': d.severity, 'r': d.reliability})
+				dataBySpecificNeeds.push({"date": d.date, "month": d.month, "year": d.year, "specific_needs": dd, 's': d.severity, 'r': d.reliability, 'd': d})
 			});
 
 			var affectedGroupsArray = [];
@@ -541,7 +566,7 @@ var Deepviz = function(sources, callback){
 						dataByAffectedGroupsRows.push(row);
 					}
 				});
-				dataByAffectedGroups.push({"pk": d.pk, "date": d.date, "month": d.month, "year": d.year, "affected_groups": dd, 's': d.severity, 'r': d.reliability})
+				dataByAffectedGroups.push({"pk": d.pk, "date": d.date, "month": d.month, "year": d.year, "affected_groups": dd, 's': d.severity, 'r': d.reliability, 'd': d})
 			});
 
 		});
@@ -560,16 +585,27 @@ var Deepviz = function(sources, callback){
 
 		dataByOrganisation = [];
 		dataByOrganisationType = [];	
-		dataByAuthor.forEach(function(d,ii){
+		dataByAuthorUnique.forEach(function(d,ii){
 			var name;
+			var type;
 			metadataAry.organization.forEach(function(dd,ii){
-				if(parseInt(dd.id)==parseInt(d.author)){
+				if(parseInt(dd.id)==parseInt(d.organisation)){
 					name = dd.short_name;
-					dataByOrganisation.push({"date": d.date, "month": d.month, "year": d.year, "stakeholder_type": dd.organization_type_id, "organisation": dd.id, 'name': name, 's': d.severity, 'r': d.reliability });
+					type = dd.organization_type_id;
+					dataByOrganisation.push({"date": d.date, "month": d.month, "year": d.year, "stakeholder_type": type, "organisation": dd.id, 'name': name, 's': d.severity, 'r': d.reliability });
 				}
 			});
+			d.author_type = type;
 		});
-
+		dataByAuthor.forEach(function(d,ii){
+			var type;
+			metadataAry.organization.forEach(function(dd,ii){
+				if(parseInt(dd.id)==parseInt(d.organisation)){
+					type = dd.organization_type_id;
+				}
+			});
+			d.author_type = type;
+		});
 		// entries by framework sector (non-unique to populate framework cells)
 		dataByContext = dataByContextArray;
 
@@ -757,9 +793,17 @@ var Deepviz = function(sources, callback){
 
 		Summary.update();
 		DeepvizFramework.updateFramework();
-		BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
-		BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
-		BarChart.updateStackedBars('sector', dataBySector);
+		DeepvizTreemap.update();
+		if(filters.frameworkToggle=='entries'){
+			BarChart.updateBars('affected_groups', dataByAffectedGroups);
+			BarChart.updateBars('specific_needs', dataBySpecificNeeds);
+			BarChart.updateBars('sector', dataBySector);				
+		} else {
+			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
+			BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
+			BarChart.updateStackedBars('sector', dataBySector);						
+		}
+		Deepviz.updateAuthorCharts();
 		HumanitarianProfile.update();
 
 		return dataByDate;
@@ -1760,18 +1804,18 @@ var Deepviz = function(sources, callback){
 				Deepviz.createEventdrop(options);
 				// Deepviz.redrawTimeline();
 				timechartToggle.select('#timechart-toggle0').attr('opacity', 1);
-				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 1);
+				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
 				timechartToggle.select('#timechart-toggle1').attr('opacity', 0);
-				timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.5);
+				timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.3);
 				timechartToggle.select('#bumpchart-toggle').transition().duration(500).attr('opacity', 0);
 			} else {
 				filters.timechartToggle = 'bumpchart';
 				DeepvizBumpChart.create(options);
 				// Deepviz.redrawTimeline();
 				timechartToggle.select('#timechart-toggle0').attr('opacity', 0);
-				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
+				timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.3);
 				timechartToggle.select('#timechart-toggle1').attr('opacity', 1);
-				timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 1);
+				timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.5);
 				timechartToggle.select('#bumpchart-toggle').transition().duration(500).attr('opacity', 1);
 			}
 		})
@@ -1779,17 +1823,17 @@ var Deepviz = function(sources, callback){
 			Deepviz.createEventdrop(options);
 			// Deepviz.redrawTimeline();
 			timechartToggle.select('#timechart-toggle0').attr('opacity', 1);
-			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 1);
+			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
 			timechartToggle.select('#timechart-toggle1').attr('opacity', 0);
-			timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.5);
+			timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.3);
 			timechartToggle.select('#bumpchart-toggle').attr('opacity', 0);
 		} else {
 			DeepvizBumpChart.create(options);
 			// Deepviz.redrawTimeline();
 			timechartToggle.select('#timechart-toggle0').attr('opacity', 0);
-			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.5);
+			timechartToggle.select('#timechart-toggle0-icon').attr('opacity', 0.3);
 			timechartToggle.select('#timechart-toggle1').attr('opacity', 1);
-			timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 1);
+			timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.5);
 			timechartToggle.select('#bumpchart-toggle').attr('opacity', 1);
 		}
 
@@ -2063,14 +2107,22 @@ var Deepviz = function(sources, callback){
 	    	Map.update();
 	    	updateSeverityReliability('brush', 500);
 	    	DeepvizFramework.updateFramework();
-	    	BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
-	    	BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
-	    	BarChart.updateStackedBars('sector', dataBySector);
+	    	DeepvizTreemap.update();
+			if(filters.frameworkToggle=='entries'){
+				BarChart.updateBars('affected_groups', dataByAffectedGroups);
+				BarChart.updateBars('specific_needs', dataBySpecificNeeds);
+				BarChart.updateBars('sector', dataBySector);				
+			} else {
+				BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
+				BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
+				BarChart.updateStackedBars('sector', dataBySector);						
+			}
+	    	Deepviz.updateAuthorCharts();
 	    	HumanitarianProfile.update();
 
 	    	handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 	    	handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + ((timechartSvgHeight-timechartHeight2-20) - margin.top) + ")"; });
-	   		$('#loadImage').delay(50).fadeOut(500);
+	   		$('#loadImage, #loadImageFramework').delay(50).fadeOut(500);
 	    }
 
 	    // programattically set date range
@@ -2142,9 +2194,6 @@ var Deepviz = function(sources, callback){
 				// Map.update();
 				// updateSeverityReliability('brush');
 			} 
-			// BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
-			// BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
-			// BarChart.updateStackedBars('sector', dataBySector);
 
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
 			handleBottom.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", " + ((timechartSvgHeight-timechartHeight2-20) - margin.top) + ")"; });
@@ -2154,7 +2203,7 @@ var Deepviz = function(sources, callback){
 				$('#location-search').select2('close');
 			}
 
-	    	$('#loadImage').show();
+	    	$('#loadImage, #loadImageFramework').show();
 
 			//**************************
 			// update chartArea viewBox
@@ -2240,12 +2289,20 @@ var Deepviz = function(sources, callback){
 			updateSeverityReliability('brush',500);
 			Map.update();
 			DeepvizFramework.updateFramework();
-			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
-			BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
-			BarChart.updateStackedBars('sector', dataBySector);
+			DeepvizTreemap.update();
+			if(filters.frameworkToggle=='entries'){
+				BarChart.updateBars('affected_groups', dataByAffectedGroups);
+				BarChart.updateBars('specific_needs', dataBySpecificNeeds);
+				BarChart.updateBars('sector', dataBySector);				
+			} else {
+				BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
+				BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
+				BarChart.updateStackedBars('sector', dataBySector);						
+			}
+			Deepviz.updateAuthorCharts();
 			HumanitarianProfile.update();
 
-	    	$('#loadImage').fadeOut(500);
+	    	$('#loadImage, #loadImageFramework').fadeOut(500);
 
 			// d3.select(this).call(d3.event.target.move, dateRange.map(scale.timechart.x));
 			handleTop.attr("transform", function(d, i) { return "translate(" + (dateRange.map(scale.timechart.x)[i]-1) + ", -"+ margin.top +")"; });
@@ -2270,13 +2327,20 @@ var Deepviz = function(sources, callback){
 		updateTrendline();
 		updateSeverityReliability('init', 500);
 		DeepvizFramework.updateFramework();
-		BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
-		BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
-		BarChart.updateStackedBars('sector', dataBySector);
+		DeepvizTreemap.update();
+		if(filters.frameworkToggle=='entries'){
+			BarChart.updateBars('affected_groups', dataByAffectedGroups);
+			BarChart.updateBars('specific_needs', dataBySpecificNeeds);
+			BarChart.updateBars('sector', dataBySector);				
+		} else {
+			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
+			BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
+			BarChart.updateStackedBars('sector', dataBySector);						
+		}
+		Deepviz.updateAuthorCharts();
 		HumanitarianProfile.update();
-
 		DeepvizFramework.updateSparklines();
-		$('#loadImage').fadeOut();
+		$('#loadImage, #loadImageFramework').fadeOut();
 		DeepvizFramework.updateSparklinesOverlay(dateRange);
 		Map.updateSparklinesOverlay(dateRange);
 
@@ -2328,16 +2392,18 @@ var Deepviz = function(sources, callback){
 		.attr('class', function(d,i){
 			return 'custom-bar severity'+(i+1);
 		})
-		.style('stroke', '#fff')
-		.style('stroke-opacity',0)
 		.attr('data-value', function(d,i){
 			return d;
 		})		
 		.attr('fill', function(d,i){
-			if(filters.toggle=='severity'){
-				return colorPrimary[i];
+			if(filters.frameworkToggle=='entries'){
+				return colorNeutral[3];
 			} else {
-				return colorSecondary[i];
+				if(filters.toggle=='severity'){
+					return colorPrimary[i];
+				} else {
+					return colorSecondary[i];
+				}	
 			}
 		});
 
@@ -2434,16 +2500,18 @@ var Deepviz = function(sources, callback){
 		.attr('class', function(d,i){
 			return 'custom-bar severity'+(i+1);
 		})
-		.style('stroke', '#fff')
-		.style('stroke-opacity',0)
 		.attr('data-value', function(d,i){
 			return d;
 		})		
 		.attr('fill', function(d,i){
-			if(filters.toggle=='severity'){
-				return colorPrimary[i];
+			if(filters.frameworkToggle=='entries'){
+				return colorNeutral[4];
 			} else {
-				return colorSecondary[i];
+				if(filters.toggle=='severity'){
+					return colorPrimary[i];
+				} else {
+					return colorSecondary[i];
+				}	
 			}
 		});
 
@@ -2483,8 +2551,10 @@ var Deepviz = function(sources, callback){
 			if(d>0){
 				var node = d3.select(this);
 				contextTimechart.fillStyle = node.attr('fill');
+				contextTimechart.strokeStyle = node.attr('fill');
 				contextTimechart.beginPath();
 				contextTimechart.rect(parseFloat(node.attr('x')), parseFloat(node.attr('y')), parseFloat(node.attr('width')), parseFloat(node.attr('height')));
+				contextTimechart.strokeRect(parseFloat(node.attr('x')), parseFloat(node.attr('y')), parseFloat(node.attr('width')), parseFloat(node.attr('height')));
 				contextTimechart.fill();
 				contextTimechart.closePath();
 			}
@@ -2706,6 +2776,204 @@ var Deepviz = function(sources, callback){
 		});
 		d3.select('#affected_groupsRemoveFilter').on('click', function(){ Deepviz.filter('affected_groups', 'clear'); });
 	}
+
+	//**************************
+	// create sources/authors rows
+	//**************************
+	this.createSourcesCharts = function(){
+		var srcChartHeight = 400;
+		
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 AUTHORS',
+			rows: 'organization',
+			classname: 'organisation',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-authors-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 UN AGENCIES',
+			rows: 'organization',
+			classname: 'organisation-un',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-un-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 INTERNATIONAL ORGANISATIONS',
+			rows: 'organization',
+			classname: 'organisation-ingo',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-ingo-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 NATIONAL ORGANISATIONS',
+			rows: 'organization',
+			classname: 'organisation-lngo',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-ngo-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 RCRC ORGANISATIONS',
+			rows: 'organization',
+			classname: 'organisation-rcrc',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-rcrc-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 OTHER ORGANISATIONS',
+			rows: 'organization',
+			classname: 'organisation-other',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-other-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 MEDIA ORGANISATIONS',
+			rows: 'organization',
+			classname: 'organisation-media',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-media-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 GOVERNMENT BODIES',
+			rows: 'organization',
+			classname: 'organisation-gov',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-gov-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 ACADEMIC/RESEARCH INSTITUTIONS',
+			rows: 'organization',
+			classname: 'organisation-academic',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-academic-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 DONOR ORGANISATIONS',
+			rows: 'organization',
+			classname: 'organisation-donor',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-donor-svg',
+			limit: 10
+		});
+
+		BarChart.createStackedBarChart({
+			title: 'TOP 10 CLUSTERS/SECTORS',
+			rows: 'organization',
+			classname: 'organisation-cluster',
+			width: 500,
+			height: srcChartHeight,
+			filter: 'organisation',
+			div: 'top-cluster-svg',
+			limit: 10
+		});
+
+		//**************************
+		// update sources row 
+		//**************************
+		this.updateAuthorCharts = function(){
+			// update author bar charts row
+			var authorData = [...dataByAuthor];
+			if(filters.authorToggle=='leads') authorData = dataByAuthorLeads;		
+
+			var unData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.un_agency });
+			var ingoData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.ingo });
+			var lngoData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.lngo });
+			var rcrcData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.rcrc });
+			var otherData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.other });
+			var mediaData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.media });
+			var govData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.government });
+			var academicData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.academic });
+			var donorData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.donor });
+			var clusterData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.cluster });
+
+			if(filters.frameworkToggle=='entries'){
+				BarChart.updateBars('organisation', authorData);
+				BarChart.updateBars('organisation-un', unData);
+				BarChart.updateBars('organisation-ingo', ingoData);
+				BarChart.updateBars('organisation-lngo', lngoData);
+				BarChart.updateBars('organisation-rcrc', rcrcData);
+				BarChart.updateBars('organisation-other', otherData);
+				BarChart.updateBars('organisation-media', mediaData);
+				BarChart.updateBars('organisation-gov', govData);
+				BarChart.updateBars('organisation-academic', academicData);
+				BarChart.updateBars('organisation-donor', donorData);
+				BarChart.updateBars('organisation-cluster', clusterData);			
+			} else {
+				BarChart.updateStackedBars('organisation', authorData);
+				BarChart.updateStackedBars('organisation-un', unData);
+				BarChart.updateStackedBars('organisation-ingo', ingoData);
+				BarChart.updateStackedBars('organisation-lngo', lngoData);
+				BarChart.updateStackedBars('organisation-rcrc', rcrcData);
+				BarChart.updateStackedBars('organisation-other', otherData);
+				BarChart.updateStackedBars('organisation-media', mediaData);
+				BarChart.updateStackedBars('organisation-gov', govData);
+				BarChart.updateStackedBars('organisation-academic', academicData);
+				BarChart.updateStackedBars('organisation-donor', donorData);
+				BarChart.updateStackedBars('organisation-cluster', clusterData);				
+			}
+
+			if(filters.authorToggle == 'entries'){
+				sourcesToggle.select('#toggle0').attr('opacity', 1);
+				sourcesToggle.select('#toggle1').attr('opacity', 0);
+			} else {
+				sourcesToggle.select('#toggle0').attr('opacity', 0);
+				sourcesToggle.select('#toggle1').attr('opacity', 1);		
+			}
+
+		}
+
+		d3.select('#sourcesRemoveFilter').on('click', function(){ Deepviz.filter('organisation', 'clear'); });
+
+		var sourcesToggle = d3.select(document.getElementById("sources-toggle-obj").contentDocument);
+		sourcesToggle.selectAll('text,tspan').style('pointer-events', 'none').style('user-select', 'none');
+		sourcesToggle.select('#sources-toggle').style('cursor', 'pointer').on('click', function(){
+			if(filters.authorToggle == 'entries'){
+				filters.authorToggle = 'leads'; 
+			} else {
+				filters.authorToggle = 'entries'; 
+			}
+			Deepviz.updateAuthorCharts();
+		});
+
+	}
+
 
 	//**************************
 	// severity chart
@@ -3084,6 +3352,7 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.filter = function(filterClass, value){
 		$('#loadImage').fadeIn(50,function(){
+		$('#loadImageFramework').fadeIn(50,function(){
 
 			if(filterClass=='clear'){
 				filters.sector = [];
@@ -3091,6 +3360,7 @@ var Deepviz = function(sources, callback){
 				filters.context = [];
 				filters.framework = [];
 				filters.reliability = [];
+				filters.organisation = [];
 				filters.affected_groups = [];
 				filters.affected_groups_hp = [];
 				filters.specific_needs = [];
@@ -3110,6 +3380,7 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('.affected_groups').style('opacity', 1);
 			d3.select('#specific_needsRemoveFilter').style('display', 'none').style('cursor', 'default');
 			d3.select('#affected_groupsRemoveFilter').style('display', 'none').style('cursor', 'default');
+			d3.select('#sourcesRemoveFilter').style('display', 'none').style('cursor', 'default');
 
 			// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
 			// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
@@ -3297,6 +3568,13 @@ var Deepviz = function(sources, callback){
 				d3.select('#specific_needsRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 			}
 
+			if(filters['organisation'].length>0){
+				data = data.filter(function(d){
+					return d.lead.authors.some(r=> filters['organisation'].indexOf(r.id) >= 0);
+				});
+				d3.select('#sourcesRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
+			}
+
 			// data to be used by severity/reliability topline charts
 			dataNotSeverity = data;
 			dataNotReliability = data;
@@ -3354,7 +3632,7 @@ var Deepviz = function(sources, callback){
 				duration = 0;
 			}
 
-			if((filters['severity'].length>0)||(filters['humanitarian_profile'].length>0)||(filters['framework'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specific_needs'].length>0)||(filters['affected_groups'].length>0)){
+			if((filters['severity'].length>0)||(filters['organisation'].length>0)||(filters['humanitarian_profile'].length>0)||(filters['framework'].length>0)||(filters['context'].length>0)||(filters['reliability'].length>0)||(filters['sector'].length>0)||(filters['geo'].length>0)||(filters['specific_needs'].length>0)||(filters['affected_groups'].length>0)){
 				d3.select('#globalRemoveFilter').style('display', 'inline').style('cursor', 'pointer');
 			} else { 
 				d3.select('#globalRemoveFilter').style('display', 'none').style('cursor', 'default');
@@ -3363,9 +3641,9 @@ var Deepviz = function(sources, callback){
 			Deepviz.updateTimeline(filterClass, duration);
 			d3.select('#globalRemoveFilter').on('click', function(){ Deepviz.filter('clear', 'clear'); });
 
-			$('#loadImage').delay(500).fadeOut(700);
+			$('#loadImage, #loadImageFramework').delay(500).fadeOut(700);
 		});
-
+		});
 	}
 
 	//**************************
@@ -3375,7 +3653,7 @@ var Deepviz = function(sources, callback){
 
 		if(drawingTimeline==true) return false;
 
-		$('#loadImage').show();
+		$('#loadImage, #loadImageFramework').show();
 
 		drawingTimeline = true;
 
@@ -3486,9 +3764,17 @@ var Deepviz = function(sources, callback){
 			Summary.update();
 			Map.update();
 			DeepvizFramework.updateFramework();
-			BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
-			BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
-			BarChart.updateStackedBars('sector', dataBySector);
+			DeepvizTreemap.update();
+			if(filters.frameworkToggle=='entries'){
+				BarChart.updateBars('affected_groups', dataByAffectedGroups);
+				BarChart.updateBars('specific_needs', dataBySpecificNeeds);
+				BarChart.updateBars('sector', dataBySector);				
+			} else {
+				BarChart.updateStackedBars('affected_groups', dataByAffectedGroups);
+				BarChart.updateStackedBars('specific_needs', dataBySpecificNeeds);
+				BarChart.updateStackedBars('sector', dataBySector);						
+			}
+			Deepviz.updateAuthorCharts();
 
 			drawingTimeline = false;
 
@@ -3500,7 +3786,7 @@ var Deepviz = function(sources, callback){
 	// get the data
 	//**************************
 	this.updateTimeline = function(target = null, duration){
-
+		
 		var chartdata = refreshData();
 
 		scale.timechart.y1 = d3.scaleLinear()
@@ -4040,56 +4326,63 @@ var Deepviz = function(sources, callback){
 	// toggle between severity and reliability
 	//**************************
 	var toggle = function(d){
-		d3.select('#framework-toggle').style('fill', colorNeutral[3]);
-		if(d != 'severity'){
-			// switch to Reliability
-			d3.select('#reliabilityToggle').style('opacity', 1);
-			d3.select('#severityToggle').style('opacity', 0);
-			filters.toggle = 'reliability';
-			d3.select('#total_entries').style('color',colorNeutral[3]);
-			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
-			d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
-			d3.select('#rightAxisLabel').text('Avg. Reliability');
-			d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
-			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
-			d3.select('.selection').style('fill', colorNeutral[3]);
-			// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
-			// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-			if(filters.frameworkToggle == 'average'){
-				d3.select('#framework-toggle').style('fill', colorSecondary[3])
-			}
-			// update colors of contextual row total values
-			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
-			d3.select('#dateRange').style('color', colorNeutral[4]);
-			d3.select('#avg-line').style('stroke', colorSecondary[3]);
-			d3.select('#framework-toggle-text').text('median reliability');
-			d3.select('#trendLineAxisLabel').text('RELIABILITY');
-		} else {
-			// switch to Severity
-			d3.select('#reliabilityToggle').style('opacity', 0);
-			d3.select('#severityToggle').style('opacity', 1);	
-			filters.toggle = 'severity';
-			d3.select('#total_entries').style('color',colorNeutral[3]);
-			if(filters.frameworkToggle == 'average'){
-				d3.select('#framework-toggle').style('fill', colorPrimary[3]);
-			}
-			d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY SEVERITY');
-			d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
-			d3.select('#rightAxisLabel').text('Avg. Severity');
-			d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
-			d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
-			d3.select('.selection').style('fill', colorNeutral[3]);
-			// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
-			// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
-			// update colors of contextual row total values
-			d3.selectAll('.total-label').style('fill', colorNeutral[4]);
-			d3.select('#dateRange').style('color', colorNeutral[4]);
-			d3.select('#avg-line').style('stroke', colorPrimary[3]);
-			d3.select('#framework-toggle-text').text('median severity');
-			d3.select('#trendLineAxisLabel').text('SEVERITY');
+		$('#loadImage').fadeIn(5,function(){
+		$('#loadImageFramework').fadeIn(50,function(){
 
-		}
-		Deepviz.updateTimeline(null, 500);
+			d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+			if(d != 'severity'){
+				// switch to Reliability
+				d3.select('#reliabilityToggle').style('opacity', 1);
+				d3.select('#severityToggle').style('opacity', 0);
+				filters.toggle = 'reliability';
+				d3.select('#total_entries').style('color',colorNeutral[3]);
+				d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
+				d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
+				d3.select('#rightAxisLabel').text('Avg. Reliability');
+				d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
+				d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
+				d3.select('.selection').style('fill', colorNeutral[3]);
+				// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+				// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+				if(filters.frameworkToggle == 'average'){
+					d3.select('#framework-toggle').style('fill', colorSecondary[3])
+				}
+				// update colors of contextual row total values
+				d3.selectAll('.total-label').style('fill', colorNeutral[4]);
+				d3.select('#dateRange').style('color', colorNeutral[4]);
+				d3.select('#avg-line').style('stroke', colorSecondary[3]);
+				d3.select('#framework-toggle-text').text('median reliability');
+				d3.select('#trendLineAxisLabel').text('RELIABILITY');
+			} else {
+				// switch to Severity
+				d3.select('#reliabilityToggle').style('opacity', 0);
+				d3.select('#severityToggle').style('opacity', 1);	
+				filters.toggle = 'severity';
+				d3.select('#total_entries').style('color',colorNeutral[3]);
+				if(filters.frameworkToggle == 'average'){
+					d3.select('#framework-toggle').style('fill', colorPrimary[3]);
+				}
+				d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY SEVERITY');
+				d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
+				d3.select('#rightAxisLabel').text('Avg. Severity');
+				d3.select('#rightAxisLabelLine').style('stroke', colorPrimary[3]);
+				d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
+				d3.select('.selection').style('fill', colorNeutral[3]);
+				// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
+				// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+				// update colors of contextual row total values
+				d3.selectAll('.total-label').style('fill', colorNeutral[4]);
+				d3.select('#dateRange').style('color', colorNeutral[4]);
+				d3.select('#avg-line').style('stroke', colorPrimary[3]);
+				d3.select('#framework-toggle-text').text('median severity');
+				d3.select('#trendLineAxisLabel').text('SEVERITY');
+
+			}
+			Deepviz.updateTimeline(null, 500);
+
+			$('#loadImage, #loadImageFramework').delay(50).fadeOut(500);
+		});
+		});
 	}
 
 	function colorBars(){

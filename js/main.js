@@ -19,6 +19,11 @@ var Deepviz = new Deepviz(sources, function(data){
 	var affectedGroupsChart = Deepviz.createAffectedGroupsChart();
 
 	//**************************
+	// top sources charts
+	//**************************
+	Deepviz.createSourcesCharts();
+
+	//**************************
 	// severity chart
 	//**************************
 	var severityChart = Deepviz.createSeverityChart();
@@ -135,6 +140,11 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	HumanitarianProfile.create();
 
+	//**************************
+	// treemap
+	//**************************
+	DeepvizTreemap.create();
+	
 	d3.select('#toggle1').style('opacity', 0);
 	d3.select('#toggle0').style('fill', '#008974');
 	d3.select('#framework-toggle-text tspan').text('average severity');
