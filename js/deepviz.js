@@ -2923,8 +2923,6 @@ var Deepviz = function(sources, callback){
 			var donorData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.donor });
 			var clusterData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.cluster });
 
-			console.log(stakeholder_type_keys);
-
 			if(filters.frameworkToggle=='entries'){
 				BarChart.updateBars('organisation', authorData);
 				BarChart.updateBars('organisation-un', unData);
