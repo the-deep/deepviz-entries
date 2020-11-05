@@ -182,17 +182,17 @@ parseAssessmentsMetadata = function(metadata){
 	metadata.organization_type.forEach(function(d,i){
 		d._id = d.id;
 		d.id = i+1;
-		if(d.name=='Donor') stakeholder_type_keys.donor = d.id;
+		if(d.name.includes('Donor')) stakeholder_type_keys.donor = d.id;
 		if(d.name=='International NGOs') stakeholder_type_keys.ingo = d.id;
 		if(d.name=='National NGOs') stakeholder_type_keys.lngo = d.id;
-		if(d.name=='Government') stakeholder_type_keys.government = d.id;
+		if(d.name.includes('Government')) stakeholder_type_keys.government = d.id;
 		if(d.name=='UN Agency') stakeholder_type_keys.un_agency = d.id;
 		if(d.name=='UN Agencies') stakeholder_type_keys.un_agency = d.id;
-		if(d.name=='Red Cross/Red Crescent Movement') stakeholder_type_keys.rcrc = d.id;
-		if(d.name=='Cluster') stakeholder_type_keys.cluster = d.id;
+		if(d.name.includes('Red Cross')) stakeholder_type_keys.rcrc = d.id;
+		if(d.name.includes('Cluster')) stakeholder_type_keys.cluster = d.id;
 		if(d.name.includes('Academic')) stakeholder_type_keys.academic = d.id;
-		if(d.name=='Other') stakeholder_type_keys.other = d.id;
-		if(d.name=='Media') stakeholder_type_keys.media = d.id;
+		if(d.name.includes('Other')) stakeholder_type_keys.other = d.id;
+		if(d.name.includes('Media')) stakeholder_type_keys.media = d.id;
 	});
 
 	metadata.organization.forEach(function(d,i){
