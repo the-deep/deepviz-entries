@@ -415,6 +415,7 @@ parseAssessmentsData = function(data, metadata){
 						metadata.organization.forEach(function(dp){
 							if(dp._id==ddd.parent){
 								dd[1] = dp.id;
+								dd[0] = dp.organization_type_id;
 							}
 						});
 					}
@@ -604,6 +605,7 @@ parseEntriesData = function(dataEntries, metadata){
 						metadata.organization.forEach(function(dp){
 							if(dp._id==dd.parent){
 								d.id = dp.id;
+								d.type = dp.organization_type_id;
 							}
 						})
 					} 
