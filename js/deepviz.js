@@ -2806,7 +2806,7 @@ var Deepviz = function(sources, callback){
 		});
 
 		BarChart.createStackedBarChart({
-			title: 'TOP 10 INTERNATIONAL ORGANISATIONS',
+			title: 'TOP 10 INTERNATIONAL NGOS',
 			rows: 'organization',
 			classname: 'organisation-ingo',
 			width: 500,
@@ -2817,7 +2817,7 @@ var Deepviz = function(sources, callback){
 		});
 
 		BarChart.createStackedBarChart({
-			title: 'TOP 10 NATIONAL ORGANISATIONS',
+			title: 'TOP 10 NATIONAL NGOS',
 			rows: 'organization',
 			classname: 'organisation-lngo',
 			width: 500,
