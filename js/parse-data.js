@@ -183,8 +183,8 @@ parseAssessmentsMetadata = function(metadata){
 		d._id = d.id;
 		d.id = i+1;
 		if(d.name=='Donor') stakeholder_type_keys.donor = d.id;
-		if(d.name=='International Organization') stakeholder_type_keys.ingo = d.id;
-		if(d.name=='Non-governmental Organization') stakeholder_type_keys.lngo = d.id;
+		if(d.name=='International NGOs') stakeholder_type_keys.ingo = d.id;
+		if(d.name=='National NGOs') stakeholder_type_keys.lngo = d.id;
 		if(d.name=='Government') stakeholder_type_keys.government = d.id;
 		if(d.name=='UN Agency') stakeholder_type_keys.un_agency = d.id;
 		if(d.name=='UN Agencies') stakeholder_type_keys.un_agency = d.id;
@@ -199,15 +199,12 @@ parseAssessmentsMetadata = function(metadata){
 		d._id = d.id;
 		d.id = i+1;
 		d.name = d.short_name;
-
 		d._organization_type_id = d.organization_type_id;
-
 		if(d._organization_type_id !== null){
 			d.organization_type_id = metadata.organization_type.filter(function(dd,ii){
 				return dd._id == d._organization_type_id;
 			})[0].id;		
 		}
-
 	});
 
 	metadata.scorepillar_scale.forEach(function(d,i){
@@ -395,7 +392,6 @@ parseAssessmentsData = function(data, metadata){
 				if((dd[1]==ddd._id)&&(!d.organization_str.includes(ddd.short_name))){
 					orgId = ddd.id;
 					d.organization_str.push(ddd.short_name)
-
 				}
 			});
 			metadata.organization_type.forEach(function(ddd,ii){
@@ -411,6 +407,20 @@ parseAssessmentsData = function(data, metadata){
 			}
 		});
 		d.organization_str = (d.organization_str.join(", "));
+
+		d.organization_and_stakeholder_type.forEach(function(dd,ii){
+			metadata.organization.forEach(function(ddd,ii){
+				if(dd[1]==ddd.id){
+					if(ddd.parent){
+						metadata.organization.forEach(function(dp){
+							if(dp._id==ddd.parent){
+								dd[1] = dp.id;
+							}
+						});
+					}
+				}
+			});
+		});
 
 		// parse scorepillar scale id
 		d._scorepillar_scale = d.scorepillar_scale;
@@ -586,6 +596,20 @@ parseEntriesData = function(dataEntries, metadata){
 				}
 			});			
 		}
+
+		d.lead.authors.forEach(function(d){ 
+			metadata.organization.forEach(function(dd,ii){
+				if((d.id==dd.id)){
+					if(dd.parent){
+						metadata.organization.forEach(function(dp){
+							if(dp._id==dd.parent){
+								d.id = dp.id;
+							}
+						})
+					} 
+				}
+			});
+		});
 
 		// parse context array
 		d._context = d.context;

@@ -1123,7 +1123,7 @@ font-size: 15px;
 #secondChartRow .chartCol,
 #thirdChartRow .chartCol {
 	width: 24.8%;
-    display: inline-block;
+    display: inline-table;
     vertical-align: top;
 }
 
