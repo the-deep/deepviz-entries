@@ -125,6 +125,7 @@ DeepvizTreemap.update = function(){
 
 	var root = DeepvizTreemap.updateData();
 
+	if(!root.children) return false;
 	if(!treemapArea) return false;
 	// treemapData = DeepvizTreemap.getData();
 		  // Then d3.treemap computes the position of each element of the hierarchy
