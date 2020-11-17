@@ -4151,7 +4151,8 @@ var Deepviz = function(sources, callback){
 				reliabilityRolling[i] = reliabilityCount;
 			}
 
-			if((target=='reliability')||(target=='init')||(target=='framework')||(target=='context')||(target=='geo')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
+			if((target=='reliability')||(target=='init')||(target=='framework')||(target=='humanitarian_profile')||(target=='organisation')||(target=='context')||(target=='geo')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='clear')||(target=='map')||((target=='severity')&&(filters.severity.length == 0))){
+				
 				d3.selectAll('.severityBar')
 				.transition()
 				.duration(duration)
@@ -4209,7 +4210,7 @@ var Deepviz = function(sources, callback){
 				});				
 			};
 
-			if((target=='severity')||(target=='init')||(target=='geo')||(target=='framework')||(target=='context')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
+			if((target=='severity')||(target=='init')||(target=='geo')||(target=='humanitarian_profile')||(target=='organisation')||(target=='framework')||(target=='context')||(target=='specific_needs')||(target=='affected_groups')||(target=='brush')||(target=='sector')||(target=='map')||(target=='clear')||((target=='reliability')&&(filters.reliability.length == 0))){
 				d3.selectAll('.reliabilityBar')
 				.attr('opacity', function(d,i){
 					var parent = d3.select(this.parentNode);
