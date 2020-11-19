@@ -1087,12 +1087,6 @@ DeepvizFramework.updateSparklines = function(){
 		return DeepvizFramework.createSparklines();
 	}	
 
-	// var emptyContext = {};
-
-	// metadata.context_array.forEach(function(d,i){
-	// 	emptyContext[i] = {'median_r': null, 'median_s': null, 'total': 0}
-	// });
-
 	var dataByDateSparkline = [...dataByFrameworkContext];
 	var sparklineDates;
 
@@ -1148,8 +1142,6 @@ DeepvizFramework.updateSparklines = function(){
 		})		
 		.entries(dataByDateSparkline);
 	}
-
-
 
 	// add missing dates
 	sparklineDates.forEach(function(d,i){

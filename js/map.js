@@ -163,6 +163,10 @@ Map.create = function(){
 				filters.admin_level = thisAdminLevel;
 				gridmapInit = false;
 				Map.update();
+				if((filters.timechartToggle=='bumpchart')&&(filters.bumpchartToggle=='geo')){
+					DeepvizBumpChart.create();
+				}
+				DeepvizTreemap.update();
 				d3.selectAll('#adm0_bg, #adm1_bg, #adm2_bg').style('fill', '#FFF');
 				d3.selectAll('#adm0_label, #adm1_label, #adm2_label').style('fill', '#343434');
 				d3.select('#adm'+filters.admin_level+'_bg').style('fill', '#343434');
@@ -411,6 +415,8 @@ Map.create = function(){
 
 	var expandLayout = function() {
 		d3.select('#timeline .vizlibResponsiveDiv').style('opacity', 0);
+		d3.select('#timeline').style('display', 'none');
+
 		if(expandActive==true){
 			$('#mapcol, #mapcontainer').removeClass('leftcol');
 			$('#timechart-container').removeClass('rightcol');

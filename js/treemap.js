@@ -125,13 +125,27 @@ DeepvizTreemap.update = function(){
 
 	var root = DeepvizTreemap.updateData();
 
+	if(!root.children) return false;
 	if(!treemapArea) return false;
 	// treemapData = DeepvizTreemap.getData();
 		  // Then d3.treemap computes the position of each element of the hierarchy
 	d3.treemap()
 	.size([1000, 570])
 	.padding(1)
-	(root)
+	(root);
+
+	// color range
+	var minSqVal = d3.min(root.children, function(d){
+		return d.value;
+	});
+
+	var maxSqVal = d3.max(root.children, function(d){
+		return d.value;
+	});
+
+	var colorRange = d3.scaleLinear()
+	.range([colorNeutral[1], colorNeutral[4]])
+	.domain([minSqVal, maxSqVal]);
 
 	// use this information to add rectangles:
 	var squares = treemapArea
@@ -150,7 +164,17 @@ DeepvizTreemap.update = function(){
 	.attr('y', 0)
 	.attr('width', function (d) { return d.x1 - d.x0; })
 	.attr('height', function (d) { return d.y1 - d.y0; })
-	.style("fill", colorNeutral[2]);
+	.style("fill", function(d,i) {
+		if(filters.frameworkToggle == 'average'){
+			if(filters.toggle == 'reliability'){
+				return colorSecondary[Math.round(d.data.median_r)];
+			} else {
+				return colorPrimary[Math.round(d.data.median_s)];
+			}
+		} else {
+			return colorRange(d.value);
+		}
+	});
 
 	squares.append("text")
 	.attr("x", function(d){ return 5})    // +10 to adjust position (more right)
@@ -215,7 +239,17 @@ DeepvizTreemap.update = function(){
 
     newSlice.append('path')
         .attr('class', 'main-arc')
-        .style('fill', colorNeutral[1])
+        .style("fill", function(d,i) {
+			if(filters.frameworkToggle == 'average'){
+				if(filters.toggle == 'reliability'){
+					return colorSecondary[Math.round(d.data.median_r)];
+				} else {
+					return colorPrimary[Math.round(d.data.median_s)];
+				}
+			} else {
+				return colorRange(d.value);
+			}
+		})
         .style('stroke', '#FFF')
         .attr('d', arc);
 
@@ -243,7 +277,13 @@ DeepvizTreemap.updateData = function(){
 
  		treeData = d3.nest()
 		.key(function(d) { return d.geo; })
-		.rollup(function(leaves) { return leaves.length; })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})
 		.entries(dat);
 
 		treeData.forEach(function(d,i){
@@ -253,6 +293,9 @@ DeepvizTreemap.updateData = function(){
 					d.id = dd.id;
 				}
 			})
+			d.median_r = d.value.median_r;
+			d.median_s = d.value.median_s;
+			d.value = d.value.total;
 			delete d.key;
 		});		
  	}
@@ -267,7 +310,13 @@ DeepvizTreemap.updateData = function(){
 
  		treeData = d3.nest()
 		.key(function(d) { return d.sector; })
-		.rollup(function(leaves) { return leaves.length; })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})
 		.entries(dat);
 
 		treeData.forEach(function(d,i){
@@ -277,6 +326,9 @@ DeepvizTreemap.updateData = function(){
 					d.id = dd.id;
 				}
 			})
+			d.median_r = d.value.median_r;
+			d.median_s = d.value.median_s;
+			d.value = d.value.total;
 			delete d.key;
 		});		
  	}
@@ -291,7 +343,13 @@ DeepvizTreemap.updateData = function(){
 
  		treeData = d3.nest()
 		.key(function(d) { return d.affected_groups; })
-		.rollup(function(leaves) { return leaves.length; })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})
 		.entries(dat);
 
 		treeData.forEach(function(d,i){
@@ -301,6 +359,9 @@ DeepvizTreemap.updateData = function(){
 					d.id = dd.id;
 				}
 			})
+			d.median_r = d.value.median_r;
+			d.median_s = d.value.median_s;
+			d.value = d.value.total;
 			delete d.key;
 		});		
 
@@ -317,7 +378,13 @@ DeepvizTreemap.updateData = function(){
 
  		treeData = d3.nest()
 		.key(function(d) {  return d.specific_needs; })
-		.rollup(function(leaves) { return leaves.length; })
+		.rollup(function(leaves) { 
+			return { 
+				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+				'total': leaves.length, 
+			}
+		})
 		.entries(dat);
 
 		treeData.forEach(function(d,i){
@@ -327,17 +394,18 @@ DeepvizTreemap.updateData = function(){
 					d.id = dd.id;
 				}
 			})
+			d.median_r = d.value.median_r;
+			d.median_s = d.value.median_s;
+			d.value = d.value.total;
 			delete d.key;
 		});		
 
  	}
 
 	var treeDataObj = {'name': '', 'children': treeData}
-
 	var root = d3.hierarchy(treeDataObj)
       .sum(d => d.value)
       .sort((a, b) => b.value - a.value);
-
 	return root;
 
 }
@@ -379,6 +447,17 @@ function treemapFilter(treedata){
 		treedata = treedata.filter(function(d){
 			return d.d['special_needs'].includes(treemapFilters.special_needs);
 		});
+	}
+	if(filters.frameworkToggle == 'average'){
+		if(filters.toggle == 'reliability'){
+			treedata = treedata.filter(function(d){
+				return d.r>0;
+			});
+		} else {
+			treedata = treedata.filter(function(d){
+				return d.s>0;
+			});
+		}
 	}
 	return treedata;
 }

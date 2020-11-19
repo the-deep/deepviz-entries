@@ -428,7 +428,7 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 
 	if(sort==true){
 		d = d.sort(function(x,y){
-			return d3.ascending(y.value, x.value);
+			return d3.ascending(y.value, x.value)||d3.ascending(x.name, y.name);
 		});
 	}
 
@@ -637,12 +637,6 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 			})
 		});
 
-		if(sort==true){
-			nest = nest.sort(function(x,y){
-				return d3.ascending(y.value, x.value);
-			});
-		}
-
 		var d = [];
 
 		metadata[data_group].forEach(function(mt,ii){
@@ -662,7 +656,7 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 
 		if(sort==true){
 			d = d.sort(function(x,y){
-				return d3.ascending(y.value, x.value);
+				return d3.ascending(y.value, x.value)||d3.ascending(x.name, y.name);
 			});
 		}
 
