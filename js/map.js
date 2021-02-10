@@ -181,7 +181,10 @@ Map.create = function(){
 		},200);
 	});
 
-	var bounds = new mapboxgl.LngLatBounds([d3.min(geoBounds.lat),d3.min(geoBounds.lon)], [d3.max(geoBounds.lat),d3.max(geoBounds.lon)] );
+	var bounds = new mapboxgl.LngLatBounds(
+        [d3.max([-90, d3.min(geoBounds.lat)]), d3.max([-90, d3.min(geoBounds.lon)])],
+        [d3.min([90, d3.max(geoBounds.lat)]), d3.min([90, d3.max(geoBounds.lon)])]
+    );
  
 	var mapboxStyle = $('#map-bg-toggle select').val();
 
