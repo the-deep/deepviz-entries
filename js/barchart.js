@@ -157,7 +157,7 @@ BarChart.createStackedBarChart = function(a){
 	if(data_group=='affected_groups_array') data_group = 'affected_groups';
 
 	var padding = {left: 20, right: 50, top: 15, bar: {y: 5}};
-
+	
 	// add title
 	var div = d3.select('#'+a.div).append('div').attr('class', 'titleContainer')
 	var title = div.append('div');
@@ -195,6 +195,10 @@ BarChart.createStackedBarChart = function(a){
 
 	a.rows = rws;
 
+	if(a.rows.length==0){
+		return false;
+	}
+
 	if(a.classname.includes('organisation')){
 		a.rows = a.rows.splice(0,10);
 	}
@@ -207,7 +211,7 @@ BarChart.createStackedBarChart = function(a){
 	}
 
 	var chartarea = svg.append('g');
-
+	
 	var rows = chartarea.selectAll('.stacked-bar-row')
 	.data(a.rows)
 	.enter()

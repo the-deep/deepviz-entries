@@ -23,6 +23,7 @@ var scale = {
 	'reliability': {x: '', y: ''}
 };
 
+var noScale = false;
 var labelCharLimit = 31;
 var textLabel = 'Entries';
 var timechartCanvas;
@@ -885,6 +886,11 @@ var Deepviz = function(sources, callback){
 			timechartSvgHeight = 980;
 		}
 
+		if(noScale) {
+			timechartSvgHeight = timechartSvgHeight+100;
+			d3.select('#timechartsubdiv').style('height', '50.4vw');
+		}
+
 		var timelineSvgCanvas = this.createSvg({
 			id: 'timeline_svg_canvas',
 			viewBoxWidth: width,
@@ -898,6 +904,12 @@ var Deepviz = function(sources, callback){
 			viewBoxHeight: timechartSvgHeight,
 			div: '#timeline'
 		});
+
+		if(noScale) {
+			timelineSvg.style('margin-top', '8px');
+			timelineSvgCanvas.style('margin-top', '8px');
+			d3.select('#timechart_container').style('margin-top', '6px');
+		}
 
 		if(expandActive==true){
 			d3.select('#timeline').style('position', 'absolute');
@@ -1235,27 +1247,29 @@ var Deepviz = function(sources, callback){
 			width: '100%'
 		}).append('g');
 
-		timechartLegend
-		.append("text")
-		.attr('class','axisLabel')
-		.attr('id', 'rightAxisLabel')
-		.attr("y", 16)
-		.attr("x", 135)
-		.style('font-weight','lighter')
-		.style('font-size', '15px')
-		.text('Avg. Severity')
+		if(!noScale){
+			timechartLegend
+			.append("text")
+			.attr('class','axisLabel')
+			.attr('id', 'rightAxisLabel')
+			.attr("y", 16)
+			.attr("x", 135)
+			.style('font-weight','lighter')
+			.style('font-size', '15px')
+			.text('Avg. Severity')
 
-		timechartLegend
-		.append("line")
-		.attr('id', 'rightAxisLabelLine')
-		.attr("y1", 12)
-		.attr("y2", 12)
-		.attr("x1", 128)
-		.attr("x2", 112)
-		.style('stroke', colorPrimary[3])
-		.style('stroke-width',3)
-		.style('stroke-opacity',1)
-		.style('stroke-dasharray', '2 2');
+			timechartLegend
+			.append("line")
+			.attr('id', 'rightAxisLabelLine')
+			.attr("y1", 12)
+			.attr("y2", 12)
+			.attr("x1", 128)
+			.attr("x2", 112)
+			.style('stroke', colorPrimary[3])
+			.style('stroke-width',3)
+			.style('stroke-opacity',1)
+			.style('stroke-dasharray', '2 2');
+		}
 
 		timechartLegend
 		.append("text")
@@ -1790,6 +1804,14 @@ var Deepviz = function(sources, callback){
 		// create sub-timechart
 		//**************************
 		var timechartToggle = d3.select(document.getElementById("timechart-toggle").contentDocument);
+		if(timechartToggle.node()){
+			var toggleNode = d3.select(timechartToggle.node()).select('svg').attr('width', '100%').node();
+			d3.select('#timechart-toggle').remove();
+			d3.select('#timechart-container').append('div').attr('id', 'timechart-toggle').html(toggleNode.outerHTML);
+		}
+
+		timechartToggle = d3.select('#timechart-toggle');
+
 		// toggle switch click
 		timechartToggle.selectAll('text,tspan').style('pointer-events', 'none').style('user-select', 'none');
 		timechartToggle.select('#bumpchart-toggle').style('cursor', 'pointer').on('click', function(){
@@ -2974,11 +2996,16 @@ var Deepviz = function(sources, callback){
 
 	}
 
-
 	//**************************
 	// severity chart
 	//**************************
 	this.createSeverityChart = function(options){
+
+		if(noScale) {
+			d3.select('#scores-container').remove();
+			d3.select('.rightcol').style('top', '-10px');
+			return false;
+		}
 
 		// set toggle button listener
 		d3.selectAll('.severityToggle').on('click', function(){
@@ -3105,6 +3132,8 @@ var Deepviz = function(sources, callback){
 	// reliability chart
 	//**************************
 	this.createReliabilityChart = function(options){
+
+		if(noScale) return false;
 
 		// set toggle button listener
 		d3.selectAll('.reliabilityToggle').on('click', function(){
@@ -4020,6 +4049,8 @@ var Deepviz = function(sources, callback){
 	// update severity / reliability bars
 	//**************************
 	function updateSeverityReliability(target=null, duration = 0){
+
+		if(noScale) return false;
 
 		if(target == 'brush') duration = 0;
 

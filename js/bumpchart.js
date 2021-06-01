@@ -18,7 +18,7 @@ DeepvizBumpChart.create = function(){
 	d3.selectAll('#bumpchartLabels').remove();
 	d3.selectAll('#bumpchartLineG').remove();
 
-	var timechartToggle = d3.select(document.getElementById("timechart-toggle").contentDocument);
+	var timechartToggle = d3.select("#timechart-toggle");
 	timechartToggle.select('#bumpchart-toggle').selectAll('rect').attr('fill', '#F4F4F4');
 	timechartToggle.select('#bumpchart-toggle').selectAll('text').attr('fill', '#4c4c4c');
 	timechartToggle.select('#bumpchart-toggle #bump-'+filters.bumpchartToggle).select('rect').attr('fill', colorNeutral[3]);
@@ -226,6 +226,7 @@ DeepvizBumpChart.draw = function(){
 
 	// add labels
 	bData.forEach(function(d,i){
+		if(d.name==undefined) d.name = ' ';
 		d3.select('#eventdrop').append('g').attr('id','bumpchartLabels')
 		.append('text')
 		.style('font-size', '17px')

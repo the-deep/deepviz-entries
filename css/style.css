@@ -35,9 +35,6 @@ h2 {
 	font-size: 1.3em;
 }
 
-/*#main-page1 {
-	display: none;
-}*/
 .main-content {
 	opacity: 0;
 	position: relative;
@@ -146,7 +143,6 @@ canvas {
 }
 
 #timechart-toggle {
-	padding-top: 12px;
 	padding-bottom: 10px;
     width: 100%;
     padding-left: 12px;     
@@ -1062,8 +1058,8 @@ font-size: 15px;
 	cursor: pointer;
 }
 
-#framework-toggle {
-
+#framework-toggle-switch path {
+	stroke:#686868
 }
 
 #framework-chart svg, .frameworkColHeader text {

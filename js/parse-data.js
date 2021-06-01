@@ -721,6 +721,8 @@ parseEntriesData = function(dataEntries, metadata){
 	})
 	.entries(dataEntries);
 
+	var severityTotal = 0;
+
 	dataEntries.forEach(function(d,i){
 		leadNest.forEach(function(dd,ii){
 			if(d.lead.id==dd.key){
@@ -729,7 +731,11 @@ parseEntriesData = function(dataEntries, metadata){
 				d.lead.entries = dd.value.entries;
 			}
 		});
+		severityTotal+=d.severity;
 	});
+
+	// if no scale widget set noscale true
+	if(severityTotal==0) noScale = true;
 
 	return dataEntries;
 

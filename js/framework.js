@@ -67,36 +67,39 @@ DeepvizFramework.create = function(a){
 	.attr('transform', 'translate(0,-2)');
 
 	// add toggle switch
-	var toggleswitch = toggle.append('g')
-	.attr('id', 'framework-toggle-switch')
-	.attr('transform', 'translate(237,1)')
+	if(!noScale){
 
-	toggleswitch = toggleswitch.append('g').attr('transform', 'scale(0.49)');
+		var toggleswitch = toggle.append('g')
+		.attr('id', 'framework-toggle-switch')
+		.attr('transform', 'translate(237,2)')
 
-	toggleswitch.append('path').attr('d','M164.383333,2.03489404 L164.383333,2 L192.616667,2 L192.616667,2.03489404 C193.041489,2.01173252 193.469368,2 193.9,2 C206.657778,2 217,12.2974508 217,25 C217,37.7025492 206.657778,48 193.9,48 C193.469368,48 193.041489,47.9882675 192.616667,47.965106 L192.616667,48 L164.383333,48 L164.383333,47.965106 C163.958511,47.9882675 163.530632,48 163.1,48 C150.342222,48 140,37.7025492 140,25 C140,12.2974508 150.342222,2 163.1,2 C163.530632,2 163.958511,2.01173252 164.383333,2.03489404 Z')
-	.style('fill', '#FFF')
-	.style('stroke', '777777')
-	.style('stroke-width', '2px');
+		toggleswitch = toggleswitch.append('g').attr('transform', 'scale(0.49)');
 
-	toggleswitch.append('circle')
-	.attr('id', 'framework-toggle')
-	.attr('cx', 164)
-	.attr('cy', 25)
-	.attr('r', 20)
-	.style('fill', colorNeutral[3]);
+		toggleswitch.append('path').attr('d','M164.383333,2.03489404 L164.383333,2 L192.616667,2 L192.616667,2.03489404 C193.041489,2.01173252 193.469368,2 193.9,2 C206.657778,2 217,12.2974508 217,25 C217,37.7025492 206.657778,48 193.9,48 C193.469368,48 193.041489,47.9882675 192.616667,47.965106 L192.616667,48 L164.383333,48 L164.383333,47.965106 C163.958511,47.9882675 163.530632,48 163.1,48 C150.342222,48 140,37.7025492 140,25 C140,12.2974508 150.342222,2 163.1,2 C163.530632,2 163.958511,2.01173252 164.383333,2.03489404 Z')
+		.style('fill', '#FFF')
+		.style('stroke', '777777')
+		.style('stroke-width', '2px');
 
-	toggleswitch.append('text')
-	.attr('x', 12)
-	.attr('y', 32)
-	// .style('font-size', '24px')
-	.text('# of '+textLabel);
+		toggleswitch.append('circle')
+		.attr('id', 'framework-toggle')
+		.attr('cx', 164)
+		.attr('cy', 25)
+		.attr('r', 20)
+		.style('fill', colorNeutral[3]);
 
-	toggleswitch.append('text')
-	.attr('x', 230)
-	.attr('y', 32)
-	.attr('id', 'framework-toggle-text')
-	// .style('font-size', '24px')
-	.text('median severity');
+		toggleswitch.append('text')
+		.attr('x', 12)
+		.attr('y', 32)
+		// .style('font-size', '24px')
+		.text('# of '+textLabel);
+
+		toggleswitch.append('text')
+		.attr('x', 230)
+		.attr('y', 32)
+		.attr('id', 'framework-toggle-text')
+		// .style('font-size', '24px')
+		.text('median severity');
+	}
 
 	var columnHeadersBg = frameworkSvg.append('g')
 	.attr('id', 'col-header')
