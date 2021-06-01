@@ -1059,7 +1059,7 @@ var Deepviz = function(sources, callback){
 			}
 
 			if(minDate.getFullYear()<=(today.getFullYear()-1)){
-				var max = new Date(today.getFullYear()-1, 12, 0);
+				var max = new Date(today.getFullYear()-1, 11, 0);
 				if(maxDate<=max){
 					max = moment(maxDate).subtract(1,'days');
 				}
