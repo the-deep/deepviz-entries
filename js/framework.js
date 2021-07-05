@@ -7,9 +7,13 @@ var tooltipSvg;
 
 DeepvizFramework.create = function(a){
 
+	d3.select('#framework-chart').selectAll('*').remove();
+	frameworkSparklinesCreated = false;
+
 	// handle metadata with single-rows
 	var count = 0;
 	var contextId = null;
+
 	metadata.framework_groups_array.forEach(function(d,i){
 		if(contextId==d.context_id){
 			count++;
@@ -42,6 +46,14 @@ DeepvizFramework.create = function(a){
 
 	var title = d3.select('#framework-chart').append('div');
 	title.attr('class', 'title').text('SECTORAL FRAMEWORK');
+
+	// sector breakout
+	if(metadata.sector_array.length==0){
+		enableFramework = false;
+		return false;
+	}
+
+	if(!enableFramework) return false;
 
 	d3.select('#framework-chart').append('img')
 	.attr('id', 'frameworkRemoveFilter')
@@ -149,27 +161,41 @@ DeepvizFramework.create = function(a){
 	.append('text')
 	.attr('class', 'col-header-text')
 	.text(function(d,i){
-		return d.name;
+		if((metadata.sector_array.length<=11)) {
+			return d.name;
+		} else {
+			return d.name.substring(0, 11)
+		}
 	})
 	.attr('id', function(d,i){ return 'framework-col-'+i; })
-	.attr('x', 21)
+	.attr('x', function(d,i){
+		if((metadata.sector_array.length<=11)&&(availableSectorIcons.includes(d.name.toLowerCase()))) {
+			return 21;
+		} else {
+			return 0;
+		}
+	})
 	.attr('y', 1);
 	// .style('font-size', '13px')
 	// .attr('x', (colWidth/2)+10)
 	// .style('text-anchor', 'middle');
 
-	columnHeaders
-	.append('image')
-	.attr('class', function(d,i){
-		return 'sector-icon sc-icon-'+d.id;
-	})
-	.attr('xlink:href', function(d,i){
-		return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
-	})
-	.attr('height', 14)
-	.attr('width', 14)
-	.attr('y', -11)
-	.attr('x', 2);
+	if(metadata.sector_array.length<=11){
+		columnHeaders
+		.append('image')
+		.attr('class', function(d,i){
+			return 'sector-icon sc-icon-'+d.id;
+		})
+		.attr('xlink:href', function(d,i){
+			if(availableSectorIcons.includes(d.name.toLowerCase())) {
+				return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
+			}
+		})
+		.attr('height', 14)
+		.attr('width', 14)
+		.attr('y', -11)
+		.attr('x', 2);
+	}
 
 	// sector total row
 	columnHeadersBg
@@ -232,7 +258,7 @@ DeepvizFramework.create = function(a){
 		d3.select(this).select('.col-header-bg').style('opacity', 0);
 	}).on('click', function(d,i){
 		// toggle 
-		Deepviz.filter('sector',i+1);
+		Deepviz.filter('sector',d.id);
 	});
 
 	d3.select('#frameworkRemoveFilter').on('click', function(d,i){
@@ -351,7 +377,11 @@ DeepvizFramework.create = function(a){
 		return 'frameworkCol2 frameworkRowSelector frameworkRowSelector-'+d.id
 	})
 	.text(function(d,i){
-		return d.name;
+		var name = d.name;
+		if(name.length>15){
+			name = name.slice(0,32)+'.';
+		}
+		return name;
 	})
 	.attr('y', -2)
 	.style('text-anchor', 'end');
@@ -507,7 +537,7 @@ DeepvizFramework.create = function(a){
 	})
 	.attr('id', function(d,i){
 		var c = d3.select(this.parentNode).attr('class').split(' ')[1];
-		return c+'s'+i;
+		return c+'s'+d.id;
 	});
 
 	cells
@@ -516,7 +546,7 @@ DeepvizFramework.create = function(a){
 	.attr('width', colWidth)
 	.attr('height', rowHeight)
 	.attr('id', function(d,i){
-		return d3.select(this.parentNode).attr('id') + 'rect';
+		return d3.select(this.parentNode).attr('data-sector') + 'rect';
 	});
 
 	cells
@@ -591,7 +621,7 @@ DeepvizFramework.create = function(a){
 	})
 	.attr('id', function(d,i){
 		var c = d3.select(this.parentNode).attr('class').split(' ')[1];
-		return c+'s'+i;
+		return c+'s'+d.id;
 	})
 
 	cells2
@@ -745,6 +775,9 @@ DeepvizFramework.create = function(a){
 // update framework
 //**************************
 DeepvizFramework.updateFramework = function(){
+
+	if(!enableFramework) return false;
+
 	// entries by framework sector (non-unique to populate framework cells)
 	var entries = dataByFrameworkSector.filter(function(d){
 		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]))
@@ -870,7 +903,7 @@ DeepvizFramework.updateFramework = function(){
 		var f = d.key;
 		d.values.forEach(function(dd,ii){
 			var s = dd.key;
-			var id = 'f'+(f)+'s'+(s-1);
+			var id = 'f'+(f)+'s'+(s);
 			
 			if(filters.frameworkToggle == 'entries'){
 				var v = dd.value.total;
@@ -889,7 +922,7 @@ DeepvizFramework.updateFramework = function(){
 			}
 
 			// set cell colour
-			d3.select('#'+id +'rect').style('fill', function(d){ if(v==0) {return colorNeutral[0]; } else { return cellColorScale(v); } })
+			d3.select('#'+id +' rect').style('fill', function(d){ if(v==0) {return colorNeutral[0]; } else { return cellColorScale(v); } })
 			
 			d3.select('#framework-layer2 #'+id +'rect').attr('data-entries', dd.value.total)
 			.attr('data-severity', Math.round(dd.value.median_s))
@@ -942,6 +975,8 @@ DeepvizFramework.updateFramework = function(){
 //**************************
 DeepvizFramework.createSparklines = function(){
 	
+	if(!enableFramework) return false;
+
 	categories.forEach(function(d,i){
 
 		var dimensions = {};
@@ -1084,6 +1119,8 @@ DeepvizFramework.createSparklines = function(){
 // update sparklines
 //**************************
 DeepvizFramework.updateSparklines = function(){
+
+	if(!enableFramework) return false;
 
 	if(frameworkSparklinesCreated===false){
 		frameworkSparklinesCreated = true;
@@ -1257,6 +1294,9 @@ DeepvizFramework.updateSparklines = function(){
 }
 
 DeepvizFramework.updateSparklinesOverlay = function(d1){
+
+	if(!enableFramework) return false;
+
 	if(scale.sparkline.x(d1[0])>1000) return;
 	d3.selectAll('.sparkline-overlay')
 	.attr('x', scale.sparkline.x(d1[0]))
@@ -1270,6 +1310,8 @@ DeepvizFramework.updateSparklinesOverlay = function(d1){
 }
 
 DeepvizFramework.createTooltipSparkline = function(){
+
+	if(!enableFramework) return false;
 
 	tooltipSvg = d3.select('#framework-svg').append('g')
 	.attr('opacity', 0).append('g');
@@ -1324,6 +1366,8 @@ DeepvizFramework.createTooltipSparkline = function(){
 }
 
 DeepvizFramework.updateTooltipSparkline = function(contextId, frameworkId, sectorId){
+
+	if(!enableFramework) return false;
 
 	var dataByDateSparkline = [...dataByFrameworkSector];
 	dataByDateSparkline = dataByDateSparkline.filter(function(d,i){

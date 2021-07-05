@@ -58,10 +58,12 @@ var heatmapColorReliability = [
 //**************************
 Map.create = function(){
 
-	if(noScale) {
-		filters.admin_level = 0;
-	}
-	
+	var dataAdm1 = dataByLocationArray.filter(function(d){
+		return d.admin_level == 1
+	});
+
+	if(dataAdm1.length==0) filters.admin_level = 0;
+
 	// set map height
 	map = document.getElementById("map");
 	map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");

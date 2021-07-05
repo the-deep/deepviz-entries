@@ -51,7 +51,7 @@ DeepvizBumpChart.create = function(){
 	    .attr("x", 0)
 	    .attr("y", 0)
 	    .attr("width", width*2)
-	    .attr("height", contextualRowsHeight*2)
+	    .attr("height", contextualRowsHeight*2);
 
 	// retina display
 	if(window.devicePixelRatio){
@@ -81,6 +81,7 @@ DeepvizBumpChart.create = function(){
 DeepvizBumpChart.draw = function(){
 
 	bData = DeepvizBumpChart.getData();
+	console.log(maxRank);
 
 	scale.bumpchart.y = d3.scaleLinear()
 	.range([0, contextualRowsHeight-bumpchartTopPadding-5])
@@ -132,8 +133,12 @@ DeepvizBumpChart.draw = function(){
 	// draw lines to bumpchart canvas
 	bData.forEach(function(d,i){
 
+		console.log('d.values[d.values.length-1].rank');
+		console.log(d.values[d.values.length-1].rank);
 		var rank = (d.values[d.values.length-1].rank);
 	    if(rank>10) rank = 10;
+
+		console.log(rank);
 
 		var color;
 

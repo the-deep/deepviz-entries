@@ -4,11 +4,6 @@ var sources = [urlQueryParams.get('dataUrl'), 'images/summary_1.svg', 'images/su
 var Deepviz = new Deepviz(sources, function(data){
 
 	//**************************
-	// sector chart
-	//**************************
-	var sectorChart = Deepviz.createSectorChart();
-
-	//**************************
 	// specific needs chart
 	//**************************
 	var specificNeedsChart = Deepviz.createSpecificNeedsChart();
@@ -36,7 +31,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// framework chart
 	//**************************
-	var frameworkChart = DeepvizFramework.create();
+	// var frameworkChart = DeepvizFramework.create();
 
 	//**************************
 	// framework chart sparklines

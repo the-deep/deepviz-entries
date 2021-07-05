@@ -878,6 +878,18 @@ font-size: 15px;
     position: relative;
 
 }
+#selectFramework {
+	position: absolute;
+    bottom: 26px;
+    right: 3px;
+    font-size: 9px;
+}
+
+#selectFramework select {
+	margin-left: 2px;
+    font-size: 1vw;
+    width: 13vw;
+}
 
 .title {
 	font-size: 0.8vw;
@@ -1608,7 +1620,7 @@ font-size: 15px;
 #loadImageFramework {
     display: inline-block;
     position: absolute;
-    top: 0.9vw;
+    top: 1.5vw;
     left: 10.4vw;
     outline: none;
 }
