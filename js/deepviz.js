@@ -2865,7 +2865,7 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.createSectorChart = function(options){
 		d3.select('#sector-svg').html('');
-		var sectorChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'SECTOR',
 			rows: 'sector_array',
 			width: 700,
@@ -2881,7 +2881,7 @@ var Deepviz = function(sources, callback){
 	//**************************
 	this.createContextChart = function(options){
 		d3.select('#sector-svg').html('');
-		var contextChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'CONTEXT',
 			rows: 'context_array',
 			width: 700,
@@ -2895,7 +2895,7 @@ var Deepviz = function(sources, callback){
 	// create specific needs chart
 	//**************************
 	this.createSpecificNeedsChart = function(options){
-		var specificNeedsChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'SPECIFIC NEEDS GROUPS',
 			rows: 'specific_needs_groups_array',
 			classname: 'specific_needs',
@@ -2911,7 +2911,7 @@ var Deepviz = function(sources, callback){
 	// create affected groups chart
 	//**************************
 	this.createAffectedGroupsChart = function(options){
-		var affectedGroupsChart = BarChart.createStackedBarChart({
+		BarChart.createStackedBarChart({
 			title: 'AFFECTED GROUPS',
 			rows: 'affected_groups_array',
 			classname: 'affected_groups',
