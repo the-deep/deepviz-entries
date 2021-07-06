@@ -51,7 +51,7 @@ BarChart.createBarChart = function(a){
 	.data(a.rows)
 	.enter()
 	.append('g')
-	.attr('class', function(d,i) { return 'bar-row '+ a.classname+'-row ' + a.classname+'-bar-row'+i; })
+	.attr('class', function(d,i) { return 'bar-row '+ a.classname+'-row ' + a.classname+'-bar-row'+d.key; })
 	.attr('transform', function(d,i){
 		return 'translate(0,' + ((i*rowHeight) + padding.top) + ')';
 	});
@@ -153,11 +153,12 @@ BarChart.createStackedBarChart = function(a){
 
 	var data_group = a.rows;
 	if(data_group=='sector_array') data_group = 'sector';
+	if(data_group=='context_array') data_group = 'context';
 	if(data_group=='specific_needs_groups_array') data_group = 'special_needs';
 	if(data_group=='affected_groups_array') data_group = 'affected_groups';
 
 	var padding = {left: 20, right: 50, top: 15, bar: {y: 5}};
-
+	
 	// add title
 	var div = d3.select('#'+a.div).append('div').attr('class', 'titleContainer')
 	var title = div.append('div');
@@ -195,6 +196,10 @@ BarChart.createStackedBarChart = function(a){
 
 	a.rows = rws;
 
+	if(a.rows.length==0){
+		return false;
+	}
+
 	if(a.classname.includes('organisation')){
 		a.rows = a.rows.splice(0,10);
 	}
@@ -207,7 +212,7 @@ BarChart.createStackedBarChart = function(a){
 	}
 
 	var chartarea = svg.append('g');
-
+	
 	var rows = chartarea.selectAll('.stacked-bar-row')
 	.data(a.rows)
 	.enter()
@@ -219,7 +224,7 @@ BarChart.createStackedBarChart = function(a){
 
 	var label = rows.append('text')
 	.attr('y', rowHeight/2 )
-	.attr('class', function(d,i){ return a.classname + ' ' + a.classname+'-'+i })
+	.attr('class', function(d,i){ return a.classname + ' ' + a.classname+'-'+d.key })
 	.style('alignment-baseline', 'middle')
 	.text(function(d,i){
 		return '12345678901234567890123456123';
@@ -237,7 +242,11 @@ BarChart.createStackedBarChart = function(a){
 			return 'sector-icon sector-icon-'+d.id;
 		})
 		.attr('xlink:href', function(d,i){
-			return 'images/sector-icons/'+(d.name.toLowerCase())+'.svg'; 
+			if(availableSectorIcons.includes(d.name.toLowerCase())) {
+				return 'images/sector-icons/'+d.name.toLowerCase()+'.svg'
+			} else {
+				return '';
+			}
 		})
 		.attr('height', 23)
 		.attr('width', 23)
@@ -440,6 +449,10 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		return d.value
 	});
 
+	// console.log(group);
+	// console.log(scale[group]);
+	if(scale[group].x=='')return false;
+	
 	scale[group].x.domain([0, rowMax]);// finalScore/reliability x xcale
 
     // reset all bars to zero width
@@ -528,14 +541,22 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		if(d.value>0){ return d.value; } else { return ''}
 	});
 
+	rows.select('.sector-icon')
+	.attr('class', function(d,i) { 
+		return 'sector-icon sector-icon-'+d.key;
+	});
+
 	if(group=='sector'){
 		d.forEach(function(d,i){
 			var key = d.key;
 			var name = d.name;
-
-			d3.select('.'+group+'-icon-'+(i+1))
+			d3.select('.'+group+'-icon-'+(d.key))
 			.attr('href', function(d,i){
-				return 'images/sector-icons/'+name.toLowerCase()+'.svg'
+				if(availableSectorIcons.includes(name.toLowerCase())) {
+					return 'images/sector-icons/'+name.toLowerCase()+'.svg';
+				} else {
+					return '';
+				}
 			})
 			.style('opacity', function(d,i){
 				if(filters['sector'].includes(key)){
@@ -543,7 +564,7 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 				} else {
 					return 0.5;
 				}
-			});			
+			});		
 		});
 	}
 
@@ -605,6 +626,7 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 
 		var data_group = group;
 		if(data_group=='sector') data_group = 'sector_array';
+		if(data_group=='context') data_group = 'context_array';
 		if(data_group=='affected_groups') data_group = 'affected_groups_array';
 		if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
 		if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
@@ -686,6 +708,11 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 			}
 		})
 
+		rows.select('.sector-icon')
+		.attr('class', function(d,i) { 
+			return 'sector-icon sector-icon-'+d.key;
+		});
+
 		var labels =d3.selectAll('text.'+group)
 		.data(d)
 		.text(function(d,ii){
@@ -713,11 +740,11 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 			var value = d.value; 
 			var name = d.name;
 
-			d3.select('#'+group+(i+1)+'label').text(function(d,i){
+			d3.select('#'+group+(d.id)+'label').text(function(d,i){
 				if(value>0){ return value; } else { return ''};
 			});
 
-			d3.select('#'+group+(i+1)+'percentlabel').text(function(d,i){
+			d3.select('#'+group+(d.id)+'percentlabel').text(function(d,i){
 				if(textLabel=='Assessments'){
 					var t = totalAssessments;
 				} else {
@@ -729,9 +756,13 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 			});
 
 			if(group=='sector'){
-				d3.select('.'+group+'-icon-'+(i+1))
+				d3.select('.'+group+'-icon-'+(d.key))
 				.attr('href', function(d,i){
-					return 'images/sector-icons/'+name.toLowerCase()+'.svg'
+					if(availableSectorIcons.includes(name.toLowerCase())) {
+						return 'images/sector-icons/'+name.toLowerCase()+'.svg'
+					} else {
+						return '';
+					}
 				})
 				.style('opacity', function(d,i){
 					if(filters['sector'].includes(key)){

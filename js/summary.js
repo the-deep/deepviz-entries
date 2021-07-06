@@ -175,7 +175,7 @@ Summary.update = function(){
 	var context = [];
 
 	dcEntries.forEach(function(d,i){
-		d.context.forEach(function(dd,ii){
+		d.context_sector[selectedContextWidget.key].context.forEach(function(dd,ii){
 			context.push(dd);
 		})
 	});
@@ -189,7 +189,7 @@ Summary.update = function(){
 	d3.selectAll('.total-label').text(0);
 	
 	contextualRowTotals.forEach(function(d,i){
-		d3.select('#total-label'+(d.key-1)).text(addCommas(d.value));
+		d3.select('#total-label'+(d.key)).text(addCommas(d.value));
 	});
 
 	d3.selectAll('.contextualRow .label')

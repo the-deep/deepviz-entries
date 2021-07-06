@@ -18,7 +18,7 @@ DeepvizBumpChart.create = function(){
 	d3.selectAll('#bumpchartLabels').remove();
 	d3.selectAll('#bumpchartLineG').remove();
 
-	var timechartToggle = d3.select(document.getElementById("timechart-toggle").contentDocument);
+	var timechartToggle = d3.select("#timechart-toggle");
 	timechartToggle.select('#bumpchart-toggle').selectAll('rect').attr('fill', '#F4F4F4');
 	timechartToggle.select('#bumpchart-toggle').selectAll('text').attr('fill', '#4c4c4c');
 	timechartToggle.select('#bumpchart-toggle #bump-'+filters.bumpchartToggle).select('rect').attr('fill', colorNeutral[3]);
@@ -51,7 +51,7 @@ DeepvizBumpChart.create = function(){
 	    .attr("x", 0)
 	    .attr("y", 0)
 	    .attr("width", width*2)
-	    .attr("height", contextualRowsHeight*2)
+	    .attr("height", contextualRowsHeight*2);
 
 	// retina display
 	if(window.devicePixelRatio){
@@ -81,6 +81,7 @@ DeepvizBumpChart.create = function(){
 DeepvizBumpChart.draw = function(){
 
 	bData = DeepvizBumpChart.getData();
+	console.log(maxRank);
 
 	scale.bumpchart.y = d3.scaleLinear()
 	.range([0, contextualRowsHeight-bumpchartTopPadding-5])
@@ -132,8 +133,12 @@ DeepvizBumpChart.draw = function(){
 	// draw lines to bumpchart canvas
 	bData.forEach(function(d,i){
 
+		console.log('d.values[d.values.length-1].rank');
+		console.log(d.values[d.values.length-1].rank);
 		var rank = (d.values[d.values.length-1].rank);
 	    if(rank>10) rank = 10;
+
+		console.log(rank);
 
 		var color;
 
@@ -226,6 +231,7 @@ DeepvizBumpChart.draw = function(){
 
 	// add labels
 	bData.forEach(function(d,i){
+		if(d.name==undefined) d.name = ' ';
 		d3.select('#eventdrop').append('g').attr('id','bumpchartLabels')
 		.append('text')
 		.style('font-size', '17px')

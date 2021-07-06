@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg width="2032px" height="50px" viewBox="0 0 2032 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>timechart-toggle</title>
     <g id="timechart-toggle" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <text id="View-timeline-sub-di" font-family="SourceSansPro-Light, Source Sans Pro" font-size="22.6273561" font-weight="300" fill="#5F5F5F">
+        <text id="View-timeline-sub-di" font-size="22.6273561" font-weight="300" fill="#5F5F5F">
             <tspan x="13.1525942" y="33">View timeline sub-dimension</tspan>
         </text>
-        <text id="Contextual-event-dro" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="24.8900917" font-weight="normal" fill="#141414">
+        <text id="Contextual-event-dro" font-size="24.8900917" font-weight="normal" fill="#141414">
             <tspan x="369.211293" y="34">Contextual event drop</tspan>
         </text>
-        <text id="Bump-chart" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="24.8900917" font-weight="normal" fill="#141414">
+        <text id="Bump-chart" font-size="24.8900917" font-weight="normal" fill="#141414">
             <tspan x="703.3326" y="34">Bump chart</tspan>
         </text>
         <g id="timechart-toggle1-icon" opacity="0.864490327" transform="translate(843.000000, 16.000000)" stroke="#505050">
@@ -30,25 +29,25 @@
         <g id="bumpchart-toggle" transform="translate(922.000000, 4.000000)">
             <g id="bump-specific-needs" transform="translate(630.000000, 1.000000)">
                 <rect id="Rectangle" fill="#F4F4F4" x="0.0201721978" y="0" width="229" height="41"></rect>
-                <text id="Specific-Needs" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28.3139965" font-weight="normal" fill="#7E7E7E">
+                <text id="Specific-Needs" fill-rule="nonzero" font-size="28.3139965" font-weight="normal" fill="#7E7E7E">
                     <tspan x="28.2191108" y="30">Specific Needs</tspan>
                 </text>
             </g>
             <g id="bump-affected-group" transform="translate(401.000000, 1.000000)">
                 <rect id="Rectangle" fill="#F4F4F4" x="0.0201699391" y="0" width="228" height="41"></rect>
-                <text id="Affected-Group" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28.3139965" font-weight="normal" fill="#7E7E7E">
+                <text id="Affected-Group" fill-rule="nonzero" font-size="28.3139965" font-weight="normal" fill="#7E7E7E">
                     <tspan x="25.8786988" y="30">Affected Group</tspan>
                 </text>
             </g>
             <g id="bump-sector" transform="translate(201.000000, 0.000000)">
                 <rect id="Rectangle" fill="#008975" x="0.497780157" y="1" width="197.024631" height="39"></rect>
-                <text id="Sector" fill="#FFFFFF" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="30.9346901" font-weight="normal">
+                <text id="Sector" fill="#FFFFFF" fill-rule="nonzero" font-size="30.9346901" font-weight="normal">
                     <tspan x="54.7634382" y="30">Sector</tspan>
                 </text>
             </g>
             <g id="bump-geo" transform="translate(0.000000, 2.000000)">
                 <rect id="Rectangle" fill="#F4F4F4" x="0.497780157" y="0.554700332" width="197.024631" height="39"></rect>
-                <text id="Geo" fill-rule="nonzero" font-family="SourceSansPro-Regular, Source Sans Pro" font-size="28.3139965" font-weight="normal" fill="#7E7E7E">
+                <text id="Geo" fill-rule="nonzero" font-size="28.3139965" font-weight="normal" fill="#7E7E7E">
                     <tspan x="73.6295244" y="28.5547003">Geo</tspan>
                 </text>
             </g>

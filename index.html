@@ -18,7 +18,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
 
 	<!-- load custom CSS -->
-	<link href="css/style.css?cache=77790" rel="stylesheet" type="text/css" media="all" />
+	<link href="css/style.css?cache=20210701" rel="stylesheet" type="text/css" media="all" />
 
 </head>
 
@@ -28,7 +28,7 @@
 		<div id="main-page1">
 
 			<div id="print-header" style="display: none; margin-bottom: 10px">
-				<div style='display: inline; verticalalign: middle'></div>
+				<div style='display: inline; vertical-align: middle'></div>
 				<div style="display:inline; font-size: 36px; vertical-align: middle; padding-left: 2px">DEEP</div>
 				<div style="display: inline; vertical-align: middle; padding-left: 3px;">ENTRIES DASHBOARD </div>
 				<div id="print-date" style="display: inline; vertical-align: middle; padding-left: 10px; text-align: right; color: grey">Print Export</div>
@@ -148,6 +148,8 @@
 
 							<div id="timechart-container" class="rightcol">
 
+								<div id="selectFramework">SELECT FRAMEWORK <select id="selectFrameworkSelect"></select></div>
+
 								<div class="header">
 									<div id="avg_slider">
 									</div>
@@ -177,9 +179,10 @@
 											</g>
 										</g>
 									</svg>
+
 								</div>
 
-								<div style="height: 45.3vw; width: 100%">
+								<div id="timechartsubdiv" style="height: 45.3vw; width: 100%">
 									<div id="timeline" class="widget">
 									</div>
 								</div>
@@ -188,8 +191,9 @@
 
 							</div><!-- / .rightcol -->
 
-							<div id="framework-chart" class="clearfix">
+							<div class="clearfix" style="position: relative">
 								<div id="loadImageFramework" class="loader"></div>
+								<div id="framework-chart"></div>
 							</div>
 
 							<div id="footerRow">
@@ -317,16 +321,16 @@
 
 		<!-- load custom JavaScript -->
 		<script type="text/javascript" src="js/geojson-rewind.js"></script>
-		<script type="text/javascript" src="js/map.js?cache=77790"></script>
-		<script type="text/javascript" src="js/framework.js?cache=77790"></script>
-		<script type="text/javascript" src="js/bumpchart.js?cache=77790"></script>
-		<script type="text/javascript" src="js/treemap.js?cache=77790"></script>
-		<script type="text/javascript" src="js/summary.js?cache=77790"></script>
-		<script type="text/javascript" src="js/parse-data.js?cache=77790"></script>
-		<script type="text/javascript" src="js/deepviz.js?cache=77790"></script>
-		<script type="text/javascript" src="js/barchart.js?cache=77790"></script>
-		<script type="text/javascript" src="js/humanitarianprofile.js?cache=77790"></script>
-		<script type="text/javascript" src="js/main.js?cache=77790"></script>
+		<script type="text/javascript" src="js/map.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/framework.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/bumpchart.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/treemap.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/summary.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/parse-data.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/deepviz.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/barchart.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/humanitarianprofile.js?cache=20210701"></script>
+		<script type="text/javascript" src="js/main.js?cache=20210701"></script>
 
 
 	</body>
