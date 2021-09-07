@@ -58,12 +58,12 @@ HumanitarianProfile.create = function(){
 	})
 	.append('g')
 	.attr('id', function(d,i){
-		return 'hp-'+d.data.data.name.replace(/\s+/g,'')+'-'+(d.data.data.level+1);
+		return 'hp-'+d.data.data.name.replace(/[- )(]/g,'')+'-'+(d.data.data.level+1);
 	})
-	.attr('class', function(d,i){return 'node hp-'+d.data.data.name.replace(/\s+/g,'') })
+	.attr('class', function(d,i){return 'node hp-'+d.data.data.name.replace(/[- )(]/g,'') })
 	.style('cursor', 'pointer')
 	.on('click', function(d,i){
-		return Deepviz.filter('humanitarian_profile',d.data.data.name.replace(/\s+/g,''))
+		return Deepviz.filter('humanitarian_profile',d.data.data.name.replace(/[- )(]/g,''))
 	});
 
 	nodes
@@ -87,7 +87,10 @@ HumanitarianProfile.create = function(){
 	.attr('text-anchor', 'middle')
 	.attr('class', 'node-title')
 	.text(function(d,i){
-		return d.data.data.name
+		if(d.data.data.name.length>20) {
+			return (d.data.data.name.substr(0,20)).trim()+'.';
+		}
+		return d.data.data.name;
 	})
 	.attr('y', -7)
 	.attr('x', 0)
@@ -115,7 +118,7 @@ HumanitarianProfile.create = function(){
 	.append('path')
 	.classed('link', true)
 	.attr('id', function(d,i){
-		return 'link-'+(d.target.data.id.replace(/\s+/g,''));
+		return 'link-'+(d.target.data.id.replace(/[- )(]/g,''));
 	})
 	.attr("d", d3.linkVertical()
 		.x(function(d) { return d.x; })
@@ -178,7 +181,7 @@ HumanitarianProfile.update = function(){
 	.domain([0,max]);
 
 	nested.forEach(function(d,i){
-		var node = d3.select('#hp-'+d.key.replace(/\s+/g,'')+'-'+(d.value.level));
+		var node = d3.select('#hp-'+d.key.replace(/[- )(]/g,'')+'-'+(d.value.level));
 		node.attr('transform',function(dd,ii){
 			var scale = scalehumanitarianprofile(d.value.total);
 			return 'scale('+scale+')'
@@ -204,7 +207,7 @@ HumanitarianProfile.update = function(){
 			}
 		});
 
-		d3.select('#link-'+(d.key.replace(/\s+/g,''))).attr('opacity',0.5)
+		d3.select('#link-'+(d.key.replace(/[- )(]/g,''))).attr('opacity',0.5)
 		.style('stroke-width',function(dd,ii){
 			var scale = scalehumanitarianprofileLink(d.value.total);
 			return scale+'px';

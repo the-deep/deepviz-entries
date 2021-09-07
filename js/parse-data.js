@@ -805,7 +805,7 @@ parseEntriesMetadata = function(metadata){
 		d.humanitarian_profile = [];
 		var affectedGroups = d.name.split("/");
 		affectedGroups.forEach(function(dd,ii){
-			var name = dd.trim().replace(/\s+/g,'');
+			var name = dd.trim().replace(/[- )(]/g,'');
 			d.humanitarian_profile.push(name);
 		});
 		d.name_alt = d.name;
