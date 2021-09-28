@@ -761,7 +761,8 @@ DeepvizFramework.create = function(a){
 				filters.frameworkToggle = 'entries';				
 			};
 			Map.update();
-			DeepvizFramework.updateFramework();
+			// DeepvizFramework.updateFramework();
+			DeepvizFramework.create();
 			Deepviz.updateTimeline();
 
 			$('#loadImage, #loadImageFramework').delay(50).fadeOut(500);
@@ -778,10 +779,12 @@ DeepvizFramework.updateFramework = function(){
 
 	if(!enableFramework) return false;
 
+	
 	// entries by framework sector (non-unique to populate framework cells)
 	var entries = dataByFrameworkSector.filter(function(d){
 		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]))
 	});
+
 
 	if(filters.frameworkToggle=='average'){
 		var nullEntries = entries.filter(function(d){
@@ -811,6 +814,8 @@ DeepvizFramework.updateFramework = function(){
 		}
 	})		
 	.entries(entries);	
+
+
 
 	// unique entries by framework
 	var frameworkEntries = dataByFramework.filter(function(d){
@@ -898,6 +903,7 @@ DeepvizFramework.updateFramework = function(){
 			.attr('data-reliability', 0);
 
 	d.forEach(function(d,i){
+		
 		var sum = d3.sum(d.values, function(d){ return d.value.total});
 		d.total = sum;
 		var f = d.key;
@@ -948,7 +954,7 @@ DeepvizFramework.updateFramework = function(){
 	var dat = dataBySector.filter(function(d){
 		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 	});
-
+	
 	var totalEntriesWithSector = d3.nest()
 	.key(function(d) { return d['d'].pk; })
 	.entries(dat).length;	
