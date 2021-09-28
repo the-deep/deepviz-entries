@@ -111,6 +111,19 @@ DeepvizFramework.create = function(a){
 		.attr('id', 'framework-toggle-text')
 		// .style('font-size', '24px')
 		.text('median severity');
+		
+		if(filters.frameworkToggle!='entries'){
+			if(filters.toggle == 'severity'){
+				d3.select('#framework-toggle').style('fill', colorPrimary[3]);
+			} else {
+				d3.select('#framework-toggle').style('fill', colorSecondary[3]);
+			}
+			d3.select('#framework-toggle').attr('cx', 194);
+		} else {
+			d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+			d3.select('#framework-toggle').attr('cx', 164);
+		};
+
 	}
 
 	var columnHeadersBg = frameworkSvg.append('g')
