@@ -904,11 +904,11 @@ DeepvizFramework.updateFramework = function(){
 
 	// color null cells without median
 	if(nullEntries){
-		nullEntries.forEach(function(d,i){
-			var id = 'f'+(d.framework)+'s'+(d.sector-1);
-			d3.select('#'+id +'rect').style('fill', function(d){ return colorNeutral[0]; }).style('opacity', 1)
-			.attr('data-context', d.context);
-		});			
+		// nullEntries.forEach(function(d,i){
+		// 	var id = 'f'+(d.framework)+'s'+(d.sector);
+		// 	d3.select('#'+id +'rect').style('fill', function(d){ return colorNeutral[0]; }).style('opacity', 1)
+		// 	.attr('data-context', d.context);
+		// });			
 	}
 
 	d3.selectAll('#framework-layer2 .cell').attr('data-entries', 0)
@@ -920,6 +920,7 @@ DeepvizFramework.updateFramework = function(){
 		var sum = d3.sum(d.values, function(d){ return d.value.total});
 		d.total = sum;
 		var f = d.key;
+		// loop through cell values
 		d.values.forEach(function(dd,ii){
 			var s = dd.key;
 			var id = 'f'+(f)+'s'+(s);
@@ -941,7 +942,7 @@ DeepvizFramework.updateFramework = function(){
 			}
 
 			// set cell colour
-			d3.select('#'+id +' rect').style('fill', function(d){ if(v==0) {return colorNeutral[0]; } else { return cellColorScale(v); } })
+			d3.select('#framework-layer1 #'+id +' rect').style('fill', function(d){ if(v==0) {return colorNeutral[0]; } else { return cellColorScale(v); } })
 			
 			d3.select('#framework-layer2 #'+id +'rect').attr('data-entries', dd.value.total)
 			.attr('data-severity', Math.round(dd.value.median_s))
