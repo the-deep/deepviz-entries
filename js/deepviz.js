@@ -1067,8 +1067,6 @@ var Deepviz = function(sources, callback){
 			return d.date;
 		}));
 
-		var maxEntriesDate = maxDate;
-
 		var today = new Date();
 		if(maxDate<today){
 			maxDate = today;
@@ -1076,7 +1074,6 @@ var Deepviz = function(sources, callback){
 
 		if(urlQueryParams.get('maxDate')){
 			maxDate = new Date(urlQueryParams.get('maxDate'));
-			maxEntriesDate = maxDate;
 		}	
 
 		maxDate.setHours(0);
