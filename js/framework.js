@@ -97,7 +97,7 @@ DeepvizFramework.create = function(a){
 		.attr('cx', 164)
 		.attr('cy', 25)
 		.attr('r', 20)
-		.style('fill', colorNeutral[3]);
+		.style('fill', colorNeutral[5]);
 
 		toggleswitch.append('text')
 		.attr('x', 12)
@@ -120,7 +120,7 @@ DeepvizFramework.create = function(a){
 			}
 			d3.select('#framework-toggle').attr('cx', 194);
 		} else {
-			d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+			d3.select('#framework-toggle').style('fill', colorNeutral[5]);
 			d3.select('#framework-toggle').attr('cx', 164);
 		};
 
@@ -237,7 +237,7 @@ DeepvizFramework.create = function(a){
 		return 'TOTAL';
 	})
 	.style('font-weight', 'bold')
-	.style('fill', colorNeutral[4])
+	.style('fill', colorNeutral[5])
 	.attr('y', frameworkMargins.top + frameworkMargins.sectorTotalRow -1)
 	.style('text-anchor', 'end');
 
@@ -375,7 +375,7 @@ DeepvizFramework.create = function(a){
 			.attr('id', 'context-val-'+d.context_id)
 			.style('text-anchor', 'left')
 			.style('font-weight', 'bold')
-			.style('fill', 'rgb(0, 137, 116)')
+			.style('fill', colorNeutral[5])
 			.attr('y', -3)
 			.attr('x', b.width + 12)
 		}
@@ -704,7 +704,7 @@ DeepvizFramework.create = function(a){
 	        if(v==0) return false;
 
 	        if(filters.frameworkToggle=='entries'){
-				var html = '<div style="width: 100px; height: 12px; display: inline; margin-bottom: 2px; font-size: 9px; text-align: left; background-color: '+ colorNeutral[2] + '">&nbsp;&nbsp;</div><div style="padding-left: 5px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' entries</b></div>';
+				var html = '<div style="width: 100px; height: 12px; display: inline; margin-bottom: 2px; font-size: 9px; text-align: left; background-color: '+ colorNeutral[2] + '">&nbsp;&nbsp;</div><div style="padding-left: 5px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[5] + '; font-size: 9px"><b>' + v + ' entries</b></div>';
 	        } else {
 				if (filters.toggle=='severity'){
 			        var s = cell.attr('data-severity');
@@ -717,7 +717,7 @@ DeepvizFramework.create = function(a){
 					var color = colorSecondary[s];
 
 				}
-				var html = '<div style="width: 100px; height: 12px; display: inline; text-align: left; font-size: 9px;  background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp; <span style="font-size: 10px; ">' + text + ' </span><div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[4] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b></div>';
+				var html = '<div style="width: 100px; height: 12px; display: inline; text-align: left; font-size: 9px;  background-color: '+ color + '">&nbsp;&nbsp;</div>&nbsp; <span style="font-size: 10px; ">' + text + ' </span><div style="padding-left: 3px; padding-bottom: 2px; display: inline; color: '+ colorNeutral[5] + '; font-size: 9px"><b>' + v + ' '+textLabel+'</b></div>';
 	        }
 
 
@@ -769,7 +769,7 @@ DeepvizFramework.create = function(a){
 				d3.select('#framework-toggle').transition().duration(200).attr('cx', 194);
 				filters.frameworkToggle = 'average';
 			} else {
-				d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+				d3.select('#framework-toggle').style('fill', colorNeutral[5]);
 				d3.select('#framework-toggle').transition().duration(200).attr('cx', 164);
 				filters.frameworkToggle = 'entries';				
 			};
@@ -867,7 +867,7 @@ DeepvizFramework.updateFramework = function(){
 		var cellColorScale = d3.scaleLinear().domain([1,maxCellSize])
 		.range([colorNeutral[0], colorNeutral[4]])
 		.interpolate(d3.interpolateHcl);
-		d3.selectAll('.f-val').text('').style('fill', colorNeutral[4]);
+		d3.selectAll('.f-val').text('').style('fill', colorNeutral[5]);
 	} else { // median
 		if(filters.toggle == 'severity'){
 			maxCellSize = 5;

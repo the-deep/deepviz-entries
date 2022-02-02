@@ -174,15 +174,6 @@ var svg_summary3;
 
 var printing = false;
 
-// colors
-var colorPrimary = ['#A1E6DB','#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']; // severity (multi-hue)
-var colorGrey = ['#CDCDCD', '#AFAFAF', '#939393', '#808080', '#646464'];
-var colorLightgrey = ['#EBEBEB', '#CFCFCF', '#B8B8B7', '#A8A9A8', '#969696'];
-var colorLightgrey = ['#fafafa','#F5F5F5', '#DFDFDF', '#D0D0D0', '#C7C7C7', '#BABABA'];
-var colorBlue = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'];
-var colorNeutral = ['#ddf6f2', '#76D1C3', '#36BBA6', '#1AA791', '#008974'];
-var colorSecondary = ['#A1E6DB','#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d']; // reliability (multi-hue PuBu)
-
 var maxCellSize = 4;
 var cellColorScale = d3.scaleSequential().domain([1,maxCellSize])
 .interpolator(d3.interpolateReds);
@@ -405,12 +396,12 @@ var Deepviz = function(sources, callback){
 	    .rangeRound([0, (width - (margin.right + margin.left))], 0);
 
 		// override colors
-		d3.select('#total_entries').style('color',colorNeutral[3]);
+		d3.select('#total_entries').style('color',colorNeutral[4]);
 		d3.select('#severity_value').style('color',colorPrimary[3]);
 		d3.select('#reliability_value').style('color',colorSecondary[3]);
 		d3.select('#severityToggle').style('fill',colorPrimary[3]);
 		d3.select('#reliabilityToggle').style('fill',colorSecondary[3]);
-		d3.select('.selection').style('fill', colorNeutral[3]);
+		d3.select('.selection').style('fill', colorNeutral[4]);
 		d3.select('#dateRange').style('color', colorNeutral[4]);
 		
 		return callback(values);
@@ -1076,8 +1067,6 @@ var Deepviz = function(sources, callback){
 			return d.date;
 		}));
 
-		var maxEntriesDate = maxDate;
-
 		var today = new Date();
 		if(maxDate<today){
 			maxDate = today;
@@ -1085,7 +1074,6 @@ var Deepviz = function(sources, callback){
 
 		if(urlQueryParams.get('maxDate')){
 			maxDate = new Date(urlQueryParams.get('maxDate'));
-			maxEntriesDate = maxDate;
 		}	
 
 		maxDate.setHours(0);
@@ -1107,7 +1095,7 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='d'){
 				maxDate = new Date(maxDate.getFullYear(), maxDate.getMonth()+1, 1);
 				minDate = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-				dateRange[0] = new Date(maxEntriesDate.getFullYear(), maxEntriesDate.getMonth(), 1);
+				dateRange[0] = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 				dateRange[1] = maxDate;
 			}	
 			timechartInit=1;
@@ -1383,7 +1371,7 @@ var Deepviz = function(sources, callback){
 		.attr("x", 5)
 		.attr('width', 10)
 		.attr('height', 10)
-		.style('fill', colorNeutral[3]);
+		.style('fill', colorNeutral[4]);
 
 	    //**************************
 	    // Y AXIS left
@@ -1883,7 +1871,7 @@ var Deepviz = function(sources, callback){
 		})
 		.on('mouseout', function(d,i){
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
-			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[5]);
 		}).on('click', function(d,i){
 			var id = d3.select(this).attr('id');
 			var v = id.substr(-1);
@@ -1893,10 +1881,10 @@ var Deepviz = function(sources, callback){
 			}
 			filters.time = v;
 			d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
-			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+			d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[5]);
 		})
 
-		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+		d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[5]);
 
 		//**************************
 		// create sub-timechart
@@ -1961,6 +1949,8 @@ var Deepviz = function(sources, callback){
 			timechartToggle.select('#timechart-toggle1-icon').attr('opacity', 0.5);
 			timechartToggle.select('#bumpchart-toggle').attr('opacity', 1);
 		}
+
+		timechartToggle.selectAll('circle').attr('fill', colorNeutral[5]);
 
 		//**************************
 		// hover 
@@ -2220,7 +2210,7 @@ var Deepviz = function(sources, callback){
 					Deepviz.redrawTimeline();
 				}
 				d3.selectAll('.time-select rect').style('fill', colorGrey[2]);
-				d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[4]);
+				d3.select('#time-select-'+filters.time+ ' rect').style('fill', colorNeutral[5]);
 		    }
 
 		}
@@ -2522,7 +2512,7 @@ var Deepviz = function(sources, callback){
 		})		
 		.attr('fill', function(d,i){
 			if(filters.frameworkToggle=='entries'){
-				return colorNeutral[3];
+				return colorNeutral[4];
 			} else {
 				if(filters.toggle=='severity'){
 					return colorPrimary[i];
@@ -2773,7 +2763,7 @@ var Deepviz = function(sources, callback){
 		.attr('y',contextualRowHeight/2+4)
 		.style('font-size', '15px')
 		.style('font-weight', 'bold')
-		.style('fill', colorNeutral[4]);
+		.style('fill', colorNeutral[5]);
 
 		// row title
 		rows.append('text').text(function(d,i){
@@ -3535,8 +3525,8 @@ var Deepviz = function(sources, callback){
 			d3.select('#affected_groupsRemoveFilter').style('display', 'none').style('cursor', 'default');
 			d3.select('#sourcesRemoveFilter').style('display', 'none').style('cursor', 'default');
 
-			// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[3]);
-			// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[3]);
+			// d3.selectAll('.outerCircle').attr("stroke", colorNeutral[4]);
+			// d3.selectAll('.innerCircle').attr("stroke", colorNeutral[4]);
 			if(value=='clear'){
 				filters[filterClass] = [];
 			} else if(value == 'clearFramework'){
@@ -4047,7 +4037,7 @@ var Deepviz = function(sources, callback){
 					return colorPrimary[Math.round(d.value.median_s)];
 				} 
 			} else {
-				return colorNeutral[3];
+				return colorNeutral[4];
 			}
 		});
 		// clear canvas
@@ -4490,26 +4480,26 @@ var Deepviz = function(sources, callback){
 		$('#loadImage').fadeIn(5,function(){
 		$('#loadImageFramework').fadeIn(50,function(){
 
-			d3.select('#framework-toggle').style('fill', colorNeutral[3]);
+			d3.select('#framework-toggle').style('fill', colorNeutral[4]);
 			if(d != 'severity'){
 				// switch to Reliability
 				d3.select('#reliabilityToggle').style('opacity', 1);
 				d3.select('#severityToggle').style('opacity', 0);
 				filters.toggle = 'reliability';
-				d3.select('#total_entries').style('color',colorNeutral[3]);
+				d3.select('#total_entries').style('color',colorNeutral[4]);
 				d3.select('#timechartTitle').text('ENTRIES BY DATE AND BY RELIABILITY');
-				d3.selectAll('.eventDrop').style('fill', colorNeutral[3]);
+				d3.selectAll('.eventDrop').style('fill', colorNeutral[4]);
 				d3.select('#rightAxisLabel').text('Avg. Reliability');
 				d3.select('#rightAxisLabelLine').style('stroke', colorSecondary[3]);
-				d3.select('#leftAxisBox').style('fill', colorNeutral[3]);
-				d3.select('.selection').style('fill', colorNeutral[3]);
-				// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
-				// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
+				d3.select('#leftAxisBox').style('fill', colorNeutral[4]);
+				d3.select('.selection').style('fill', colorNeutral[4]);
+				// d3.selectAll('.outerCircle').style('stroke', colorNeutral[4]);
+				// d3.selectAll('.innerCircle').style('fill', colorNeutral[4]);
 				if(filters.frameworkToggle == 'average'){
 					d3.select('#framework-toggle').style('fill', colorSecondary[3])
 				}
 				// update colors of contextual row total values
-				d3.selectAll('.total-label').style('fill', colorNeutral[4]);
+				d3.selectAll('.total-label').style('fill', colorNeutral[5]);
 				d3.select('#dateRange').style('color', colorNeutral[4]);
 				d3.select('#avg-line').style('stroke', colorSecondary[3]);
 				d3.select('#framework-toggle-text').text('median reliability');
@@ -4532,7 +4522,7 @@ var Deepviz = function(sources, callback){
 				// d3.selectAll('.outerCircle').style('stroke', colorNeutral[3]);
 				// d3.selectAll('.innerCircle').style('fill', colorNeutral[3]);
 				// update colors of contextual row total values
-				d3.selectAll('.total-label').style('fill', colorNeutral[4]);
+				d3.selectAll('.total-label').style('fill', colorNeutral[5]);
 				d3.select('#dateRange').style('color', colorNeutral[4]);
 				d3.select('#avg-line').style('stroke', colorPrimary[3]);
 				d3.select('#framework-toggle-text').text('median severity');

@@ -2,7 +2,7 @@
 <svg width="2000px" height="77px" viewBox="0 0 2000 77" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>summary_1</title>
     <defs>
-        <path d="M3.07228158,35 L231.072282,35" id="path-1"></path>
+        <path d="M3,35 L231,35" id="path-1"></path>
         <filter x="-3.7%" y="-275.0%" width="107.5%" height="850.0%" filterUnits="objectBoundingBox" id="filter-2">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -12,7 +12,7 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M3.07228158,35 L230.072282,35" id="path-3"></path>
+        <path d="M3,35 L230,35" id="path-3"></path>
         <filter x="-3.7%" y="-275.0%" width="107.5%" height="850.0%" filterUnits="objectBoundingBox" id="filter-4">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -22,7 +22,7 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M2.07228158,35 L231.072282,35" id="path-5"></path>
+        <path d="M2,35 L231,35" id="path-5"></path>
         <filter x="-3.7%" y="-275.0%" width="107.4%" height="850.0%" filterUnits="objectBoundingBox" id="filter-6">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -32,7 +32,7 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M2.07228158,35 L231.072282,35" id="path-7"></path>
+        <path d="M2,35 L231,35" id="path-7"></path>
         <filter x="-3.7%" y="-275.0%" width="107.4%" height="850.0%" filterUnits="objectBoundingBox" id="filter-8">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -42,7 +42,7 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M2.07228158,35 L231.072282,35" id="path-9"></path>
+        <path d="M2,35 L231,35" id="path-9"></path>
         <filter x="-3.7%" y="-275.0%" width="107.4%" height="850.0%" filterUnits="objectBoundingBox" id="filter-10">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -52,7 +52,7 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M3.07228158,35 L219.072282,35" id="path-11"></path>
+        <path d="M3,35 L219,35" id="path-11"></path>
         <filter x="-3.9%" y="-275.0%" width="107.9%" height="850.0%" filterUnits="objectBoundingBox" id="filter-12">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -62,7 +62,7 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M2.17720723,35 L244.87341,35" id="path-13"></path>
+        <path d="M2.10126582,35 L244.797468,35" id="path-13"></path>
         <filter x="-3.5%" y="-275.0%" width="107.0%" height="850.0%" filterUnits="objectBoundingBox" id="filter-14">
             <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -72,7 +72,7 @@
             <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M1.72000003,40.8600007 L215.000004,40.8600007" id="path-15"></path>
+        <path d="M1.72000003,40.4200007 L215.000004,40.4200007" id="path-15"></path>
         <filter x="-3.2%" y="-228.5%" width="106.4%" height="789.5%" filterUnits="objectBoundingBox" id="filter-16">
             <feMorphology radius="1.29000002" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -82,7 +82,7 @@
             <feGaussianBlur stdDeviation="1.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M1.70262629,40.8600007 L193.248084,40.8600007" id="path-17"></path>
+        <path d="M1.70262629,40.4200007 L193.248084,40.4200007" id="path-17"></path>
         <filter x="-3.5%" y="-228.5%" width="107.1%" height="789.5%" filterUnits="objectBoundingBox" id="filter-18">
             <feMorphology radius="1.29000002" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -92,7 +92,7 @@
             <feGaussianBlur stdDeviation="1.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M1.72000003,40.8600007 L209.840003,40.8600007" id="path-19"></path>
+        <path d="M1.72000003,40.4200007 L209.840003,40.4200007" id="path-19"></path>
         <filter x="-2.6%" y="-203.5%" width="103.8%" height="639.5%" filterUnits="objectBoundingBox" id="filter-20">
             <feMorphology radius="1.29000002" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -100,7 +100,7 @@
             <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M1.72000003,40.8600007 L221.020004,40.8600007" id="path-21"></path>
+        <path d="M1.72000003,40.4200007 L221.020004,40.4200007" id="path-21"></path>
         <filter x="-3.1%" y="-228.5%" width="106.2%" height="789.5%" filterUnits="objectBoundingBox" id="filter-22">
             <feMorphology radius="1.29000002" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -110,7 +110,7 @@
             <feGaussianBlur stdDeviation="1.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
             <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.169553895 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
         </filter>
-        <path d="M1.75127276,40.8600007 L218.033458,40.8600007" id="path-23"></path>
+        <path d="M1.75127276,40.4200007 L218.033458,40.4200007" id="path-23"></path>
         <filter x="-2.5%" y="-203.5%" width="103.7%" height="639.5%" filterUnits="objectBoundingBox" id="filter-24">
             <feMorphology radius="1.29000002" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
             <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
@@ -123,7 +123,7 @@
         <rect fill="#FFFFFF" x="0" y="0" width="2000" height="77"></rect>
         <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="2000" height="87"></rect>
         <g id="stakeholders_box" transform="translate(0.000000, 25.000000)">
-            <polygon id="Rectangle-6" fill="#167868" points="0 18 356 18 356 52 0 52"></polygon>
+            <polygon id="Rectangle-6" fill="#384AD1" points="0 18 356 18 356 52 0 52"></polygon>
             <text id="SOURCES" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14" font-weight="bold" fill="#FFFFFF">
                 <tspan x="96.2212445" y="32">SOURCES </tspan>
             </text>
@@ -137,91 +137,91 @@
                 <tspan x="5.79949717" y="44">0,000</tspan>
             </text>
         </g>
-        <g id="lngo_box" transform="translate(356.927718, 38.000000)">
-            <polygon id="Rectangle-6" fill="#26A18C" points="0.0722815839 5 233.072282 5 233.072282 39 0.0722815839 39"></polygon>
+        <g id="lngo_box" transform="translate(357.000000, 38.000000)">
+            <polygon id="Rectangle-6" fill="#6673DB" points="0 5 233 5 233 39 0 39"></polygon>
             <text id="LNGOStitle" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="69.0722816" y="26">LNGOS</tspan>
+                <tspan x="69" y="26">LNGOS</tspan>
             </text>
             <text id="lngo" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="33" font-weight="bold" fill="#FFFFFF">
-                <tspan x="6.07228158" y="32">000</tspan>
+                <tspan x="6" y="32">000</tspan>
             </text>
             <g id="filter_lngo">
                 <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-1"></use>
             </g>
         </g>
-        <g id="ingo_box" transform="translate(590.927718, 38.000000)">
-            <polygon id="Rectangle-6" fill="#26A18C" points="0.0722815839 5 232.072282 5 232.072282 39 0.0722815839 39"></polygon>
+        <g id="ingo_box" transform="translate(591.000000, 38.000000)">
+            <polygon id="Rectangle-6" fill="#6673DB" points="0 5 232 5 232 39 0 39"></polygon>
             <text id="INGOStitle" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="69.0722816" y="27">INGOS</tspan>
+                <tspan x="69" y="27">INGOS</tspan>
             </text>
             <text id="ingo" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="33" font-weight="bold" fill="#FFFFFF">
-                <tspan x="6.07228158" y="32">000</tspan>
+                <tspan x="6" y="32">000</tspan>
             </text>
             <g id="filter_ingo">
                 <use fill="black" fill-opacity="1" filter="url(#filter-4)" xlink:href="#path-3"></use>
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-3"></use>
             </g>
         </g>
-        <g id="un_agency_box" transform="translate(823.927718, 38.000000)">
-            <polygon id="Rectangle-6" fill="#46BCAC" points="0.0722815839 5 234.072282 5 234.072282 39 0.0722815839 39"></polygon>
+        <g id="un_agency_box" transform="translate(824.000000, 38.000000)">
+            <polygon id="Rectangle-6" fill="#A6AFF4" points="0 5 234 5 234 39 0 39"></polygon>
             <text id="UN-AGENCIES" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="67.0722816" y="26">UN AGENCIES</tspan>
+                <tspan x="67" y="26">UN AGENCIES</tspan>
             </text>
             <text id="un_agency" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="33" font-weight="bold" fill="#FFFFFF">
-                <tspan x="5.07228158" y="32">000</tspan>
+                <tspan x="5" y="32">000</tspan>
             </text>
             <g id="filter_un_agency">
                 <use fill="black" fill-opacity="1" filter="url(#filter-6)" xlink:href="#path-5"></use>
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-5"></use>
             </g>
         </g>
-        <g id="cluster_box" transform="translate(1058.927718, 38.000000)">
-            <polygon id="Rectangle-6" fill="#46BCAC" points="0.0722815839 5 234.072282 5 234.072282 39 0.0722815839 39"></polygon>
+        <g id="cluster_box" transform="translate(1059.000000, 38.000000)">
+            <polygon id="Rectangle-6" fill="#A6AFF4" points="0 5 234 5 234 39 0 39"></polygon>
             <text id="CLUSTERSlabel" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="68.0722816" y="27">SECTORS/CLUSTERS</tspan>
+                <tspan x="68" y="27">SECTORS/CLUSTERS</tspan>
             </text>
             <text id="cluster" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="33" font-weight="bold" fill="#FFFFFF">
-                <tspan x="6.07228158" y="32">000</tspan>
+                <tspan x="6" y="32">000</tspan>
             </text>
             <g id="filter_cluster">
                 <use fill="black" fill-opacity="1" filter="url(#filter-8)" xlink:href="#path-7"></use>
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-7"></use>
             </g>
         </g>
-        <g id="donor_box" transform="translate(1293.927718, 38.000000)">
-            <polygon id="Rectangle-6" fill="#6BD1C0" points="0.0722815839 5 234.072282 5 234.072282 39 0.0722815839 39"></polygon>
+        <g id="donor_box" transform="translate(1294.000000, 38.000000)">
+            <polygon id="Rectangle-6" fill="#C8CDF6" points="0 5 234 5 234 39 0 39"></polygon>
             <text id="DONORSlabel" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="65.0722816" y="26">DONORS</tspan>
+                <tspan x="65" y="26">DONORS</tspan>
             </text>
             <text id="donor" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="33" font-weight="bold" fill="#FFFFFF">
-                <tspan x="5.07228158" y="32">000</tspan>
+                <tspan x="5" y="32">000</tspan>
             </text>
             <g id="filter_donor">
                 <use fill="black" fill-opacity="1" filter="url(#filter-10)" xlink:href="#path-9"></use>
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-9"></use>
             </g>
         </g>
-        <g id="rcrc_box" transform="translate(1528.927718, 38.000000)">
-            <polygon id="Rectangle-6" fill="#6BD1C0" points="0.0722815839 5 221.072282 5 221.072282 39 0.0722815839 39"></polygon>
+        <g id="rcrc_box" transform="translate(1529.000000, 38.000000)">
+            <polygon id="Rectangle-6" fill="#C8CDF6" points="0 5 221 5 221 39 0 39"></polygon>
             <text id="RCRClabel" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="66.0722816" y="26">RCRC</tspan>
+                <tspan x="66" y="26">RCRC</tspan>
             </text>
             <text id="rcrc" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="33" font-weight="bold" fill="#FFFFFF">
-                <tspan x="5.07228158" y="32">000</tspan>
+                <tspan x="5" y="32">000</tspan>
             </text>
             <g id="filter_rcrc">
                 <use fill="black" fill-opacity="1" filter="url(#filter-12)" xlink:href="#path-11"></use>
                 <use stroke="#A9F8ED" stroke-width="3" xlink:href="#path-11"></use>
             </g>
         </g>
-        <g id="government_box" transform="translate(1750.927718, 38.000000)">
-            <polygon id="Rectangle-6" fill="#7FC2B7" points="0.0759414109 5 248.025308 5 248.025308 39 0.0759414109 39"></polygon>
+        <g id="government_box" transform="translate(1751.003659, 38.000000)">
+            <polygon id="Rectangle-6" fill="#B3B8E2" points="0 5 247.949367 5 247.949367 39 0 39"></polygon>
             <text id="GOVERNMENTlabel" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold" fill="#FFFFFF">
-                <tspan x="75.721511" y="26">GOVERNMENT BODIES </tspan>
+                <tspan x="75.6455696" y="26">GOVERNMENT BODIES </tspan>
             </text>
             <text id="government" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="33" font-weight="bold" fill="#FFFFFF">
-                <tspan x="5.3730655" y="32">000</tspan>
+                <tspan x="5.29712409" y="32">000</tspan>
             </text>
             <g id="filter_government">
                 <use fill="black" fill-opacity="1" filter="url(#filter-14)" xlink:href="#path-13"></use>
@@ -229,7 +229,7 @@
             </g>
         </g>
         <g id="assessments_box" transform="translate(551.000000, -1.000000)">
-            <polygon id="Rectangle-6" fill="#008483" points="0 0 198 0 198 43 0 43"></polygon>
+            <polygon id="Rectangle-6" fill="#5061E4" points="0 0 198 0 198 43 0 43"></polygon>
             <text id="total_assessments" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="34" font-weight="bold" fill="#FFFFFF">
                 <tspan x="5" y="34">0,000</tspan>
             </text>
@@ -239,7 +239,7 @@
             </text>
         </g>
         <g id="publishers_box" transform="translate(371.000000, -1.000000)">
-            <polygon id="Rectangle-6" fill="#008483" points="0 0 179 0 179 43 0 43"></polygon>
+            <polygon id="Rectangle-6" fill="#5061E4" points="0 0 179 0 179 43 0 43"></polygon>
             <text id="total_publishers" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="34" font-weight="bold" fill="#FFFFFF">
                 <tspan x="4" y="33">0,000</tspan>
             </text>
@@ -248,7 +248,7 @@
             </text>
         </g>
         <g id="total_documents_box" transform="translate(0.000000, -1.000000)">
-            <polygon id="Rectangle-6" fill="#008483" points="0 0 189 0 189 43 0 43"></polygon>
+            <polygon id="Rectangle-6" fill="#5061E4" points="0 0 189 0 189 43 0 43"></polygon>
             <text id="DOCUMENTS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="14.76" font-weight="bold" fill="#FFFFFF">
                 <tspan x="101" y="21">DOCUMENTS</tspan>
             </text>
@@ -260,7 +260,7 @@
             </text>
         </g>
         <g id="entries_box" transform="translate(190.000000, -1.000000)">
-            <polygon id="Rectangle-6" fill="#008483" points="0 0 180 0 180 43 0 43"></polygon>
+            <polygon id="Rectangle-6" fill="#5061E4" points="0 0 180 0 180 43 0 43"></polygon>
             <text id="total_entries" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="34" font-weight="bold" fill="#FFFFFF">
                 <tspan x="6.03351955" y="34">0,0000</tspan>
             </text>
@@ -268,79 +268,79 @@
                 <tspan x="115.625698" y="27">ENTRIES</tspan>
             </text>
         </g>
-        <g id="coordination_2_box" transform="translate(974.000000, -2.000000)">
-            <polygon id="Rectangle-6" fill="#008B74" points="0 0.440000057 216.720004 0.440000057 216.720004 43.4400008 0 43.4400008"></polygon>
+        <g id="coordination_2_box" transform="translate(974.000000, -1.560000)">
+            <polygon id="Rectangle-6" fill="#7F8CF6" points="0 0 216.720004 0 216.720004 43.0000007 0 43.0000007"></polygon>
             <text id="COORDINATED-NEEDS-AS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="63.6400011" y="17.1600001">COORDINATED NEEDS </tspan>
-                <tspan x="63.6400011" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="63.6400011" y="16.72">COORDINATED NEEDS </tspan>
+                <tspan x="63.6400011" y="34.72">ASSESSMENTS</tspan>
             </text>
             <text id="&gt;=2-Sectors" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.1160103" font-weight="300" fill="#FFFFFF">
-                <tspan x="153.800003" y="34.0800004">&gt;=2 Sectors</tspan>
+                <tspan x="153.800003" y="33.6400003">&gt;=2 Sectors</tspan>
             </text>
             <text id="coordinated_2_sector" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="32" font-weight="bold" fill="#FFFFFF">
-                <tspan x="4.30000007" y="33">000</tspan>
+                <tspan x="4.30000007" y="32.5599999">000</tspan>
             </text>
             <g id="filter_coordination_2">
                 <use fill="black" fill-opacity="1" filter="url(#filter-16)" xlink:href="#path-15"></use>
                 <use stroke="#A9F8ED" stroke-width="2.58000004" xlink:href="#path-15"></use>
             </g>
         </g>
-        <g id="harmonized_box" transform="translate(1404.000000, -2.000000)">
-            <polygon id="Rectangle-6" fill="#008B74" points="0 0.440000057 194.95071 0.440000057 194.95071 43.4400008 0 43.4400008"></polygon>
+        <g id="harmonized_box" transform="translate(1404.000000, -1.560000)">
+            <polygon id="Rectangle-6" fill="#7F8CF6" points="0 0 194.95071 0 194.95071 43.0000007 0 43.0000007"></polygon>
             <text id="HARMONIZED-NEEDS-ASS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="63.8484859" y="17.1600001">HARMONIZED NEEDS </tspan>
-                <tspan x="63.8484859" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="63.8484859" y="16.72">HARMONIZED NEEDS </tspan>
+                <tspan x="63.8484859" y="34.72">ASSESSMENTS</tspan>
             </text>
             <text id="harmonized" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="32" font-weight="bold" fill="#FFFFFF">
-                <tspan x="4.25656573" y="33">000</tspan>
+                <tspan x="4.25656573" y="32.5599999">000</tspan>
             </text>
             <g id="filter_harmonized">
                 <use fill="black" fill-opacity="1" filter="url(#filter-18)" xlink:href="#path-17"></use>
                 <use stroke="#A9F8ED" stroke-width="2.58000004" xlink:href="#path-17"></use>
             </g>
         </g>
-        <g id="coordination_1_box" transform="translate(1192.000000, -2.000000)">
-            <polygon id="Rectangle-6" fill="#008B74" points="0 0.440000057 211.560004 0.440000057 211.560004 43.4400008 0 43.4400008"></polygon>
+        <g id="coordination_1_box" transform="translate(1192.000000, -1.560000)">
+            <polygon id="Rectangle-6" fill="#7F8CF6" points="0 0 211.560004 0 211.560004 43.0000007 0 43.0000007"></polygon>
             <text id="coordinated_1_sector" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="32" font-weight="bold" fill="#FFFFFF">
-                <tspan x="4.30000007" y="33">000</tspan>
+                <tspan x="4.30000007" y="32.5599999">000</tspan>
             </text>
             <text id="COORDINATED-NEEDS-AS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="63.6400011" y="17.1600001">COORDINATED NEEDS </tspan>
-                <tspan x="63.6400011" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="63.6400011" y="16.72">COORDINATED NEEDS </tspan>
+                <tspan x="63.6400011" y="34.72">ASSESSMENTS</tspan>
             </text>
             <text id="=1-Sector" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.1160103" font-weight="300" fill="#FFFFFF">
-                <tspan x="155.380003" y="34.0800004">=1 Sector</tspan>
+                <tspan x="155.380003" y="33.6400003">=1 Sector</tspan>
             </text>
             <g id="filter_coordination_1">
                 <use fill="black" fill-opacity="1" filter="url(#filter-20)" xlink:href="#path-19"></use>
                 <use stroke="#A9F8ED" stroke-width="2.58000004" fill="#D8D8D8" fill-rule="evenodd" xlink:href="#path-19"></use>
             </g>
         </g>
-        <g id="coordination_5_box" transform="translate(750.000000, -2.000000)">
-            <polygon id="Rectangle-6" fill="#008B74" points="0 0.440000057 222.740004 0.440000057 222.740004 43.4400008 0 43.4400008"></polygon>
+        <g id="coordination_5_box" transform="translate(750.000000, -1.560000)">
+            <polygon id="Rectangle-6" fill="#7F8CF6" points="0 0 222.740004 0 222.740004 43.0000007 0 43.0000007"></polygon>
             <text id="COORDINATED-NEEDS-AS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="62.780001" y="17.1600001">COORDINATED NEEDS </tspan>
-                <tspan x="62.780001" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="62.780001" y="16.72">COORDINATED NEEDS </tspan>
+                <tspan x="62.780001" y="34.72">ASSESSMENTS</tspan>
             </text>
             <text id="coordinated_5_sector" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="32" font-weight="bold" fill="#FFFFFF">
-                <tspan x="4.30000007" y="33">000</tspan>
+                <tspan x="4.30000007" y="32.5599999">000</tspan>
             </text>
             <text id="&gt;=-5-Sectors" font-family="SourceSansPro-Light, Source Sans Pro" font-size="12.1160103" font-weight="300" fill="#FFFFFF">
-                <tspan x="153.800003" y="34.0800004">&gt;= 5 Sectors</tspan>
+                <tspan x="153.800003" y="33.6400003">&gt;= 5 Sectors</tspan>
             </text>
             <g id="filter_coordination_5">
                 <use fill="black" fill-opacity="1" filter="url(#filter-22)" xlink:href="#path-21"></use>
                 <use stroke="#A9F8ED" stroke-width="2.58000004" xlink:href="#path-21"></use>
             </g>
         </g>
-        <g id="uncoordinated_box" transform="translate(1600.000000, -2.000000)">
-            <polygon id="Rectangle-6" fill="#008B74" points="0 0.440000057 220.660367 0.440000057 220.660367 43.4400008 0 43.4400008"></polygon>
+        <g id="uncoordinated_box" transform="translate(1600.000000, -1.560000)">
+            <polygon id="Rectangle-6" fill="#7F8CF6" points="0 0 220.660367 0 220.660367 43.0000007 0 43.0000007"></polygon>
             <text id="UNCOORDINATED-NEEDS" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="13.7600002" font-weight="bold" fill="#FFFFFF">
-                <tspan x="62.1701829" y="17.1600001">UNCOORDINATED NEEDS </tspan>
-                <tspan x="62.1701829" y="35.1600001">ASSESSMENTS</tspan>
+                <tspan x="62.1701829" y="16.72">UNCOORDINATED NEEDS </tspan>
+                <tspan x="62.1701829" y="34.72">ASSESSMENTS</tspan>
             </text>
             <text id="uncoordinated" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="32" font-weight="bold" fill="#FFFFFF">
-                <tspan x="3.50254551" y="33">000</tspan>
+                <tspan x="3.50254551" y="32.5599999">000</tspan>
             </text>
             <g id="filter_uncoordinated">
                 <use fill="black" fill-opacity="1" filter="url(#filter-24)" xlink:href="#path-23"></use>
@@ -348,7 +348,7 @@
             </g>
         </g>
         <g id="other_documents_box" transform="translate(1821.000000, -2.000000)">
-            <polygon id="Rectangle-6" fill="#008483" points="0 0 178 0 178 43 0 43"></polygon>
+            <polygon id="Rectangle-6" fill="#6775E7" points="0 0 178 0 178 43 0 43"></polygon>
             <text id="total_other_documents" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="32" font-weight="bold" fill="#FFFFFF">
                 <tspan x="3.93370166" y="33">0,000</tspan>
             </text>
