@@ -14,6 +14,12 @@ var Deepviz = new Deepviz(sources, function(data){
 	var affectedGroupsChart = Deepviz.createAffectedGroupsChart();
 
 	//**************************
+	// demographic groups chart
+	//**************************
+	var demographicGroupsChart = Deepviz.createDemographicGroupsChart();
+
+
+	//**************************
 	// top sources charts
 	//**************************
 	Deepviz.createSourcesCharts();

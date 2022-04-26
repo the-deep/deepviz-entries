@@ -1,15 +1,15 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-
+	
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+	
 	<title>DEEP Entries Dashboard</title>
-
+	
 	<link rel='shortcut icon' href="images/favicon.png" type='image/x-icon' >
-
+	
 	<!-- load vendor CSS -->
 	<link href='js/vendor/mapbox-gl.css' rel='stylesheet' />
 	<link href='js/vendor/tippy.css' rel='stylesheet' />
@@ -18,56 +18,56 @@
 	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
 	<!-- load custom CSS -->
 	<link href="css/style.css?cache=20210701" rel="stylesheet" type="text/css" media="all" />
-
+	
 </head>
 
 <body>
-
+	
 	<div id="main">
 		<div id="main-page1">
-
+			
 			<div id="print-header" style="display: none; margin-bottom: 10px">
 				<div style='display: inline; vertical-align: middle'></div>
 				<div style="display:inline; font-size: 36px; vertical-align: middle; padding-left: 2px">DEEP</div>
 				<div style="display: inline; vertical-align: middle; padding-left: 3px;">ENTRIES DASHBOARD </div>
 				<div id="print-date" style="display: inline; vertical-align: middle; padding-left: 10px; text-align: right; color: grey">Print Export</div>
 			</div>
-
+			
 			<div id="top_row">
 				<div id="svg_summary1_div"></div>
 				<div id="svg_summary2_div"></div>
 				<div id="svg_summary3_div"></div>
 			</div>
-
+			
 			<div class="container1">
-
+				
 				<div class="main-content">
-
+					
 					<div id="summary_row">
-
+						
 						<div class="leftcol" style="float: left; position: relative; margin-bottom: 1px;">
-
+							
 							<h2 style="margin-bottom: 3px; margin-top: 0px; display: inline-block">Summary<img id="globalRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/></h2>
-
+							
 							<div id="print"><img id="print-icon" src="images/print.png"/><img id="print-loading" src="images/loading.gif"/></div>
 							<div id="printImage"><img id="printImage-icon" src="images/printImage.png"/><img id="printImage-loading" src="images/loading.gif"/></div>
 							<div id="copyImage"><img id="copyImage-icon" src="images/copyImage.png"/><img id="copyImage-loading" src="images/loading.gif"/></div>
 							<div id="loadImage" class="loader"></div>
-
+							
 							<div class="selectedDate">
 								<div class="title">
 									<div id="dateRangeContainer"><img id="dateRangeContainer_img" src="images/calendar.jpg" height="11px"/> DATE RANGE</div>
 									<div><div id="dateRangeText"></div><input id="dateRange" value=""/></div></div><br/>
 								</div>
-
+								
 								<div class="title"><br/>
 									ENTRIES BY LOCATION
 								</div>
 								<img id="geoRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
 							</div>
-
+							
 							<div id="scores-container" class="rightcol">
-
+								
 								<div id="severity" class="widget">
 									<div class="title severityToggle">
 										ENTRIES BY SEVERITY&nbsp;<div id="severity_value"></div> 
@@ -79,7 +79,7 @@
 									<img id="severityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
 									<div id="severity_bars"></div>
 								</div>
-
+								
 								<div id="reliability" class="widget">
 									<div class="title reliabilityToggle">
 										ENTRIES BY RELIABILITY&nbsp;<div id="reliability_value"></div>
@@ -91,19 +91,19 @@
 									<img id="reliabilityRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
 									<div id="reliability_bars"></div>	
 								</div>
-
+								
 							</div><!-- rightcol -->
-
+							
 						</div><!-- #summary_row -->
-
+						
 						<div>
-
+							
 							<div id="mapcontainer" class="leftcol">
 								<select id="location-search" class="js-example-responsive" style="width: 100%; height: 26px" name="states[]" multiple="multiple"></select>
 								<div id="map">
-
+									
 									<div id="gridmap-div"></div>
-
+									
 									<div id="lasso">
 										<img id="lasso-default" height="24px" src="images/lasso-default.svg" class="tippy-btn" data-tippy-content="Select locations"/>
 										<img id="lasso-selected" height="24px" src="images/lasso-selected.svg" class="tippy-btn" data-tippy-content="Select locations"/>
@@ -119,7 +119,7 @@
 										<div id="map-toggle-rect-heatmap" class="tippy-btn" data-tippy-content="Heatmap"></div>
 										<div id="map-toggle-rect-gridmap" class="tippy-btn" data-tippy-content="Tile grid map"></div>
 										<div id="map-toggle-rect-choropleth" class="tippy-btn" data-tippy-content="Choropleth"></div>
-
+										
 										<img id="map-toggle-bubbles" height="91px" src="images/map-toggle-bubbles.svg"/>
 										<img id="map-toggle-heatmap" height="91px" src="images/map-toggle-heatmap.svg"/>
 										<img id="map-toggle-gridmap" height="91px" src="images/map-toggle-gridmap.svg"/>
@@ -127,8 +127,8 @@
 									</div>
 									<div id="heatmap-radius-slider-div">
 									</div>
-
-
+									
+									
 									<div id="map-bg-toggle" class="tippy-btn-vert" data-tippy-content="Change background layer">
 										<select>
 											<option value="light-v10">light-grey</option>
@@ -137,25 +137,25 @@
 											<option value="dark-v10">dark</option>
 										</select>
 									</div>
-
+									
 									<div id="adm-toggle" class="tippy-btn-vert" data-tippy-content="Change admin level">
 										<object type="image/svg+xml" data="images/adm.svg" class="adm"></object>
 									</div>
-
+									
 								</div>
 							</div><!-- /.leftcol -->
-
+							
 							<div id="timechart-container" class="rightcol">
-
+								
 								<div id="selectFramework">SELECT FRAMEWORK <select id="selectFrameworkSelect"></select></div>
-
+								
 								<div class="header">
 									<div id="avg_slider">
 									</div>
 									<div id="timechartTitle" class="title">ENTRIES BY DATE AND BY SEVERITY</div>
-
+									
 									<div id="timechart-legend"></div>
-
+									
 									<svg id="timechart-select" width="55px" viewBox="0 0 140 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 										<g id="time-select-g" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 											<g id="time-select-y" class="time-select" transform="translate(2.000000, 0.000000)">
@@ -178,49 +178,53 @@
 											</g>
 										</g>
 									</svg>
-
+									
 								</div>
-
+								
 								<div id="timechartsubdiv" style="height: 45.3vw; width: 100%">
 									<div id="timeline" class="widget">
 									</div>
 								</div>
-
+								
 								<object id="timechart-toggle" type="image/svg+xml" data="images/timechart-toggle.svg"></object>
-
+								
 							</div><!-- / .rightcol -->
 							<br/>
 							<div class="clearfix" style="position: relative">
 								<div id="loadImageFramework" class="loader"></div>
 								<div id="framework-chart"></div>
 							</div>
-
+							
 							<div id="footerRow">
 								<div id="col1" class="footerCol">
 									<div id="sector-svg" class="col-content"></div>
 								</div>
-
+								
 								<div id="col2" class="footerCol">
 									<div id="specific-needs-svg" class="col-content"></div>
 								</div>
-
+								
 								<div id="col3" class="footerCol">
 									<div id="affected-groups-svg" class="col-content"></div>
-								</div>		
+								</div>	
+								
+								<div id="col4" class="footerCol">
+									<div id="demographic-groups-svg" class="col-content"></div>
+								</div>	
 							</div>
 							<br/>
-
+							
 						</div>
-
+						
 					</div><!-- /#main-content -->
 				</div>
 			</div>
 			<div id="main-page2">
 				<div class="container1 main-content">
-
+					
 					<div id="humanitarianprofileTitle" class="title">HUMANITARIAN PROFILE</div><img id="humanitarianprofileRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/>
 					<div id="humanitarianprofile"></div>
-
+					
 					<div id="treemap-section">
 						<div id="treemapCol">
 							<div id="treemapTitle" class="title">TREEMAP</div>
@@ -231,11 +235,11 @@
 								</div>
 								<div id="treemap-toggle-list">
 									<ul>
-									    <li id='treemap_geo'>Geo</li>
-									    <li id='treemap_sector' class='disabled'>Sectors</li>
-									    <li id='treemap_affected_groups' class='disabled'>Affected Group</li>
-									    <li id='treemap_special_needs' class='disabled'>Specific Needs</li>
-									    <li id='treemap_demography' class='disabled' style='display: none'>Demography</li>
+										<li id='treemap_geo'>Geo</li>
+										<li id='treemap_sector' class='disabled'>Sectors</li>
+										<li id='treemap_affected_groups' class='disabled'>Affected Group</li>
+										<li id='treemap_special_needs' class='disabled'>Specific Needs</li>
+										<li id='treemap_demography' class='disabled' style='display: none'>Demography</li>
 									</ul>
 								</div>
 							</div>
@@ -247,13 +251,13 @@
 							<div id="sunburst"></div>
 						</div>
 					</div><!-- /#treemap-section -->
-
+					
 					<div id="sources-section">
 						<h3 style="margin-bottom: 3px; margin-top: 0px; display: inline-block">Sources<img id="sourcesRemoveFilter" class="removeFilterBtn" src="images/filter.png" title="Clear filter"/></h3>
 						<div id="sources-toggle-container">
 							<object id="sources-toggle-obj" type="image/svg+xml" data="images/sources-toggle.svg"></object>
 						</div>
-
+						
 						<div id="firstChartRow">
 							<div class="chartCol">
 								<div id="top-authors-svg" class="col-content"></div>
@@ -297,13 +301,13 @@
 							<div class="chartCol"></div>
 						</div><!-- /#thirdChartRow -->
 					</div><!-- /#sources-section -->
-
-
+					
+					
 				</div><!-- /.container1 -->
-
+				
 			</div><!-- /#main-page2 -->
 		</div>
-
+		
 		<!-- load vendor JavaScript -->
 		<script type="text/javascript" src="js/vendor/jspdf.min.js"></script>
 		<script type="text/javascript" src="js/vendor/html2canvas.min.js"></script>
@@ -316,8 +320,8 @@
 		<script type="text/javascript" src="js/vendor/daterangepicker.min.js"></script>
 		<script type="text/javascript" src="js/vendor/select2.min.js"></script>
 		<script src='js/vendor/mapbox-gl.js'></script>
-
-
+		
+		
 		<!-- load custom JavaScript -->
 		<script type="text/javascript" src="js/colors.js"></script>
 		<script type="text/javascript" src="js/geojson-rewind.js"></script>
@@ -331,7 +335,8 @@
 		<script type="text/javascript" src="js/barchart.js?cache=20210701"></script>
 		<script type="text/javascript" src="js/humanitarianprofile.js?cache=20210701"></script>
 		<script type="text/javascript" src="js/main.js?cache=20210701"></script>
-
-
+		
+		
 	</body>
 	</html>
+	

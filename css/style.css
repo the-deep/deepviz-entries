@@ -1103,6 +1103,14 @@ font-size: 15px;
 	cursor: pointer;
 }
 
+.labeltext div {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    text-align: end;
+    line-height: 1;
+}
+
 .cell { 
 	outline: none; 
 }
@@ -1140,7 +1148,7 @@ font-size: 15px;
 }
 
 .footerCol {
-	width: 33%;
+	width: 24.8%;
 	display: inline-grid;
 	vertical-align: top;
 }
@@ -1151,16 +1159,6 @@ font-size: 15px;
 	text-align: right;
 }
 
-#col1 {
-	width: 33%;
-}
-
-#col2 {
-
-}
-
-#col3 {
-}
 
 #treemap-section {
 	margin: 10px 0px;
