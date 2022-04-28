@@ -3092,11 +3092,6 @@ var Deepviz = function(sources, callback){
 			var donorData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.donor });
 			var clusterData = [...authorData].filter(function(d){return d.author_type == stakeholder_type_keys.cluster });
 			
-			console.log(stakeholder_type_keys);
-			console.log(authorData);
-			console.log(unData);
-			console.log(ingoData);
-			
 			if(filters.frameworkToggle=='entries'){
 				BarChart.updateBars('organisation', authorData);
 				BarChart.updateBars('organisation-un', unData);
@@ -4353,7 +4348,7 @@ var Deepviz = function(sources, callback){
 			
 			if((s_total>0)&&(r_total>0)){
 				
-				for (i = 0; i < severity.length; i++) { 
+				for (var i = 0; i < severity.length; i++) { 
 					if(filters.severity.includes(i+1)){}
 					severityCount += severity[i];
 					severityRolling[i] = severityCount;
