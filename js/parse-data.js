@@ -183,8 +183,8 @@ parseAssessmentsMetadata = function(metadata){
 		d._id = d.id;
 		d.id = i+1;
 		if(d.name.includes('Donor')) stakeholder_type_keys.donor = d.id;
-		if(d.name=='International NGOs') stakeholder_type_keys.ingo = d.id;
-		if(d.name=='National NGOs') stakeholder_type_keys.lngo = d.id;
+		if((d.name=='International NGOs')||(d.name=='International Organization')) stakeholder_type_keys.ingo = d.id;
+		if((d.name=='National NGOs')||(d.name=='Non-governmental Organization')) stakeholder_type_keys.lngo = d.id;
 		if(d.name.includes('Government')) stakeholder_type_keys.government = d.id;
 		if(d.name=='UN Agency') stakeholder_type_keys.un_agency = d.id;
 		if(d.name=='UN Agencies') stakeholder_type_keys.un_agency = d.id;
