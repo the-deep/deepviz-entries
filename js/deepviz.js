@@ -3881,7 +3881,7 @@ var Deepviz = function(sources, callback){
 				d3.selectAll('#timeline .vizlibResponsiveDiv').remove();
 				d3.selectAll('#timechart-legend .vizlibResponsiveDiv').remove();	
 				
-				var timeChart = Deepviz.timeChart({
+				Deepviz.timeChart({
 					id: 'timeChart',
 					opacity: 1,
 					gutter: 0.5,
@@ -4724,13 +4724,6 @@ var Deepviz = function(sources, callback){
 			}
 		}
 		
-		function removeFromArray(array, elem) {  
-			var index = array.indexOf(elem);
-			while (index > -1) {
-				array.splice(index, 1);
-				index = array.indexOf(elem);
-			}
-		}
 		
 		function monthDiff(dateFrom, dateTo) {
 			return dateTo.getMonth() - dateFrom.getMonth() + 
