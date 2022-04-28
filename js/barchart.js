@@ -487,9 +487,7 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		}
 	});
 
-	var rowHeight = height/d.length;
-
-	var labels = d3.selectAll('.'+group+'-labeltext div')
+	labels = d3.selectAll('.'+group+'-labeltext div')
 	.data(d)
 	.html(function(d,ii){
 		// var name = d.name.substr(0,labelCharLimit);

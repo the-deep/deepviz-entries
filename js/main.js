@@ -16,7 +16,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// demographic groups chart
 	//**************************
-	var demographicGroupsChart = Deepviz.createDemographicGroupsChart();
+	Deepviz.createDemographicGroupsChart();
 
 
 	//**************************

@@ -4121,9 +4121,10 @@ var Deepviz = function(sources, callback){
 			
 			var dx = new Date(dateRange[1]);
 			var dateToStr = dx.setDate(dx.getDate()-1);
-			
+			var string;
+
 			if(filters.time=='d'){
-				var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
+				string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
 				$('#dateRange').data('daterangepicker').setStartDate(dateRange[0]);
 				$('#dateRange').data('daterangepicker').setEndDate(dx);		
 			}
@@ -4131,18 +4132,18 @@ var Deepviz = function(sources, callback){
 			if(filters.time=='m'){
 				dateformatter = d3.timeFormat("%b %Y");
 				if(dateformatter(dateRange[0]) == dateformatter(dateToStr)){
-					var string = dateformatter(dateRange[0]);
+					string = dateformatter(dateRange[0]);
 				} else {
-					var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
+					string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
 				}
 			}
 			
 			if(filters.time=='y'){
 				dateformatter = d3.timeFormat("%Y");
 				if(dateformatter(dateRange[0]) == dateformatter(dateToStr)){
-					var string = dateformatter(dateRange[0]);
+					string = dateformatter(dateRange[0]);
 				} else {
-					var string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
+					string = dateformatter(dateRange[0]) + ' - ' + dateformatter(dateToStr);
 				}
 			}
 			
@@ -4349,7 +4350,6 @@ var Deepviz = function(sources, callback){
 			if((s_total>0)&&(r_total>0)){
 				
 				for (var i = 0; i < severity.length; i++) { 
-					if(filters.severity.includes(i+1)){}
 					severityCount += severity[i];
 					severityRolling[i] = severityCount;
 					reliabilityCount += reliability[i];
@@ -4619,9 +4619,7 @@ var Deepviz = function(sources, callback){
 			d3.selectAll('#timeline').style('opacity', 0);
 			// set map height
 			var map = document.getElementById("map");
-			if(expandActive==true){
-				
-			} else {
+			if(!expandActive){
 				map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 			}
 			
@@ -4630,13 +4628,11 @@ var Deepviz = function(sources, callback){
 				if($(rDiv).hasClass('vizlibResponsiveDiv')){
 					$(rDiv).width('100%');
 					var ar = $(rDiv).attr('data-aspectRatio');
-					var cWidth = $(rDiv).width();
-					var cHeight = $(rDiv).height();
 					$(rDiv).height(cWidth/ar);
 					if(scrollable == false){
 						$(rDiv).height('100%');
-						cWidth = $(rDiv).width();
-						cHeight = $(rDiv).height();
+						let cWidth = $(rDiv).width();
+						let cHeight = $(rDiv).height();
 						if((cWidth/ar)>cHeight){
 							$(rDiv).width($(rDiv).height()*ar);
 						} else {
@@ -4645,8 +4641,8 @@ var Deepviz = function(sources, callback){
 						}
 					} else {
 						$(rDiv).width('100%');
-						var cWidth = $(rDiv).width();
-						var cHeight = $(rDiv).height();
+						let cWidth = $(rDiv).width();
+						let cHeight = $(rDiv).height();
 						if((cWidth/ar)>cHeight){
 							$(rDiv).height($(rDiv).width()/ar);
 						} 
@@ -4728,7 +4724,7 @@ var Deepviz = function(sources, callback){
 			}
 		}
 		
-		var removeFromArray = function(array, elem) {  
+		function removeFromArray(array, elem) {  
 			var index = array.indexOf(elem);
 			while (index > -1) {
 				array.splice(index, 1);
@@ -4741,13 +4737,6 @@ var Deepviz = function(sources, callback){
 			(12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
 		}
 		
-		function makePolyCCW(points) {
-			var sum = 0;
-			for (var i = 0; i < (points.length - 1); i++) {
-				sum += (points[i+1][0] - points[i][0])*(points[i+1][1] + points[i][1]);
-			}
-			return sum > 0 ? points.slice().reverse() : points;
-		}
 		
 		
 	}
