@@ -4,6 +4,7 @@ var updateInterval = 0;
 var tooltipSparklineHeight = 40;
 var tooltipSparklineWidth = 140;
 var maxBarHeight = 60;
+var labelWidthText = 250; 
 
 BarChart.createBarChart = function(a){
 
@@ -56,13 +57,20 @@ BarChart.createBarChart = function(a){
 		return 'translate(0,' + ((i*rowHeight) + padding.top) + ')';
 	});
 
-	var label = rows.append('text')
-	.attr('y', rowHeight/2 )
-	.attr('class', function(d,i){ return a.classname + ' ' + a.classname+'-'+i })
-	.style('alignment-baseline', 'middle')
-	.text(function(d,i){
-		return '12345678901234567890123456123';
-	}).style('text-anchor', 'end');
+
+	var label = rows.append('foreignObject')
+	.attr('requiredFeatures','http://www.w3.org/TR/SVG11/feature#Extensibility')
+	.attr('y', 0 )
+	.attr('height', rowHeight )
+	.attr('width', labelWidthText )
+	.attr('class', function(d,i){ return ''+a.classname+'-labeltext labeltext ' })
+	.append("xhtml:div")
+	.style('height', rowHeight )
+	.html(function(d,i){
+		// var name = d.name.substr(0,labelCharLimit);
+		// if(name.length==labelCharLimit) name += '.';
+		return d.name;
+	});
 
 	var labelWidth = rows.node().getBBox().width + padding.left;
 	label.attr('x', labelWidth-20);
@@ -156,6 +164,7 @@ BarChart.createStackedBarChart = function(a){
 	if(data_group=='context_array') data_group = 'context';
 	if(data_group=='specific_needs_groups_array') data_group = 'special_needs';
 	if(data_group=='affected_groups_array') data_group = 'affected_groups';
+	if(data_group=='demographic_groups_array') data_group = 'demographic_groups';
 
 	var padding = {left: 20, right: 50, top: 15, bar: {y: 5}};
 	
@@ -182,7 +191,7 @@ BarChart.createStackedBarChart = function(a){
 
 	var rws = metadata[a.rows];
 
-	if((data_group=='special_needs')||(data_group=='affected_groups')){
+	if((data_group=='special_needs')||(data_group=='affected_groups')||(data_group=='demographic_groups')){
 
 		rws = [];
 		metadata[a.rows].forEach(function(d,i){
@@ -222,14 +231,22 @@ BarChart.createStackedBarChart = function(a){
 		return 'translate(0,' + ((i*rowHeight) + padding.top) + ')';
 	});
 
-	var label = rows.append('text')
-	.attr('y', rowHeight/2 )
-	.attr('class', function(d,i){ return a.classname + ' ' + a.classname+'-'+d.key })
-	.style('alignment-baseline', 'middle')
-	.text(function(d,i){
-		return '12345678901234567890123456123';
-	}).style('text-anchor', 'end');
 
+	var label = rows.append('foreignObject')
+	.attr('requiredFeatures','http://www.w3.org/TR/SVG11/feature#Extensibility')
+	.attr('y', 0 )
+	.attr('height', rowHeight )
+	.attr('width', labelWidthText )
+	.attr('class', function(d,i){ return ''+a.classname+'-labeltext labeltext ' })
+	.append("xhtml:div")
+	.style('height', rowHeight )
+	.html(function(d,i){
+		// var name = d.name.substr(0,labelCharLimit);
+		// if(name.length==labelCharLimit) name += '.';
+		return d.name;
+	});
+	
+	
 	var labelWidth = rows.node().getBBox().width + padding.left;
 	label.attr('x', labelWidth-20);
 	labelWidth = labelWidth + 80;
@@ -407,6 +424,7 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 	if(data_group=='sector') data_group = 'sector_array';
 	if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
 	if(data_group=='affected_groups') data_group = 'affected_groups_array';
+	if(data_group=='demographic_groups') data_group = 'demographic_groups_array';
 	if(data_group=='additional_documentation') data_group = 'additional_documentation_array';
 	if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
 	if(data_group=='unit_of_analysis') data_group = 'type_of_unit_of_analysis';
@@ -449,8 +467,6 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		return d.value
 	});
 
-	// console.log(group);
-	// console.log(scale[group]);
 	if(scale[group].x=='')return false;
 	
 	scale[group].x.domain([0, rowMax]);// finalScore/reliability x xcale
@@ -471,17 +487,15 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		}
 	});
 
-	var labels =d3.selectAll('text.'+group)
+	labels = d3.selectAll('.'+group+'-labeltext div')
 	.data(d)
-	.text(function(d,ii){
-		var name = d.name.substr(0,labelCharLimit);
-		if(name.length==labelCharLimit) name += '.';
-		return name;
-	})
-	.attr('class', function(d,i){
-		return group + ' ' +group +'-'+d.key;``
-	})
+	.html(function(d,ii){
+		// var name = d.name.substr(0,labelCharLimit);
+		// if(name.length==labelCharLimit) name += '.';
+		return d.name;
+	});
 
+	
 	rows.select('.'+group+'-bg')
 	.attr('class', function(d,i) { 
 		return group+'-bg ' + group + '-bg-'+d.key;
@@ -628,6 +642,7 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 		if(data_group=='sector') data_group = 'sector_array';
 		if(data_group=='context') data_group = 'context_array';
 		if(data_group=='affected_groups') data_group = 'affected_groups_array';
+		if(data_group=='demographic_groups') data_group = 'demographic_groups_array';
 		if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
 		if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
 		if(data_group=='unit_of_analysis') data_group = 'type_of_unit_of_analysis';
@@ -713,17 +728,14 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 			return 'sector-icon sector-icon-'+d.key;
 		});
 
-		var labels =d3.selectAll('text.'+group)
+		var labels = d3.selectAll('.'+group+'-labeltext div')
 		.data(d)
-		.text(function(d,ii){
-			var name = d.name.substr(0,labelCharLimit);
-			if(name.length==labelCharLimit) name += '.';
-			return name;
+		.style('opacity', 1)
+		.html(function(d,ii){
+			// var name = d.name.substr(0,labelCharLimit);
+			// if(name.length==labelCharLimit) name += '.';
+			return d.name;
 		})
-		.attr('class', function(d,i){
-			return group + ' ' +group +'-'+d.key;``
-		})
-		.style('opacity', 1);
 
 		d3.selectAll('.'+group+'-bg')
 		.data(d)

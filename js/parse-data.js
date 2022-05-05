@@ -183,8 +183,8 @@ parseAssessmentsMetadata = function(metadata){
 		d._id = d.id;
 		d.id = i+1;
 		if(d.name.includes('Donor')) stakeholder_type_keys.donor = d.id;
-		if(d.name=='International NGOs') stakeholder_type_keys.ingo = d.id;
-		if(d.name=='National NGOs') stakeholder_type_keys.lngo = d.id;
+		if((d.name=='International NGOs')||(d.name=='International Organization')) stakeholder_type_keys.ingo = d.id;
+		if((d.name=='National NGOs')||(d.name=='Non-governmental Organization')) stakeholder_type_keys.lngo = d.id;
 		if(d.name.includes('Government')) stakeholder_type_keys.government = d.id;
 		if(d.name=='UN Agency') stakeholder_type_keys.un_agency = d.id;
 		if(d.name=='UN Agencies') stakeholder_type_keys.un_agency = d.id;
@@ -674,8 +674,19 @@ parseEntriesData = function(dataEntries, metadata){
 				}
 			});
 		});
-		// parse sector array
 
+		// parse demographic groups array
+		d._demographic_groups = d.demographic_groups;
+		d.demographic_groups = [];
+		d._demographic_groups.forEach(function(dd,ii){
+			metadata.demographic_groups_array.forEach(function(ddd,ii){
+				if(dd==ddd._id){
+					d.demographic_groups.push(ddd.id);
+				}
+			});
+		});
+
+		// parse sector array
 		d.context_sector.forEach(function(d,i){
 
 			d._sector = d.sector;
@@ -818,6 +829,11 @@ parseEntriesMetadata = function(metadata){
 		d.id = i+1;
 	});
 	metadata.sector_array.forEach(function(d,i){
+		d._id = d.id;
+		d.id = i+1;
+	});
+
+	metadata.demographic_groups_array.forEach(function(d,i){
 		d._id = d.id;
 		d.id = i+1;
 	});
