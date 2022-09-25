@@ -36,7 +36,7 @@ BarChart.createBarChart = function(a){
 		width: '100%'
 	});
 
-	var noDataPlaceholder = d3.select('#'+a.div).append('div')
+	d3.select('#'+a.div).append('div')
 	.attr('class','no-data no-data-'+a.classname)
 	.html('NO ENTRIES')
 	.style('display','none');
@@ -212,7 +212,7 @@ BarChart.createStackedBarChart = function(a){
 		width: '100%'
 	});
 
-	var noDataPlaceholder = d3.select('#'+a.div).append('div')
+	d3.select('#'+a.div).append('div')
 	.attr('class','no-data no-data-'+a.classname)
 	.html('NO ENTRIES')
 	.style('display','none');

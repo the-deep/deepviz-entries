@@ -4774,34 +4774,6 @@ var Deepviz = function(sources, callback){
 				map.setAttribute("style","height:"+(map.offsetWidth*mapAspectRatio)+"px");
 			}
 			
-			$('.vizlibResponsiveDiv').each(function(){
-				return false;
-				var rDiv = this;
-				if($(rDiv).hasClass('vizlibResponsiveDiv')){
-					$(rDiv).width('100%');
-					var ar = $(rDiv).attr('data-aspectRatio');
-					// $(rDiv).height(cWidth/ar);
-					if(scrollable == false){
-						$(rDiv).height('100%');
-						let cWidth = $(rDiv).width();
-						let cHeight = $(rDiv).height();
-						if((cWidth/ar)>cHeight){
-							$(rDiv).width($(rDiv).height()*ar);
-						} else {
-							$(rDiv).width('100%');
-							$(rDiv).height($(rDiv).width()/ar);
-						}
-					} else {
-						$(rDiv).width('100%');
-						let cWidth = $(rDiv).width();
-						let cHeight = $(rDiv).height();
-						if((cWidth/ar)>cHeight){
-							$(rDiv).height($(rDiv).width()/ar);
-						} 
-					}
-				} 
-			});
-			
 			d3.selectAll('#timeline .vizlibResponsiveDiv').style('width', '100%')
 			.style('height', function(d,i){
 				var ar = $(this).attr('data-aspectRatio');

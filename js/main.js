@@ -12,7 +12,7 @@ var Deepviz = new Deepviz(sources, function(data){
 	//**************************
 	// organigram groups chart
 	//**************************
-	var organigramGroupsChart = Deepviz.createOrganigramGroupsChart();
+	Deepviz.createOrganigramGroupsChart();
 
 	//**************************
 	// demographic groups chart
