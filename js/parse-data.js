@@ -613,27 +613,6 @@ parseEntriesData = function(dataEntries, metadata){
 			});
 		});
 
-		// parse context array
-		// d._context_sector =  Object.entries(d.context_sector);
-		// d.context_sector = [];
-		// console.log(d);
-		// d._context_sector.forEach(function(dd,ii){
-		// 	console.log(dd);
-		// 	dd._context = dd[1].context;
-		// 	dd.context = [];
-		// 	dd._context.forEach(function(ddd,ii){
-
-		// 		metadata.context_array.forEach(function(dddd,ii){
-		// 			if(ddd==dddd._id){
-		// 				dd.context.push(dddd.id);
-		// 			}
-		// 		});
-
-		// 	});
-
-		// });
-		// console.log(d.context);
-
 		metadata.contextWidgetIds = [];
 
 		d.context_sector =  Object.entries(d.context_sector);
@@ -654,37 +633,59 @@ parseEntriesData = function(dataEntries, metadata){
 			d.shift();
 		});
 
-		// parse specific needs array
-		d._special_needs = d.special_needs;
-		d.special_needs = [];
-		d._special_needs.forEach(function(dd,ii){
-			metadata.specific_needs_groups_array.forEach(function(ddd,ii){
-				if(dd==ddd._id){
-					d.special_needs.push(ddd.id);
-				}
+		// parse organigram array
+		if((metadata.organigram_widgets)&&(metadata.organigram_widgets.length>0)){
+			d.organigram_groups = d.organigram[metadata.organigram_widgets[0].id];
+			d._organigram_groups = d.organigram_groups;
+			d.organigram_groups = [];
+			d._organigram_groups.forEach(function(dd,ii){
+				metadata.organigram_groups_array.forEach(function(ddd,ii){
+					if(dd==ddd._id){
+						d.organigram_groups.push(ddd.id);
+					}
+				});
 			});
-		});
-		// parse affected groups array
-		d._affected_groups = d.affected_groups;
-		d.affected_groups = [];
-		d._affected_groups.forEach(function(dd,ii){
-			metadata.affected_groups_array.forEach(function(ddd,ii){
-				if(dd==ddd._id){
-					d.affected_groups.push(ddd.id);
-				}
-			});
+		}
+
+		// parse multiselect array
+
+		// metadata.customcharts
+		// // parse specific needs array
+		// d._special_needs = d.special_needs;
+		// d.special_needs = [];
+		// d._special_needs.forEach(function(dd,ii){
+		// 	metadata.specific_needs_groups_array.forEach(function(ddd,ii){
+		// 		if(dd==ddd._id){
+		// 			d.special_needs.push(ddd.id);
+		// 		}
+		// 	});
+		// });
+
+
+		metadata.customcharts.forEach(function(dd,ii){
+			d['customchart_'+dd.count] = [];
+			d['_customchart_'+dd.count] = d.multiselect[dd.id];
+
+			d['_customchart_'+dd.count].forEach(function(ddd,iii){
+				metadata[dd.array].forEach(function(dddd,ii){
+					if(ddd==dddd._id){
+						d['customchart_'+dd.count].push(dddd.id);
+					}
+				});
+			})
+
 		});
 
-		// parse demographic groups array
-		d._demographic_groups = d.demographic_groups;
-		d.demographic_groups = [];
-		d._demographic_groups.forEach(function(dd,ii){
-			metadata.demographic_groups_array.forEach(function(ddd,ii){
-				if(dd==ddd._id){
-					d.demographic_groups.push(ddd.id);
-				}
-			});
-		});
+		// // parse demographic groups array
+		// d._demographic_groups = d.demographic_groups;
+		// d.demographic_groups = [];
+		// d._demographic_groups.forEach(function(dd,ii){
+		// 	metadata.demographic_groups_array.forEach(function(ddd,ii){
+		// 		if(dd==ddd._id){
+		// 			d.demographic_groups.push(ddd.id);
+		// 		}
+		// 	});
+		// });
 
 		// parse sector array
 		d.context_sector.forEach(function(d,i){
@@ -810,34 +811,85 @@ parseEntriesMetadata = function(metadata){
 			}
 		});
 	});
-	metadata.affected_groups_array.forEach(function(d,i){
-		d._id = d.id;
-		d.id = i+1;
-		d.humanitarian_profile = [];
-		var affectedGroups = d.name.split("/");
-		affectedGroups.forEach(function(dd,ii){
-			var name = dd.trim().replace(/[- )(]/g,'');
-			d.humanitarian_profile.push(name);
+
+	var rowMax = 0;
+
+
+	var customCount = 0;
+	metadata.customcharts = [];
+	metadata.multiselect_widgets.forEach(function(d,i){
+		metadata.customcharts[customCount] = {array: 'customchart_'+customCount+'_array', count: customCount, id: d.id, title: d.title, organigram: false}
+		metadata['customchart_'+customCount+'_array'] = [];
+		metadata.multiselect_array.forEach(function(dd,ii){
+			if(d.id==dd.widget_id){
+				metadata['customchart_'+customCount+'_array'].push(dd);
+			}
 		});
-		d.name_alt = d.name;
-		if(affectedGroups.length>1){
-			d.name = affectedGroups[affectedGroups.length-2].trim() + ' / ' + affectedGroups[affectedGroups.length-1].trim()
-		} 
+		if(metadata['customchart_'+customCount+'_array'].length>rowMax) rowMax = metadata['customchart_'+customCount+'_array'].length;
+		customCount ++;
 	});
-	metadata.specific_needs_groups_array.forEach(function(d,i){
-		d._id = d.id;
-		d.id = i+1;
+
+	metadata.organigram_widgets.forEach(function(d,i){
+		// limit to 1 chart
+		if(i==0){
+			// metadata.customcharts[customCount] = {array: 'customchart_'+customCount+'_array', count: customCount, id: d.id, title: d.title, organigram: true }
+			// metadata['customchart_'+customCount+'_array'] = [];
+			metadata['organigram_groups_array'] = [];
+			metadata.organigram_array.forEach(function(dd,ii){
+				metadata['organigram_groups_array'].push(dd);
+				// metadata['customchart_'+customCount+'_array'].push(dd);
+			})
+		if(metadata['organigram_groups_array'].length>rowMax) rowMax = metadata['organigram_groups_array'].length;
+
+			customCount ++;
+		}
 	});
+
+	metadata.firstRowMax = rowMax;
+
+	if((metadata.organigram_groups_array)&&(metadata.organigram_groups_array.length>0)){
+
+		metadata.organigram_groups_array.forEach(function(d,i){
+			d._id = d.id;
+			d.id = i+1;
+			d.humanitarian_profile = [];
+			var affectedGroups = d.name.split("/");
+			affectedGroups.forEach(function(dd,ii){
+				var name = dd.trim().replace(/[- )(]/g,'');
+				d.humanitarian_profile.push(name);
+			});
+			d.name_alt = d.name;
+			if(affectedGroups.length>1){
+				d.name = affectedGroups[affectedGroups.length-2].trim() + ' / ' + affectedGroups[affectedGroups.length-1].trim()
+			}
+		});
+	}
+
+	if((metadata.customcharts)&&(metadata.customcharts.length>0)){
+		metadata.customcharts.forEach(function(dd,ii){
+			metadata[dd.array].forEach(function(d,i){
+				d._id = d.id;
+				d.id = i+1;
+			})
+		});
+	}
+
+	// metadata.specific_needs_groups_array.forEach(function(d,i){
+	// 	d._id = d.id;
+	// 	d.id = i+1;
+	// });
+
+	// metadata.demographic_groups_array.forEach(function(d,i){
+	// 	d._id = d.id;
+	// 	d.id = i+1;
+	// });
+
+
 	metadata.sector_array.forEach(function(d,i){
 		d._id = d.id;
 		d.id = i+1;
 	});
-
-	metadata.demographic_groups_array.forEach(function(d,i){
-		d._id = d.id;
-		d.id = i+1;
-	});
-
+	
 	metadata.original = {}
 	metadata.original._context_array = metadata.context_array;
 	metadata.original._sector_array = metadata.sector_array;

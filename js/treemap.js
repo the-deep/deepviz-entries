@@ -8,10 +8,10 @@ var sunburstArea;
 var treemapActiveLevel = 'geo';
 var treemapFilters = {
 	geo: 0,
-	sector: 0,
-	affected_groups: 0,
-	special_needs: 0,
-	demography: 0
+	sector: 0
+	// affected_groups: 0,
+	// special_needs: 0,
+	// demography: 0
 };
 
 //**************************
@@ -84,10 +84,10 @@ DeepvizTreemap.create = function(){
 		$(this).removeClass('disabled')
 		treemapFilters = {
 			geo: 0,
-			sector: 0,
-			affected_groups: 0,
-			special_needs: 0,
-			demography: 0
+			sector: 0
+			// affected_groups: 0,
+			// special_needs: 0,
+			// demography: 0
 		};
 		$('.disabled').appendTo('#treemap-toggle-list ul');
 		DeepvizTreemap.update();
@@ -107,19 +107,19 @@ DeepvizTreemap.update = function(){
 		if($(el).hasClass('disabled')){
 			if(str=='geo') treemapFilters.geo = 0;
 			if(str=='sector') treemapFilters.sector = 0;
-			if(str=='affected_groups') treemapFilters.affected_groups = 0;
-			if(str=='special_needs') treemapFilters.special_needs = 0;
-			if(str=='demography') treemapFilters.demography = 0;
+			// if(str=='affected_groups') treemapFilters.affected_groups = 0;
+			// if(str=='special_needs') treemapFilters.special_needs = 0;
+			// if(str=='demography') treemapFilters.demography = 0;
 		} 
 	});
 
 	if($('.disabled').length==4){
 		treemapFilters = {
 			geo: 0,
-			sector: 0,
-			affected_groups: 0,
-			special_needs: 0,
-			demography: 0
+			sector: 0
+			// affected_groups: 0,
+			// special_needs: 0,
+			// demography: 0
 		};
 	}		
 
@@ -198,7 +198,7 @@ DeepvizTreemap.update = function(){
 		d3.select(this).select('rect').style('stroke', 'none')
 	}).on('click', function(d,i){
 		if($('#treemap-toggle-list .disabled').length==1){ // disable demography remove after api update
-			return false; 
+			// return false; 
 		}
 		$('#treemap-toggle-list ul').find('.disabled:first').attr('id').substring(8);
 		$('#treemap-toggle-list ul').find('.disabled:first').removeClass('disabled');
@@ -333,74 +333,74 @@ DeepvizTreemap.updateData = function(){
 		});		
  	}
 
- 	if(treemapActiveLevel=='affected_groups'){
+ 	// if(treemapActiveLevel=='affected_groups'){
 
-	 	dat = dataByAffectedGroups.filter(function(d){
-			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
-		});
+	//  	dat = dataByAffectedGroups.filter(function(d){
+	// 		return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
+	// 	});
 
-		dat = treemapFilter(dat);
+	// 	dat = treemapFilter(dat);
 
- 		treeData = d3.nest()
-		.key(function(d) { return d.affected_groups; })
-		.rollup(function(leaves) { 
-			return { 
-				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
-				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
-				'total': leaves.length, 
-			}
-		})
-		.entries(dat);
+ 	// 	treeData = d3.nest()
+	// 	.key(function(d) { return d.affected_groups; })
+	// 	.rollup(function(leaves) { 
+	// 		return { 
+	// 			'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+	// 			'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+	// 			'total': leaves.length, 
+	// 		}
+	// 	})
+	// 	.entries(dat);
 
-		treeData.forEach(function(d,i){
-			metadata.affected_groups_array.forEach(function(dd){
-				if(dd.id==d.key){
-					d.name = dd.name;
-					d.id = dd.id;
-				}
-			})
-			d.median_r = d.value.median_r;
-			d.median_s = d.value.median_s;
-			d.value = d.value.total;
-			delete d.key;
-		});		
+	// 	treeData.forEach(function(d,i){
+	// 		metadata.affected_groups_array.forEach(function(dd){
+	// 			if(dd.id==d.key){
+	// 				d.name = dd.name;
+	// 				d.id = dd.id;
+	// 			}
+	// 		})
+	// 		d.median_r = d.value.median_r;
+	// 		d.median_s = d.value.median_s;
+	// 		d.value = d.value.total;
+	// 		delete d.key;
+	// 	});		
 
 
- 	}
+ 	// }
 
-  	if(treemapActiveLevel=='special_needs'){
+  	// if(treemapActiveLevel=='special_needs'){
 
-	 	dat = dataBySpecificNeeds.filter(function(d){
-			return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
-		});
+	//  	dat = dataBySpecificNeeds.filter(function(d){
+	// 		return ((new Date(d.date)>=dateRange[0])&&(new Date(d.date)<dateRange[1]));
+	// 	});
 
-		dat = treemapFilter(dat);
+	// 	dat = treemapFilter(dat);
 
- 		treeData = d3.nest()
-		.key(function(d) {  return d.specific_needs; })
-		.rollup(function(leaves) { 
-			return { 
-				'median_r': d3.median(leaves, function(d,i){return d.r;}), 
-				'median_s': d3.median(leaves, function(d,i){return d.s;}), 
-				'total': leaves.length, 
-			}
-		})
-		.entries(dat);
+ 	// 	treeData = d3.nest()
+	// 	.key(function(d) {  return d.specific_needs; })
+	// 	.rollup(function(leaves) { 
+	// 		return { 
+	// 			'median_r': d3.median(leaves, function(d,i){return d.r;}), 
+	// 			'median_s': d3.median(leaves, function(d,i){return d.s;}), 
+	// 			'total': leaves.length, 
+	// 		}
+	// 	})
+	// 	.entries(dat);
 
-		treeData.forEach(function(d,i){
-			metadata.specific_needs_groups_array.forEach(function(dd){
-				if(dd.id==d.key){
-					d.name = dd.name;
-					d.id = dd.id;
-				}
-			})
-			d.median_r = d.value.median_r;
-			d.median_s = d.value.median_s;
-			d.value = d.value.total;
-			delete d.key;
-		});		
+	// 	treeData.forEach(function(d,i){
+	// 		metadata.specific_needs_groups_array.forEach(function(dd){
+	// 			if(dd.id==d.key){
+	// 				d.name = dd.name;
+	// 				d.id = dd.id;
+	// 			}
+	// 		})
+	// 		d.median_r = d.value.median_r;
+	// 		d.median_s = d.value.median_s;
+	// 		d.value = d.value.total;
+	// 		delete d.key;
+	// 	});		
 
- 	}
+ 	// }
 
 	var treeDataObj = {'name': '', 'children': treeData}
 	var root = d3.hierarchy(treeDataObj)

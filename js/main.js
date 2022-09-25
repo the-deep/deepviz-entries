@@ -1,23 +1,25 @@
 const urlQueryParams = new URLSearchParams(window.location.search);
 var sources = [urlQueryParams.get('dataUrl'), 'images/summary_1.svg', 'images/summary_2.svg', 'images/summary_3.svg'];
+const { jsPDF } = window.jspdf;
 
 var Deepviz = new Deepviz(sources, function(data){
 
 	//**************************
 	// specific needs chart
 	//**************************
-	var specificNeedsChart = Deepviz.createSpecificNeedsChart();
+	// var specificNeedsChart = Deepviz.createSpecificNeedsChart();
 
 	//**************************
-	// specific needs chart
+	// organigram groups chart
 	//**************************
-	var affectedGroupsChart = Deepviz.createAffectedGroupsChart();
+	var organigramGroupsChart = Deepviz.createOrganigramGroupsChart();
 
 	//**************************
 	// demographic groups chart
 	//**************************
-	Deepviz.createDemographicGroupsChart();
+	// Deepviz.createDemographicGroupsChart();
 
+	Deepviz.createMultiSelectCharts();
 
 	//**************************
 	// top sources charts
@@ -150,5 +152,6 @@ var Deepviz = new Deepviz(sources, function(data){
 	d3.select('#toggle0').style('fill', '#008974');
 	d3.select('#framework-toggle-text tspan').text('average severity');
 	$('#loadImage').fadeOut();
+	$('#loadBar').fadeOut();
 
 });

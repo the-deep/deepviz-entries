@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="227px" height="40px" viewBox="0 0 227 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+<svg width="218px" height="40px" viewBox="0 0 218 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>adm</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="adm" transform="translate(1.000000, 0.000000)">
-            <g id="adm1" transform="translate(149.000000, 0.000000)">
-                <rect id="adm1_bg" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" x="1.5" y="1.5" width="37" height="37"></rect>
-                <text id="adm1_label" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="20" font-weight="bold" fill="#363636">
-                    <tspan x="16" y="26">1</tspan>
+        <g id="adm" transform="translate(1.000000, 1.500000)" fill-rule="nonzero">
+            <g id="adm2" transform="translate(178.500000, 0.000000)">
+                <path d="M37,37 L37,0 L8.5,0 C7.12828458,0 4.29495125,0 0,0 C0,3.90876851 0,6.74210184 0,8.5 L0,28.5 C0,30.0304764 0,32.8638097 0,37 C4.06752944,37 6.90086278,37 8.5,37 L37,37 Z" id="adm2_bg" stroke="#DBDBD9" stroke-width="2.7" fill="#FFFFFF" transform="translate(18.500000, 18.500000) scale(-1, 1) translate(-18.500000, -18.500000) "></path>
+                <g id="adm2_label" transform="translate(13.500000, 4.500000)" fill="#363636" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="20" font-weight="bold">
+                    <text id="2">
+                        <tspan x="0" y="20">2</tspan>
+                    </text>
+                </g>
+            </g>
+            <g id="adm0" transform="translate(104.500000, 0.000000)">
+                <path d="M37,37 L37,0 L8.5,0 C7.06564312,0 4.23230979,0 0,0 C0,3.97140996 0,6.8047433 0,8.5 L0,28.5 C0,30.1569173 0,32.9902507 0,37 C4.1939704,37 7.02730373,37 8.5,37 L37,37 Z" id="adm0_bg" stroke="#DBDBD9" stroke-width="2.7" fill="#FFFFFF"></path>
+                <g id="adm0_label" transform="translate(13.500000, 4.500000)" fill="#363636" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="20" font-weight="bold">
+                    <text id="0">
+                        <tspan x="0" y="20">0</tspan>
+                    </text>
+                </g>
+            </g>
+            <g id="Admin-Level" transform="translate(0.000000, 7.500000)" fill="#363636" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="16" font-weight="bold">
+                <text id="ADMIN-LEVEL">
+                    <tspan x="0" y="16">ADMIN LEVEL</tspan>
                 </text>
             </g>
-            <g id="adm2" transform="translate(186.000000, 0.000000)">
-                <path d="M38.5,38.5 L38.5,1.5 L10,1.5 C5.30557963,1.5 1.5,5.30557963 1.5,10 L1.5,30 C1.5,34.6944204 5.30557963,38.5 10,38.5 L38.5,38.5 Z" id="adm2_bg" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" transform="translate(20.000000, 20.000000) scale(-1, 1) translate(-20.000000, -20.000000) "></path>
-                <text id="adm2_label" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="20" font-weight="bold" fill="#363636">
-                    <tspan x="15" y="26">2</tspan>
-                </text>
+            <g id="adm1" transform="translate(141.500000, 0.000000)">
+                <rect id="adm1_bg" stroke="#DBDBD9" stroke-width="2.7" fill="#FFFFFF" x="0" y="0" width="37" height="37"></rect>
+                <g id="adm1_label" transform="translate(14.500000, 4.500000)" fill="#363636" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="20" font-weight="bold">
+                    <text id="1">
+                        <tspan x="0" y="20">1</tspan>
+                    </text>
+                </g>
             </g>
-            <g id="adm0" transform="translate(112.000000, 0.000000)">
-                <path d="M38.5,38.5 L38.5,1.5 L10,1.5 C5.30557963,1.5 1.5,5.30557963 1.5,10 L1.5,30 C1.5,34.6944204 5.30557963,38.5 10,38.5 L38.5,38.5 Z" id="adm0_bg" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF"></path>
-                <text id="adm0_label" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="20" font-weight="bold" fill="#363636">
-                    <tspan x="16" y="26">0</tspan>
-                </text>
-            </g>
-            <text id="Admin-Level" font-family="SourceSansPro-Bold, Source Sans Pro" font-size="19" font-weight="bold" fill="#363636">
-                <tspan x="0" y="26">Admin Level</tspan>
-            </text>
         </g>
     </g>
 </svg>
