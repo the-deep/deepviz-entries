@@ -146,7 +146,7 @@ Map.create = function(){
 			var obj = $('#adm-toggle object');
 			var svg = obj[0].contentDocument.getElementsByTagName('svg')[0];
 			$("#adm-toggle").html(svg);
-			d3.select('#adm'+filters.admin_level+'_bg').style('fill', '#343434');
+			d3.select('#adm'+filters.admin_level+'_bg').style('fill', '#5061E4');
 			d3.select('#adm'+filters.admin_level+'_label').style('fill', '#FFF');
 
 			d3.selectAll('#adm0, #adm1, #adm2').on('mouseover', function(d,i){
@@ -162,7 +162,7 @@ Map.create = function(){
 					return false;
 				} else {
 					d3.select('#adm'+thisAdminLevel+'_bg').style('fill', '#FFF');
-					d3.select('#adm'+thisAdminLevel+'_label').style('fill', '#343434');
+					d3.select('#adm'+thisAdminLevel+'_label').style('fill', '#000');
 				}
 			}).on('click', function(d,i){
 				var thisAdminLevel = this.id.substr(-1);
@@ -174,8 +174,8 @@ Map.create = function(){
 				}
 				DeepvizTreemap.update();
 				d3.selectAll('#adm0_bg, #adm1_bg, #adm2_bg').style('fill', '#FFF');
-				d3.selectAll('#adm0_label, #adm1_label, #adm2_label').style('fill', '#343434');
-				d3.select('#adm'+filters.admin_level+'_bg').style('fill', '#343434');
+				d3.selectAll('#adm0_label, #adm1_label, #adm2_label').style('fill', '#5061E4');
+				d3.select('#adm'+filters.admin_level+'_bg').style('fill', '#5061E4');
 				d3.select('#adm'+filters.admin_level+'_label').style('fill', '#FFF');
 			})		
 		},200);

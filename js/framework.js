@@ -47,13 +47,22 @@ DeepvizFramework.create = function(a){
 	var title = d3.select('#framework-chart').append('div');
 	title.attr('class', 'title').text('SECTORAL FRAMEWORK');
 
+	var noDataPlaceholder = d3.select('#framework-chart').append('div')
+	.attr('class','no-data-framework')
+	.html('NO ENTRIES')
+	.style('display','none');
+
 	// sector breakout
 	if(metadata.sector_array.length==0){
 		enableFramework = false;
+		noDataPlaceholder.style('display','block');
 		return false;
 	}
 
-	if(!enableFramework) return false;
+	if(!enableFramework) {
+		noDataPlaceholder.style('display','block');
+		return false;
+	}
 
 	d3.select('#framework-chart').append('img')
 	.attr('id', 'frameworkRemoveFilter')

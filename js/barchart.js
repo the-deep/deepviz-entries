@@ -4,9 +4,14 @@ var updateInterval = 0;
 var tooltipSparklineHeight = 40;
 var tooltipSparklineWidth = 140;
 var maxBarHeight = 60;
-var labelWidthText = 250; 
 
 BarChart.createBarChart = function(a){
+
+	if((a.labelWidth)&&(a.labelWidth>0)) {
+		labelWidthText = a.labelWidth;
+	} else {
+		labelWidthText = 240;
+	}
 
 	var padding = {left: 20, right: 50, top: 20, bar: {y: 5}};
 
@@ -30,6 +35,11 @@ BarChart.createBarChart = function(a){
 		div: '#'+a.div,
 		width: '100%'
 	});
+
+	d3.select('#'+a.div).append('div')
+	.attr('class','no-data no-data-'+a.classname)
+	.html('NO ENTRIES')
+	.style('display','none');
 
 	var height = a.height - padding.top;
 
@@ -159,12 +169,25 @@ BarChart.createBarChart = function(a){
 
 BarChart.createStackedBarChart = function(a){
 
+	if((a.labelWidth)&&(a.labelWidth>0)) {
+		labelWidthText = a.labelWidth;
+	} else {
+		labelWidthText = 240;
+	}
+
 	var data_group = a.rows;
 	if(data_group=='sector_array') data_group = 'sector';
 	if(data_group=='context_array') data_group = 'context';
 	if(data_group=='specific_needs_groups_array') data_group = 'special_needs';
 	if(data_group=='affected_groups_array') data_group = 'affected_groups';
+	if(data_group=='organigram_groups_array') data_group = 'organigram_groups';
 	if(data_group=='demographic_groups_array') data_group = 'demographic_groups';
+	if(data_group=='customchart_0_array') data_group = 'customchart_0';
+	if(data_group=='customchart_1_array') data_group = 'customchart_1';
+	if(data_group=='customchart_2_array') data_group = 'customchart_2';
+	if(data_group=='customchart_3_array') data_group = 'customchart_3';
+	if(data_group=='customchart_4_array') data_group = 'customchart_4';
+	if(data_group=='customchart_5_array') data_group = 'customchart_5';
 
 	var padding = {left: 20, right: 50, top: 15, bar: {y: 5}};
 	
@@ -189,9 +212,14 @@ BarChart.createStackedBarChart = function(a){
 		width: '100%'
 	});
 
+	d3.select('#'+a.div).append('div')
+	.attr('class','no-data no-data-'+a.classname)
+	.html('NO ENTRIES')
+	.style('display','none');
+
 	var rws = metadata[a.rows];
 
-	if((data_group=='special_needs')||(data_group=='affected_groups')||(data_group=='demographic_groups')){
+	if((data_group=='special_needs')||(data_group=='affected_groups')||(data_group=='organigram_groups')||(data_group=='demographic_groups')||(data_group.startsWith('customchart'))){
 
 		rws = [];
 		metadata[a.rows].forEach(function(d,i){
@@ -424,6 +452,7 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 	if(data_group=='sector') data_group = 'sector_array';
 	if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
 	if(data_group=='affected_groups') data_group = 'affected_groups_array';
+	if(data_group=='organigram_groups') data_group = 'organigram_groups_array';
 	if(data_group=='demographic_groups') data_group = 'demographic_groups_array';
 	if(data_group=='additional_documentation') data_group = 'additional_documentation_array';
 	if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
@@ -439,6 +468,12 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 	if(data_group=='organisation-academic') data_group = 'organization';
 	if(data_group=='organisation-donor') data_group = 'organization';
 	if(data_group=='organisation-cluster') data_group = 'organization';
+	if(data_group=='customchart_0') data_group = 'customchart_0_array';
+	if(data_group=='customchart_1') data_group = 'customchart_1_array';
+	if(data_group=='customchart_2') data_group = 'customchart_2_array';
+	if(data_group=='customchart_3') data_group = 'customchart_3_array';
+	if(data_group=='customchart_4') data_group = 'customchart_4_array';
+	if(data_group=='customchart_5') data_group = 'customchart_5_array';
 
 	var d = [];
 	metadata[data_group].forEach(function(mt,ii){
@@ -466,6 +501,12 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 	var rowMax = d3.max(labels, function(d,i){
 		return d.value
 	});
+
+	if(typeof rowMax == 'undefined'){
+		d3.select('.no-data-'+group).style('display','block');
+	} else {
+		d3.select('.no-data-'+group).style('display','none');
+	}
 
 	if(scale[group].x=='')return false;
 	
@@ -495,7 +536,6 @@ BarChart.updateBars = function(group, dataset, duration = 0){
 		return d.name;
 	});
 
-	
 	rows.select('.'+group+'-bg')
 	.attr('class', function(d,i) { 
 		return group+'-bg ' + group + '-bg-'+d.key;
@@ -642,6 +682,7 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 		if(data_group=='sector') data_group = 'sector_array';
 		if(data_group=='context') data_group = 'context_array';
 		if(data_group=='affected_groups') data_group = 'affected_groups_array';
+		if(data_group=='organigram_groups') data_group = 'organigram_groups_array';
 		if(data_group=='demographic_groups') data_group = 'demographic_groups_array';
 		if(data_group=='specific_needs') data_group = 'specific_needs_groups_array';
 		if(data_group=='unit_of_reporting') data_group = 'type_of_unit_of_analysis';
@@ -657,6 +698,12 @@ BarChart.updateStackedBars = function(group, dataset, duration = 0){
 		if(data_group=='organisation-academic') data_group = 'organization';
 		if(data_group=='organisation-donor') data_group = 'organization';
 		if(data_group=='organisation-cluster') data_group = 'organization';
+		if(data_group=='customchart_0') data_group = 'customchart_0_array';
+		if(data_group=='customchart_1') data_group = 'customchart_1_array';
+		if(data_group=='customchart_2') data_group = 'customchart_2_array';
+		if(data_group=='customchart_3') data_group = 'customchart_3_array';
+		if(data_group=='customchart_4') data_group = 'customchart_4_array';
+		if(data_group=='customchart_5') data_group = 'customchart_5_array';
 
 		var dat = dataset.filter(function(d){
 			return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));

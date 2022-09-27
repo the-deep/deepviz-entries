@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="57px" height="211px" viewBox="0 0 57 211" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="57px" height="229px" viewBox="0 0 57 229" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>map-toggle-gridmap</title>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="map-toggle-gridmap">
-            <g id="choropleth" transform="translate(0.000000, 154.000000)" stroke-width="3">
-                <path d="M47,1.5 C49.3472102,1.5 51.4722102,2.45139491 53.0104076,3.98959236 C54.5486051,5.52778981 55.5,7.65278981 55.5,10 L55.5,10 L55.5,55.5 L1.5,55.5 L1.5,10 C1.5,7.65278981 2.45139491,5.52778981 3.98959236,3.98959236 C5.52778981,2.45139491 7.65278981,1.5 10,1.5 L10,1.5 Z" id="Rectangle" stroke="#B7BEBE" fill="#FFFFFF" transform="translate(28.500000, 28.500000) rotate(-180.000000) translate(-28.500000, -28.500000) "></path>
+            <g id="choropleth" transform="translate(0.000000, 172.000000)" stroke-width="3">
+                <rect id="Rectangle" stroke="#DBDBD9" fill="#FFFFFF" transform="translate(28.500000, 28.500000) rotate(-180.000000) translate(-28.500000, -28.500000) " x="1.5" y="1.5" width="54" height="54"></rect>
                 <polygon id="Path-2" stroke="#333333" fill="#343434" points="12 30 12 44.5714286 24 44.5714286 24 36 18 30"></polygon>
                 <polygon id="Path-3" stroke="#333333" fill="#333333" points="22 28.1486014 27.3076923 33.0576923 37.9230769 33.0576923 45 28.1486014 45 15.0576923"></polygon>
                 <polygon id="Path-4" stroke="#333333" fill="#333333" points="28 37.1165414 28 44.5263158 45 44.5263158 45 33 38.7368421 37.1165414"></polygon>
                 <polygon id="Path-5" stroke="#333333" fill="#343434" points="12 26 18.4 26 40 13.2142857 12 13.2142857"></polygon>
             </g>
-            <g id="gridmap" transform="translate(0.000000, 104.000000)">
-                <rect id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#343434" x="1.5" y="1.5" width="54" height="50"></rect>
+            <g id="gridmap" transform="translate(0.000000, 116.000000)">
+                <rect id="Rectangle" fill="#5061E4" x="0" y="0" width="57" height="53"></rect>
                 <g id="Group-2" transform="translate(11.000000, 12.000000)"></g>
-                <g id="Group-4" transform="translate(13.000000, 11.000000)" fill="#FFFFFF" stroke="#343434">
+                <g id="Group-4" transform="translate(13.000000, 11.000000)" fill="#FFFFFF" stroke="#5061E4">
                     <rect id="Rectangle" x="0" y="0" width="15" height="15"></rect>
                     <rect id="Rectangle" x="16" y="0" width="15" height="15"></rect>
                     <rect id="Rectangle" x="16" y="16" width="15" height="15"></rect>
                     <rect id="Rectangle" x="0" y="16" width="15" height="15"></rect>
                 </g>
             </g>
-            <g id="heatmap" transform="translate(0.000000, 54.000000)">
-                <rect id="Rectangle" stroke="#B7BEBE" stroke-width="3" fill="#FFFFFF" x="1.5" y="1.5" width="54" height="50"></rect>
+            <g id="heatmap" transform="translate(0.000000, 60.000000)">
+                <rect id="Rectangle" stroke="#DBDBD9" stroke-width="3" fill="#FFFFFF" x="1.5" y="1.5" width="54" height="50"></rect>
                 <g id="Group-2" transform="translate(11.000000, 12.000000)" stroke="#FFFFFF" stroke-width="0.5">
                     <g id="Group">
                         <rect id="Rectangle" fill="#D8D8D8" x="0" y="0" width="5" height="5"></rect>
@@ -70,7 +70,7 @@
                 </g>
             </g>
             <g id="bubbles" fill="#FFFFFF">
-                <path d="M47,1.5 C49.3472102,1.5 51.4722102,2.45139491 53.0104076,3.98959236 C54.5486051,5.52778981 55.5,7.65278981 55.5,10 L55.5,10 L55.5,55.5 L1.5,55.5 L1.5,10 C1.5,7.65278981 2.45139491,5.52778981 3.98959236,3.98959236 C5.52778981,2.45139491 7.65278981,1.5 10,1.5 L10,1.5 Z" id="Rectangle" stroke="#B7BEBE" stroke-width="3"></path>
+                <rect id="Rectangle" stroke="#DBDBD9" stroke-width="3" x="1.5" y="1.5" width="54" height="54"></rect>
                 <circle id="Oval" stroke="#333333" stroke-width="4" cx="26.5" cy="27.5" r="13.5"></circle>
                 <circle id="Oval" stroke="#333333" stroke-width="3" cx="35.5" cy="19.5" r="5.5"></circle>
                 <circle id="Oval" stroke="#333333" stroke-width="3" cx="38" cy="38" r="8"></circle>

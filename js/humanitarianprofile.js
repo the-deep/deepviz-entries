@@ -16,14 +16,17 @@ HumanitarianProfile.create = function(){
 	svg.append('g').attr('class','nodes');
 	// svg.style('background-color', '#f6f6f6');
 
-	var groups = metadata.affected_groups_array;
+	if((!metadata.organigram_groups_array)||(metadata.organigram_groups_array.length==0)) return false;
+
+	var groups = metadata.organigram_groups_array;
 	var tree = [];
 	var treeStr = [];
 
+
 	groups.forEach(function(d,i){
-		var affectedGroups = d.name_alt.split("/");
+		var organigramGroups = d.name_alt.split("/");
 		var parent = null;
-		affectedGroups.forEach(function(dd,ii){
+		organigramGroups.forEach(function(dd,ii){
 			var name = dd.trim();
 			var level = ii;
 			var rowStr = name+'-'+level;
@@ -138,12 +141,15 @@ HumanitarianProfile.create = function(){
 
 HumanitarianProfile.update = function(){
 
-	var dat = dataByAffectedGroupsRows.filter(function(d){
+	var dat = dataByOrganigramGroupsRows.filter(function(d){
 		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]));
 	});
 
+	if(dat.length==0) return false;
+
+
 	var nested = d3.nest()
-	.key(function(d) { return d.affected_groups; })
+	.key(function(d) { return d.organigram_groups; })
 	.rollup(function(leaves) { 
 		return { 
 			'level': Math.round(d3.median(leaves, function(d,i){return d.level;})), 
