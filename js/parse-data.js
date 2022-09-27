@@ -817,33 +817,40 @@ parseEntriesMetadata = function(metadata){
 
 	var customCount = 0;
 	metadata.customcharts = [];
-	metadata.multiselect_widgets.forEach(function(d,i){
-		metadata.customcharts[customCount] = {array: 'customchart_'+customCount+'_array', count: customCount, id: d.id, title: d.title, organigram: false}
-		metadata['customchart_'+customCount+'_array'] = [];
-		metadata.multiselect_array.forEach(function(dd,ii){
-			if(d.id==dd.widget_id){
-				metadata['customchart_'+customCount+'_array'].push(dd);
+	
+	if(metadata.multiselect_widgets){
+
+		metadata.multiselect_widgets.forEach(function(d,i){
+			metadata.customcharts[customCount] = {array: 'customchart_'+customCount+'_array', count: customCount, id: d.id, title: d.title, organigram: false}
+			metadata['customchart_'+customCount+'_array'] = [];
+			metadata.multiselect_array.forEach(function(dd,ii){
+				if(d.id==dd.widget_id){
+					metadata['customchart_'+customCount+'_array'].push(dd);
+				}
+			});
+			if(metadata['customchart_'+customCount+'_array'].length>rowMax) rowMax = metadata['customchart_'+customCount+'_array'].length;
+			customCount ++;
+		});
+	}
+
+	if(metadata.organigram_widgets){
+
+		metadata.organigram_widgets.forEach(function(d,i){
+			// limit to 1 chart
+			if(i==0){
+				// metadata.customcharts[customCount] = {array: 'customchart_'+customCount+'_array', count: customCount, id: d.id, title: d.title, organigram: true }
+				// metadata['customchart_'+customCount+'_array'] = [];
+				metadata['organigram_groups_array'] = [];
+				metadata.organigram_array.forEach(function(dd,ii){
+					metadata['organigram_groups_array'].push(dd);
+					// metadata['customchart_'+customCount+'_array'].push(dd);
+				})
+			if(metadata['organigram_groups_array'].length>rowMax) rowMax = metadata['organigram_groups_array'].length;
+
+				customCount ++;
 			}
 		});
-		if(metadata['customchart_'+customCount+'_array'].length>rowMax) rowMax = metadata['customchart_'+customCount+'_array'].length;
-		customCount ++;
-	});
-
-	metadata.organigram_widgets.forEach(function(d,i){
-		// limit to 1 chart
-		if(i==0){
-			// metadata.customcharts[customCount] = {array: 'customchart_'+customCount+'_array', count: customCount, id: d.id, title: d.title, organigram: true }
-			// metadata['customchart_'+customCount+'_array'] = [];
-			metadata['organigram_groups_array'] = [];
-			metadata.organigram_array.forEach(function(dd,ii){
-				metadata['organigram_groups_array'].push(dd);
-				// metadata['customchart_'+customCount+'_array'].push(dd);
-			})
-		if(metadata['organigram_groups_array'].length>rowMax) rowMax = metadata['organigram_groups_array'].length;
-
-			customCount ++;
-		}
-	});
+	}
 
 	metadata.firstRowMax = rowMax;
 
