@@ -293,9 +293,6 @@ var Deepviz = function(sources, callback){
 
 		$('#selectFrameworkSelect').val(0);
 
-		
-		console.log($('#selectFrameworkSelect').val());
-		
 		if(metadata.contextWidgetIds.length<=1) d3.select('#selectFramework').attr('opacity', 0);
 		
 		d3.select('#selectFrameworkSelect')
