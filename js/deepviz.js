@@ -274,7 +274,7 @@ var Deepviz = function(sources, callback){
 		selectedContextWidget = {'id': metadata.contextWidgetIds[0], 'key': 0}
 		
 		if(metadata.contextWidgetIds.length>=2){
-			selectedContextWidget = {'id': metadata.contextWidgetIds[1], 'key': 1}
+			// selectedContextWidget = {'id': metadata.contextWidgetIds[1], 'key': 1}
 		}
 		metadata.contextWidgetIds.forEach(function(d,i){
 			metadata.matrix_widgets.forEach(function(dd,ii){
@@ -286,10 +286,13 @@ var Deepviz = function(sources, callback){
 			});
 		});
 		
+
 		if(metadata.contextWidgetIds.length>=2){
 			$('#selectFrameworkSelect').val(1);
 		}
-		
+
+		$('#selectFrameworkSelect').val(0);
+
 		if(metadata.contextWidgetIds.length<=1) d3.select('#selectFramework').attr('opacity', 0);
 		
 		d3.select('#selectFrameworkSelect')

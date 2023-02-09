@@ -765,10 +765,8 @@ DeepvizFramework.create = function(a){
 		d3.selectAll('#framework-toggle').style('opacity', .9)
 	}).on('mouseout', function(d,i){
 		d3.selectAll('#framework-toggle').style('opacity', 1)
-
 	}).on('click', function(d,i){
-		$('#loadImage').fadeIn(5,function(){
-		$('#loadImageFramework').fadeIn(50,function(){		
+		$('#loadBar').show(function(){
 			if(filters.frameworkToggle=='entries'){
 				if(filters.toggle == 'severity'){
 					d3.select('#framework-toggle').style('fill', colorPrimary[3]);
@@ -786,9 +784,7 @@ DeepvizFramework.create = function(a){
 			// DeepvizFramework.updateFramework();
 			DeepvizFramework.create();
 			Deepviz.updateTimeline();
-
-			$('#loadImage, #loadImageFramework').delay(50).fadeOut(500);
-		});
+			$('#loadBar').delay(50).fadeOut(500);
 		});
 	});	
 
@@ -800,13 +796,11 @@ DeepvizFramework.create = function(a){
 DeepvizFramework.updateFramework = function(){
 
 	if(!enableFramework) return false;
-
 	
 	// entries by framework sector (non-unique to populate framework cells)
 	var entries = dataByFrameworkSector.filter(function(d){
 		return (((d.date)>=dateRange[0])&&((d.date)<dateRange[1]))
 	});
-
 
 	if(filters.frameworkToggle=='average'){
 		var nullEntries = entries.filter(function(d){
