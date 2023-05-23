@@ -431,6 +431,10 @@ var Deepviz = function(sources, callback){
 		d3.select('.selection').style('fill', colorNeutral[4]);
 		d3.select('#dateRange').style('color', colorNeutral[4]);
 		
+		// hide organigram if not set
+		if(metadata.organigram_widgets.length==0){
+			d3.select('#humanitarianprofile').style('display','none');
+		}
 		return callback(values);
 	});
 	
